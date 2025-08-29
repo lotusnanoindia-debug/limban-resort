@@ -5,8 +5,14 @@ export default {
   ],
   theme: {
     extend: {
+      dropShadow: {
+        'dark-lg': [
+          '0 10px 8px rgb(0 0 0 / 0.6)',
+          '0 4px 3px rgb(0 0 0 / 0.25)'
+        ]
+      },
       fontFamily: {
-        'sans': ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
+        'sans': ['Arial', 'system-ui', '-apple-system', 'sans-serif'],
         'serif': ['Playfair Display', 'Georgia', 'serif'],
         'display': ['Playfair Display', 'Georgia', 'serif'],
       },

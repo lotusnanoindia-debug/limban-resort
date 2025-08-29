@@ -66,53 +66,92 @@ const SUB_HERO_QUERY = `
   }
 `;
 
-// Rooms query - exactly matching your PHP
+// Updated Rooms query - optimized without gallery for listing page
 const ROOMS_QUERY = `
-query GetRoomsWithGalleryAndFeatures {
-  rooms {
-    id
-    roomName
-    url
-    heroImage {
-        optimisedCard: url(
-          transformation: {
-            image: {
-              resize: {width: 400, height: 350, fit: crop}, 
-              quality: {value: 70}
-            }, 
-            document: {output: {format: webp}}
-          }
-        )
-      }
-    description{
-        html
-      }
-    shortDescription
-    basePrice
-    gallery {
-      __typename
-      ... on RoomGalleryItem {
-        id
-        image {
-        optimisedCard: url(
-          transformation: {
-            image: {
-              resize: {width: 400, height: 350, fit: crop}, 
-              quality: {value: 70}
-            }, 
-            document: {output: {format: webp}}
-          }
-        )
-      }
-      }
-    }
-    roomFeature {
+  query GetRoomsOptimized {
+    rooms {
       id
-      featureName
-      svgImage
+      roomName
+      url
+      shortDescription
+      basePrice
+      heroImage {
+        optimisedCard: url(
+          transformation: {
+            image: {
+              resize: {width: 500, height: 350, fit: crop}, 
+              quality: {value: 70}
+            }, 
+            document: {output: {format: webp}}
+          }
+        )
+      }
+      roomFeature(first: 100) {
+        id
+        featureName
+        svgImage
+      }
     }
   }
-}
+`;
+
+// New Room by Slug query - with gallery for detail pages
+const ROOM_BY_SLUG_QUERY = `
+  query GetRoomBySlug($slug: String!) {
+    rooms(where: { url: $slug }, first: 1) {
+      id
+      roomName
+      url
+      shortDescription
+      description {
+        html
+      }
+      basePrice
+      heroImage {
+        optimisedCard: url(
+          transformation: {
+            image: {
+              resize: {width: 600, fit: crop}, 
+              quality: {value: 70}
+            }, 
+            document: {output: {format: webp}}
+          }
+        )
+      }
+      gallery {
+        __typename
+        ... on RoomGalleryItem {
+          id
+          image {
+            thumbnailUrl: url(
+              transformation: {
+                image: {
+                  resize: {width: 600, height: 400, fit: crop}, 
+                  quality: {value: 70}
+                }, 
+                document: {output: {format: webp}}
+              }
+            )
+            slideshowUrl: url(
+              transformation: {
+                image: {
+                  resize: {width: 2000, fit: scale}, 
+                  quality: {value: 80}
+                }, 
+                document: {output: {format: webp}}
+              }
+            )
+          }
+          caption
+        }
+      }
+      roomFeature(first: 100) {
+        id
+        featureName
+        svgImage
+      }
+    }
+  }
 `;
 
 // Experience query - exactly matching your PHP
@@ -162,11 +201,9 @@ export const fetchSpecialDealData = async () => {
   try {
     const data = await request(HYGRAPH_URL, SPECIAL_DEAL_QUERY);
     const latestDeal = data.specialRoomsDeals[0];
-
     if (!latestDeal || !latestDeal.deal) {
       return null;
     }
-
     const now = new Date();
     const validFrom = latestDeal.validFrom ? new Date(latestDeal.validFrom) : null;
     const validTo = latestDeal.validTo ? new Date(latestDeal.validTo) : null;
@@ -175,22 +212,18 @@ export const fetchSpecialDealData = async () => {
     if (validFrom && !validTo && now >= validFrom) {
       return latestDeal.deal;
     }
-
     // If only validTo is set, deal is valid until that date
     if (!validFrom && validTo && now <= validTo) {
       return latestDeal.deal;
     }
-
     // If both are set, check if we are within the range
     if (validFrom && validTo && now >= validFrom && now <= validTo) {
       return latestDeal.deal;
     }
-
     // If neither is set, the deal is always active
     if (!validFrom && !validTo) {
       return latestDeal.deal;
     }
-
     // Otherwise, the deal is not active
     return null;
   } catch (error) {
@@ -203,12 +236,10 @@ export const fetchSpecialDealData = async () => {
 export const fetchHeroData = async () => {
   try {
     const data = await request(HYGRAPH_URL, HERO_QUERY);
-
     // Filter active slides and sort by displayOrder (matching your PHP)
     const activeSlides = data.heroSlides
       .filter(slide => slide.active)
       .sort((a, b) => (a.displayOrder || 0) - (b.displayOrder || 0));
-
     return activeSlides;
   } catch (error) {
     console.error('Error fetching hero data:', error);
@@ -227,6 +258,7 @@ export const fetchSubHeroData = async () => {
   }
 };
 
+// Updated fetchRoomsData - optimized without gallery
 export const fetchRoomsData = async () => {
   try {
     const data = await request(HYGRAPH_URL, ROOMS_QUERY);
@@ -234,6 +266,17 @@ export const fetchRoomsData = async () => {
   } catch (error) {
     console.error('Error fetching rooms data:', error);
     return [];
+  }
+};
+
+// New fetchRoomBySlug - detailed room with gallery for individual pages
+export const fetchRoomBySlug = async (slug) => {
+  try {
+    const data = await request(HYGRAPH_URL, ROOM_BY_SLUG_QUERY, { slug });
+    return data.rooms.length > 0 ? data.rooms[0] : null;
+  } catch (error) {
+    console.error('Error fetching room by slug:', error);
+    return null;
   }
 };
 
@@ -258,7 +301,6 @@ export const fetchAllHomepageData = async () => {
       fetchExperienceData(),
       fetchSpecialDealData()
     ]);
-
     return {
       heroes,
       subHero,

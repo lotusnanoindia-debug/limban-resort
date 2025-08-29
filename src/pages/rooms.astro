@@ -1,0 +1,225 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { AstroSEO } from 'astro-seo-plugin';
+import ContactSection from '../components/ContactSection.astro';
+import { fetchRoomsData, fetchSpecialDealData } from '../api.js';
+
+// Server-side data fetching (same as your current code)
+let data = {
+  rooms: [],
+  specialDeal: null
+};
+
+let error = null;
+
+try {
+  const [rooms, specialDeal] = await Promise.all([
+    fetchRoomsData(),
+    fetchSpecialDealData()
+  ]);
+  data = { rooms, specialDeal };
+} catch (err) {
+  console.error('Failed to load rooms data:', err);
+  error = 'Failed to load content from Hygraph';
+}
+
+// Get hero image from first room or fallback
+const roomsHeroImage = data.rooms[0]?.heroImage?.optimisedCard || '/img/rooms-hero.jpg';
+---
+
+<Layout title="Luxury Rooms & Suites - Limban Resort">
+  <AstroSEO
+    title="Luxury Rooms & Suites | Eco-Safari Accommodations - Limban Resort"
+    description="Discover six distinctive luxury accommodations at Limban Resort in Tadoba National Park. From safari tents to luxury villas, each room offers eco-friendly comfort with stunning wilderness views and modern amenities in Maharashtra, India."
+    canonical="https://limban.com/rooms"
+    openGraph={{
+      title: "Luxury Safari Rooms & Suites - Limban Resort Tadoba",
+      description: "Experience six unique luxury accommodations at Limban Resort. Eco-friendly safari tents, luxury villas, and tree houses offering premium comfort in the heart of Tadoba National Park, Maharashtra.",
+      image: roomsHeroImage,
+      type: "website",
+      url: "https://limban.com/rooms",
+      site_name: "Limban Resort"
+    }}
+    jsonLd={{
+      "@context": "https://schema.org",
+      "@type": "CollectionPage",
+      "name": "Luxury Rooms & Suites - Limban Resort",
+      "description": "Discover six distinctive luxury accommodations at Limban Resort in Tadoba National Park, offering eco-friendly comfort with wilderness views",
+      "url": "https://limban.com/rooms",
+      "mainEntity": {
+        "@type": "Resort",
+        "name": "Limban Resort",
+        "address": {
+          "@type": "PostalAddress",
+          "addressLocality": "Chandrapur",
+          "addressRegion": "Maharashtra",
+          "addressCountry": "IN"
+        },
+        "accommodationType": [
+          "Safari Tent",
+          "Luxury Villa", 
+          "Tree House",
+          "Executive Suite",
+          "Family Cottage",
+          "Premium Lodge"
+        ]
+      },
+      "hasPart": data.rooms.map(room => ({
+        "@type": "Accommodation",
+        "name": room.roomName,
+        "description": room.shortDescription,
+        "image": room.heroImage?.optimisedCard,
+        "url": `https://limban.com/rooms/${room.url}`,
+        "priceRange": `₹${room.basePrice}+`,
+        "amenityFeature": room.roomFeature?.map(feature => ({
+          "@type": "LocationFeatureSpecification",
+          "name": feature.featureName
+        })) || []
+      }))
+    }}
+    additionalLinkTags={[
+      // Professional favicon setup (same as homepage)
+      { rel: "apple-touch-icon", sizes: "180x180", href: "/apple-touch-icon.png" },
+      { rel: "icon", type: "image/png", sizes: "32x32", href: "/favicon-32x32.png" },
+      { rel: "icon", type: "image/png", sizes: "16x16", href: "/favicon-16x16.png" },
+      { rel: "manifest", href: "/site.webmanifest" },
+      { rel: "shortcut icon", href: "/favicon.ico" }
+    ]}
+    additionalMetaTags={[
+      {
+        name: "robots",
+        content: "index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1"
+      },
+      {
+        property: "og:locale",
+        content: "en_IN"
+      },
+      {
+        name: "keywords",
+        content: "luxury safari rooms, eco safari accommodation Tadoba, luxury tents Maharashtra, tree house resort India, premium safari lodge, wildlife resort rooms, luxury villa Tadoba National Park"
+      },
+      {
+        name: "author",
+        content: "Limban Resort"
+      },
+      {
+        name: "theme-color",
+        content: "#09090B"
+      },
+      {
+        name: "msapplication-TileColor", 
+        content: "#09090B"
+      }
+    ]}
+  />
+  
+  {error ? (
+    <div class="bg-gray-950 text-gray-100 h-screen flex items-center justify-center">
+      <div class="text-center">
+        <div class="text-2xl font-serif italic mb-4 text-red-400">Error Loading Content</div>
+        <div class="text-gray-400">{error}</div>
+        <div class="text-sm text-gray-500 mt-4">Please check your connection and try again</div>
+      </div>
+    </div>
+  ) : (
+    <div class="bg-gray-950 text-gray-100 font-sans antialiased selection:bg-gray-700">
+      <!-- Hero Section -->
+      <section class="pb-32 pt-48 bg-gray-900">
+        <div class="max-w-7xl mx-auto px-6 text-center">
+          <div class="text-sm text-gray-400 tracking-[0.2em] uppercase mb-4">
+            Luxury Accommodations
+          </div>
+          <h1 class="font-serif italic text-4xl md:text-6xl text-white mb-8">
+            Our Rooms & Suites
+          </h1>
+          <p class="text-xl text-gray-300 max-w-3xl mx-auto leading-relaxed">
+            Experience the perfect blend of luxury and wilderness in our thoughtfully designed accommodations,
+            each offering stunning views and modern amenities.
+          </p>
+        </div>
+      </section>
+
+      <!-- Special Deal Section -->
+      {data.specialDeal && data.specialDeal.html && (
+        <section class="py-16 bg-gray-800">
+          <div class="max-w-4xl mx-auto px-6">
+            <div class="bg-gray-900/50 border border-yellow-600/30 rounded-xl p-6 text-center shadow-lg">
+              <div class="font-semibold text-xl text-yellow-300 max-w-none" set:html={data.specialDeal.html} />
+            </div>
+          </div>
+        </section>
+      )}
+
+      <!-- Rooms Section -->
+      <section class="pb-32 bg-gray-800">
+        <div class="max-w-7xl mx-auto px-6">
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-12">
+            {data.rooms?.length > 0 ? (
+              data.rooms.map((room) => (
+                <div key={room.id} class="bg-gray-800/50 backdrop-blur-xl border border-gray-500 rounded-xl overflow-hidden shadow-lg shadow-white/5 hover:shadow-2xl transition-all duration-500 group flex flex-col">
+                  <picture class="w-full h-64 overflow-hidden">
+                    <img
+                      src={room.heroImage?.optimisedCard}
+                      alt={`${room.roomName} - Luxury accommodation at Limban Resort in Tadoba, India`}
+                      width="450"
+                      height="300"
+                      class="w-full h-64 object-cover group-hover:scale-110 transition-transform duration-500"
+                      loading="lazy"
+                      decoding="async"
+                    />
+                  </picture>
+                  <div class="p-8 flex flex-col flex-grow">
+                    <div class="flex items-center mb-3">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                        class="w-5 h-5 mr-2 text-white">
+                        <rect width="18" height="11" x="3" y="11" rx="2" ry="2" />
+                        <circle cx="12" cy="5" r="2" />
+                        <path d="m12 7-8 4v6l8-4 8 4v-6l-8-4Z" />
+                      </svg>
+                      <h3 class="text-xl text-white font-bold">{room.roomName}</h3>
+                    </div>
+                    <p class="text-gray-400 mb-6 text-sm leading-relaxed flex-grow">
+                      {room.shortDescription}
+                    </p>
+                    {room.roomFeature && room.roomFeature.length > 0 && (
+                      <div class="mb-6">
+                        <h4 class="text-sm font-semibold text-orange-300 mb-4 tracking-wider uppercase">Key Features</h4>
+                        <div class="grid grid-cols-3 gap-x-6 gap-y-3">
+                         {room.roomFeature.map((feature) => (
+                            <div key={feature.id} class="flex flex-col items-center p-3 rounded-md border border-gray-700 hover:border-orange-500 transition-colors duration-300">
+                              <div class="w-8 h-8 mx-auto mb-1 text-white flex-shrink-0">
+                                <div set:html={feature.svgImage} />
+                              </div>
+                              <span class="text-gray-300 text-xs text-center">{feature.featureName}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                    <div class="mt-auto pt-6 border-t border-gray-700/50 space-y-4">
+                      <div class="text-center">
+                        <span class="text-2xl font-bold text-white">From ₹{Number(room.basePrice).toLocaleString()}</span>
+                        <span class="text-sm text-gray-400 block">per night</span>
+                      </div>
+                      <a href={`/rooms/${room.url}`} class="group relative block w-full text-center bg-gradient-to-r from-gray-100 to-gray-200 hover:from-orange-400 hover:to-orange-500 text-gray-900 hover:text-white px-6 py-3 rounded-lg text-sm tracking-wide transition-all duration-300 hover:shadow-lg border border-gray-300 hover:border-orange-400">
+                        <span class="relative z-10 font-semibold">More about {room.roomName}</span>
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              ))
+            ) : (
+              <div class="col-span-full text-center py-12">
+                <p class="text-gray-400 text-lg">Rooms are being updated. Please check back soon.</p>
+              </div>
+            )}
+          </div>
+        </div>
+      </section>
+
+      <!-- Contact Section -->
+      <ContactSection />
+    </div>
+  )}
+</Layout>

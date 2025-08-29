@@ -1,0 +1,74 @@
+---
+// Sub Hero Section Component
+export interface Props {
+  subHero?: {
+    aboveHeader?: string;
+    title?: string;
+    bodyText?: { html: string };
+    stats?: Array<{
+      svg: string;
+      number: string;
+      label: string;
+    }>;
+    image?: { url: string };
+    imageAltText?: string;
+  };
+}
+
+const { subHero } = Astro.props;
+---
+
+{
+  subHero && (
+    <section class="py-32 bg-gray-900">
+      <div class="max-w-7xl mx-auto px-6">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
+          <div>
+            <div class="text-sm text-gray-400 tracking-[0.2em] uppercase mb-4">
+              {subHero.aboveHeader}
+            </div>
+            <h2 class="font-serif italic text-4xl md:text-6xl text-white mb-8 leading-tight">
+              {subHero.title}
+            </h2>
+            <div
+              class="text-base text-gray-300 mb-8 leading-relaxed [&>p]:mb-4 [&>p:last-child]:mb-0"
+              set:html={subHero.bodyText?.html}
+            />
+            {subHero.stats && (
+              <div class="grid grid-cols-3 gap-8">
+                {subHero.stats.map((stat, index) => (
+                  <div
+                    key={index}
+                    class="group bg-gray-900/50 backdrop-blur-sm border border-gray-700/50 rounded-xl p-6 text-center transition-all duration-300 hover:bg-gray-800/60 hover:border-gray-700/60 hover:transform hover:-translate-y-2 hover:shadow-2xl"
+                  >
+                    <div
+                      class="w-10 h-10 mx-auto mb-4 text-gray-400 group-hover:text-white transition-colors duration-300"
+                      set:html={stat.svg}
+                    />
+                    <div class="text-3xl font-bold text-white mb-2 group-hover:text-gray-100">
+                      {stat.number}
+                    </div>
+                    <div class="text-sm text-gray-400 tracking-wide group-hover:text-gray-300 transition-colors duration-300">
+                      {stat.label}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+          <div>
+            <img
+              src={subHero.image?.url}
+              alt={subHero.imageAltText}
+              class="w-full h-[600px] object-cover rounded-lg shadow-2xl"
+              width="800"
+              height="600"
+              loading="lazy"
+              decoding="async"
+            />
+          </div>
+        </div>
+      </div>
+    </section>
+  )
+}

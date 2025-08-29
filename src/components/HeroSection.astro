@@ -1,0 +1,104 @@
+---
+// Hero Section Component
+export interface Props {
+  heroes: Array<{
+    slideTitle: string;
+    subtitle?: string;
+    ctaText?: string;
+    ctaLink?: string;
+    backgroundImage?: {
+      hero4K?: string;
+      heroDesktop?: string;
+      heroTablet?: string;
+      heroMobile?: string;
+      url: string;
+    };
+  }>;
+}
+
+const { heroes } = Astro.props;
+---
+
+<section class="h-screen relative overflow-hidden">
+  <div id="hero-carousel" class="h-full relative">
+    {
+      heroes.map((hero, index) => (
+        <div
+          class={`hero-slide absolute inset-0 w-full h-full transition-opacity duration-1200 ${index === 0 ? "opacity-100" : "opacity-0"}`}
+          data-slide={index}
+        >
+          <picture class="absolute inset-0 w-full h-full">
+            <source
+              media="(min-width: 2560px)"
+              srcset={hero.backgroundImage?.hero4K || hero.backgroundImage?.url}
+            />
+            <source
+              media="(min-width: 1200px)"
+              srcset={
+                hero.backgroundImage?.heroDesktop || hero.backgroundImage?.url
+              }
+            />
+            <source
+              media="(min-width: 768px)"
+              srcset={
+                hero.backgroundImage?.heroTablet || hero.backgroundImage?.url
+              }
+            />
+            <img
+              src={
+                hero.backgroundImage?.heroMobile || hero.backgroundImage?.url
+              }
+              alt={hero.slideTitle}
+              class="w-full h-full object-cover"
+              loading="lazy"
+            />
+          </picture>
+          <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-black/20" />
+          <div class="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/60" />
+          <div class="relative h-full flex items-center justify-center text-center z-10">
+            <div class="max-w-5xl mx-auto px-6">
+              <h1 class="font-serif italic text-5xl md:text-7xl lg:text-8xl text-white mb-6 leading-tight drop-shadow-dark-lg">
+                {hero.slideTitle}
+              </h1>
+              {hero.subtitle && (
+                <h2 class="text-xl text-white font-semibold mb-12 leading-tight drop-shadow-dark-lg">
+                  {hero.subtitle}
+                </h2>
+              )}
+              {hero.ctaText && (
+                <a
+                  href={hero.ctaLink || "#"}
+                  class="inline-block rounded-lg border border-amber-600/50 bg-gradient-to-br from-amber-400 to-amber-600 px-8 py-4 text-lg font-semibold tracking-wide text-gray-950 shadow-lg transition-all duration-300 ease-in-out transform hover:-translate-y-1 hover:from-amber-300 hover:to-amber-500 hover:shadow-xl"
+                >
+                  {hero.ctaText}
+                </a>
+              )}
+            </div>
+          </div>
+        </div>
+      ))
+    }
+  </div>
+
+  <script>
+    // Simple hero carousel functionality
+    let currentSlide = 0;
+    const slides = document.querySelectorAll(".hero-slide");
+    const totalSlides = slides.length;
+
+    function showNextSlide() {
+      slides[currentSlide].classList.remove("opacity-100");
+      slides[currentSlide].classList.add("opacity-0");
+
+      currentSlide = (currentSlide + 1) % totalSlides;
+
+      slides[currentSlide].classList.remove("opacity-0");
+      slides[currentSlide].classList.add("opacity-100");
+    }
+
+    // Auto-advance slides every 8 seconds
+    if (totalSlides > 1) {
+      setInterval(showNextSlide, 8000);
+    }
+  </script>
+</section>
