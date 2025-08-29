@@ -1,0 +1,101 @@
+---
+// Experiences Section Component
+export interface Props {
+  experiences?: {
+    aboveHeader?: string;
+    title?: string;
+    description?: string;
+    experience?: Array<{
+      title: string;
+      description: string;
+      image?: { url: string };
+      imageAltText?: string;
+      feature?: Array<{ text: string }>;
+      link?: string;
+    }>;
+  };
+  gridClass?: string;
+}
+
+const { experiences, gridClass = "grid-cols-1 md:grid-cols-2" } = Astro.props;
+---
+
+{
+  experiences && (
+    <section id="experiences" class="py-32 bg-gray-900">
+      <div class="max-w-7xl mx-auto px-6">
+        <div class="text-center mb-20">
+          <div class="text-sm text-gray-400 tracking-[0.2em] uppercase mb-4">
+            {experiences.aboveHeader}
+          </div>
+          <h2 class="font-serif italic text-4xl md:text-6xl text-white mb-8">
+            {experiences.title}
+          </h2>
+          <p class="text-xl text-gray-300 max-w-3xl mx-auto leading-relaxed">
+            {experiences.description}
+          </p>
+        </div>
+        <div class={`grid ${gridClass} gap-8`}>
+          {experiences.experience?.map((experience, index) => (
+            <div
+              key={index}
+              class="bg-gray-800/50 backdrop-blur-xl border border-gray-700 rounded-2xl p-8 transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl hover:border-gray-600"
+            >
+              <img
+                src={experience.image?.url}
+                alt={`${experience.imageAltText} - Only at Limban Resort`}
+                width="400"
+                height="256"
+                class="w-full h-64 object-cover rounded-lg shadow-xl mb-6"
+                loading="lazy"
+                decoding="async"
+              />
+              <h3 class="text-3xl text-white mb-4 font-serif italic">
+                {experience.title}
+              </h3>
+              <p class="text-gray-300 mb-6 leading-relaxed">
+                {experience.description}
+              </p>
+              {experience.feature && experience.feature.length > 0 && (
+                <div class="grid grid-cols-2 gap-4 mt-8">
+                  {experience.feature.map((feature, idx) => (
+                    <div
+                      key={idx}
+                      class="bg-gray-900/70 p-4 rounded-lg flex items-center space-x-3"
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="24"
+                        height="24"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        class="w-5 h-5 text-orange-400 flex-shrink-0"
+                      >
+                        <polyline points="20 6 9 17 4 12" />
+                      </svg>
+                      <span class="text-sm text-gray-300">{feature.text}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+              {experience.link && (
+                <div class="mt-6 text-center">
+                  <a
+                    href={experience.link}
+                    class="inline-flex items-center justify-center rounded-lg bg-gradient-to-r from-gray-700 to-gray-800 px-6 py-3 text-sm font-medium tracking-wide text-white transition-all duration-300 hover:-translate-y-0.5 hover:from-gray-600 hover:to-gray-700 hover:shadow-lg"
+                  >
+                    Learn More
+                  </a>
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  )
+}

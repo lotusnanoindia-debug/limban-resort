@@ -1,0 +1,75 @@
+---
+// Testimonials Section Component
+const testimonials = [
+  {
+    name: "Sarah & James Mitchell",
+    location: "London, UK",
+    quote: "Redefined luxury for our family.",
+    review:
+      "Limban Resort redefined luxury for our family. The perfect balance of adventure and comfort, with service that anticipated our every need. Our children still talk about the tiger sightings months later.",
+    image: "/sarah.jpg",
+  },
+  {
+    name: "Rajesh Patel",
+    location: "CEO, Mumbai",
+    quote: "Exceeded all expectations.",
+    review:
+      "As a corporate retreat destination, Limban exceeded all expectations. The Executive Retreat spaces fostered innovation while the natural setting provided the perfect backdrop for team building.",
+    image: "/rajesh.jpg",
+  },
+  {
+    name: "Dr. Maria Santos",
+    location: "Wildlife Photographer",
+    quote: "Meaningful beyond the luxury.",
+    review:
+      "The attention to conservation and community impact made our stay meaningful beyond the luxury. Limban represents responsible tourism at its finest. We'll return every year.",
+    image: "/maria.jpg",
+  },
+];
+---
+
+<section id="testimonials" class="py-32 bg-gray-800">
+  <div class="max-w-7xl mx-auto px-6">
+    <div class="text-center mb-20">
+      <div class="text-sm text-gray-400 tracking-[0.2em] uppercase mb-4">
+        Guest Stories
+      </div>
+      <h2 class="font-serif italic text-4xl md:text-6xl text-white mb-8">
+        Testimonials
+      </h2>
+      <p class="text-xl text-gray-300 max-w-3xl mx-auto leading-relaxed">
+        Hear from discerning travelers who have experienced the transformative
+        power of Limban Resort.
+      </p>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+      {
+        testimonials.map((testimonial, index) => (
+          <div
+            key={index}
+            class="bg-gray-800/50 backdrop-blur-xl border border-gray-700 p-8 rounded-xl shadow-lg shadow-white/5 transition-all duration-300 hover:shadow-xl hover:border-gray-600 hover:-translate-y-2 flex flex-col text-center"
+          >
+            <img
+              src={testimonial.image}
+              alt={`Photo of ${testimonial.name}`}
+              class="w-20 h-20 rounded-full object-cover mx-auto mb-6 border-2 border-gray-600 shadow-lg flex-shrink-0"
+              loading="lazy"
+            />
+            <p class="font-serif italic text-xl text-white my-6 text-center">
+              "{testimonial.quote}"
+            </p>
+            <p class="text-gray-400 text-sm mb-6 leading-relaxed">
+              "{testimonial.review}"
+            </p>
+            <div class="flex items-center justify-center mt-auto pt-6 border-t border-gray-700/50">
+              <div>
+                <div class="font-semibold text-white">{testimonial.name}</div>
+                <div class="text-sm text-gray-400">{testimonial.location}</div>
+              </div>
+            </div>
+          </div>
+        ))
+      }
+    </div>
+  </div>
+</section>

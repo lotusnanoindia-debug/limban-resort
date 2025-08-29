@@ -1,0 +1,296 @@
+---
+// Exact conversion of your React Header component
+---
+
+<!-- Navigation -->
+<nav
+  class="fixed w-full z-50 top-0 bg-gray-950/95 backdrop-blur-xl border-b border-gray-800/50 transition-all duration-300"
+>
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex justify-between items-center h-20">
+      <div class="flex-shrink-0">
+        <a href="/">
+          <img src="/limban-logo.png" alt="Limban Resort" class="h-12 w-auto" />
+        </a>
+      </div>
+      <div class="hidden lg:block">
+        <div class="flex items-center space-x-8">
+          <a
+            href="/"
+            class="text-sm font-medium hover:text-white transition-all duration-200 tracking-wide relative group text-gray-300"
+          >
+            Home
+            <span
+              class="absolute -bottom-1 left-0 h-px bg-white transition-all duration-300 group-hover:w-full w-0"
+            ></span>
+          </a>
+
+          <!-- The Resort Dropdown -->
+          <div class="relative group">
+            <a
+              href="/vibe"
+              class="flex items-center text-sm font-medium hover:text-white transition-all duration-200 tracking-wide relative group text-gray-300"
+            >
+              The Resort
+              <svg
+                class="w-4 h-4 ml-1.5 text-gray-400 group-hover:text-white transition-colors"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M19 9l-7 7-7-7"></path>
+              </svg>
+              <span
+                class="absolute -bottom-1 left-0 h-px bg-white transition-all duration-300 group-hover:w-full w-0"
+              ></span>
+            </a>
+            <div
+              class="dropdown-panel absolute top-full left-1/2 -translate-x-1/2 mt-4 w-56 bg-gray-950/90 backdrop-blur-xl border border-gray-800 rounded-lg shadow-2xl opacity-0 group-hover:opacity-100 invisible group-hover:visible transition-all duration-300 transform group-hover:translate-y-0 -translate-y-2"
+            >
+              <div class="p-2">
+                <a
+                  href="/rooms"
+                  class="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-800 hover:text-white rounded-md transition-colors"
+                  >Rooms</a
+                >
+                <a
+                  href="/vibe"
+                  class="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-800 hover:text-white rounded-md transition-colors"
+                  >The Limban Vibe</a
+                >
+                <a
+                  href="/about"
+                  class="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-800 hover:text-white rounded-md transition-colors"
+                  >About Us</a
+                >
+              </div>
+            </div>
+          </div>
+
+          <!-- Experiences Dropdown -->
+          <div class="relative group">
+            <a
+              href="/experiences"
+              class="flex items-center text-sm font-medium hover:text-white transition-all duration-200 tracking-wide relative group text-gray-300"
+            >
+              Experiences
+              <svg
+                class="w-4 h-4 ml-1.5 text-gray-400 group-hover:text-white transition-colors"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M19 9l-7 7-7-7"></path>
+              </svg>
+              <span
+                class="absolute -bottom-1 left-0 h-px bg-white transition-all duration-300 group-hover:w-full w-0"
+              ></span>
+            </a>
+            <div
+              class="dropdown-panel absolute top-full left-1/2 -translate-x-1/2 mt-4 w-56 bg-gray-950/90 backdrop-blur-xl border border-gray-800 rounded-lg shadow-2xl opacity-0 group-hover:opacity-100 invisible group-hover:visible transition-all duration-300 transform group-hover:translate-y-0 -translate-y-2"
+            >
+              <div class="p-2">
+                <a
+                  href="/safaris"
+                  class="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-800 hover:text-white rounded-md transition-colors"
+                  >Safari Adventures</a
+                >
+                <a
+                  href="/tadoba"
+                  class="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-800 hover:text-white rounded-md transition-colors"
+                  >Tadoba National Park</a
+                >
+                <a
+                  href="/wellness"
+                  class="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-800 hover:text-white rounded-md transition-colors"
+                  >Wellness</a
+                >
+                <a
+                  href="/culinary"
+                  class="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-800 hover:text-white rounded-md transition-colors"
+                  >Culinary</a
+                >
+                <a
+                  href="/activities"
+                  class="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-800 hover:text-white rounded-md transition-colors"
+                  >Activities</a
+                >
+              </div>
+            </div>
+          </div>
+
+          <a
+            href="/contact"
+            class="text-sm font-medium hover:text-white transition-all duration-200 tracking-wide relative group text-gray-300"
+          >
+            Contact
+            <span
+              class="absolute -bottom-1 left-0 h-px bg-white transition-all duration-300 group-hover:w-full w-0"
+            ></span>
+          </a>
+        </div>
+      </div>
+      <div class="hidden lg:block">
+        <a
+          href="/contact"
+          class="bg-gradient-to-r from-gray-700 to-gray-800 hover:from-gray-600 hover:to-gray-700 text-white px-6 py-3 rounded-lg text-sm tracking-wide transition-all duration-300 hover:shadow-lg hover:-translate-y-0.5"
+        >
+          Reserve Experience
+        </a>
+      </div>
+      <div class="lg:hidden">
+        <button
+          id="mobile-menu-button"
+          class="relative w-8 h-8 focus:outline-none z-50 mr-4 text-gray-300 hover:text-white"
+        >
+          <svg
+            class="hamburger-icon w-7 h-7"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="M4 6h16M4 12h16M4 18h16"></path>
+          </svg>
+          <svg
+            class="close-icon w-7 h-7 hidden"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="M6 18L18 6M6 6l12 12"></path>
+          </svg>
+        </button>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<!-- Mobile Menu -->
+<div
+  id="mobile-menu"
+  class="lg:hidden fixed inset-0 z-40 transform translate-x-full transition-transform duration-500 ease-out"
+>
+  <div class="absolute inset-0 bg-gray-950/98 backdrop-blur-[20px]">
+    <div class="h-full overflow-y-auto">
+      <div class="px-8 py-12 min-h-screen mt-24">
+        <div class="space-y-1">
+          <a
+            href="/"
+            class="mobile-nav-link block text-3xl font-light text-gray-300 hover:text-white transition-all duration-300 tracking-wide py-4 border-b border-gray-800 hover:border-gray-700"
+            >Home</a
+          >
+          <div class="pt-6 pb-2">
+            <h4 class="text-sm uppercase tracking-widest text-gray-500">
+              The Resort
+            </h4>
+          </div>
+          <a
+            href="/about"
+            class="mobile-nav-link block text-2xl font-light text-gray-300 hover:text-white transition-all duration-300 tracking-wide py-3 border-b border-gray-800 hover:border-gray-700"
+            >About Us</a
+          >
+          <a
+            href="/rooms"
+            class="mobile-nav-link block text-2xl font-light text-gray-300 hover:text-white transition-all duration-300 tracking-wide py-3 border-b border-gray-800 hover:border-gray-700"
+            >Rooms</a
+          >
+          <a
+            href="/vibe"
+            class="mobile-nav-link block text-2xl font-light text-gray-300 hover:text-white transition-all duration-300 tracking-wide py-3 border-b border-gray-800 hover:border-gray-700"
+            >The Limban Vibe</a
+          >
+          <div class="pt-6 pb-2">
+            <h4 class="text-sm uppercase tracking-widest text-gray-500">
+              Experiences
+            </h4>
+          </div>
+          <a
+            href="/experiences"
+            class="mobile-nav-link block text-2xl font-light text-gray-300 hover:text-white transition-all duration-300 tracking-wide py-3 border-b border-gray-800 hover:border-gray-700"
+            >Safari Adventures</a
+          >
+          <a
+            href="/experiences"
+            class="mobile-nav-link block text-2xl font-light text-gray-300 hover:text-white transition-all duration-300 tracking-wide py-3 border-b border-gray-800 hover:border-gray-700"
+            >Tadoba National Park</a
+          >
+          <a
+            href="/experiences"
+            class="mobile-nav-link block text-2xl font-light text-gray-300 hover:text-white transition-all duration-300 tracking-wide py-3 border-b border-gray-800 hover:border-gray-700"
+            >Wellness & Culinary</a
+          >
+          <div class="pt-6 pb-2">
+            <h4 class="text-sm uppercase tracking-widest text-gray-500">
+              Connect
+            </h4>
+          </div>
+          <a
+            href="/contact"
+            class="mobile-nav-link block text-2xl font-light text-gray-300 hover:text-white transition-all duration-300 tracking-wide py-3 border-b border-gray-800 hover:border-gray-700"
+            >Contact Us</a
+          >
+        </div>
+        <div class="mt-12">
+          <a
+            href="/contact"
+            class="block text-center w-full bg-gradient-to-r from-gray-700 to-gray-800 hover:from-gray-600 hover:to-gray-700 text-white px-8 py-6 rounded-lg text-xl tracking-wide transition-all duration-300"
+          >
+            Reserve Now
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Mobile menu toggle functionality (converted from React useState)
+  const mobileMenuButton = document.getElementById("mobile-menu-button");
+  const mobileMenu = document.getElementById("mobile-menu");
+  const hamburgerIcon = document.querySelector(".hamburger-icon");
+  const closeIcon = document.querySelector(".close-icon");
+
+  mobileMenuButton?.addEventListener("click", () => {
+    const isOpen = !mobileMenu?.classList.contains("translate-x-full");
+
+    if (isOpen) {
+      // Close menu
+      mobileMenu?.classList.add("translate-x-full");
+      hamburgerIcon?.classList.remove("hidden");
+      closeIcon?.classList.add("hidden");
+      document.body.style.overflow = "auto";
+    } else {
+      // Open menu
+      mobileMenu?.classList.remove("translate-x-full");
+      hamburgerIcon?.classList.add("hidden");
+      closeIcon?.classList.remove("hidden");
+      document.body.style.overflow = "hidden";
+    }
+  });
+
+  // Close menu when clicking on links
+  document.querySelectorAll(".mobile-nav-link").forEach((link) => {
+    link.addEventListener("click", () => {
+      mobileMenu?.classList.add("translate-x-full");
+      hamburgerIcon?.classList.remove("hidden");
+      closeIcon?.classList.add("hidden");
+      document.body.style.overflow = "auto";
+    });
+  });
+</script>

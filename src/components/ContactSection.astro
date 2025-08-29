@@ -1,0 +1,286 @@
+---
+// Contact Section - converted from React with form functionality
+---
+
+<section id="contact" class="py-32 bg-gray-900">
+  <div class="max-w-7xl mx-auto px-6 pt-12">
+    <div class="text-center mb-20">
+      <div class="text-sm text-gray-400 tracking-[0.2em] uppercase mb-4">
+        Reserve Your Experience
+      </div>
+      <h2 class="font-serif italic text-4xl md:text-6xl text-white mb-8">
+        Begin Your Journey
+      </h2>
+      <p class="text-xl text-gray-300 max-w-3xl mx-auto leading-relaxed">
+        Advance reservations recommended. Our team creates bespoke itineraries
+        tailored to your preferences.
+      </p>
+    </div>
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-16">
+      <div
+        class="bg-gray-800/50 backdrop-blur-xl border border-gray-700 p-8 rounded-2xl"
+      >
+        <h3 class="text-3xl text-white mb-8 font-serif italic">Contact Us</h3>
+        <div class="space-y-6">
+          <div class="flex items-start">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              class="w-6 h-6 text-gray-400 mt-1 mr-4"
+            >
+              <path
+                d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"
+              ></path>
+            </svg>
+            <div>
+              <div class="font-medium text-white mb-1">Reservations</div>
+              <div class="text-gray-300">+91 90226 80451</div>
+              <div class="text-gray-300">+91 92262 54475</div>
+            </div>
+          </div>
+          <div class="flex items-start">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              class="w-6 h-6 text-gray-400 mt-1 mr-4"
+            >
+              <rect width="20" height="16" x="2" y="4" rx="2"></rect>
+              <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"></path>
+            </svg>
+            <div>
+              <div class="font-medium text-white mb-1">Email</div>
+              <div class="text-gray-300">info@limban.com</div>
+              <div class="text-gray-300">reservations@limban.com</div>
+            </div>
+          </div>
+          <div class="flex items-start">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              class="w-6 h-6 text-gray-400 mt-1 mr-4"
+            >
+              <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+              <circle cx="12" cy="10" r="3"></circle>
+            </svg>
+            <div>
+              <div class="font-medium text-white mb-1">Location</div>
+              <div class="text-gray-300">Near Tadoba-Andhari Tiger Reserve</div>
+              <div class="text-gray-300">Chandrapur, Maharashtra, India</div>
+            </div>
+          </div>
+        </div>
+        <div class="mt-8 pt-8 border-t border-gray-700">
+          <div class="text-sm text-gray-400 leading-relaxed">
+            <strong class="text-gray-300">Airport Transfers:</strong> Available 24
+            hours<br />
+            <strong class="text-gray-300">Nearest Airport:</strong> Nagpur, India<br
+            />
+            <strong class="text-gray-300">Pet Friendly:</strong> Yes<br />
+            <strong class="text-gray-300">Check-in:</strong> 1:00 PM | <strong
+              class="text-gray-300">Check-out:</strong
+            > 11:00 AM<br /><br />
+            <strong class="text-gray-300"
+              >Limban Resort is committed to an inclusive stay for all guests</strong
+            >
+          </div>
+        </div>
+      </div>
+      <div>
+        <form
+          name="contact"
+          method="POST"
+          data-netlify="true"
+          data-netlify-honeypot="bot-field"
+          class="space-y-6"
+        >
+          <input type="hidden" name="form-name" value="contact" />
+          <input type="hidden" name="bot-field" />
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label class="block text-sm font-medium text-gray-300 mb-3"
+                >First Name *</label
+              >
+              <input
+                name="firstName"
+                type="text"
+                required
+                class="w-full px-4 py-4 bg-gray-800/50 backdrop-blur-xl border border-gray-700 rounded-xl text-white placeholder-gray-400 focus:border-gray-500 focus:ring-2 focus:ring-gray-500/20 transition-all duration-300"
+              />
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-300 mb-3"
+                >Last Name *</label
+              >
+              <input
+                name="lastName"
+                type="text"
+                required
+                class="w-full px-4 py-4 bg-gray-800/50 backdrop-blur-xl border border-gray-700 rounded-xl text-white placeholder-gray-400 focus:border-gray-500 focus:ring-2 focus:ring-gray-500/20 transition-all duration-300"
+              />
+            </div>
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label class="block text-sm font-medium text-gray-300 mb-3"
+                >Email *</label
+              >
+              <input
+                name="email"
+                type="email"
+                required
+                class="w-full px-4 py-4 bg-gray-800/50 backdrop-blur-xl border border-gray-700 rounded-xl text-white placeholder-gray-400 focus:border-gray-500 focus:ring-2 focus:ring-gray-500/20 transition-all duration-300"
+              />
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-300 mb-3"
+                >Phone *</label
+              >
+              <input
+                name="phone"
+                type="tel"
+                required
+                class="w-full px-4 py-4 bg-gray-800/50 backdrop-blur-xl border border-gray-700 rounded-xl text-white placeholder-gray-400 focus:border-gray-500 focus:ring-2 focus:ring-gray-500/20 transition-all duration-300"
+              />
+            </div>
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label class="block text-sm font-medium text-gray-300 mb-3"
+                >Check-In Date *</label
+              >
+              <div class="relative cursor-pointer">
+                <input
+                  name="checkIn"
+                  type="text"
+                  id="check-in"
+                  required
+                  class="w-full px-4 py-4 bg-gray-800/50 backdrop-blur-xl border border-gray-700 rounded-xl text-white placeholder-gray-400 focus:border-gray-500 focus:ring-2 focus:ring-gray-500/20 transition-all duration-300 cursor-pointer"
+                />
+              </div>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-300 mb-3"
+                >Check-Out Date *</label
+              >
+              <div class="relative cursor-pointer">
+                <input
+                  name="checkOut"
+                  type="text"
+                  id="check-out"
+                  required
+                  class="w-full px-4 py-4 bg-gray-800/50 backdrop-blur-xl border border-gray-700 rounded-xl text-white placeholder-gray-400 focus:border-gray-500 focus:ring-2 focus:ring-gray-500/20 transition-all duration-300 cursor-pointer"
+                />
+              </div>
+            </div>
+          </div>
+          <div class="text-center h-6">
+            <span id="nights-message" class="text-sm italic"></span>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-300 mb-3"
+              >Special Requests</label
+            >
+            <textarea
+              name="specialRequests"
+              rows="3"
+              class="w-full px-4 py-4 bg-gray-800/50 backdrop-blur-xl border border-gray-700 rounded-xl text-white placeholder-gray-400 focus:border-gray-500 focus:ring-2 focus:ring-gray-500/20 transition-all duration-300 resize-none"
+            ></textarea>
+          </div>
+          <button
+            type="submit"
+            class="w-full bg-gradient-to-r from-gray-600 to-gray-800 font-semibold hover:from-gray-600 hover:to-gray-700 text-white px-8 py-4 rounded-xl text-lg tracking-wide transition-all duration-300 hover:shadow-xl hover:-translate-y-0.5"
+            >Make Your Reservation</button
+          >
+        </form>
+      </div>
+    </div>
+  </div>
+</section>
+
+<link
+  rel="stylesheet"
+  href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css"
+/>
+<link
+  rel="stylesheet"
+  href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/dark.css"
+/>
+
+<script>
+  // Import and initialize Flatpickr exactly like your React version
+  import(
+    "https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/flatpickr.min.js"
+  ).then(() => {
+    const checkInRef = document.getElementById("check-in");
+    const checkOutRef = document.getElementById("check-out");
+    const nightsMessage = document.getElementById("nights-message");
+    let checkInPicker, checkOutPicker;
+
+    const baseConfig = {
+      dateFormat: "M j, Y",
+      minDate: "today",
+      allowInput: false,
+      clickOpens: true,
+      theme: "dark",
+    };
+
+    checkInPicker = flatpickr(checkInRef, {
+      ...baseConfig,
+      maxDate: new Date().fp_incr(365),
+      onChange: function (selectedDates) {
+        if (selectedDates.length > 0) {
+          const selectedDate = selectedDates[0];
+          checkOutPicker?.set("minDate", selectedDate);
+          calculateNights();
+        }
+      },
+    });
+
+    checkOutPicker = flatpickr(checkOutRef, {
+      ...baseConfig,
+      maxDate: new Date().fp_incr(365),
+      onChange: function () {
+        calculateNights();
+      },
+    });
+
+    const calculateNights = () => {
+      if (checkInRef?.value && checkOutRef?.value) {
+        const checkIn = new Date(checkInRef.value);
+        const checkOut = new Date(checkOutRef.value);
+        if (checkOut <= checkIn) {
+          nightsMessage.textContent = "Check-out must be after check-in!";
+          nightsMessage.className = "text-sm italic text-red-400";
+        } else {
+          const diffTime = Math.abs(checkOut - checkIn);
+          const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+          nightsMessage.textContent = `You are reserving for ${diffDays} Night${diffDays !== 1 ? "s" : ""}.`;
+          nightsMessage.className = "text-sm italic text-green-400";
+        }
+      } else {
+        nightsMessage.textContent = "";
+      }
+    };
+  });
+</script>

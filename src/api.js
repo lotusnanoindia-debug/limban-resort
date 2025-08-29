@@ -1,0 +1,273 @@
+import { request } from 'graphql-request';
+
+// Your exact Hygraph endpoint from PHP
+const HYGRAPH_URL = 'https://ap-south-1.cdn.hygraph.com/content/cmek3o66w01vb07w64qwgkybp/master';
+
+// Hero query - exactly matching your PHP
+const HERO_QUERY = `
+  query GetHeroSlides {
+    heroSlides {
+      slideTitle
+      subtitle
+      backgroundImage { 
+        url
+        hero4K: url(transformation: {
+          image: { resize: { width: 2560, height: 1440, fit: crop } }
+          document: { output: { format: webp } }
+        })
+        heroDesktop: url(transformation: {
+          image: { resize: { width: 1600, height: 900, fit: crop } }
+          document: { output: { format: webp } }
+        })
+        heroTablet: url(transformation: {
+          image: { resize: { width: 1024, height: 576, fit: crop } }
+          document: { output: { format: webp} }
+        })
+        heroMobile: url(transformation: {
+          image: { resize: { width: 768, height: 432, fit: crop } }
+          document: { output: { format: webp } }
+        })
+      }
+      ctaText
+      ctaLink
+      displayOrder
+      active
+    }
+  }
+`;
+
+// Sub hero query - exactly matching your PHP
+const SUB_HERO_QUERY = `
+  query GetSubHeroSections {
+    subHeroSections {
+      aboveHeader
+      title
+      imageAltText
+      bodyText {
+        html
+      }
+      image {
+        url(
+          transformation: {
+            image: {
+              resize: {width: 600, height: 600, fit: crop}, 
+              quality: {value: 60}
+            }, 
+            document: {output: {format: webp}}
+          }
+        )
+      }
+      stats {
+        number
+        label
+        svg
+      }
+    }
+  }
+`;
+
+// Rooms query - exactly matching your PHP
+const ROOMS_QUERY = `
+query GetRoomsWithGalleryAndFeatures {
+  rooms {
+    id
+    roomName
+    url
+    heroImage {
+        optimisedCard: url(
+          transformation: {
+            image: {
+              resize: {width: 400, height: 350, fit: crop}, 
+              quality: {value: 70}
+            }, 
+            document: {output: {format: webp}}
+          }
+        )
+      }
+    description{
+        html
+      }
+    shortDescription
+    basePrice
+    gallery {
+      __typename
+      ... on RoomGalleryItem {
+        id
+        image {
+        optimisedCard: url(
+          transformation: {
+            image: {
+              resize: {width: 400, height: 350, fit: crop}, 
+              quality: {value: 70}
+            }, 
+            document: {output: {format: webp}}
+          }
+        )
+      }
+      }
+    }
+    roomFeature {
+      id
+      featureName
+      svgImage
+    }
+  }
+}
+`;
+
+// Experience query - exactly matching your PHP
+const EXPERIENCE_QUERY = `
+  query GetExperienceSections {
+    experienceSections {
+      aboveHeader
+      title
+      description
+      experience {
+        image {
+          url(
+            transformation: {
+              image: { 
+                resize: { width: 400, height: 256, fit: crop }
+              }
+              document: { output: { format: webp } }
+            }
+          )
+        }
+        imageAltText
+        title
+        description
+        link
+        feature {
+          text
+        }
+      }
+    }
+  }
+`;
+
+// Special Deal query
+const SPECIAL_DEAL_QUERY = `
+  query GetSpecialRoomsDeal {
+    specialRoomsDeals(orderBy: createdAt_DESC, first: 1) {
+      deal {
+        html
+      }
+      validFrom
+      validTo
+    }
+  }
+`;
+
+export const fetchSpecialDealData = async () => {
+  try {
+    const data = await request(HYGRAPH_URL, SPECIAL_DEAL_QUERY);
+    const latestDeal = data.specialRoomsDeals[0];
+
+    if (!latestDeal || !latestDeal.deal) {
+      return null;
+    }
+
+    const now = new Date();
+    const validFrom = latestDeal.validFrom ? new Date(latestDeal.validFrom) : null;
+    const validTo = latestDeal.validTo ? new Date(latestDeal.validTo) : null;
+
+    // If only validFrom is set, deal is valid from that date onwards
+    if (validFrom && !validTo && now >= validFrom) {
+      return latestDeal.deal;
+    }
+
+    // If only validTo is set, deal is valid until that date
+    if (!validFrom && validTo && now <= validTo) {
+      return latestDeal.deal;
+    }
+
+    // If both are set, check if we are within the range
+    if (validFrom && validTo && now >= validFrom && now <= validTo) {
+      return latestDeal.deal;
+    }
+
+    // If neither is set, the deal is always active
+    if (!validFrom && !validTo) {
+      return latestDeal.deal;
+    }
+
+    // Otherwise, the deal is not active
+    return null;
+  } catch (error) {
+    console.error('Error fetching special deal data:', error);
+    return null;
+  }
+};
+
+// API functions matching your PHP cache structure
+export const fetchHeroData = async () => {
+  try {
+    const data = await request(HYGRAPH_URL, HERO_QUERY);
+
+    // Filter active slides and sort by displayOrder (matching your PHP)
+    const activeSlides = data.heroSlides
+      .filter(slide => slide.active)
+      .sort((a, b) => (a.displayOrder || 0) - (b.displayOrder || 0));
+
+    return activeSlides;
+  } catch (error) {
+    console.error('Error fetching hero data:', error);
+    return [];
+  }
+};
+
+export const fetchSubHeroData = async () => {
+  try {
+    const data = await request(HYGRAPH_URL, SUB_HERO_QUERY);
+    // Return first sub hero section (matching your PHP [0])
+    return data.subHeroSections[0] || null;
+  } catch (error) {
+    console.error('Error fetching sub hero data:', error);
+    return null;
+  }
+};
+
+export const fetchRoomsData = async () => {
+  try {
+    const data = await request(HYGRAPH_URL, ROOMS_QUERY);
+    return data.rooms;
+  } catch (error) {
+    console.error('Error fetching rooms data:', error);
+    return [];
+  }
+};
+
+export const fetchExperienceData = async () => {
+  try {
+    const data = await request(HYGRAPH_URL, EXPERIENCE_QUERY);
+    // Return first experience section (matching your PHP [0])
+    return data.experienceSections[0] || null;
+  } catch (error) {
+    console.error('Error fetching experience data:', error);
+    return null;
+  }
+};
+
+// Helper function to fetch all data at once (like your PHP does)
+export const fetchAllHomepageData = async () => {
+  try {
+    const [heroes, subHero, rooms, experiences, specialDeal] = await Promise.all([
+      fetchHeroData(),
+      fetchSubHeroData(),
+      fetchRoomsData(),
+      fetchExperienceData(),
+      fetchSpecialDealData()
+    ]);
+
+    return {
+      heroes,
+      subHero,
+      rooms,
+      experiences,
+      specialDeal
+    };
+  } catch (error) {
+    console.error('Error fetching homepage data:', error);
+    throw error;
+  }
+};

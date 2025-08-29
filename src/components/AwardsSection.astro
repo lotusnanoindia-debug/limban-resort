@@ -1,0 +1,80 @@
+---
+// Awards Section Component
+const awards = [
+  {
+    logo: "/tripadvisor.jpg",
+    alt: "TripAdvisor Logo",
+    award: "Travelers' Choice",
+    year: "2023",
+    description: "Recognized among the top 10% of hotels worldwide.",
+  },
+  {
+    logo: "/logo-cnt-india-reverse.svg",
+    alt: "Condé Nast Traveller Logo",
+    award: "As Featured In",
+    year: "India Edition",
+    description:
+      "Highlighting India's most exclusive eco-tourism luxury stays.",
+  },
+  {
+    logo: "/OLT_New_Logo_13.avif",
+    alt: "Outlook Traveller Logo",
+    award: "India's Hidden Gem",
+    year: "2022",
+    description: "Praised for its authentic and immersive safari experience.",
+  },
+  {
+    organization: "★★★★★",
+    award: "Guest Favorite",
+    year: "5/5 Stars",
+    description: "Consistently high ratings across all major online platforms.",
+  },
+];
+---
+
+<section id="awards" class="py-32 bg-gray-900">
+  <div class="max-w-7xl mx-auto px-6">
+    <div class="text-center mb-20">
+      <div class="text-sm text-gray-400 tracking-[0.2em] uppercase mb-4">
+        Recognition
+      </div>
+      <h2 class="font-serif italic text-4xl md:text-6xl text-white mb-8">
+        Awards & Media
+      </h2>
+      <p class="text-xl text-gray-300 max-w-3xl mx-auto leading-relaxed">
+        Our commitment to excellence in conservation luxury has earned
+        recognition from leading travel and sustainability organizations
+        worldwide.
+      </p>
+    </div>
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8">
+      {
+        awards.map((award, index) => (
+          <div
+            key={index}
+            class="bg-gray-800/50 backdrop-blur-xl border border-gray-700 p-8 rounded-xl text-center flex flex-col justify-center items-center transition-all duration-300 hover:-translate-y-2 hover:shadow-xl hover:border-gray-600"
+          >
+            <div class="h-12 flex items-center justify-center mb-4">
+              {award.logo ? (
+                <img
+                  src={award.logo}
+                  alt={award.alt}
+                  class="max-h-full w-auto"
+                  loading="lazy"
+                  decoding="async"
+                />
+              ) : (
+                <h4 class="text-lg text-yellow-400 tracking-wider">
+                  {award.organization}
+                </h4>
+              )}
+            </div>
+            <div class="text-2xl text-white mb-2">{award.award}</div>
+            <div class="text-sm text-gray-300 mb-2">{award.year}</div>
+            <div class="text-xs text-gray-400">{award.description}</div>
+          </div>
+        ))
+      }
+    </div>
+  </div>
+</section>
