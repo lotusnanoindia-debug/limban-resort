@@ -1,0 +1,366 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { AstroSEO } from 'astro-seo-plugin';
+import { fetchRoomBySlug, fetchRoomsData } from '../../api.js';
+import ContactSection from '../../components/ContactSection.astro';
+
+export async function getStaticPaths() {
+  const rooms = await fetchRoomsData();
+  return rooms.map((room) => ({
+    params: { slug: room.url },
+    props: { roomData: room },
+  }));
+}
+
+const { slug } = Astro.params;
+const room = await fetchRoomBySlug(slug);
+
+if (!room) {
+  return Astro.redirect('/rooms');
+}
+
+// Process gallery images for popup slider
+const galleryImages = room.gallery?.map(item => ({
+  url: item.image?.slideshowUrl || item.image?.url,
+  thumbnail: item.image?.thumbnailUrl || item.image?.url,
+  alt: `${room.roomName} - Gallery Image`,
+  caption: item.caption || `${room.roomName} - Luxury accommodation at Limban Resort`
+})) || [];
+---
+
+<Layout title={`${room.roomName} - Limban Resort`}>
+  <AstroSEO
+    title={`${room.roomName} | Luxury Safari Accommodation - Limban Resort`}
+    description={`Experience luxury in our ${room.roomName} at Limban Resort. ${room.shortDescription} Book your exclusive safari accommodation in Tadoba National Park, Maharashtra.`}
+    canonical={`https://limban.com/rooms/${room.url}`}
+    openGraph={{
+      title: `${room.roomName} - Luxury Safari Accommodation at Limban Resort`,
+      description: `${room.shortDescription} Experience unparalleled luxury and eco-friendly comfort at Limban Resort in Tadoba National Park.`,
+      image: room.heroImage?.optimisedCard || '/img/default-room.jpg',
+      type: 'article',
+      url: `https://limban.com/rooms/${room.url}`
+    }}
+    jsonLd={{
+      "@context": "https://schema.org",
+      "@type": "Accommodation",
+      "name": room.roomName,
+      "description": room.shortDescription,
+      "image": room.heroImage?.optimisedCard,
+      "url": `https://limban.com/rooms/${room.url}`,
+      "priceRange": `₹${room.basePrice}+`,
+      "amenityFeature": room.roomFeature?.map(feature => ({
+        "@type": "LocationFeatureSpecification",
+        "name": feature.featureName
+      })) || []
+    }}
+    additionalLinkTags={[
+      { rel: "apple-touch-icon", sizes: "180x180", href: "/apple-touch-icon.png" },
+      { rel: "icon", type: "image/png", sizes: "32x32", href: "/favicon-32x32.png" },
+      { rel: "icon", type: "image/png", sizes: "16x16", href: "/favicon-16x16.png" },
+      { rel: "manifest", href: "/site.webmanifest" },
+      { rel: "shortcut icon", href: "/favicon.ico" }
+    ]}
+    additionalMetaTags={[
+      { name: "robots", content: "index, follow" },
+      { name: "keywords", content: `${room.roomName}, luxury safari accommodation, Tadoba National Park, eco-friendly room, tiger safari lodge` }
+    ]}
+  />
+
+  <div class="bg-gray-950 text-gray-100 font-sans antialiased selection:bg-gray-700">
+    <!-- Hero Section -->
+    <section class="pt-36 pb-16 bg-gray-900">
+      <div class="max-w-7xl mx-auto px-6">
+        <div class="text-center mb-12">
+          <div class="text-sm text-gray-400 tracking-[0.2em] uppercase mb-4">
+            Luxury Safari Accommodation
+          </div>
+          <h1 class="font-serif italic text-4xl md:text-6xl text-white mb-6">
+            {room.roomName}
+          </h1>
+          <p class="text-xl text-gray-300 max-w-3xl mx-auto leading-relaxed">
+            {room.shortDescription}
+          </p>
+          <div class="mt-8">
+            <span class="text-3xl font-bold text-white">From ₹{Number(room.basePrice).toLocaleString()}</span>
+            <span class="text-gray-400 ml-2">per night</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Gallery Section with Popup Slider -->
+    <section class="py-16 bg-gray-800">
+      <div class="max-w-7xl mx-auto px-6">
+        <div class="text-center mb-12">
+          <h2 class="font-serif italic text-3xl md:text-4xl text-white mb-4">
+            Gallery
+          </h2>
+          <p class="text-gray-300">
+            Explore every detail of your luxury safari accommodation
+          </p>
+        </div>
+        
+        <!-- Gallery Grid -->
+        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mb-8">
+          {galleryImages.map((image, index) => (
+            <div 
+              key={index}
+              class="relative aspect-square group cursor-pointer overflow-hidden rounded-xl border border-gray-700 hover:border-gray-500 transition-all duration-300"
+              data-gallery-index={index}
+            >
+              <img
+                src={image.thumbnail}
+                alt={image.alt}
+                class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                loading="lazy"
+              />
+              <div class="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all duration-300 flex items-center justify-center">
+                <svg class="w-8 h-8 text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7"></path>
+                </svg>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <!-- Room Details Section -->
+    <section class="py-16 bg-gray-900">
+      <div class="max-w-7xl mx-auto px-6">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-start">
+          <!-- Left Column - Description -->
+          <div class="space-y-8">
+            <div>
+              <h2 class="font-serif italic text-3xl md:text-4xl text-white mb-6">
+                Experience Luxury
+              </h2>
+              <p class="text-lg text-gray-300 leading-relaxed mb-6">
+                {room.shortDescription}
+              </p>
+              {room.description && (
+                <div 
+                  class="text-gray-300 leading-relaxed prose prose-invert max-w-none"
+                  set:html={room.description.html}
+                />
+              )}
+            </div>
+
+            <!-- Booking CTA -->
+            <div class="bg-gradient-to-br from-gray-800/50 to-gray-900/50 backdrop-blur-xl border border-gray-700 rounded-2xl p-8">
+              <h3 class="text-2xl font-serif italic text-white mb-4">
+                Reserve Your Experience
+              </h3>
+              <p class="text-gray-300 mb-6">
+                Experience unparalleled luxury in the heart of Tadoba National Park
+              </p>
+              <a 
+                href="/contact" 
+                class="inline-block bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-500 hover:to-amber-600 text-gray-900 font-semibold px-8 py-4 rounded-xl transition-all duration-300 hover:shadow-xl hover:-translate-y-1"
+              >
+                Book Now - From ₹{Number(room.basePrice).toLocaleString()}
+              </a>
+            </div>
+          </div>
+
+          <!-- Right Column - Features -->
+          <div class="space-y-8">
+            <div>
+              <h3 class="font-serif italic text-3xl text-white mb-6">
+                Luxury Amenities
+              </h3>
+              <p class="text-gray-300 mb-8">
+                Every detail is carefully curated for your comfort and luxury
+              </p>
+              
+              <!-- Feature Cards -->
+              <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                {room.roomFeature?.map((feature) => (
+                  <div 
+                    key={feature.id}
+                    class="group relative p-6 bg-gradient-to-br from-gray-800/50 to-gray-900/50 backdrop-blur-xl border border-gray-700 rounded-2xl hover:border-gray-500 hover:from-gray-700/50 hover:to-gray-800/50 transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl hover:shadow-black/20 flex flex-col items-center text-center"
+                  >
+                    <!-- SVG Icon -->
+                    <div class="mb-4 w-12 h-12 flex items-center justify-center bg-gradient-to-br from-amber-500/20 to-orange-500/20 rounded-xl group-hover:from-amber-400/30 group-hover:to-orange-400/30 transition-all duration-300">
+                      <div 
+                        class="w-6 h-6 text-amber-400 group-hover:text-amber-300 transition-colors duration-300" 
+                        set:html={feature.svgImage}
+                      />
+                    </div>
+                    
+                    <!-- Feature Name -->
+                    <h4 class="text-sm font-semibold text-white group-hover:text-amber-100 transition-colors duration-300">
+                      {feature.featureName}
+                    </h4>
+                    
+                    <!-- Hover Glow Effect -->
+                    <div class="absolute inset-0 rounded-2xl bg-gradient-to-br from-amber-500/0 to-orange-500/0 group-hover:from-amber-500/5 group-hover:to-orange-500/5 transition-all duration-500"></div>
+                  </div>
+                )) || (
+                  <p class="text-gray-400 col-span-full text-center">Features information coming soon.</p>
+                )}
+              </div>
+                          </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Contact Section -->
+    <ContactSection />
+  </div>
+
+  <!-- Gallery Popup Modal -->
+  <div 
+    id="gallery-modal" 
+    class="fixed inset-0 z-50 bg-black/95 backdrop-blur-xl hidden items-center justify-center p-4"
+  >
+    <!-- Main Image Display -->
+    <div class="relative max-w-5xl w-full h-full flex flex-col">
+      <!-- Close Button -->
+      <button 
+        id="close-gallery"
+        class="absolute top-4 right-4 z-10 w-10 h-10 bg-black/50 hover:bg-black/70 rounded-full flex items-center justify-center text-white transition-colors"
+      >
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+        </svg>
+      </button>
+
+      <!-- Main Image Container -->
+      <div class="flex-1 flex items-center justify-center relative">
+        <img
+          id="modal-image"
+          src=""
+          alt=""
+          class="max-w-full max-h-full object-contain rounded-lg"
+        />
+        
+        <!-- Navigation Arrows -->
+        <button 
+          id="prev-image"
+          class="absolute left-4 top-1/2 -translate-y-1/2 w-12 h-12 bg-black/50 hover:bg-black/70 rounded-full flex items-center justify-center text-white transition-colors"
+        >
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+          </svg>
+        </button>
+        
+        <button 
+          id="next-image"
+          class="absolute right-4 top-1/2 -translate-y-1/2 w-12 h-12 bg-black/50 hover:bg-black/70 rounded-full flex items-center justify-center text-white transition-colors"
+        >
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Caption -->
+      <div class="bg-black/50 text-white p-4 rounded-lg mt-4">
+        <p id="image-caption" class="text-lg font-light text-center"></p>
+      </div>
+
+      <!-- Thumbnail Navigation -->
+      <div class="flex justify-center mt-6 space-x-2 overflow-x-auto pb-4">
+        {galleryImages.map((image, index) => (
+          <button
+            key={index}
+            class="thumbnail-nav flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden border-2 border-transparent hover:border-white transition-colors"
+            data-index={index}
+          >
+            <img
+              src={image.thumbnail}
+              alt={image.alt}
+              class="w-full h-full object-cover"
+            />
+          </button>
+        ))}
+      </div>
+    </div>
+  </div>
+</Layout>
+
+<script define:vars={{ galleryImages }}>
+  let currentIndex = 0;
+  const modal = document.getElementById('gallery-modal');
+  const modalImage = document.getElementById('modal-image');
+  const imageCaption = document.getElementById('image-caption');
+  const closeBtn = document.getElementById('close-gallery');
+  const prevBtn = document.getElementById('prev-image');
+  const nextBtn = document.getElementById('next-image');
+  const galleryItems = document.querySelectorAll('[data-gallery-index]');
+  const thumbnails = document.querySelectorAll('.thumbnail-nav');
+
+  function openGallery(index) {
+    currentIndex = index;
+    updateImage();
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeGallery() {
+    modal.classList.add('hidden');
+    modal.classList.remove('flex');
+    document.body.style.overflow = 'auto';
+  }
+
+  function updateImage() {
+    const image = galleryImages[currentIndex];
+    modalImage.src = image.url;
+    modalImage.alt = image.alt;
+    imageCaption.textContent = image.caption;
+    
+    // Update thumbnail active state
+    thumbnails.forEach((thumb, index) => {
+      if (index === currentIndex) {
+        thumb.classList.add('border-white');
+      } else {
+        thumb.classList.remove('border-white');
+      }
+    });
+  }
+
+  function nextImage() {
+    currentIndex = (currentIndex + 1) % galleryImages.length;
+    updateImage();
+  }
+
+  function prevImage() {
+    currentIndex = (currentIndex - 1 + galleryImages.length) % galleryImages.length;
+    updateImage();
+  }
+
+  // Event listeners
+  galleryItems.forEach((item) => {
+    item.addEventListener('click', () => {
+      openGallery(parseInt(item.dataset.galleryIndex));
+    });
+  });
+
+  thumbnails.forEach((thumb) => {
+    thumb.addEventListener('click', () => {
+      currentIndex = parseInt(thumb.dataset.index);
+      updateImage();
+    });
+  });
+
+  closeBtn.addEventListener('click', closeGallery);
+  prevBtn.addEventListener('click', prevImage);
+  nextBtn.addEventListener('click', nextImage);
+
+  // Keyboard navigation
+  document.addEventListener('keydown', (e) => {
+    if (modal.classList.contains('flex')) {
+      if (e.key === 'Escape') closeGallery();
+      if (e.key === 'ArrowLeft') prevImage();
+      if (e.key === 'ArrowRight') nextImage();
+    }
+  });
+
+  // Close on backdrop click
+  modal.addEventListener('click', (e) => {
+    if (e.target === modal) closeGallery();
+  });
+</script>
