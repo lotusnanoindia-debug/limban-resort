@@ -183,6 +183,73 @@ const EXPERIENCE_QUERY = `
     }
   }
 `;
+export async function fetchAboutData() {
+  const query = `
+    query AboutData {
+      aboutPage(where: {id: "cmeyayyex8xsc07pc8u9cgfxq"}) {
+        heroImage {
+          url
+          optimisedCard: url(transformation: {
+            image: { 
+              resize: { width: 2000, height: 1200, fit: crop },
+              quality: { value: 80 }
+            },
+            document: { output: { format: webp } }
+          })
+        }
+        philosophyImage {
+          url
+          optimisedWide: url(transformation: {
+            image: { 
+              resize: { width: 2100, height: 900, fit: crop },
+              quality: { value: 75 }
+            },
+            document: { output: { format: webp } }
+          })
+        }
+        foundersImage {
+          url
+          optimisedPortrait: url(transformation: {
+            image: { 
+              resize: { width: 800, height: 1000, fit: crop },
+              quality: { value: 75 }
+            },
+            document: { output: { format: webp } }
+          })
+        }
+        spaceImages {
+          url
+          optimisedCard: url(transformation: {
+            image: { 
+              resize: { width: 800, height: 600, fit: crop },
+              quality: { value: 70 }
+            },
+            document: { output: { format: webp } }
+          })
+        }
+        teamImages {
+          url
+          optimisedSquare: url(transformation: {
+            image: { 
+              resize: { width: 400, height: 400, fit: crop },
+              quality: { value: 70 }
+            },
+            document: { output: { format: webp } }
+          })
+        }
+      }
+    }
+  `;
+
+  try {
+    const data = await request(HYGRAPH_URL, query);
+    return data.aboutPage;
+  } catch (error) {
+    console.error('Error fetching about data:', error);
+    throw error;
+  }
+}
+
 
 // Special Deal query
 const SPECIAL_DEAL_QUERY = `

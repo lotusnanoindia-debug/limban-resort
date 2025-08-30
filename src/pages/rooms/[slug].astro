@@ -1,8 +1,29 @@
 ---
 import Layout from '../../layouts/Layout.astro';
 import { AstroSEO } from 'astro-seo-plugin';
-import { fetchRoomBySlug, fetchRoomsData } from '../../api.js';
-import ContactSection from '../../components/ContactSection.astro';
+import { fetchRoomBySlug, fetchRoomsData, fetchSpecialDealData } from '../../api.js';
+import ReservationForm from '../../components/ReservationForm.astro';
+
+
+// Server-side data fetching (same as your current code)
+let data = {
+  rooms: [],
+  specialDeal: null
+};
+
+let error = null;
+
+try {
+  const [rooms, specialDeal] = await Promise.all([
+    fetchRoomsData(),
+    fetchSpecialDealData()
+  ]);
+  data = { rooms, specialDeal };
+} catch (err) {
+  console.error('Failed to load rooms data:', err);
+  error = 'Failed to load content from Hygraph';
+}
+
 
 export async function getStaticPaths() {
   const rooms = await fetchRoomsData();
@@ -23,10 +44,13 @@ if (!room) {
 const galleryImages = room.gallery?.map(item => ({
   url: item.image?.slideshowUrl || item.image?.url,
   thumbnail: item.image?.thumbnailUrl || item.image?.url,
-  alt: `${room.roomName} - Gallery Image`,
+  alt: `${room.roomName} - luxury safari room view. Only at Limban Resort, Tadoba National Park, Maharashtra`,
   caption: item.caption || `${room.roomName} - Luxury accommodation at Limban Resort`
 })) || [];
 ---
+<link rel="preload" as="image" href={room.heroImage?.optimisedCard || room.heroImage?.url} />
+<meta name="theme-color" content="#1f2937" />
+<meta name="msapplication-TileColor" content="#1f2937" />
 
 <Layout title={`${room.roomName} - Limban Resort`}>
   <AstroSEO
@@ -42,17 +66,126 @@ const galleryImages = room.gallery?.map(item => ({
     }}
     jsonLd={{
       "@context": "https://schema.org",
-      "@type": "Accommodation",
-      "name": room.roomName,
-      "description": room.shortDescription,
-      "image": room.heroImage?.optimisedCard,
-      "url": `https://limban.com/rooms/${room.url}`,
-      "priceRange": `₹${room.basePrice}+`,
-      "amenityFeature": room.roomFeature?.map(feature => ({
-        "@type": "LocationFeatureSpecification",
-        "name": feature.featureName
-      })) || []
+      "@type": "Resort",
+      "@id": `https://limban.com/rooms/${room.url}#resort`,
+      "name": "Limban Resort",
+      "url": "https://limban.com",
+      "logo": "https://limban.com/limban-logo.png",
+      "image": [
+        room.heroImage?.optimisedCard,
+        ...galleryImages.slice(0, 6).map(img => img.url)
+      ],
+      "description": "Luxury safari resort in Tadoba National Park offering premium eco-friendly accommodation and tiger safari experiences in Maharashtra, India.",
+      "address": {
+        "@type": "PostalAddress",
+        "streetAddress": "Survey No. 306, Village Mudholi, Taluka Bhadravati",
+        "addressLocality": "Chandrapur",
+        "addressRegion": "Maharashtra", 
+        "postalCode": "442906",
+        "addressCountry": "IN"
+      },
+      "geo": {
+        "@type": "GeoCoordinates",
+        "latitude": "20.25602486093492",
+        "longitude": "79.2847888101826"
+      },
+      "telephone": "+91 90226 80451",
+      "email": "info@limban.com",
+      "starRating": {
+        "@type": "Rating",
+        "ratingValue": "5",
+        "bestRating": "5"
+      },
+      "priceRange": "₹₹₹",
+      "currenciesAccepted": "INR",
+      "paymentAccepted": "Cash, Credit Card, Debit Card",
+      "checkinTime": "13:00",
+      "checkoutTime": "11:00",
+      "numberOfRooms": "6",
+      "amenityFeature": [
+        {
+          "@type": "LocationFeatureSpecification",
+          "name": "Free WiFi",
+          "value": true
+        },
+        {
+          "@type": "LocationFeatureSpecification", 
+          "name": "Restaurant",
+          "value": true
+        },
+        {
+          "@type": "LocationFeatureSpecification",
+          "name": "Safari Arrangements",
+          "value": true
+        },
+        {
+          "@type": "LocationFeatureSpecification",
+          "name": "Airport Transfer",
+          "value": true
+        },
+        {
+          "@type": "LocationFeatureSpecification",
+          "name": "Eco-Friendly",
+          "value": true
+        }
+      ],
+      "containsPlace": {
+        "@type": "Accommodation",
+        "name": room.roomName,
+        "description": room.shortDescription,
+        "image": [room.heroImage?.optimisedCard, ...galleryImages.slice(0, 4).map(img => img.url)],
+        "amenityFeature": room.roomFeature?.map(feature => ({
+          "@type": "LocationFeatureSpecification",
+          "name": feature.featureName,
+          "value": true
+        })),
+        "offers": {
+          "@type": "Offer",
+          "price": room.basePrice,
+          "priceCurrency": "INR",
+          "priceSpecification": {
+            "@type": "PriceSpecification",
+            "price": room.basePrice,
+            "priceCurrency": "INR",
+            "billingDuration": "P1D",
+            "description": "Per night rate"
+          },
+          "availability": "https://schema.org/InStock",
+          "url": `https://limban.com/rooms/${room.url}`,
+          "validFrom": new Date().toISOString().split('T')[0]
+        }
+      },
+      "isAccessibleForFree": false,
+      "publicAccess": false,
+      "smokingAllowed": false,
+      "petsAllowed": false,
+      "hasMap": `https://www.google.com/maps/place/20.25602486093492,79.2847888101826`,
+      "tourBookingPage": `https://limban.com/rooms/${room.url}`,
+      "sameAs": [
+        "https://www.tripadvisor.in/Hotel_Review-g10594630-d12902646-Reviews-Limban_Resort-Chandrapur_District_Maharashtra.html",
+        "https://www.agoda.com/en-in/limban-resort/hotel/chandrapur-in.html"
+      ],
+      "nearbyAttractions": [
+        {
+          "@type": "TouristAttraction",
+          "name": "Tadoba National Park",
+          "description": "Premier tiger reserve in Maharashtra"
+        },
+        {
+          "@type": "TouristAttraction", 
+          "name": "Moharli Gate",
+          "description": "Main entry gate to Tadoba National Park"
+        }
+      ]
     }}
+    additionalMetaTags={[
+      { name: "robots", content: "index, follow" },
+      { name: "keywords", content: `${room.roomName}, luxury safari accommodation Tadoba, tiger reserve Maharashtra` }
+      { name: "geo.region", content: "IN-MH" },
+      { name: "geo.placename", content: "Tadoba National Park" },
+      { name: "geo.position", content: "20.25602486093492;79.2847888101826" },
+      { name: "ICBM", content: "20.25602486093492, 79.2847888101826" }
+    ]}
     additionalLinkTags={[
       { rel: "apple-touch-icon", sizes: "180x180", href: "/apple-touch-icon.png" },
       { rel: "icon", type: "image/png", sizes: "32x32", href: "/favicon-32x32.png" },
@@ -65,35 +198,111 @@ const galleryImages = room.gallery?.map(item => ({
       { name: "keywords", content: `${room.roomName}, luxury safari accommodation, Tadoba National Park, eco-friendly room, tiger safari lodge` }
     ]}
   />
+  
+
 
   <div class="bg-gray-950 text-gray-100 font-sans antialiased selection:bg-gray-700">
     <!-- Hero Section -->
-    <section class="pt-36 pb-16 bg-gray-900">
-      <div class="max-w-7xl mx-auto px-6">
+    <section class="relative pt-36 pb-16 overflow-hidden bg-gray-900">
+      <!-- Background Image Layer -->
+      <div 
+        class="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-40"
+        style={`background-image: url(${room.heroImage?.optimisedCard || room.heroImage?.url});`}
+      ></div>
+      
+      <!-- Gradient Overlay for Better Text Contrast -->
+      <div class="absolute inset-0 bg-gradient-to-b from-gray-900/80 via-gray-900/50 to-gray-900/80"></div>
+      
+      <!-- Content -->
+      <div class="relative z-10 max-w-7xl mx-auto px-6">
         <div class="text-center mb-12">
-          <div class="text-sm text-gray-400 tracking-[0.2em] uppercase mb-4">
-            Luxury Safari Accommodation
+          <div class="text-sm text-gray-300 tracking-[0.2em] uppercase mb-4">
+            Your Luxury Safari Accommodation
           </div>
-          <h1 class="font-serif italic text-4xl md:text-6xl text-white mb-6">
+          <h1 class="font-serif italic text-4xl md:text-6xl text-white mb-6 drop-shadow-lg">
             {room.roomName}
           </h1>
-          <p class="text-xl text-gray-300 max-w-3xl mx-auto leading-relaxed">
+          <p class="text-xl text-gray-200 max-w-3xl mx-auto leading-relaxed drop-shadow-sm">
             {room.shortDescription}
           </p>
           <div class="mt-8">
-            <span class="text-3xl font-bold text-white">From ₹{Number(room.basePrice).toLocaleString()}</span>
-            <span class="text-gray-400 ml-2">per night</span>
+            <span class="text-3xl font-bold text-white drop-shadow-lg">From ₹{Number(room.basePrice).toLocaleString()}</span><br>
+            <span class="text-gray-300 ml-2">per night. Breakfast Included.</span>
           </div>
+          <!-- Special Deal Section -->
+          {data.specialDeal && data.specialDeal.html && (
+              <div class="max-w-3xl mx-auto px-6 mt-12">
+                <div class="bg-purple-900/50 border border-purple-300 rounded-xl p-6 text-center shadow-lg">
+                  <div class="font-semibold text-base text-white max-w-none" set:html={data.specialDeal.html} />
+                </div>
+              </div>
+          )}
         </div>
       </div>
     </section>
-
+    
+    <!-- Crumbs -->
+    <section class="py-6 bg-gray-900/50 border-b border-gray-800">
+      <div class="max-w-7xl mx-auto px-6">
+        <nav class="flex items-center justify-center space-x-2 text-sm" aria-label="Breadcrumb">
+          <script type="application/ld+json">
+            {
+              "@context": "https://schema.org",
+              "@type": "BreadcrumbList",
+              "itemListElement": [
+                {
+                  "@type": "ListItem",
+                  "position": 1,
+                  "name": "Home",
+                  "item": "https://limban.com/"
+                },
+                {
+                  "@type": "ListItem",
+                  "position": 2,
+                  "name": "Rooms",
+                  "item": "https://limban.com/rooms"
+                },
+                {
+                  "@type": "ListItem",
+                  "position": 3,
+                  "name": "${room.roomName}",
+                  "item": "https://limban.com/rooms/${room.url}"
+                }
+              ]
+            }
+          </script>
+          <a 
+            href="/" 
+            class="text-gray-400 hover:text-amber-400 transition-colors duration-300 flex items-center"
+          >
+            <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+              <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"/>
+            </svg>
+            Home
+          </a>
+          <svg class="w-4 h-4 text-gray-600" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/>
+          </svg>
+          <a 
+            href="/rooms" 
+            class="text-gray-400 hover:text-amber-400 transition-colors duration-300"
+          >
+            Rooms
+          </a>
+          <svg class="w-4 h-4 text-gray-600" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/>
+          </svg>
+          <span class="text-amber-400 font-medium">{room.roomName}</span>
+        </nav>
+      </div>
+    </section>
+    
     <!-- Gallery Section with Popup Slider -->
-    <section class="py-16 bg-gray-800">
+    <section class="py-32 bg-gray-800">
       <div class="max-w-7xl mx-auto px-6">
         <div class="text-center mb-12">
-          <h2 class="font-serif italic text-3xl md:text-4xl text-white mb-4">
-            Gallery
+          <h2 class="font-serif italic text-4xl md:text-6xl text-white mb-6">
+            {room.roomName} Gallery
           </h2>
           <p class="text-gray-300">
             Explore every detail of your luxury safari accommodation
@@ -129,11 +338,11 @@ const galleryImages = room.gallery?.map(item => ({
     <section class="py-16 bg-gray-900">
       <div class="max-w-7xl mx-auto px-6">
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-start">
-          <!-- Left Column - Description -->
+          <!-- Left Column - Experience Luxury + Amenities -->
           <div class="space-y-8">
             <div>
               <h2 class="font-serif italic text-3xl md:text-4xl text-white mb-6">
-                Experience Luxury
+                Experience Nature in Luxury
               </h2>
               <p class="text-lg text-gray-300 leading-relaxed mb-6">
                 {room.shortDescription}
@@ -146,42 +355,24 @@ const galleryImages = room.gallery?.map(item => ({
               )}
             </div>
 
-            <!-- Booking CTA -->
-            <div class="bg-gradient-to-br from-gray-800/50 to-gray-900/50 backdrop-blur-xl border border-gray-700 rounded-2xl p-8">
-              <h3 class="text-2xl font-serif italic text-white mb-4">
-                Reserve Your Experience
-              </h3>
-              <p class="text-gray-300 mb-6">
-                Experience unparalleled luxury in the heart of Tadoba National Park
-              </p>
-              <a 
-                href="/contact" 
-                class="inline-block bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-500 hover:to-amber-600 text-gray-900 font-semibold px-8 py-4 rounded-xl transition-all duration-300 hover:shadow-xl hover:-translate-y-1"
-              >
-                Book Now - From ₹{Number(room.basePrice).toLocaleString()}
-              </a>
-            </div>
-          </div>
-
-          <!-- Right Column - Features -->
-          <div class="space-y-8">
+            <!-- Amenities moved here (your updated 3-column layout) -->
             <div>
               <h3 class="font-serif italic text-3xl text-white mb-6">
                 Luxury Amenities
               </h3>
               <p class="text-gray-300 mb-8">
-                Every detail is carefully curated for your comfort and luxury
+                Every detail carefully curated for your comfort and luxury
               </p>
-              
+
               <!-- Feature Cards -->
-              <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div class="grid grid-cols-3 md:grid-cols-4 gap-6">
                 {room.roomFeature?.map((feature) => (
                   <div 
                     key={feature.id}
-                    class="group relative p-6 bg-gradient-to-br from-gray-800/50 to-gray-900/50 backdrop-blur-xl border border-gray-700 rounded-2xl hover:border-gray-500 hover:from-gray-700/50 hover:to-gray-800/50 transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl hover:shadow-black/20 flex flex-col items-center text-center"
+                    class="group relative p-5 bg-gradient-to-br from-gray-800/50 to-gray-900/50 backdrop-blur-xl border border-gray-700 rounded-2xl hover:border-gray-500 hover:from-gray-700/50 hover:to-gray-800/50 transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl hover:shadow-black/20 flex flex-col items-center text-center"
                   >
                     <!-- SVG Icon -->
-                    <div class="mb-4 w-12 h-12 flex items-center justify-center bg-gradient-to-br from-amber-500/20 to-orange-500/20 rounded-xl group-hover:from-amber-400/30 group-hover:to-orange-400/30 transition-all duration-300">
+                    <div class="mb-4 w-12 h-12 flex items-center justify-center bg-gradient-to-br from-purple-700/20 to-purple-500/20 rounded-xl group-hover:from-amber-400/30 group-hover:to-orange-400/30 transition-all duration-300">
                       <div 
                         class="w-6 h-6 text-amber-400 group-hover:text-amber-300 transition-colors duration-300" 
                         set:html={feature.svgImage}
@@ -189,7 +380,7 @@ const galleryImages = room.gallery?.map(item => ({
                     </div>
                     
                     <!-- Feature Name -->
-                    <h4 class="text-sm font-semibold text-white group-hover:text-amber-100 transition-colors duration-300">
+                    <h4 class="text-xs font-light text-gray-300 group-hover:text-amber-100 transition-colors duration-300">
                       {feature.featureName}
                     </h4>
                     
@@ -200,15 +391,67 @@ const galleryImages = room.gallery?.map(item => ({
                   <p class="text-gray-400 col-span-full text-center">Features information coming soon.</p>
                 )}
               </div>
-                          </div>
+            </div>
+          </div>
+
+          <!-- Right Column - Dedicated Reservation Form -->
+          <div class="space-y-8">
+            <ReservationForm roomName={room.roomName} roomSlug={room.url} basePrice={room.basePrice} />
           </div>
         </div>
       </div>
     </section>
+    <!-- Other Rooms Section - Just above footer -->
+    <section class="py-20 bg-gray-950 border-t border-gray-800">
+      <div class="max-w-7xl mx-auto px-6">
+        <div class="text-center mb-12">
+          <h2 class="font-serif italic text-3xl md:text-4xl text-white mb-4">
+            Discover Other Experiences
+          </h2>
+          <p class="text-gray-400 text-lg">
+            Each room offers its own unique perspective on luxury safari living
+          </p>
+        </div>
+        
+        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
+          {data.rooms
+            .filter(otherRoom => otherRoom.url !== room.url)
+            .map((otherRoom) => (
+              <a 
+                href={`/rooms/${otherRoom.url}`}
+                class="group relative aspect-[4/5] overflow-hidden rounded-xl border border-gray-800 hover:border-amber-400/50 transition-all duration-500 hover:scale-105 hover:shadow-xl hover:shadow-black/20"
+              >
+                <!-- Background Image -->
+                <div 
+                  class="absolute inset-0 bg-cover bg-center bg-no-repeat group-hover:scale-110 transition-transform duration-700"
+                  style={`background-image: url(${otherRoom.heroImage?.optimisedCard});`}
+                ></div>
+                
+                <!-- Gradient Overlay -->
+                <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent group-hover:from-black/70 transition-all duration-500"></div>
+                
+                <!-- Content Overlay -->
+                <div class="absolute inset-0 flex flex-col justify-end p-4">
+                  <h3 class="font-serif italic text-lg md:text-xl text-white mb-1 group-hover:text-amber-400 transition-colors duration-300 line-clamp-2">
+                    {otherRoom.roomName}
+                  </h3>
+                  <p class="text-gray-300 text-xs md:text-sm group-hover:text-gray-100 transition-colors duration-300 line-clamp-2">
+                    {otherRoom.shortDescription}
+                  </p>
+                  <div class="mt-2 text-xs font-medium text-amber-400 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-y-2 group-hover:translate-y-0">
+                    From ₹{Number(otherRoom.basePrice).toLocaleString()}
+                  </div>
+                </div>
+                
+                <!-- Subtle Glow Effect -->
+                <div class="absolute inset-0 rounded-xl bg-gradient-to-br from-amber-500/0 to-orange-500/0 group-hover:from-amber-500/10 group-hover:to-orange-500/10 transition-all duration-500"></div>
+              </a>
+            ))
+          }
+        </div>
+      </div>
+    </section>
 
-    <!-- Contact Section -->
-    <ContactSection />
-  </div>
 
   <!-- Gallery Popup Modal -->
   <div 
@@ -279,6 +522,9 @@ const galleryImages = room.gallery?.map(item => ({
       </div>
     </div>
   </div>
+
+
+  
 </Layout>
 
 <script define:vars={{ galleryImages }}>

@@ -1,0 +1,315 @@
+---
+export interface Props {
+  roomName: string;
+  roomSlug: string;
+  basePrice?: number;
+}
+
+const { roomName, roomSlug, basePrice } = Astro.props;
+const pageUrl = Astro.url.href;
+---
+
+<!-- Load Flatpickr CSS exactly like your ContactSection -->
+<link
+  rel="stylesheet"
+  href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css"
+/>
+<link
+  rel="stylesheet"
+  href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/dark.css"
+/>
+
+<section aria-labelledby="reserve-heading">
+  <h2
+    id="reserve-heading"
+    class="font-serif italic text-3xl md:text-4xl text-white mb-6"
+  >
+    Reserve Now: {roomName}
+  </h2>
+  <p class="text-gray-300 mb-12">
+    Complete the form and our reservations team will confirm availability and
+    safaris.
+  </p>
+
+  <form
+    name="reservation-room"
+    method="POST"
+    action="/success"
+    netlify
+    netlify-honeypot="bot-field"
+    data-netlify="true"
+    class="bg-gradient-to-br from-gray-800/50 to-gray-900/50 backdrop-blur-xl border border-gray-700 rounded-2xl p-8"
+  >
+    <input type="hidden" name="form-name" value="reservation-room" />
+    <input type="hidden" name="pageUrl" value={pageUrl} />
+    <input type="hidden" name="roomName" value={roomName} />
+    <input type="hidden" name="roomSlug" value={roomSlug} />
+    {
+      basePrice && (
+        <input type="hidden" name="basePrice" value={String(basePrice)} />
+      )
+    }
+
+    <p class="hidden">
+      <label
+        >Don't fill this out if you're human: <input name="bot-field" /></label
+      >
+    </p>
+    <div class="text-center pt-2">
+      <div id="nights-message" class="text-sm italic text-gray-400 h-5"></div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+      <div>
+        <label for="check-in" class="block text-sm text-gray-300 mb-2"
+          >Check-in</label
+        >
+        <div class="relative">
+          <div
+            class="absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none"
+          >
+            <svg
+              class="w-5 h-5 text-gray-400"
+              fill="currentColor"
+              viewBox="0 0 20 20"
+            >
+              <path
+                d="M6 2a1 1 0 00-2 0v1H3a2 2 0 00-2 2v1h18V5a2 2 0 00-2-2h-1V2a1 1 0 10-2 0v1H6V2zM2 8v8a2 2 0 002 2h12a2 2 0 002-2V8H2zm3 3a1 1 0 011-1h1a1 1 0 110 2H6a1 1 0 01-1-1zm5 0a1 1 0 011-1h1a1 1 0 110 2h-1a1 1 0 01-1-1z"
+              ></path>
+            </svg>
+          </div>
+          <input
+            id="check-in"
+            name="checkin"
+            type="text"
+            required
+            class="w-full rounded-md bg-gray-800 border border-gray-700 pl-12 pr-4 py-3 text-white focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-colors cursor-pointer"
+          />
+        </div>
+      </div>
+      <div>
+        <label for="check-out" class="block text-sm text-gray-300 mb-2"
+          >Check-out</label
+        >
+        <div class="relative">
+          <div
+            class="absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none"
+          >
+            <svg
+              class="w-5 h-5 text-gray-400"
+              fill="currentColor"
+              viewBox="0 0 20 20"
+            >
+              <path
+                d="M6 2a1 1 0 00-2 0v1H3a2 2 0 00-2 2v1h18V5a2 2 0 00-2-2h-1V2a1 1 0 10-2 0v1H6V2zM2 8v8a2 2 0 002 2h12a2 2 0 002-2V8H2zm3 3a1 1 0 011-1h1a1 1 0 110 2H6a1 1 0 01-1-1zm5 0a1 1 0 011-1h1a1 1 0 110 2h-1a1 1 0 01-1-1z"
+              ></path>
+            </svg>
+          </div>
+          <input
+            id="check-out"
+            name="checkout"
+            type="text"
+            required
+            class="w-full rounded-md bg-gray-800 border border-gray-700 pl-12 pr-4 py-3 text-white focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-colors cursor-pointer"
+          />
+        </div>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-9">
+      <!-- Contact -->
+      <div>
+        <label for="name" class="block text-sm text-gray-300 mb-2"
+          >Full Name</label
+        >
+        <input
+          id="name"
+          name="name"
+          required
+          minlength="2"
+          class="w-full rounded-md bg-gray-800 border border-gray-700 px-4 py-3 text-white focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-colors"
+        />
+      </div>
+      <div>
+        <label for="email" class="block text-sm text-gray-300 mb-2">Email</label
+        >
+        <input
+          id="email"
+          name="email"
+          type="email"
+          required
+          class="w-full rounded-md bg-gray-800 border border-gray-700 px-4 py-3 text-white focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-colors"
+        />
+      </div>
+      <div>
+        <label for="phone" class="block text-sm text-gray-300 mb-2"
+          >Phone/WhatsApp</label
+        >
+        <input
+          id="phone"
+          name="phone"
+          type="tel"
+          pattern="^[0-9+()\\-\\s]{7,}$"
+          class="w-full rounded-md bg-gray-800 border border-gray-700 px-4 py-3 text-white focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-colors"
+        />
+      </div>
+      <div>
+        <label for="contactMethod" class="block text-sm text-gray-300 mb-2"
+          >Preferred Contact</label
+        >
+        <select
+          id="contactMethod"
+          name="contactMethod"
+          class="w-full rounded-md bg-gray-800 border border-gray-700 px-4 py-3 text-white focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-colors"
+        >
+          <option value="email">Email</option>
+          <option value="call">Call</option>
+          <option value="whatsapp">WhatsApp</option>
+        </select>
+      </div>
+
+      <!-- Party Size -->
+      <div>
+        <label for="adults" class="block text-sm text-gray-300 mb-2"
+          >Adults</label
+        >
+        <input
+          id="adults"
+          name="adults"
+          type="number"
+          min="1"
+          max="12"
+          value="2"
+          class="w-full rounded-md bg-gray-800 border border-gray-700 px-4 py-3 text-white focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-colors"
+        />
+      </div>
+      <div>
+        <label for="children" class="block text-sm text-gray-300 mb-2"
+          >Children</label
+        >
+        <input
+          id="children"
+          name="children"
+          type="number"
+          min="0"
+          max="12"
+          value="0"
+          class="w-full rounded-md bg-gray-800 border border-gray-700 px-4 py-3 text-white focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-colors"
+        />
+      </div>
+
+      <!-- Safaris & Transfers -->
+      <div>
+        <label for="wantSafaris" class="block text-sm text-gray-300 mb-2"
+          >Want Tiger Safaris?</label
+        >
+        <select
+          id="wantSafaris"
+          name="wantSafaris"
+          class="w-full rounded-md bg-gray-800 border border-gray-700 px-4 py-3 text-white focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-colors"
+        >
+          <option value="yes">Yes, please arrange</option>
+          <option value="no">No, room only</option>
+          <option value="unsure">Unsure, please advise</option>
+        </select>
+      </div>
+      <div>
+        <label for="transfer" class="block text-sm text-gray-300 mb-2"
+          >Need Airport Transfers?</label
+        >
+        <select
+          id="transfer"
+          name="transfer"
+          class="w-full rounded-md bg-gray-800 border border-gray-700 px-4 py-3 text-white focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-colors"
+        >
+          <option>Yes, both ways</option>
+          <option>Arrival only</option>
+          <option>Departure only</option>
+          <option>Not required</option>
+        </select>
+      </div>
+
+      <!-- Notes -->
+      <div class="md:col-span-2">
+        <label for="message" class="block text-sm text-gray-300 mb-2"
+          >Special Requests</label
+        >
+        <textarea
+          id="message"
+          name="message"
+          rows="4"
+          class="w-full rounded-md bg-gray-800 border border-gray-700 px-4 py-3 text-white focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-colors"
+        ></textarea>
+      </div>
+    </div>
+
+    <div class="text-center pt-4">
+      <button
+        type="submit"
+        class="w-full md:w-auto bg-gradient-to-r from-amber-500 to-orange-600 text-white font-semibold px-8 py-4 rounded-xl transition-all duration-300 hover:shadow-xl hover:-translate-y-1 hover:from-amber-600 hover:to-orange-700 cursor-pointer"
+      >
+        Request Reservation
+      </button>
+    </div>
+  </form>
+</section>
+
+<script>
+  // Import and initialize Flatpickr
+  import(
+    "https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/flatpickr.min.js"
+  ).then(() => {
+    const checkInRef = document.getElementById("check-in");
+    const checkOutRef = document.getElementById("check-out");
+    const nightsMessage = document.getElementById("nights-message");
+    let checkInPicker, checkOutPicker;
+
+    const baseConfig = {
+      dateFormat: "M j, Y",
+      minDate: "today",
+      allowInput: false,
+      clickOpens: true,
+      theme: "dark",
+    };
+
+    checkInPicker = flatpickr(checkInRef, {
+      ...baseConfig,
+      maxDate: new Date().fp_incr(365),
+      onChange: function (selectedDates) {
+        if (selectedDates.length > 0) {
+          const selectedDate = selectedDates[0];
+          checkOutPicker?.set("minDate", selectedDate);
+          calculateNights();
+        }
+      },
+    });
+
+    checkOutPicker = flatpickr(checkOutRef, {
+      ...baseConfig,
+      maxDate: new Date().fp_incr(365),
+      onChange: function () {
+        calculateNights();
+      },
+    });
+
+    const calculateNights = () => {
+      if (checkInRef?.value && checkOutRef?.value) {
+        const checkIn = new Date(checkInRef.value);
+        const checkOut = new Date(checkOutRef.value);
+        if (checkOut <= checkIn) {
+          nightsMessage.textContent = "Check-out must be after check-in!";
+          nightsMessage.className =
+            "bg-gray-900/50 border border-yellow-600/30 rounded-xl p-6 mb-6 shadow-lg text-red-400";
+        } else {
+          const diffTime = Math.abs(checkOut - checkIn);
+          const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+          nightsMessage.textContent = `You are reserving for ${diffDays} Night${diffDays !== 1 ? "s" : ""} 👍`;
+          nightsMessage.className =
+            "bg-gray-900/50 border border-yellow-600/30 rounded-xl p-6 mb-6 shadow-lg text-green-400";
+        }
+      } else {
+        nightsMessage.textContent = "";
+      }
+    };
+  });
+</script>

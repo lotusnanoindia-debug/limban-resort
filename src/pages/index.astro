@@ -62,6 +62,16 @@ const heroImage = data.heroes[0]?.backgroundImage?.url || '/img/tiger-safari-her
       "url": "https://limban.com",
       "logo": "https://limban.com/img/limban-logo.png",
       "image": heroImage,
+      "sameAs": [
+        "https://www.tripadvisor.in/Hotel_Review-g10594630-d12902646-Reviews-Limban_Resort-Chandrapur_District_Maharashtra.html",
+        "https://www.instagram.com/limbanresorts/",
+        "https://www.facebook.com/limbanresort"
+      ],
+      "hasMap": "https://www.google.com/maps/place/20.25602486093492,79.2847888101826",
+      "checkinTime": "14:00",
+      "checkoutTime": "12:00",
+      "currenciesAccepted": "INR",
+      "paymentAccepted": "Cash, Credit Card, UPI",
       "address": {
         "@type": "PostalAddress",
         "addressLocality": "Chandrapur",
@@ -164,12 +174,16 @@ const heroImage = data.heroes[0]?.backgroundImage?.url || '/img/tiger-safari-her
       },
       {
         name: "keywords",
-        content: "luxury eco safari resort, sustainable tiger safari, Tadoba National Park, eco-friendly accommodation, responsible wildlife tourism, conservation resort Maharashtra, luxury wellness retreat India, sustainable hospitality"
+        content: "luxury safari resort Tadoba, eco-friendly accommodation Maharashtra, tiger conservation resort India"
       },
       {
         name: "author",
         content: "Limban Resort"
-      }
+      },
+      { name: "geo.region", content: "IN-MH" },
+      { name: "geo.placename", content: "Tadoba National Park, Chandrapur" },
+      { name: "geo.position", content: "20.25602486093492;79.2847888101826" },
+      { name: "ICBM", content: "20.25602486093492, 79.2847888101826" }
     ]}
   />
   
