@@ -26,14 +26,16 @@
           </a>
 
           <!-- The Resort Dropdown -->
-          <div class="relative group">
-            <a
-              href="/vibe"
-              class="flex items-center text-sm font-medium hover:text-white transition-all duration-200 tracking-wide relative group text-gray-300"
+          <div class="relative">
+            <button
+              type="button"
+              data-dropdown-toggle="resort-menu-panel"
+              aria-expanded="false"
+              class="flex items-center text-sm font-medium text-gray-300 hover:text-white transition-all duration-200 tracking-wide relative cursor-pointer"
             >
               The Resort
               <svg
-                class="w-4 h-4 ml-1.5 text-gray-400 group-hover:text-white transition-colors"
+                class="w-4 h-4 ml-1.5 text-gray-400 transition-transform duration-300"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -45,11 +47,12 @@
                   d="M19 9l-7 7-7-7"></path>
               </svg>
               <span
-                class="absolute -bottom-1 left-0 h-px bg-white transition-all duration-300 group-hover:w-full w-0"
+                class="absolute -bottom-1 left-0 h-px bg-white transition-all duration-300 w-0"
               ></span>
-            </a>
+            </button>
             <div
-              class="dropdown-panel absolute top-full left-1/2 -translate-x-1/2 mt-4 w-56 bg-gray-950/90 backdrop-blur-xl border border-gray-800 rounded-lg shadow-2xl opacity-0 group-hover:opacity-100 invisible group-hover:visible transition-all duration-300 transform group-hover:translate-y-0 -translate-y-2"
+              id="resort-menu-panel"
+              class="dropdown-panel absolute top-full left-1/2 -translate-x-1/2 mt-4 w-56 bg-gray-950/90 backdrop-blur-xl border border-gray-800 rounded-lg shadow-2xl opacity-0 invisible transition-all duration-300 transform -translate-y-2"
             >
               <div class="p-2">
                 <a
@@ -72,14 +75,16 @@
           </div>
 
           <!-- Experiences Dropdown -->
-          <div class="relative group">
-            <a
-              href="/experiences"
-              class="flex items-center text-sm font-medium hover:text-white transition-all duration-200 tracking-wide relative group text-gray-300"
+          <div class="relative">
+            <button
+              type="button"
+              data-dropdown-toggle="experiences-menu-panel"
+              aria-expanded="false"
+              class="flex items-center text-sm font-medium text-gray-300 hover:text-white transition-all duration-200 tracking-wide relative cursor-pointer"
             >
               Experiences
               <svg
-                class="w-4 h-4 ml-1.5 text-gray-400 group-hover:text-white transition-colors"
+                class="w-4 h-4 ml-1.5 text-gray-400 transition-transform duration-300"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -91,11 +96,12 @@
                   d="M19 9l-7 7-7-7"></path>
               </svg>
               <span
-                class="absolute -bottom-1 left-0 h-px bg-white transition-all duration-300 group-hover:w-full w-0"
+                class="absolute -bottom-1 left-0 h-px bg-white transition-all duration-300 w-0"
               ></span>
-            </a>
+            </button>
             <div
-              class="dropdown-panel absolute top-full left-1/2 -translate-x-1/2 mt-4 w-56 bg-gray-950/90 backdrop-blur-xl border border-gray-800 rounded-lg shadow-2xl opacity-0 group-hover:opacity-100 invisible group-hover:visible transition-all duration-300 transform group-hover:translate-y-0 -translate-y-2"
+              id="experiences-menu-panel"
+              class="dropdown-panel absolute top-full left-1/2 -translate-x-1/2 mt-4 w-56 bg-gray-950/90 backdrop-blur-xl border border-gray-800 rounded-lg shadow-2xl opacity-0 invisible transition-all duration-300 transform -translate-y-2"
             >
               <div class="p-2">
                 <a
@@ -292,5 +298,56 @@
       closeIcon?.classList.add("hidden");
       document.body.style.overflow = "auto";
     });
+  });
+
+  // Desktop dropdown menu on click functionality
+  const dropdownButtons = document.querySelectorAll("[data-dropdown-toggle]");
+
+  function closeAllDropdowns() {
+    dropdownButtons.forEach((button) => {
+      const panel = document.getElementById(
+        button.getAttribute("data-dropdown-toggle"),
+      );
+      const underline = button.querySelector("span");
+      const chevron = button.querySelector("svg");
+
+      if (button.getAttribute("aria-expanded") === "true") {
+        button.setAttribute("aria-expanded", "false");
+        panel?.classList.add("opacity-0", "invisible", "-translate-y-2");
+        panel?.classList.remove("opacity-100", "visible", "translate-y-0");
+        underline?.classList.remove("w-full");
+        chevron?.classList.remove("rotate-180");
+      }
+    });
+  }
+
+  dropdownButtons.forEach((button) => {
+    const panel = document.getElementById(
+      button.getAttribute("data-dropdown-toggle"),
+    );
+    const underline = button.querySelector("span");
+    const chevron = button.querySelector("svg");
+
+    button.addEventListener("click", (event) => {
+      event.stopPropagation();
+      const isExpanded = button.getAttribute("aria-expanded") === "true";
+
+      // Close all dropdowns first.
+      closeAllDropdowns();
+
+      // If it was closed, open it now.
+      if (!isExpanded) {
+        button.setAttribute("aria-expanded", "true");
+        panel?.classList.remove("opacity-0", "invisible", "-translate-y-2");
+        panel?.classList.add("opacity-100", "visible", "translate-y-0");
+        underline?.classList.add("w-full");
+        chevron?.classList.add("rotate-180");
+      }
+    });
+  });
+
+  // Close all dropdowns when clicking outside
+  document.addEventListener("click", () => {
+    closeAllDropdowns();
   });
 </script>

@@ -183,6 +183,8 @@ const EXPERIENCE_QUERY = `
     }
   }
 `;
+
+
 export async function fetchAboutData() {
   const query = `
     query AboutData {
@@ -192,7 +194,7 @@ export async function fetchAboutData() {
           optimisedCard: url(transformation: {
             image: { 
               resize: { width: 2000, height: 1200, fit: crop },
-              quality: { value: 80 }
+              quality: { value: 60 }
             },
             document: { output: { format: webp } }
           })
@@ -201,8 +203,8 @@ export async function fetchAboutData() {
           url
           optimisedWide: url(transformation: {
             image: { 
-              resize: { width: 2100, height: 900, fit: crop },
-              quality: { value: 75 }
+              resize: { width: 1200, height: 800, fit: crop },
+              quality: { value: 70 }
             },
             document: { output: { format: webp } }
           })
@@ -211,23 +213,30 @@ export async function fetchAboutData() {
           url
           optimisedPortrait: url(transformation: {
             image: { 
-              resize: { width: 800, height: 1000, fit: crop },
-              quality: { value: 75 }
+              resize: { width: 1000, height: 1000, fit: crop },
+              quality: { value: 65 }
             },
             document: { output: { format: webp } }
           })
         }
-        spaceImages {
+        spaceImages(first: 100) {
           url
-          optimisedCard: url(transformation: {
+          optimisedThumbnail: url(transformation: {
             image: { 
-              resize: { width: 800, height: 600, fit: crop },
+              resize: { width: 300, height: 250, fit: crop },
+              quality: { value: 60 }
+            },
+            document: { output: { format: webp } }
+          })
+          optimisedLarge: url(transformation: {
+            image: { 
+              resize: { width: 1024, height: 768, fit: crop },
               quality: { value: 70 }
             },
             document: { output: { format: webp } }
           })
         }
-        teamImages {
+        teamImages(first: 100) {
           url
           optimisedSquare: url(transformation: {
             image: { 
@@ -251,18 +260,110 @@ export async function fetchAboutData() {
 }
 
 
-// Special Deal query
-const SPECIAL_DEAL_QUERY = `
-  query GetSpecialRoomsDeal {
-    specialRoomsDeals(orderBy: createdAt_DESC, first: 1) {
-      deal {
-        html
+export async function fetchVibePageData() {
+  const query = `
+    query VibePageData {
+      vibeGallery(where: {id: "cmf0lo9eja9wk07pcwlzw8zdh"}) {
+        title
+        images(first: 100) {
+          image {
+            url
+            fileName
+            width
+            height
+            micro: url(transformation: {
+              image: { 
+                resize: { width: 200, height: 150, fit: crop },
+                quality: { value: 45 }
+              },
+              document: { output: { format: webp } }
+            })
+            card: url(transformation: {
+              image: { 
+                resize: { width: 600, height: 450, fit: crop },
+                quality: { value: 65 }
+              },
+              document: { output: { format: webp } }
+            })
+            large: url(transformation: {
+              image: { 
+                resize: { width: 1920, fit: scale },
+                quality: { value: 80 }
+              },
+              document: { output: { format: webp } }
+            })
+            placeholder: url(transformation: {
+              image: { 
+                resize: { width: 20, height: 15, fit: crop },
+                quality: { value: 20 }
+              },
+              document: { output: { format: webp } }
+            })
+          }
+          altText
+        }
       }
-      validFrom
-      validTo
+      
+      wildlifeGallery(where: {id: "cmf0ovxesabzv07pcvijule37"}) {
+        title
+        image(first: 100) {
+          ... on WildlifePic {
+            image {
+              url
+              fileName
+              width
+              height
+              micro: url(transformation: {
+                image: { 
+                  resize: { width: 200, height: 150, fit: crop },
+                  quality: { value: 45 }
+                },
+                document: { output: { format: webp } }
+              })
+              card: url(transformation: {
+                image: { 
+                  resize: { width: 600, height: 450, fit: crop },
+                  quality: { value: 65 }
+                },
+                document: { output: { format: webp } }
+              })
+              large: url(transformation: {
+                image: { 
+                  resize: { width: 1920, fit: scale },
+                  quality: { value: 80 }
+                },
+                document: { output: { format: webp } }
+              })
+              placeholder: url(transformation: {
+                image: { 
+                  resize: { width: 20, height: 15, fit: crop },
+                  quality: { value: 20 }
+                },
+                document: { output: { format: webp } }
+              })
+            }
+            alt
+          }
+        }
+      }
     }
+  `;
+
+  try {
+    const data = await request(HYGRAPH_URL, query);
+    console.log('Raw Hygraph data:', data); // Debug log
+    return {
+      vibeImages: data.vibeGallery?.images || [],
+      wildlifeImages: data.wildlifeGallery?.image || []
+    };
+  } catch (error) {
+    console.error('Error fetching vibe page data:', error);
+    throw error;
   }
-`;
+}
+
+
+
 
 export const fetchSpecialDealData = async () => {
   try {
@@ -380,3 +481,17 @@ export const fetchAllHomepageData = async () => {
     throw error;
   }
 };
+
+
+// Special Deal query
+const SPECIAL_DEAL_QUERY = `
+  query GetSpecialRoomsDeal {
+    specialRoomsDeals(orderBy: createdAt_DESC, first: 1) {
+      deal {
+        html
+      }
+      validFrom
+      validTo
+    }
+  }
+`;

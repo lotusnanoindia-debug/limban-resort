@@ -1,75 +1,126 @@
 ---
-// Testimonials Section Component
+// Enhanced Testimonials Section - Luxury Hospitality Design
 const testimonials = [
   {
     name: "Sarah & James Mitchell",
     location: "London, UK",
     quote: "Redefined luxury for our family.",
-    review:
-      "Limban Resort redefined luxury for our family. The perfect balance of adventure and comfort, with service that anticipated our every need. Our children still talk about the tiger sightings months later.",
+    review: "Limban Resort redefined luxury for our family. The perfect balance of adventure and comfort, with service that anticipated our every need. Our children still talk about the tiger sightings months later.",
     image: "/sarah.jpg",
+    stayDate: "March 2025",
+    experience: "7 Days Family Safari Adventure"
   },
   {
-    name: "Rajesh Patel",
+    name: "Rajesh Patel", 
     location: "CEO, Mumbai",
-    quote: "Exceeded all expectations.",
-    review:
-      "As a corporate retreat destination, Limban exceeded all expectations. The Executive Retreat spaces fostered innovation while the natural setting provided the perfect backdrop for team building.",
+    quote: "Exceeded every expectations.",
+    review: "As a corporate retreat destination, Limban exceeded all expectations. The Executive Retreat spaces fostered innovation while the natural setting provided the perfect backdrop for team building.",
     image: "/rajesh.jpg",
+    stayDate: "January 2024", 
+    experience: "Corporate Retreat"
   },
   {
     name: "Dr. Maria Santos",
-    location: "Wildlife Photographer",
+    location: "Wildlife Photographer, Brazil",
     quote: "Meaningful beyond the luxury.",
-    review:
-      "The attention to conservation and community impact made our stay meaningful beyond the luxury. Limban represents responsible tourism at its finest. We'll return every year.",
+    review: "The attention to conservation and community impact made our stay meaningful beyond the luxury. Limban represents responsible tourism at its finest. We'll return every year.",
     image: "/maria.jpg",
-  },
+    stayDate: "November 2023",
+    experience: "Conservation Experience"
+  }
 ];
 ---
 
-<section id="testimonials" class="py-32 bg-gray-800">
+<section id="testimonials" class="py-32 bg-gray-950">
   <div class="max-w-7xl mx-auto px-6">
+    
+    <!-- Section Header with Sophisticated Styling -->
     <div class="text-center mb-20">
-      <div class="text-sm text-gray-400 tracking-[0.2em] uppercase mb-4">
-        Guest Stories
+      <div class="inline-block px-6 py-2 bg-amber-400/10 border border-amber-400/30 rounded-full mb-8">
+        <span class="text-amber-400 text-sm font-medium tracking-widest uppercase">Guest Stories</span>
       </div>
-      <h2 class="font-serif italic text-4xl md:text-6xl text-white mb-8">
-        Testimonials
+      <h2 class="font-serif italic text-5xl md:text-7xl text-white mb-8 leading-tight">
+        Words from the Wild
       </h2>
-      <p class="text-xl text-gray-300 max-w-3xl mx-auto leading-relaxed">
-        Hear from discerning travelers who have experienced the transformative
-        power of Limban Resort.
+      <p class="text-xl text-gray-300 font-light leading-relaxed max-w-4xl mx-auto">
+        Hear from discerning souls who have experienced the transformative power of Limban. 
+        Each story is a testament to moments that become memories, experiences that become part of who you are.
       </p>
     </div>
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-      {
-        testimonials.map((testimonial, index) => (
-          <div
-            key={index}
-            class="bg-gray-800/50 backdrop-blur-xl border border-gray-700 p-8 rounded-xl shadow-lg shadow-white/5 transition-all duration-300 hover:shadow-xl hover:border-gray-600 hover:-translate-y-2 flex flex-col text-center"
-          >
-            <img
-              src={testimonial.image}
-              alt={`Photo of ${testimonial.name}`}
-              class="w-20 h-20 rounded-full object-cover mx-auto mb-6 border-2 border-gray-600 shadow-lg flex-shrink-0"
-              loading="lazy"
-            />
-            <p class="font-serif italic text-xl text-white my-6 text-center">
-              "{testimonial.quote}"
-            </p>
-            <p class="text-gray-400 text-sm mb-6 leading-relaxed">
-              "{testimonial.review}"
-            </p>
-            <div class="flex items-center justify-center mt-auto pt-6 border-t border-gray-700/50">
-              <div>
-                <div class="font-semibold text-white">{testimonial.name}</div>
-                <div class="text-sm text-gray-400">{testimonial.location}</div>
+
+    <!-- Enhanced Testimonials Grid -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      {testimonials.map((testimonial, index) => (
+        <div
+          key={index}
+          class="group relative bg-gradient-to-br from-gray-900/50 to-gray-800/50 backdrop-blur-xl border border-gray-700 rounded-3xl overflow-hidden transition-all duration-700 hover:border-amber-400/30 hover:-translate-y-2 hover:shadow-2xl hover:shadow-black/20"
+        >
+          <!-- Background Pattern -->
+          <div class="absolute inset-0 opacity-2">
+            <svg class="w-full h-full" viewBox="0 0 100 100" fill="none">
+              <defs>
+                <pattern id="testimonial-pattern" x="0" y="0" width="20" height="20" patternUnits="userSpaceOnUse">
+                  <circle cx="2" cy="2" r="1" fill="currentColor" />
+                </pattern>
+              </defs>
+              <rect width="100" height="100" fill="url(#testimonial-pattern)" />
+            </svg>
+          </div>
+
+          <div class="relative p-8">
+            
+            <!-- Guest Image with Elegant Border -->
+            <div class="flex justify-center mb-8">
+              <div class="relative">
+                <div class="w-20 h-20 rounded-full overflow-hidden border-2 border-gray-600 group-hover:border-amber-400/50 transition-colors duration-500 shadow-xl">
+                  <img
+                    src={testimonial.image}
+                    alt={`${testimonial.name} - Guest at Limban Resort`}
+                    class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                    loading="lazy"
+                  />
+                </div>
+                <div class="absolute -inset-1 bg-gradient-to-r from-amber-400/20 to-amber-600/20 rounded-full blur opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
               </div>
             </div>
+
+            <!-- Quote Mark -->
+            <div class="text-center mb-6">
+              <svg class="w-8 h-8 mx-auto text-amber-400/50 group-hover:text-amber-400 transition-colors duration-500" fill="currentColor" viewBox="0 0 32 32">
+                <path d="M10 8v8c0 2.209-1.791 4-4 4s-4-1.791-4-4 1.791-4 4-4c.172 0 .344.011.513.031-.056-.367-.513-2.031-.513-4.031 0-2.209 1.791-4 4-4s4 1.791 4 4zM26 8v8c0 2.209-1.791 4-4 4s-4-1.791-4-4 1.791-4 4-4c.172 0 .344.011.513.031-.056-.367-.513-2.031-.513-4.031 0-2.209 1.791-4 4-4s4 1.791 4 4z"/>
+              </svg>
+            </div>
+
+            <!-- Main Quote -->
+            <blockquote class="text-center mb-8">
+              <p class="font-serif italic text-2xl md:text-3xl text-white leading-relaxed mb-6 group-hover:text-gray-100 transition-colors duration-500">
+                "{testimonial.quote}"
+              </p>
+              <p class="text-gray-300 leading-relaxed font-light group-hover:text-gray-200 transition-colors duration-500">
+                {testimonial.review}
+              </p>
+            </blockquote>
+
+            <!-- Guest Details with Enhanced Typography -->
+            <div class="text-center pt-6 border-t border-gray-700/50 group-hover:border-amber-400/20 transition-colors duration-500">
+              <div class="font-semibold text-lg text-amber-400 mb-1 group-hover:text-amber-300 transition-colors duration-300">
+                {testimonial.name}
+              </div>
+              <div class="text-sm text-gray-400 mb-2 group-hover:text-gray-300 transition-colors duration-300">
+                {testimonial.location}
+              </div>
+              <div class="text-xs text-gray-500 group-hover:text-gray-400 transition-colors duration-300 space-y-1">
+                <div>{testimonial.experience}</div>
+                <div>{testimonial.stayDate}</div>
+              </div>
+            </div>
+
+            <!-- Subtle Hover Glow Effect -->
+            <div class="absolute inset-0 rounded-3xl bg-gradient-to-br from-amber-400/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none"></div>
           </div>
-        ))
-      }
+        </div>
+      ))}
     </div>
+
   </div>
 </section>
