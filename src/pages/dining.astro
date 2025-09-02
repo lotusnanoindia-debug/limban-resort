@@ -1,0 +1,379 @@
+---
+import Layout from "../layouts/Layout.astro";
+import { AstroSEO } from "astro-seo-plugin";
+import { fetchDiningExperiencesData } from "../api.js";
+
+// Fetch dining experiences data
+let diningExperiences = [];
+let error = null;
+
+try {
+  diningExperiences = await fetchDiningExperiencesData();
+} catch (err) {
+  console.error("Failed to load dining experiences:", err);
+  error = "Failed to load dining experiences from Hygraph";
+}
+
+// Process dining experiences for display
+const experiences = diningExperiences?.map((experience, index) => ({
+  id: experience.id,
+  name: experience.restaurantName,
+  intro: experience.shortIntro,
+  description: experience.longDescription,
+  logo: experience.logo?.optimisedLogo || experience.logo?.url || "",
+  heroImage: experience.images?.[0]?.heroImage || experience.images?.[0]?.url || "",
+  thumbnail: experience.images?.[0]?.thumbnail || experience.images?.[0]?.url || "",
+  placeholder: experience.images?.[0]?.placeholder || experience.images?.[0]?.url || "",
+  slug: experience.restaurantName?.toLowerCase().replace(/\s+/g, '-').replace(/-+$/, '') || `experience-${index + 1}`,
+  alt: `${experience.restaurantName} dining experience at Limban Resort`
+})) || [];
+
+// Helper function for alt text generation
+function generateAltText(experienceName, shortIntro) {
+  if (!experienceName) return "Dining experience at Limban Resort";
+  const baseDescription = shortIntro?.split('.')[0] || "dining experience";
+  return `${experienceName} - ${baseDescription} at Limban Resort, Tadoba`;
+}
+---
+
+<Layout title="Dining Experiences - Limban Resort">
+  <AstroSEO
+    title="Dining Experiences | Limban Resort - Tadoba Safari Lodge"
+    description="Discover authentic dining experiences at Limban Resort - from jungle-fresh ingredients to intimate bush dinners under starlit skies in the heart of Tadoba."
+    canonical="https://limban.com/dining"
+    openGraph={{
+      title: "Dining Experiences at Limban Resort - Tadoba Safari Lodge",
+      description: "Authentic Indian cuisine, locally sourced ingredients, and unforgettable dining settings in the wilderness of Tadoba National Park.",
+      image: experiences?.heroImage || "",
+      type: "website",
+      url: "https://limban.com/dining",
+    }}
+    additionalMetaTags={[
+      { name: "robots", content: "index, follow" },
+      {
+        name: "keywords",
+        content: "Limban Resort dining, Tadoba safari lodge restaurant, local Indian cuisine, bush dining, safari bar",
+      },
+      { name: "theme-color", content: "#1f2937" },
+    ]}
+  />
+
+  <div class="bg-gray-950 text-gray-100 selection:bg-gray-700">
+    
+  <!-- Enhanced Hero Section - Vibe Page Style with Dining Images -->
+  <section class="relative pt-48 pb-32 overflow-hidden">
+    
+    <!-- Dynamic Image Gallery Background (Vibe Style) -->
+    <div class="absolute inset-0 grid grid-cols-4 md:grid-cols-6 gap-2 h-full opacity-50">
+
+      <!-- Multi-layered Image Grid - Same as Vibe Page -->
+      <div class="absolute inset-0 grid grid-cols-4 md:grid-cols-6 gap-0 opacity-50">
+        {experiences.concat(experiences).slice(0, 24).map((experience, index) => (
+          <div 
+            key={`bg-${index}`}
+            class="relative overflow-hidden h-full"
+            style={`animation-delay: ${index * 150}ms`}
+          >
+            <!-- LQIP Background -->
+            <img
+              src={experience.placeholder}
+              alt=""
+              class="absolute inset-0 w-full h-full object-cover blur-sm scale-110"
+            />
+            
+            <!-- Main Image with Staggered Fade-in -->
+            <img
+              src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1' height='1'%3E%3C/svg%3E"
+              data-src={experience.heroImage}
+              alt=""
+              class="relative w-full h-full object-cover lazy-image opacity-0 hover:scale-105 transition-all duration-1000 fade-in-up"
+              loading="lazy"
+            />
+          </div>
+        ))}
+      </div>
+
+      <!-- Layered Gradients for Perfect Text Readability -->
+      <div class="absolute inset-0 bg-gradient-to-br from-black/80 via-black/50 to-black/70"></div>
+      <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-black/40"></div>
+      
+      <!-- Subtle Animated Overlay -->
+      <div class="absolute inset-0 bg-gradient-to-r from-transparent via-amber-400/5 to-transparent animate-pulse"></div>
+    </div>
+
+    <!-- Hero Content - Centered & Elegant -->
+    <div class="relative z-20 max-w-7xl mx-auto px-6">
+      <div class="text-center space-y-8">
+        
+        <!-- Badge -->
+        <div class="inline-block px-8 py-3 bg-amber-400/10 border border-amber-400/30 rounded-full mb-8 backdrop-blur-xl">
+          <span class="text-amber-400 text-sm font-medium tracking-widest uppercase">Savor the Wild</span>
+        </div>
+        
+        <!-- Main Heading -->
+        <h1 class="font-serif italic text-5xl md:text-6xl lg:text-8xl text-white leading-tight">
+          Dining <span class="text-amber-400">Experiences</span>
+        </h1>
+        
+        <!-- Subheading -->
+        <p class="text-xl md:text-2xl text-gray-200 font-light leading-relaxed max-w-4xl mx-auto">
+          In the heart of Tadoba, every meal tells a story. From dawn coffee with the morning chorus 
+          to candlelit dinners under ancient trees, discover authentic flavors crafted from the 
+          freshest local ingredients. This is dining as nature intended.
+        </p>
+        
+        <!-- Scroll Indicator -->
+        <div class="flex justify-center pt-8">
+          <div class="animate-bounce">
+            <svg class="w-6 h-6 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path>
+            </svg>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+    <!-- Dining Experiences Grid - 3x2 Layout -->
+    <section class="py-32 bg-gray-950">
+      <div class="max-w-7xl mx-auto px-6">
+        
+        {error ? (
+          <div class="text-center">
+            <p class="text-red-400">{error}</p>
+          </div>
+        ) : (
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {experiences.map((experience, index) => (
+              <div
+                key={experience.id}
+                class="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-gray-800/50 to-gray-900/50 backdrop-blur-xl border border-gray-700 hover:border-amber-400/50 transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl hover:shadow-black/20"
+              >
+                <!-- Hero Image with LQIP -->
+                <div class="relative aspect-[4/3] overflow-hidden">
+                  <!-- LQIP Background -->
+                  <div class="absolute inset-0">
+                    <img
+                      src={experience.placeholder}
+                      alt=""
+                      class="w-full h-full object-cover blur-sm scale-110"
+                    />
+                  </div>
+                  
+                  <!-- Main Image with Lazy Loading -->
+                  <img
+                    src={experience.heroImage}
+                    data-src={experience.heroImage}
+                    alt={generateAltText(experience.name, experience.intro)}
+                    class="relative w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-in-out will-change-transform"
+                    loading="lazy"
+                  />                  
+                  <!-- Gradient Overlay -->
+                  <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
+                  
+                  <!-- Experience Logo -->
+                  {experience.logo && (
+                    <div class="absolute top-4 left-4">
+                      <img
+                        src={experience.logo}
+                        alt={`${experience.name} logo`}
+                        class="w-16 h-16 object-contain bg-white/10 backdrop-blur-sm rounded-full flex items-center justify-center border border-white/20"
+                        loading="lazy"
+                      />
+                    </div>
+                  )}
+                </div>
+
+                <!-- Content -->
+                <div class="p-8">
+                  <h3 class="font-serif italic text-2xl text-white mb-4 group-hover:text-amber-400 transition-colors duration-300">
+                    {experience.name}
+                  </h3>
+                  
+                  <p class="text-gray-300 font-light leading-relaxed mb-6 line-clamp-3">
+                    {experience.intro}
+                  </p>
+                  
+                  <!-- CTA Button -->
+                  <a
+                    href={`/dining/${experience.slug}`}
+                    class="group relative block w-full text-center font-semibold bg-gradient-to-r from-gray-100 to-gray-200 hover:from-orange-400 hover:to-orange-500 text-gray-900 hover:text-white px-6 py-3 rounded-lg text-sm tracking-wide transition-all duration-300 hover:shadow-lg border border-gray-300 hover:border-orange-400"
+                  >
+                    More: {experience.name}
+                  </a>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </section>
+
+    <!-- Philosophy Section -->
+    <section class="py-32 bg-gray-900">
+      <div class="max-w-6xl mx-auto px-6 text-center">
+        <div class="inline-block px-6 py-2 bg-amber-400/10 border border-amber-400/30 rounded-full mb-8">
+          <span class="text-amber-400 text-sm font-medium tracking-widest uppercase">Our Promise</span>
+        </div>
+        <h2 class="font-serif italic text-4xl md:text-5xl text-white mb-8">
+          Fresh. Local. Authentic.
+        </h2>
+        <p class="text-xl text-gray-300 font-light leading-relaxed max-w-4xl mx-auto">
+          In the heart of Tadoba's wilderness, we believe great food comes from great ingredients. 
+          Every dish is crafted from locally sourced produce, prepared with love, and served with 
+          the kind of personal attention that makes each meal memorable. Not everything is available 
+          always here. And it's good that way.
+        </p>
+      </div>
+    </section>
+
+    <!-- Call to Action -->
+    <section class="py-32 bg-gray-950">
+      <div class="max-w-4xl mx-auto px-6 text-center">
+        <h2 class="font-serif italic text-4xl md:text-6xl text-white mb-8">
+          Ready to Taste the Wild?
+        </h2>
+        <p class="text-xl text-gray-300 font-light leading-relaxed mb-12 max-w-3xl mx-auto">
+          From sunrise coffee to starlit dinners, every meal at Limban is an experience. 
+          Book your stay and discover flavors that connect you to the heart of Tadoba.
+        </p>
+        <div class="flex flex-col sm:flex-row gap-6 justify-center">
+          <a
+            href="/rooms"
+            class="inline-flex items-center px-8 py-4 bg-amber-400 text-gray-900 font-medium rounded-full hover:bg-amber-300 hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl"
+          >
+            Book Your Stay
+            <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path>
+            </svg>
+          </a>
+          <a
+            href="/contact"
+            class="inline-flex items-center px-8 py-4 border-2 border-gray-600 text-gray-300 font-medium rounded-full hover:border-amber-400 hover:text-amber-400 hover:scale-105 transition-all duration-300"
+          >
+            Plan Your Experience
+            <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
+            </svg>
+          </a>
+        </div>
+      </div>
+    </section>
+    
+  </div>
+</Layout>
+
+<script>
+  // Advanced Lazy Loading with Intersection Observer
+  const lazyImages = document.querySelectorAll('.lazy-image');
+  const imageObserver = new IntersectionObserver((entries, observer) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const img = entry.target;
+        const src = img.dataset.src;
+        if (src) {
+          img.src = src;
+          img.classList.add('opacity-100');
+          img.classList.remove('opacity-0');
+          observer.unobserve(img);
+        }
+      }
+    });
+  }, {
+    rootMargin: '100px 0px',
+    threshold: 0.1
+  });
+
+  lazyImages.forEach(img => imageObserver.observe(img));
+
+  // Intersection Observer for fade-in animations
+  const observerOptions = {
+    threshold: 0.1,
+    rootMargin: "0px 0px -50px 0px",
+  };
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (entry.isIntersecting) {
+        entry.target.style.opacity = "1";
+        entry.target.style.transform = "translateY(0)";
+      }
+    });
+  }, observerOptions);
+
+  // Observe elements for animation
+  document.querySelectorAll("section > div").forEach((el) => {
+    el.style.opacity = "0";
+    el.style.transform = "translateY(30px)";
+    el.style.transition = "opacity 0.8s ease, transform 0.8s ease";
+    observer.observe(el);
+  });
+</script>
+
+<style>
+  /* Critical CSS for immediate render */
+  .lazy-image {
+    transition: opacity 0.7s ease-in-out;
+  }
+  
+  .line-clamp-3 {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  
+  /* Custom scrollbar */
+  ::-webkit-scrollbar {
+    width: 8px;
+  }
+  
+  ::-webkit-scrollbar-track {
+    background: #1f2937;
+  }
+  
+  ::-webkit-scrollbar-thumb {
+    background: #f59e0b;
+    border-radius: 4px;
+  }
+  
+  ::-webkit-scrollbar-thumb:hover {
+    background: #d97706;
+  }
+  /* Staggered Fade-in Animation */
+  @keyframes fade-in-up {
+    0% {
+      opacity: 0;
+      transform: translateY(20px) scale(0.95);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
+
+  .fade-in-up {
+    animation: fade-in-up 1.2s ease-out forwards;
+  }
+
+  /* Staggered delays for grid items */
+  .grid > div:nth-child(1) { animation-delay: 0ms; }
+  .grid > div:nth-child(2) { animation-delay: 150ms; }
+  .grid > div:nth-child(3) { animation-delay: 300ms; }
+  .grid > div:nth-child(4) { animation-delay: 450ms; }
+  .grid > div:nth-child(5) { animation-delay: 600ms; }
+  .grid > div:nth-child(6) { animation-delay: 750ms; }
+  /* Continue pattern for more items */
+  
+  /* Subtle parallax effect */
+  @media (prefers-reduced-motion: no-preference) {
+    .hero-parallax {
+      transform: translateZ(0);
+    }
+  }
+  
+  /* Enhanced lazy loading visibility */
+  .lazy-image {
+    transition: opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+</style>

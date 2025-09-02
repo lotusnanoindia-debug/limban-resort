@@ -395,6 +395,69 @@ export async function fetchVibePageData() {
   }
 }
 
+// In your api.js
+export async function fetchDiningExperiencesData() {
+  const query = `
+    query DiningExperiences {
+      restaurants(first: 100) {
+        id
+        restaurantName
+        logo {
+          url
+          width
+          height
+          # Optimized logo for cards
+          optimisedLogo: url(transformation: {
+            image: { 
+              resize: { width: 80, height: 80, fit: crop },
+              quality: { value: 70 }
+            },
+            document: { output: { format: webp } }
+          })
+        }
+        shortIntro
+        longDescription
+        images(first: 10) {
+          url
+          width
+          height
+          # Hero image for card
+          heroImage: url(transformation: {
+            image: { 
+              resize: { width: 800, height: 600, fit: crop },
+              quality: { value: 70 }
+            },
+            document: { output: { format: webp } }
+          })
+          # Thumbnail for grid
+          thumbnail: url(transformation: {
+            image: { 
+              resize: { width: 400, height: 300, fit: crop },
+              quality: { value: 65 }
+            },
+            document: { output: { format: webp } }
+          })
+          # LQIP placeholder
+          placeholder: url(transformation: {
+            image: { 
+              resize: { width: 20, height: 15, fit: crop },
+              quality: { value: 20 }
+            },
+            document: { output: { format: webp } }
+          })
+        }
+      }
+    }
+  `;
+
+  try {
+    const data = await request(HYGRAPH_URL, query);
+    return data.restaurants;
+  } catch (error) {
+    console.error('Error fetching dining experiences:', error);
+    throw error;
+  }
+}
 
 
 
