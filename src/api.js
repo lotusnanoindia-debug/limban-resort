@@ -219,23 +219,6 @@ export async function fetchAboutData() {
             document: { output: { format: webp } }
           })
         }
-        spaceImages(first: 100) {
-          url
-          optimisedThumbnail: url(transformation: {
-            image: { 
-              resize: { width: 300, height: 250, fit: crop },
-              quality: { value: 60 }
-            },
-            document: { output: { format: webp } }
-          })
-          optimisedLarge: url(transformation: {
-            image: { 
-              resize: { width: 1024, height: 768, fit: crop },
-              quality: { value: 70 }
-            },
-            document: { output: { format: webp } }
-          })
-        }
         teamImages(first: 100) {
           url
           optimisedSquare: url(transformation: {
@@ -247,17 +230,67 @@ export async function fetchAboutData() {
           })
         }
       }
+      
+      # Pull vibe gallery with optimized transforms
+      vibeGallery(where: {id: "cmf0lo9eja9wk07pcwlzw8zdh"}) {
+        title
+        images(first: 100) {
+          image {
+            url
+            fileName
+            width
+            height
+            # Ultra-optimized thumbnails for grid
+            micro: url(transformation: {
+              image: { 
+                resize: { width: 200, height: 150, fit: crop },
+                quality: { value: 45 }
+              },
+              document: { output: { format: webp } }
+            })
+            # Optimized card view
+            card: url(transformation: {
+              image: { 
+                resize: { width: 600, height: 450, fit: crop },
+                quality: { value: 65 }
+              },
+              document: { output: { format: webp } }
+            })
+            # High-res for modal
+            large: url(transformation: {
+              image: { 
+                resize: { width: 1920, fit: scale },
+                quality: { value: 80 }
+              },
+              document: { output: { format: webp } }
+            })
+            # LQIP placeholder
+            placeholder: url(transformation: {
+              image: { 
+                resize: { width: 20, height: 15, fit: crop },
+                quality: { value: 20 }
+              },
+              document: { output: { format: webp } }
+            })
+          }
+          altText
+        }
+      }
     }
   `;
 
   try {
     const data = await request(HYGRAPH_URL, query);
-    return data.aboutPage;
+    return {
+      aboutPage: data.aboutPage,
+      vibeGallery: data.vibeGallery
+    };
   } catch (error) {
     console.error('Error fetching about data:', error);
     throw error;
   }
 }
+
 
 
 export async function fetchVibePageData() {
