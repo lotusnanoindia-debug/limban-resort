@@ -118,7 +118,7 @@ const ROOM_BY_SLUG_QUERY = `
           }
         )
       }
-      gallery {
+      gallery(first: 100) {
         __typename
         ... on RoomGalleryItem {
           id

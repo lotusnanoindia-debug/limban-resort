@@ -24,6 +24,14 @@ const awards = [
     description: "Praised for its authentic and immersive safari experience.",
   },
   {
+    logo: "/fssai.png",
+    alt: "Fully certified by The Food Safety and Standards Authority of India (FSSAI)",
+    award: "Fully certified",
+    year: "Since 2024",
+    description:
+      "We are fully certified by The Food Safety and Standards Authority of India (FSSAI)",
+  },
+  {
     organization: "★★★★★",
     award: "Guest Favorite",
     year: "5/5 Stars",
@@ -47,7 +55,7 @@ const awards = [
         worldwide.
       </p>
     </div>
-    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8">
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-8">
       {
         awards.map((award, index) => (
           <div
@@ -64,7 +72,7 @@ const awards = [
                   decoding="async"
                 />
               ) : (
-                <h4 class="text-lg text-yellow-400 tracking-wider">
+                <h4 class="text-2xl text-yellow-400 tracking-wider">
                   {award.organization}
                 </h4>
               )}
