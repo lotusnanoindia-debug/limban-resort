@@ -1,6 +1,7 @@
 ---
 import Header from "../components/Header.astro";
 import Footer from "../components/Footer.astro";
+import GalleryModal from "../components/GalleryModal.astro";
 import "../styles/global.css";
 const { title = "Limban Resort" } = Astro.props;
 ---
@@ -13,6 +14,7 @@ const { title = "Limban Resort" } = Astro.props;
     <title>{title}</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="preconnect" href="https://ap-south-1.cdn.hygraph.com" />
     <link
       href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400;1,600&display=swap"
       rel="stylesheet"
@@ -26,5 +28,6 @@ const { title = "Limban Resort" } = Astro.props;
       <slot />
     </main>
     <Footer />
+    <GalleryModal />
   </body>
 </html>

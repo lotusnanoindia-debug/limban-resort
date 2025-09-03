@@ -3,6 +3,18 @@ import { request } from 'graphql-request';
 // Your exact Hygraph endpoint from PHP
 const HYGRAPH_URL = 'https://ap-south-1.cdn.hygraph.com/content/cmek3o66w01vb07w64qwgkybp/master';
 
+const IMAGE_FIELDS_FRAGMENT = `
+  fragment ImageFields on Asset {
+    url
+    width
+    height
+    placeholder: url(transformation: { image: { resize: { width: 20, height: 20, fit: crop }, quality: { value: 20 } }, document: { output: { format: webp } } })
+    thumb400: url(transformation: { image: { resize: { width: 400, height: 400, fit: crop }, quality: { value: 65 } }, document: { output: { format: webp } } })
+    thumb800: url(transformation: { image: { resize: { width: 800, height: 800, fit: crop }, quality: { value: 60 } }, document: { output: { format: webp } } })
+    large: url(transformation: { image: { resize: { width: 1920, fit: scale }, quality: { value: 80 } }, document: { output: { format: webp } } })
+  }
+`;
+
 // Hero query - exactly matching your PHP
 const HERO_QUERY = `
   query GetHeroSlides {
@@ -123,45 +135,7 @@ const ROOM_BY_SLUG_QUERY = `
         ... on RoomGalleryItem {
           id
           image {
-            url
-            width
-            height
-            thumb400: url(
-              transformation: {
-                image: {
-                  resize: {width: 400, height: 400, fit: crop}, 
-                  quality: {value: 65}
-                }, 
-                document: {output: {format: webp}}
-              }
-            )
-            thumb800: url(
-              transformation: {
-                image: {
-                  resize: {width: 800, height: 800, fit: crop}, 
-                  quality: {value: 60}
-                }, 
-                document: {output: {format: webp}}
-              }
-            )
-            large: url(
-              transformation: {
-                image: {
-                  resize: {width: 2000, fit: scale}, 
-                  quality: {value: 80}
-                }, 
-                document: {output: {format: webp}}
-              }
-            )
-            placeholder: url(
-              transformation: {
-                image: { 
-                  resize: { width: 20, height: 20, fit: crop },
-                  quality: { value: 20 }
-                },
-                document: { output: { format: webp } }
-              }
-            )
+            ...ImageFields
           }
           caption
         }
@@ -173,6 +147,7 @@ const ROOM_BY_SLUG_QUERY = `
       }
     }
   }
+  ${IMAGE_FIELDS_FRAGMENT}
 `;
 
 // Experience query - exactly matching your PHP
@@ -257,47 +232,13 @@ export async function fetchAboutData() {
         title
         images(first: 100) {
           image {
-            url
-            fileName
-            width
-            height
-            # Ultra-optimized thumbnails for grid
-            micro: url(transformation: {
-              image: { 
-                resize: { width: 200, height: 150, fit: crop },
-                quality: { value: 45 }
-              },
-              document: { output: { format: webp } }
-            })
-            # Optimized card view
-            card: url(transformation: {
-              image: { 
-                resize: { width: 600, height: 450, fit: crop },
-                quality: { value: 65 }
-              },
-              document: { output: { format: webp } }
-            })
-            # High-res for modal
-            large: url(transformation: {
-              image: { 
-                resize: { width: 1920, fit: scale },
-                quality: { value: 80 }
-              },
-              document: { output: { format: webp } }
-            })
-            # LQIP placeholder
-            placeholder: url(transformation: {
-              image: { 
-                resize: { width: 20, height: 15, fit: crop },
-                quality: { value: 20 }
-              },
-              document: { output: { format: webp } }
-            })
+            ...ImageFields
           }
           altText
         }
       }
     }
+    ${IMAGE_FIELDS_FRAGMENT}
   `;
 
   try {
@@ -321,38 +262,7 @@ export async function fetchVibePageData() {
         title
         images(first: 100) {
           image {
-            url
-            fileName
-            width
-            height
-            micro: url(transformation: {
-              image: { 
-                resize: { width: 200, height: 150, fit: crop },
-                quality: { value: 45 }
-              },
-              document: { output: { format: webp } }
-            })
-            card: url(transformation: {
-              image: { 
-                resize: { width: 600, height: 450, fit: crop },
-                quality: { value: 65 }
-              },
-              document: { output: { format: webp } }
-            })
-            large: url(transformation: {
-              image: { 
-                resize: { width: 1920, fit: scale },
-                quality: { value: 80 }
-              },
-              document: { output: { format: webp } }
-            })
-            placeholder: url(transformation: {
-              image: { 
-                resize: { width: 20, height: 15, fit: crop },
-                quality: { value: 20 }
-              },
-              document: { output: { format: webp } }
-            })
+            ...ImageFields
           }
           altText
         }
@@ -363,44 +273,14 @@ export async function fetchVibePageData() {
         image(first: 100) {
           ... on WildlifePic {
             image {
-              url
-              fileName
-              width
-              height
-              micro: url(transformation: {
-                image: { 
-                  resize: { width: 200, height: 150, fit: crop },
-                  quality: { value: 45 }
-                },
-                document: { output: { format: webp } }
-              })
-              card: url(transformation: {
-                image: { 
-                  resize: { width: 600, height: 450, fit: crop },
-                  quality: { value: 65 }
-                },
-                document: { output: { format: webp } }
-              })
-              large: url(transformation: {
-                image: { 
-                  resize: { width: 1920, fit: scale },
-                  quality: { value: 80 }
-                },
-                document: { output: { format: webp } }
-              })
-              placeholder: url(transformation: {
-                image: { 
-                  resize: { width: 20, height: 15, fit: crop },
-                  quality: { value: 20 }
-                },
-                document: { output: { format: webp } }
-              })
+              ...ImageFields
             }
             alt
           }
         }
       }
     }
+    ${IMAGE_FIELDS_FRAGMENT}
   `;
 
   try {
@@ -503,32 +383,11 @@ export async function fetchDiningExperienceBySlug(slug) {
           })
         }
         images(first: 20) {
-          url
-          width
-          height
-          placeholder: url(transformation: {
-            image: { resize: { width: 20, height: 15, fit: crop }, quality: { value: 20 } }
-            document: { output: { format: webp } }
-          })
-          thumb400: url(transformation: {
-            image: { resize: { width: 400, height: 400, fit: crop }, quality: { value: 60 } }
-            document: { output: { format: webp } }
-          })
-          thumb800: url(transformation: {
-            image: { resize: { width: 800, height: 800, fit: crop }, quality: { value: 55 } }
-            document: { output: { format: webp } }
-          })
-          large: url(transformation: {
-            image: { resize: { width: 1920, fit: scale }, quality: { value: 80 } }
-            document: { output: { format: webp } }
-          })
-          hero: url(transformation: {
-            image: { resize: { width: 1600, height: 900, fit: crop }, quality: { value: 75 } }
-            document: { output: { format: webp } }
-          })
+          ...ImageFields
         }
       }
     }
+    ${IMAGE_FIELDS_FRAGMENT}
   `;
   const variables = { url: slug };
 

@@ -1,7 +1,7 @@
 ---
 import Layout from "../layouts/Layout.astro";
 import { AstroSEO } from "astro-seo-plugin";
-import GalleryModal from "../components/GalleryModal.astro";
+import GalleryGrid from "../components/GalleryGrid.astro";
 import { fetchAboutData } from "../api.js";
 
 // Fetch about page data
@@ -20,31 +20,39 @@ const aboutPage = aboutData?.aboutPage || {};
 const vibeGallery = aboutData?.vibeGallery || { images: [] };
 
 // Safe image source extraction
-const heroImageSrc = aboutPage?.heroImage?.optimisedCard || aboutPage?.heroImage?.url || "";
-const philosophyImageSrc = aboutPage?.philosophyImage?.optimisedWide || aboutPage?.philosophyImage?.url || "";
-const foundersImageSrc = aboutPage?.foundersImage?.optimisedPortrait || aboutPage?.foundersImage?.url || "";
+const heroImageSrc =
+  aboutPage?.heroImage?.optimisedCard || aboutPage?.heroImage?.url || "";
+const philosophyImageSrc =
+  aboutPage?.philosophyImage?.optimisedWide ||
+  aboutPage?.philosophyImage?.url ||
+  "";
+const foundersImageSrc =
+  aboutPage?.foundersImage?.optimisedPortrait ||
+  aboutPage?.foundersImage?.url ||
+  "";
 const teamImages = aboutPage?.teamImages || [];
 
 // Process vibe gallery images with safe access
-const vibeImages = vibeGallery?.images?.map((item, index) => ({
-  id: `vibe-${index}`,
-  src: item?.image?.card || item?.image?.url || "",
-  placeholder: item?.image?.placeholder || item?.image?.url || "",
-  large: item?.image?.large || item?.image?.url || "",
-  alt: item?.altText || `Experience the Limban vibe ${index + 1}`,
-  width: item?.image?.width || 600,
-  height: item?.image?.height || 450
-})) || [];
+const vibeImages =
+  vibeGallery?.images?.map((item, index) => ({
+    src: item?.image?.thumb800 || item?.image?.url || "",
+    srcset: `${item?.image?.thumb400} 400w, ${item?.image?.thumb800} 800w`,
+    placeholder: item?.image?.placeholder || item?.image?.url || "",
+    large: item?.image?.large || item?.image?.url || "",
+    alt: item?.altText || `Experience the Limban vibe ${index + 1}`,
+    width: item?.image?.width || 600,
+    height: item?.image?.height || 450,
+  })) || [];
 
 // Helper function to capitalize first letter of each word
 function capitalizeWords(str) {
-  if (!str) return '';
-  return str.replace(/\w\S*/g, (txt) => 
-    txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase()
+  if (!str) return "";
+  return str.replace(
+    /\w\S*/g,
+    (txt) => txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase(),
   );
 }
 ---
-
 
 <Layout title="About Limban Resort - Where the Wild Meets the Soul">
   <AstroSEO
@@ -53,8 +61,10 @@ function capitalizeWords(str) {
     canonical="https://limban.com/about"
     openGraph={{
       title: "About Limban Resort - Where the Wild Meets the Soul",
-      description: "A luxury safari sanctuary where architecture, wilderness, and soul converge in Tadoba National Park.",
-      image: aboutData.heroImage?.optimisedCard || aboutData.heroImage?.url || "",
+      description:
+        "A luxury safari sanctuary where architecture, wilderness, and soul converge in Tadoba National Park.",
+      image:
+        aboutData.heroImage?.optimisedCard || aboutData.heroImage?.url || "",
       type: "website",
       url: "https://limban.com/about",
     }}
@@ -62,7 +72,8 @@ function capitalizeWords(str) {
       "@context": "https://schema.org",
       "@type": "TouristDestination",
       name: "Limban Resort",
-      description: "Luxury safari resort in Tadoba National Park offering premium eco-friendly accommodation and tiger safari experiences.",
+      description:
+        "Luxury safari resort in Tadoba National Park offering premium eco-friendly accommodation and tiger safari experiences.",
       url: "https://limban.com",
       address: {
         "@type": "PostalAddress",
@@ -94,7 +105,8 @@ function capitalizeWords(str) {
       {
         rel: "preload",
         as: "image",
-        href: aboutData.heroImage?.optimisedCard || aboutData.heroImage?.url || "",
+        href:
+          aboutData.heroImage?.optimisedCard || aboutData.heroImage?.url || "",
       },
       {
         rel: "apple-touch-icon",
@@ -119,21 +131,25 @@ function capitalizeWords(str) {
       { name: "robots", content: "index, follow" },
       {
         name: "keywords",
-        content: "Limban Resort story, Tadoba luxury lodge, Amala Sheth architect, safari resort philosophy",
+        content:
+          "Limban Resort story, Tadoba luxury lodge, Amala Sheth architect, safari resort philosophy",
       },
       { name: "theme-color", content: "#1f2937" },
     ]}
   />
 
   <div class="bg-gray-950 text-gray-100 selection:bg-gray-700">
-    
     <!-- Hero Section - Dramatic Opening -->
-    <section class="relative min-h-screen flex items-center justify-center overflow-hidden">
+    <section
+      class="relative min-h-screen flex items-center justify-center overflow-hidden"
+    >
       <!-- Background with Parallax Effect -->
       <div class="absolute inset-0">
         <div class="absolute inset-0 bg-black/60 z-10"></div>
         <img
-          src={aboutData?.aboutPage?.heroImage?.optimisedCard || aboutData?.aboutPage?.heroImage?.url || ""}
+          src={aboutData?.aboutPage?.heroImage?.optimisedCard ||
+            aboutData?.aboutPage?.heroImage?.url ||
+            ""}
           alt="Limban Resort - Where wilderness meets luxury in Tadoba National Park"
           class="w-full h-full object-cover scale-105"
         />
@@ -142,11 +158,15 @@ function capitalizeWords(str) {
       <!-- Hero Content -->
       <div class="relative z-20 text-center max-w-5xl mx-auto px-6">
         <div class="space-y-8">
-          <h1 class="font-serif text-5xl md:text-7xl lg:text-8xl text-white mb-6 leading-none italic drop-shadow-dark-lg">
+          <h1
+            class="font-serif text-5xl md:text-7xl lg:text-8xl text-white mb-6 leading-none italic drop-shadow-dark-lg"
+          >
             Where the Wild<br />
             <span class="text-amber-400">Meets the Soul</span>
           </h1>
-          <p class="text-xl md:text-2xl text-gray-200 font-light leading-relaxed max-w-3xl mx-auto">
+          <p
+            class="text-xl md:text-2xl text-gray-200 font-light leading-relaxed max-w-3xl mx-auto"
+          >
             More than a destination - an awakening. A carefully crafted
             sanctuary where luxury, wilderness, and heritage converge in perfect
             harmony.
@@ -163,10 +183,18 @@ function capitalizeWords(str) {
     <!-- Breadcrumb Navigation -->
     <nav class="py-6 border-b border-gray-800/50">
       <div class="max-w-7xl mx-auto px-6">
-        <div class="flex items-center justify-center space-x-2 text-sm text-gray-400">
-          <a href="/" class="hover:text-amber-400 transition-colors duration-300">Home</a>
+        <div
+          class="flex items-center justify-center space-x-2 text-sm text-gray-400"
+        >
+          <a
+            href="/"
+            class="hover:text-amber-400 transition-colors duration-300">Home</a
+          >
           <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-            <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
+            <path
+              fill-rule="evenodd"
+              d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
+              clip-rule="evenodd"></path>
           </svg>
           <span class="text-amber-400 font-medium">About</span>
         </div>
@@ -178,13 +206,20 @@ function capitalizeWords(str) {
       <div class="max-w-6xl mx-auto px-6">
         <!-- Opening Statement -->
         <div class="text-center mb-20">
-          <div class="inline-block px-6 py-2 bg-amber-400/10 border border-amber-400/30 rounded-full mb-8">
-            <span class="text-amber-400 text-sm font-medium tracking-widest uppercase">Our Philosophy</span>
+          <div
+            class="inline-block px-6 py-2 bg-amber-400/10 border border-amber-400/30 rounded-full mb-8"
+          >
+            <span
+              class="text-amber-400 text-sm font-medium tracking-widest uppercase"
+              >Our Philosophy</span
+            >
           </div>
           <h2 class="font-serif italic text-4xl md:text-6xl text-white mb-8">
             A Sanctuary for the Soul
           </h2>
-          <p class="text-xl text-gray-300 font-light leading-relaxed max-w-4xl mx-auto">
+          <p
+            class="text-xl text-gray-300 font-light leading-relaxed max-w-4xl mx-auto"
+          >
             Tucked within the lush, untamed landscapes of Tadoba, Limban is more
             than a destination—it's an experience, a retreat, and a deep exhale.
             Crafted for those who seek meaning in nature, connection in
@@ -194,20 +229,29 @@ function capitalizeWords(str) {
 
         <!-- Dynamic Philosophy Image -->
         <div class="mb-20">
-          <div class="relative aspect-[21/9] bg-gray-800 rounded-2xl overflow-hidden">
+          <div
+            class="relative aspect-[21/9] bg-gray-800 rounded-2xl overflow-hidden"
+          >
             <img
-              src={aboutData?.aboutPage?.philosophyImage?.optimisedWide || aboutData?.aboutPage?.philosophyImage?.url || ""}
+              src={aboutData?.aboutPage?.philosophyImage?.optimisedWide ||
+                aboutData?.aboutPage?.philosophyImage?.url ||
+                ""}
               alt="Limban Resort philosophy - luxury safari lodge surrounded by Tadoba wilderness"
-              class="w-full h-full object-cover hover:scale-105 transition-transform duration-700" 
+              class="w-full h-full object-cover hover:scale-105 transition-transform duration-700"
               loading="lazy"
             />
-            <div class="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent"></div>
+            <div
+              class="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent"
+            >
+            </div>
           </div>
         </div>
 
         <!-- Core Philosophy Text -->
         <div class="text-center">
-          <p class="text-2xl md:text-xl text-white font-light leading-relaxed max-w-5xl mx-auto">
+          <p
+            class="text-2xl md:text-xl text-white font-light leading-relaxed max-w-5xl mx-auto"
+          >
             From ethical safaris that trace the paths of tigers to intimate
             celebrations beneath ancient trees, Limban is a call back to what's
             real. We celebrate life's raw beauty, honour the wild with grace,
@@ -222,8 +266,13 @@ function capitalizeWords(str) {
     <section class="py-32 bg-gray-950">
       <div class="max-w-7xl mx-auto px-6">
         <div class="text-center mb-20">
-          <div class="inline-block px-6 py-2 bg-amber-400/10 border border-amber-400/30 rounded-full mb-8">
-            <span class="text-amber-400 text-sm font-medium tracking-widest uppercase">The Visionaries</span>
+          <div
+            class="inline-block px-6 py-2 bg-amber-400/10 border border-amber-400/30 rounded-full mb-8"
+          >
+            <span
+              class="text-amber-400 text-sm font-medium tracking-widest uppercase"
+              >The Visionaries</span
+            >
           </div>
           <h2 class="font-serif italic text-4xl md:text-6xl text-white mb-8">
             Architects of Dreams
@@ -239,9 +288,13 @@ function capitalizeWords(str) {
           <div class="space-y-12">
             <!-- Amala Sheth -->
             <div class="group">
-              <div class="bg-gradient-to-br from-gray-800/50 to-gray-900/50 backdrop-blur-xl border border-gray-700 rounded-3xl p-8 hover:border-amber-400/30 transition-all duration-500">
+              <div
+                class="bg-gradient-to-br from-gray-800/50 to-gray-900/50 backdrop-blur-xl border border-gray-700 rounded-3xl p-8 hover:border-amber-400/30 transition-all duration-500"
+              >
                 <blockquote class="space-y-6">
-                  <p class="text-lg md:text-xl text-gray-200 font-light leading-relaxed italic">
+                  <p
+                    class="text-lg md:text-xl text-gray-200 font-light leading-relaxed italic"
+                  >
                     "In life's myriad journey, the fulfilment of all the senses
                     is the true culmination of one's ultimate experience. And
                     this knowledge is the seed that grows... bearing so many
@@ -249,13 +302,23 @@ function capitalizeWords(str) {
                     every Law of Nature and every Truth of Existence."
                   </p>
                   <footer class="flex items-center space-x-4">
-                    <div class="w-12 h-12 bg-amber-400/20 rounded-full flex items-center justify-center">
+                    <div
+                      class="w-12 h-12 bg-amber-400/20 rounded-full flex items-center justify-center"
+                    >
                       <span class="text-amber-400 font-serif text-xl">A</span>
                     </div>
                     <div>
-                      <cite class="text-amber-400 font-medium text-lg not-italic">Amala Sheth</cite>
+                      <cite
+                        class="text-amber-400 font-medium text-lg not-italic"
+                        >Amala Sheth</cite
+                      >
                       <p class="text-gray-400 text-sm">
-                        Founder & Principal Architect<br>Partner, <a href="http://www.metaphors-design.com/" target="_blank" class="text-blue-400 hover:text-blue-300 transition-colors duration-300">Metaphors Design</a>, Pune
+                        Founder & Principal Architect<br />Partner, <a
+                          href="http://www.metaphors-design.com/"
+                          target="_blank"
+                          class="text-blue-400 hover:text-blue-300 transition-colors duration-300"
+                          >Metaphors Design</a
+                        >, Pune
                       </p>
                     </div>
                   </footer>
@@ -265,21 +328,34 @@ function capitalizeWords(str) {
 
             <!-- Anand Bhagat -->
             <div class="group">
-              <div class="bg-gradient-to-br from-gray-800/50 to-gray-900/50 backdrop-blur-xl border border-gray-700 rounded-3xl p-8 hover:border-amber-400/30 transition-all duration-500">
+              <div
+                class="bg-gradient-to-br from-gray-800/50 to-gray-900/50 backdrop-blur-xl border border-gray-700 rounded-3xl p-8 hover:border-amber-400/30 transition-all duration-500"
+              >
                 <blockquote class="space-y-6">
-                  <p class="text-lg md:text-xl text-gray-200 font-light leading-relaxed italic">
+                  <p
+                    class="text-lg md:text-xl text-gray-200 font-light leading-relaxed italic"
+                  >
                     "There are but a few who are blessed with this realisation.
                     And it is this realisation which gives birth to a new
                     passion... to look, explore, connect and conserve."
                   </p>
                   <footer class="flex items-center space-x-4">
-                    <div class="w-12 h-12 bg-amber-400/20 rounded-full flex items-center justify-center">
+                    <div
+                      class="w-12 h-12 bg-amber-400/20 rounded-full flex items-center justify-center"
+                    >
                       <span class="text-amber-400 font-serif text-xl">A</span>
                     </div>
                     <div>
-                      <cite class="text-amber-400 font-medium text-lg not-italic">Anand Bhagat</cite>
+                      <cite
+                        class="text-amber-400 font-medium text-lg not-italic"
+                        >Anand Bhagat</cite
+                      >
                       <p class="text-gray-400 text-sm">
-                        Founder & Principal Architect<br>Partner, <a href="http://www.metaphors-design.com/" class="text-blue-400 hover:text-blue-300 transition-colors duration-300" target="_blank">Metaphors Design</a>, Pune
+                        Founder & Principal Architect<br />Partner, <a
+                          href="http://www.metaphors-design.com/"
+                          class="text-blue-400 hover:text-blue-300 transition-colors duration-300"
+                          target="_blank">Metaphors Design</a
+                        >, Pune
                       </p>
                     </div>
                   </footer>
@@ -292,9 +368,11 @@ function capitalizeWords(str) {
           <div class="relative">
             <div class="aspect-[4/5] bg-gray-800 rounded-3xl overflow-hidden">
               <img
-                src={aboutData?.aboutPage?.foundersImage?.optimisedPortrait || aboutData?.aboutPage?.foundersImage?.url || ""}
+                src={aboutData?.aboutPage?.foundersImage?.optimisedPortrait ||
+                  aboutData?.aboutPage?.foundersImage?.url ||
+                  ""}
                 alt="Amala Sheth and Anand Bhagat - Visionary architects and founders of Limban Resort"
-                class="w-full h-full object-cover hover:scale-105 transition-transform duration-700" 
+                class="w-full h-full object-cover hover:scale-105 transition-transform duration-700"
                 loading="lazy"
               />
             </div>
@@ -306,24 +384,39 @@ function capitalizeWords(str) {
     <!-- Our Ethos Teaser (insert after Visionaries, before Experiences) -->
     <section class="py-30 bg-green-950/30">
       <div class="max-w-4xl mx-auto px-6 text-center">
-        <div class="inline-block px-6 py-2 bg-amber-400/10 border border-amber-400/30 rounded-full mb-8">
-          <span class="text-amber-400 text-sm font-medium tracking-widest uppercase">Our Promise</span>
+        <div
+          class="inline-block px-6 py-2 bg-amber-400/10 border border-amber-400/30 rounded-full mb-8"
+        >
+          <span
+            class="text-amber-400 text-sm font-medium tracking-widest uppercase"
+            >Our Promise</span
+          >
         </div>
         <h2 class="font-serif italic text-4xl md:text-5xl text-white mb-8">
           People. Planet. Purpose.
         </h2>
         <p class="text-xl text-gray-300 font-light leading-relaxed mb-8">
-          Every decision at Limban honours our commitment to conservation, community, 
-          and conscious luxury. From solar-powered operations to locally-sourced dining, 
-          we believe true luxury means leaving the wild better than we found it.
+          Every decision at Limban honours our commitment to conservation,
+          community, and conscious luxury. From solar-powered operations to
+          locally-sourced dining, we believe true luxury means leaving the wild
+          better than we found it.
         </p>
-        <a 
-          href="/sustainability" 
+        <a
+          href="/sustainability"
           class="inline-flex items-center px-8 py-4 border-2 border-amber-400 text-amber-400 font-medium rounded-full hover:bg-amber-400 hover:text-gray-900 transition-all duration-300"
         >
           Discover Our Values
-          <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
+          <svg
+            class="w-5 h-5 ml-2"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M17 8l4 4m0 0l-4 4m4-4H3"></path>
           </svg>
         </a>
       </div>
@@ -332,71 +425,27 @@ function capitalizeWords(str) {
     <!-- Enhanced Vibe Gallery Section (Replacing your Spaces section) -->
     <section class="py-32 bg-gray-900">
       <div class="max-w-7xl mx-auto px-6">
-        
         <div class="text-center mb-20">
-          <div class="inline-block px-6 py-2 bg-amber-400/10 border border-amber-400/30 rounded-full mb-8">
-            <span class="text-amber-400 text-sm font-medium tracking-widest uppercase">The Limban Experience</span>
+          <div
+            class="inline-block px-6 py-2 bg-amber-400/10 border border-amber-400/30 rounded-full mb-8"
+          >
+            <span
+              class="text-amber-400 text-sm font-medium tracking-widest uppercase"
+              >The Limban Experience</span
+            >
           </div>
           <h2 class="font-serif italic text-4xl md:text-6xl text-white mb-8">
             Feel the Vibe that Calls You Wild
           </h2>
           <p class="text-xl text-gray-300 font-light max-w-4xl mx-auto">
-            From dawn to dusk, each corner of Limban offers a unique chapter in your safari story, 
-            designed to awaken your senses and connect you with the wild.
+            From dawn to dusk, each corner of Limban offers a unique chapter in
+            your safari story, designed to awaken your senses and connect you
+            with the wild.
           </p>
         </div>
 
         <!-- Vibe Gallery Grid -->
-        <div class="grid grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4 mb-12">
-          {vibeImages && vibeImages.length > 0 ? (
-            vibeImages.map((image, index) => (
-              <div 
-                key={index}
-                class="group relative aspect-[4/3] overflow-hidden rounded-md border border-gray-700 hover:border-amber-400/50 transition-all duration-500 hover:scale-105 hover:shadow-xl hover:shadow-black/20 cursor-pointer"
-                data-gallery-index={index}
-              >
-                <!-- LQIP Background -->
-                <div class="absolute inset-0">
-                  <img
-                    src={image.placeholder}
-                    alt=""
-                    class="w-full h-full object-cover blur-sm scale-110"
-                  />
-                </div>
-                
-                <!-- Main Image -->
-                <img
-                  src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1' height='1'%3E%3C/svg%3E"
-                  data-src={image.src}
-                  alt={image.alt}
-                  class="relative w-full h-full object-cover lazy-image opacity-0 group-hover:scale-110 transition-all duration-700"
-                  loading="lazy"
-                />
-                
-                <!-- Elegant Hover Overlay with Alt Text -->
-                <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-500"></div>
-                
-                <!-- Alt Text Display on Hover -->
-                <div class="absolute bottom-0 left-0 right-0 p-4 transform translate-y-full group-hover:translate-y-0 transition-transform duration-500">
-                  <p class="text-white text-sm font-serif italic leading-relaxed text-center">
-                    {capitalizeWords(image.alt)}
-                  </p>
-                </div>
-                            
-                <!-- View Icon -->
-                <div class="absolute top-3 right-3 w-10 h-10 bg-black/50 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                  <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-                  </svg>
-                </div>
-              </div>
-            ))
-          ) : (
-            <div class="col-span-full text-center">
-              <p class="text-gray-400">Spaces gallery coming soon...</p>
-            </div>
-          )}
-        </div>
+        <GalleryGrid images={vibeImages} layout="grid" />
 
         <!-- Space Descriptions -->
         <div class="text-center">
@@ -411,8 +460,13 @@ function capitalizeWords(str) {
     <section class="py-32 bg-gray-950">
       <div class="max-w-7xl mx-auto px-6">
         <div class="text-center mb-20">
-          <div class="inline-block px-6 py-2 bg-amber-400/10 border border-amber-400/30 rounded-full mb-8">
-            <span class="text-amber-400 text-sm font-medium tracking-widest uppercase">Find Your Way</span>
+          <div
+            class="inline-block px-6 py-2 bg-amber-400/10 border border-amber-400/30 rounded-full mb-8"
+          >
+            <span
+              class="text-amber-400 text-sm font-medium tracking-widest uppercase"
+              >Find Your Way</span
+            >
           </div>
           <h2 class="font-serif italic text-4xl md:text-6xl text-white mb-8">
             Journey to the Wild
@@ -427,10 +481,24 @@ function capitalizeWords(str) {
         <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
           <!-- By Air -->
           <div class="group text-center">
-            <div class="bg-gradient-to-br from-gray-800/30 to-gray-900/50 backdrop-blur-xl border border-gray-700 rounded-3xl p-8 hover:border-amber-400/30 hover:-translate-y-2 transition-all duration-500">
-              <div class="w-16 h-16 bg-amber-400/20 rounded-2xl flex items-center justify-center mx-auto mb-6">
-                <svg class="w-8 h-8" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M2.87725 15.3976L6.6941 17.3061L8.60252 21.1229L10.5109 19.2145V16.3519L13.8507 13.0121L16.7133 21.6L19.576 18.7374L17.1904 9.67238L21.0073 5.85553C21.7978 5.06504 21.7978 3.78339 21.0073 2.9929C20.2168 2.2024 18.9351 2.2024 18.1446 2.9929L14.3278 6.80974L5.26278 4.42421L2.40015 7.28685L10.9881 10.1495L7.64831 13.4892H4.78568L2.87725 15.3976Z" stroke="orange" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/>
+            <div
+              class="bg-gradient-to-br from-gray-800/30 to-gray-900/50 backdrop-blur-xl border border-gray-700 rounded-3xl p-8 hover:border-amber-400/30 hover:-translate-y-2 transition-all duration-500"
+            >
+              <div
+                class="w-16 h-16 bg-amber-400/20 rounded-2xl flex items-center justify-center mx-auto mb-6"
+              >
+                <svg
+                  class="w-8 h-8"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M2.87725 15.3976L6.6941 17.3061L8.60252 21.1229L10.5109 19.2145V16.3519L13.8507 13.0121L16.7133 21.6L19.576 18.7374L17.1904 9.67238L21.0073 5.85553C21.7978 5.06504 21.7978 3.78339 21.0073 2.9929C20.2168 2.2024 18.9351 2.2024 18.1446 2.9929L14.3278 6.80974L5.26278 4.42421L2.40015 7.28685L10.9881 10.1495L7.64831 13.4892H4.78568L2.87725 15.3976Z"
+                    stroke="orange"
+                    stroke-width="1"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"></path>
                 </svg>
               </div>
               <h3 class="text-xl font-semibold text-white mb-4">By Air</h3>
@@ -444,10 +512,24 @@ function capitalizeWords(str) {
 
           <!-- By Road -->
           <div class="group text-center">
-            <div class="bg-gradient-to-br from-gray-800/30 to-gray-900/50 backdrop-blur-xl border border-gray-700 rounded-3xl p-8 hover:border-amber-400/30 hover:-translate-y-2 transition-all duration-500">
-              <div class="w-16 h-16 bg-amber-400/20 rounded-2xl flex items-center justify-center mx-auto mb-6">
-                <svg class="w-8 h-8" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M5 13H8M2 9L4 10L5.27064 6.18807C5.53292 5.40125 5.66405 5.00784 5.90729 4.71698C6.12208 4.46013 6.39792 4.26132 6.70951 4.13878C7.06236 4 7.47705 4 8.30643 4H15.6936C16.523 4 16.9376 4 17.2905 4.13878C17.6021 4.26132 17.8779 4.46013 18.0927 4.71698C18.3359 5.00784 18.4671 5.40125 18.7294 6.18807L20 10L22 9M16 13H19M6.8 10H17.2C18.8802 10 19.7202 10 20.362 10.327C20.9265 10.6146 21.3854 11.0735 21.673 11.638C22 12.2798 22 13.1198 22 14.8V17.5C22 17.9647 22 18.197 21.9616 18.3902C21.8038 19.1836 21.1836 19.8038 20.3902 19.9616C20.197 20 19.9647 20 19.5 20H19C17.8954 20 17 19.1046 17 18C17 17.7239 16.7761 17.5 16.5 17.5H7.5C7.22386 17.5 7 17.7239 7 18C7 19.1046 6.10457 20 5 20H4.5C4.03534 20 3.80302 20 3.60982 19.9616C2.81644 19.8038 2.19624 19.1836 2.03843 18.3902C2 18.197 2 17.9647 2 17.5V14.8C2 13.1198 2 12.2798 2.32698 11.638C2.6146 11.0735 3.07354 10.6146 3.63803 10.327C4.27976 10 5.11984 10 6.8 10Z" stroke="orange" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/>
+            <div
+              class="bg-gradient-to-br from-gray-800/30 to-gray-900/50 backdrop-blur-xl border border-gray-700 rounded-3xl p-8 hover:border-amber-400/30 hover:-translate-y-2 transition-all duration-500"
+            >
+              <div
+                class="w-16 h-16 bg-amber-400/20 rounded-2xl flex items-center justify-center mx-auto mb-6"
+              >
+                <svg
+                  class="w-8 h-8"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M5 13H8M2 9L4 10L5.27064 6.18807C5.53292 5.40125 5.66405 5.00784 5.90729 4.71698C6.12208 4.46013 6.39792 4.26132 6.70951 4.13878C7.06236 4 7.47705 4 8.30643 4H15.6936C16.523 4 16.9376 4 17.2905 4.13878C17.6021 4.26132 17.8779 4.46013 18.0927 4.71698C18.3359 5.00784 18.4671 5.40125 18.7294 6.18807L20 10L22 9M16 13H19M6.8 10H17.2C18.8802 10 19.7202 10 20.362 10.327C20.9265 10.6146 21.3854 11.0735 21.673 11.638C22 12.2798 22 13.1198 22 14.8V17.5C22 17.9647 22 18.197 21.9616 18.3902C21.8038 19.1836 21.1836 19.8038 20.3902 19.9616C20.197 20 19.9647 20 19.5 20H19C17.8954 20 17 19.1046 17 18C17 17.7239 16.7761 17.5 16.5 17.5H7.5C7.22386 17.5 7 17.7239 7 18C7 19.1046 6.10457 20 5 20H4.5C4.03534 20 3.80302 20 3.60982 19.9616C2.81644 19.8038 2.19624 19.1836 2.03843 18.3902C2 18.197 2 17.9647 2 17.5V14.8C2 13.1198 2 12.2798 2.32698 11.638C2.6146 11.0735 3.07354 10.6146 3.63803 10.327C4.27976 10 5.11984 10 6.8 10Z"
+                    stroke="orange"
+                    stroke-width="1"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"></path>
                 </svg>
               </div>
               <h3 class="text-xl font-semibold text-white mb-4">By Road</h3>
@@ -461,10 +543,24 @@ function capitalizeWords(str) {
 
           <!-- By Train -->
           <div class="group text-center">
-            <div class="bg-gradient-to-br from-gray-800/30 to-gray-900/50 backdrop-blur-xl border border-gray-700 rounded-3xl p-8 hover:border-amber-400/30 hover:-translate-y-2 transition-all duration-500">
-              <div class="w-16 h-16 bg-amber-400/20 rounded-2xl flex items-center justify-center mx-auto mb-6">
-                <svg class="w-8 h-8" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M9.5 22H14.5M8 2H16M12 5V2M4 12H20M17 19L18.5 22M7 19L5.5 22M8.5 15.5H8.51M15.5 15.5H15.51M8.8 19H15.2C16.8802 19 17.7202 19 18.362 18.673C18.9265 18.3854 19.3854 17.9265 19.673 17.362C20 16.7202 20 15.8802 20 14.2V9.8C20 8.11984 20 7.27976 19.673 6.63803C19.3854 6.07354 18.9265 5.6146 18.362 5.32698C17.7202 5 16.8802 5 15.2 5H8.8C7.11984 5 6.27976 5 5.63803 5.32698C5.07354 5.6146 4.6146 6.07354 4.32698 6.63803C4 7.27976 4 8.11984 4 9.8V14.2C4 15.8802 4 16.7202 4.32698 17.362C4.6146 17.9265 5.07354 18.3854 5.63803 18.673C6.27976 19 7.11984 19 8.8 19ZM9 15.5C9 15.7761 8.77614 16 8.5 16C8.22386 16 8 15.7761 8 15.5C8 15.2239 8.22386 15 8.5 15C8.77614 15 9 15.2239 9 15.5ZM16 15.5C16 15.7761 15.7761 16 15.5 16C15.2239 16 15 15.7761 15 15.5C15 15.2239 15.2239 15 15.5 15C15.7761 15 16 15.2239 16 15.5Z" stroke="orange" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/>
+            <div
+              class="bg-gradient-to-br from-gray-800/30 to-gray-900/50 backdrop-blur-xl border border-gray-700 rounded-3xl p-8 hover:border-amber-400/30 hover:-translate-y-2 transition-all duration-500"
+            >
+              <div
+                class="w-16 h-16 bg-amber-400/20 rounded-2xl flex items-center justify-center mx-auto mb-6"
+              >
+                <svg
+                  class="w-8 h-8"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M9.5 22H14.5M8 2H16M12 5V2M4 12H20M17 19L18.5 22M7 19L5.5 22M8.5 15.5H8.51M15.5 15.5H15.51M8.8 19H15.2C16.8802 19 17.7202 19 18.362 18.673C18.9265 18.3854 19.3854 17.9265 19.673 17.362C20 16.7202 20 15.8802 20 14.2V9.8C20 8.11984 20 7.27976 19.673 6.63803C19.3854 6.07354 18.9265 5.6146 18.362 5.32698C17.7202 5 16.8802 5 15.2 5H8.8C7.11984 5 6.27976 5 5.63803 5.32698C5.07354 5.6146 4.6146 6.07354 4.32698 6.63803C4 7.27976 4 8.11984 4 9.8V14.2C4 15.8802 4 16.7202 4.32698 17.362C4.6146 17.9265 5.07354 18.3854 5.63803 18.673C6.27976 19 7.11984 19 8.8 19ZM9 15.5C9 15.7761 8.77614 16 8.5 16C8.22386 16 8 15.7761 8 15.5C8 15.2239 8.22386 15 8.5 15C8.77614 15 9 15.2239 9 15.5ZM16 15.5C16 15.7761 15.7761 16 15.5 16C15.2239 16 15 15.7761 15 15.5C15 15.2239 15.2239 15 15.5 15C15.7761 15 16 15.2239 16 15.5Z"
+                    stroke="orange"
+                    stroke-width="1"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"></path>
                 </svg>
               </div>
               <h3 class="text-xl font-semibold text-white mb-4">By Train</h3>
@@ -478,7 +574,9 @@ function capitalizeWords(str) {
         </div>
 
         <!-- Address & Map -->
-        <div class="bg-gradient-to-br from-gray-800/30 to-gray-900/50 backdrop-blur-xl border border-gray-700 rounded-3xl overflow-hidden">
+        <div
+          class="bg-gradient-to-br from-gray-800/30 to-gray-900/50 backdrop-blur-xl border border-gray-700 rounded-3xl overflow-hidden"
+        >
           <div class="p-8 text-center">
             <h3 class="font-serif italic text-4xl text-white mb-4">
               Our Address
@@ -516,8 +614,13 @@ function capitalizeWords(str) {
     <section class="py-32 bg-gray-900">
       <div class="max-w-7xl mx-auto px-6">
         <div class="text-center mb-20">
-          <div class="inline-block px-6 py-2 bg-amber-400/10 border border-amber-400/30 rounded-full mb-8">
-            <span class="text-amber-400 text-sm font-medium tracking-widest uppercase">Our People</span>
+          <div
+            class="inline-block px-6 py-2 bg-amber-400/10 border border-amber-400/30 rounded-full mb-8"
+          >
+            <span
+              class="text-amber-400 text-sm font-medium tracking-widest uppercase"
+              >Our People</span
+            >
           </div>
           <h2 class="font-serif italic text-4xl md:text-6xl text-white mb-8">
             The Heart of Limban
@@ -531,25 +634,30 @@ function capitalizeWords(str) {
 
         <!-- Dynamic Team Gallery Grid -->
         <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-4 gap-4">
-          {aboutData?.aboutPage?.teamImages && aboutData.aboutPage.teamImages.length > 0 ? (
-            aboutData.aboutPage.teamImages.map((teamMember, index) => (
-              <div
-                key={index}
-                class="aspect-square bg-gray-800 rounded-2xl overflow-hidden hover:scale-105 transition-transform duration-500"
-              >
-                <img
-                  src={teamMember.optimisedSquare || teamMember.url || ""}
-                  alt={teamMember.alt || `Limban Resort team member ${index + 1}`}
-                  class="w-full h-full object-cover"
-                  loading="lazy"
-                />
+          {
+            aboutData?.aboutPage?.teamImages &&
+            aboutData.aboutPage.teamImages.length > 0 ? (
+              aboutData.aboutPage.teamImages.map((teamMember, index) => (
+                <div
+                  key={index}
+                  class="aspect-square bg-gray-800 rounded-2xl overflow-hidden hover:scale-105 transition-transform duration-500"
+                >
+                  <img
+                    src={teamMember.optimisedSquare || teamMember.url || ""}
+                    alt={
+                      teamMember.alt || `Limban Resort team member ${index + 1}`
+                    }
+                    class="w-full h-full object-cover"
+                    loading="lazy"
+                  />
+                </div>
+              ))
+            ) : (
+              <div class="col-span-full text-center">
+                <p class="text-gray-400">Team photos coming soon...</p>
               </div>
-            ))
-          ) : (
-            <div class="col-span-full text-center">
-              <p class="text-gray-400">Team photos coming soon...</p>
-            </div>
-          )}
+            )
+          }
         </div>
       </div>
     </section>
@@ -560,7 +668,9 @@ function capitalizeWords(str) {
         <h2 class="font-serif italic text-4xl md:text-6xl text-white mb-8">
           Ready for Your Wild Awakening?
         </h2>
-        <p class="text-xl text-gray-300 font-light leading-relaxed mb-12 max-w-3xl mx-auto">
+        <p
+          class="text-xl text-gray-300 font-light leading-relaxed mb-12 max-w-3xl mx-auto"
+        >
           Your journey into the heart of Tadoba awaits. Experience luxury that
           respects the wild, hospitality that touches the soul, and moments that
           become memories forever.
@@ -606,9 +716,6 @@ function capitalizeWords(str) {
         </div>
       </div>
     </section>
-
-    <GalleryModal />
-    
   </div>
 </Layout>
 
@@ -654,28 +761,31 @@ function capitalizeWords(str) {
   });
 
   // Lazy Loading for gallery images
-  const lazyImages = document.querySelectorAll('.lazy-image');
-  const imageObserver = new IntersectionObserver((entries, observer) => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting) {
-        const img = entry.target;
-        img.src = img.dataset.src;
-        img.classList.add('opacity-100');
-        img.classList.remove('opacity-0');
-        observer.unobserve(img);
-      }
-    });
-  }, {
-    rootMargin: '100px 0px',
-    threshold: 0.1
-  });
-  lazyImages.forEach(img => imageObserver.observe(img));
+  const lazyImages = document.querySelectorAll(".lazy-image");
+  const imageObserver = new IntersectionObserver(
+    (entries, observer) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          const img = entry.target;
+          img.src = img.dataset.src;
+          img.classList.add("opacity-100");
+          img.classList.remove("opacity-0");
+          observer.unobserve(img);
+        }
+      });
+    },
+    {
+      rootMargin: "100px 0px",
+      threshold: 0.1,
+    },
+  );
+  lazyImages.forEach((img) => imageObserver.observe(img));
 
   // Dispatch event to open the global gallery modal
-  document.querySelectorAll('[data-gallery-index]').forEach(el => {
-    el.addEventListener('click', () => {
+  document.querySelectorAll("[data-gallery-index]").forEach((el) => {
+    el.addEventListener("click", () => {
       const index = parseInt(el.dataset.galleryIndex, 10);
-      const openGalleryEvent = new CustomEvent('open-gallery', {
+      const openGalleryEvent = new CustomEvent("open-gallery", {
         detail: {
           images: vibeImages,
           index: index,
@@ -691,21 +801,21 @@ function capitalizeWords(str) {
   .lazy-image {
     transition: opacity 0.7s ease-in-out;
   }
-  
+
   /* Custom scrollbar */
   ::-webkit-scrollbar {
     width: 8px;
   }
-  
+
   ::-webkit-scrollbar-track {
     background: #1f2937;
   }
-  
+
   ::-webkit-scrollbar-thumb {
     background: #f59e0b;
     border-radius: 4px;
   }
-  
+
   ::-webkit-scrollbar-thumb:hover {
     background: #d97706;
   }

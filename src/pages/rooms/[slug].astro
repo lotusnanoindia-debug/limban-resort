@@ -2,7 +2,7 @@
 import Layout from '../../layouts/Layout.astro';
 import { AstroSEO } from 'astro-seo-plugin';
 import { fetchRoomBySlug, fetchRoomsData, fetchSpecialDealData } from '../../api.js';
-import GalleryModal from '../../components/GalleryModal.astro';
+import GalleryGrid from '../../components/GalleryGrid.astro';
 import ReservationForm from '../../components/ReservationForm.astro';
 
 
@@ -43,7 +43,9 @@ if (!room) {
 
 // Process gallery images for popup slider
 const galleryImages = room.gallery?.map((item) => ({
-  src: item.image?.thumb800 || item.image?.thumb400 || item.image?.url, // Use larger thumb for grid
+  // For GalleryGrid and GalleryModal
+  src: item.image?.thumb800 || item.image?.url,
+  srcset: `${item.image?.thumb400} 400w, ${item.image?.thumb800} 800w`,
   large: item.image?.large || item.image?.url,
   placeholder: item.image?.placeholder || item.image?.url,
   alt: item.caption || `${room.roomName} - luxury safari room view`,
@@ -309,36 +311,7 @@ const galleryImages = room.gallery?.map((item) => ({
         </div>
         
         <!-- Gallery Grid -->
-        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-          {galleryImages.map((image, index) => (
-            <div 
-              key={index}
-              class="group cursor-pointer aspect-square"
-              data-gallery-index={index}
-            >
-              <div class="relative w-full h-full overflow-hidden rounded-2xl bg-gray-800 hover:shadow-2xl hover:shadow-black/50 transition-all duration-1000 hover:scale-[1.01]">
-                <!-- LQIP Background -->
-                <div class="absolute inset-0">
-                  <img src={image.placeholder} alt="" class="w-full h-full object-cover blur-sm scale-110" />
-                </div>
-                
-                <!-- Main Image -->
-                <img
-                  src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1' height='1'%3E%3C/svg%3E"
-                  data-src={image.src}
-                  alt={image.alt}
-                  class="relative w-full h-full object-cover lazy-image opacity-0 transition-opacity duration-700"
-                  loading="lazy"
-                />
-                
-                <!-- Hover Overlay -->
-                <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-500 flex items-center justify-center">
-                  <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
+        <GalleryGrid images={galleryImages} layout="grid" />
       </div>
     </section>
 
@@ -460,29 +433,9 @@ const galleryImages = room.gallery?.map((item) => ({
       </div>
     </section>
 
-    <GalleryModal />
 </Layout>
 
 <script define:vars={{ galleryImages }}>
-  // Lazy Loading for gallery images
-  const lazyImages = document.querySelectorAll('.lazy-image');
-  const imageObserver = new IntersectionObserver((entries, observer) => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting) {
-        const img = entry.target;
-        const src = img.dataset.src;
-        if (src) {
-          img.src = src;
-          img.classList.add('opacity-100');
-          img.classList.remove('opacity-0');
-          observer.unobserve(img);
-        }
-      }
-    });
-  }, { rootMargin: '100px 0px', threshold: 0.1 });
-
-  lazyImages.forEach(img => imageObserver.observe(img));
-
   // Dispatch event to open the global gallery modal
   document.querySelectorAll('[data-gallery-index]').forEach(el => {
     el.addEventListener('click', () => {
