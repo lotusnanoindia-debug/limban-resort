@@ -1,0 +1,363 @@
+---
+// This component contains the HTML and JS for the site-wide gallery modal.
+// It listens for a custom 'open-gallery' event to show itself.
+---
+
+<!-- Enhanced Gallery Modal with Loading States -->
+<div
+  id="gallery-modal"
+  class="fixed inset-0 z-50 bg-black/95 backdrop-blur-xl hidden items-center justify-center p-4"
+>
+  <div class="relative max-w-7xl w-full h-full flex flex-col">
+    <!-- Close Button -->
+    <button
+      id="close-gallery"
+      class="absolute top-6 right-6 z-20 w-14 h-14 bg-black/50 hover:bg-black/70 rounded-full flex items-center justify-center text-white transition-colors cursor-pointer"
+    >
+      <svg
+        class="w-7 h-7"
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+      >
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="M6 18L18 6M6 6l12 12"></path>
+      </svg>
+    </button>
+
+    <!-- Main Image Container with Loading State -->
+    <div
+      class="flex-1 flex items-center justify-center relative"
+      style="max-height: 85vh;"
+    >
+      <!-- Image Container with LQIP Background and Spinner -->
+      <div id="modal-image-container" class="relative" style="max-width: 90vw;">
+        <!-- LQIP Background (always visible) -->
+        <img
+          id="modal-lqip"
+          src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'/%3E"
+          alt=""
+          class="absolute inset-0 w-full h-full object-contain blur-sm scale-105 opacity-30 transition-opacity duration-300"
+        />
+
+        <!-- Loading Spinner Overlay -->
+        <div
+          id="modal-spinner"
+          class="absolute inset-0 flex items-center justify-center bg-black/50 backdrop-blur-sm rounded-lg transition-opacity duration-300"
+        >
+          <div class="text-center">
+            <svg
+              class="animate-spin h-12 w-12 text-amber-400 mx-auto mb-4"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+            >
+              <circle
+                class="opacity-25"
+                cx="12"
+                cy="12"
+                r="10"
+                stroke="currentColor"
+                stroke-width="4"></circle>
+              <path
+                class="opacity-75"
+                fill="currentColor"
+                d="M4 12a8 8 0 018-8v8H4z"></path>
+            </svg>
+            <p class="text-white text-sm">Loading image...</p>
+          </div>
+        </div>
+
+        <!-- Main High-Res Image -->
+        <img
+          id="modal-image"
+          src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'/%3E"
+          alt=""
+          class="relative w-full opacity-0 object-contain rounded-lg shadow-2xl transition-opacity duration-700"
+        />
+
+        <!-- Elegant Bottom Overlay for Image Info -->
+        <div
+          class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 via-black/70 to-transparent backdrop-blur-sm rounded-b-lg"
+        >
+          <div class="p-6 text-center">
+            <p
+              id="image-counter"
+              class="border-b border-amber-400/30 px-4 py-2 text-lg font-medium mb-3 text-amber-400"
+            >
+            </p>
+            <p
+              id="image-alt-text"
+              class="text-xl font-serif italic text-amber-400 leading-relaxed"
+            >
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Navigation Arrows (disabled while loading) -->
+      <button
+        id="prev-image"
+        class="absolute left-6 top-1/2 -translate-y-1/2 w-16 h-16 bg-black/60 hover:bg-black/80 rounded-full flex items-center justify-center text-white transition-all duration-300 cursor-pointer hover:scale-110 disabled:opacity-30 disabled:cursor-not-allowed"
+        disabled
+      >
+        <svg
+          class="w-8 h-8"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M15 19l-7-7 7-7"></path>
+        </svg>
+      </button>
+
+      <button
+        id="next-image"
+        class="absolute right-6 top-1/2 -translate-y-1/2 w-16 h-16 bg-black/60 hover:bg-black/80 rounded-full flex items-center justify-center text-white transition-all duration-300 cursor-pointer hover:scale-110 disabled:opacity-30 disabled:cursor-not-allowed"
+        disabled
+      >
+        <svg
+          class="w-8 h-8"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M9 5l7 7-7 7"></path>
+        </svg>
+      </button>
+    </div>
+
+    <!-- Preview Thumbnails Row -->
+    <div class="flex items-center justify-center space-x-4 mt-6 mb-4">
+      <!-- Previous Image Preview -->
+      <div
+        id="prev-preview"
+        class="flex items-center space-x-3 cursor-pointer group"
+      >
+        <div
+          class="w-20 h-16 rounded-lg overflow-hidden bg-gray-800 border-2 border-gray-600 group-hover:border-white transition-colors"
+        >
+          <img
+            id="prev-preview-img"
+            src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'/%3E"
+            alt=""
+            class="w-full h-full object-cover"
+          />
+        </div>
+        <span
+          class="text-gray-400 text-sm group-hover:text-white transition-colors"
+          >Previous</span
+        >
+      </div>
+
+      <!-- Current Image Indicator -->
+      <div class="flex items-center space-x-2 mx-8">
+        <div class="w-2 h-2 bg-gray-600 rounded-full"></div>
+        <div class="w-3 h-3 bg-amber-400 rounded-full"></div>
+        <div class="w-2 h-2 bg-gray-600 rounded-full"></div>
+      </div>
+
+      <!-- Next Image Preview -->
+      <div
+        id="next-preview"
+        class="flex items-center space-x-3 cursor-pointer group"
+      >
+        <span
+          class="text-gray-400 text-sm group-hover:text-white transition-colors"
+          >Next</span
+        >
+        <div
+          class="w-20 h-16 rounded-lg overflow-hidden bg-gray-800 border-2 border-gray-600 group-hover:border-white transition-colors"
+        >
+          <img
+            id="next-preview-img"
+            src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'/%3E"
+            alt=""
+            class="w-full h-full object-cover"
+          />
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Helper function to capitalize first letter of each word
+  function capitalizeWords(str) {
+    if (!str) return "";
+    return str.replace(
+      /\w\S*/g,
+      (txt) => txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase(),
+    );
+  }
+
+  let currentImages = [];
+  let currentIndex = 0;
+  let imageCache = new Map();
+
+  const modal = document.getElementById("gallery-modal");
+  const modalImage = document.getElementById("modal-image");
+  const modalImageContainer = document.getElementById("modal-image-container");
+  const modalLQIP = document.getElementById("modal-lqip");
+  const modalSpinner = document.getElementById("modal-spinner");
+  const imageCounter = document.getElementById("image-counter");
+  const imageAltText = document.getElementById("image-alt-text");
+  const closeBtn = document.getElementById("close-gallery");
+  const prevBtn = document.getElementById("prev-image");
+  const nextBtn = document.getElementById("next-image");
+  const prevPreview = document.getElementById("prev-preview");
+  const nextPreview = document.getElementById("next-preview");
+  const prevPreviewImg = document.getElementById("prev-preview-img");
+  const nextPreviewImg = document.getElementById("next-preview-img");
+
+  function openModal(images, index) {
+    if (!images || images.length === 0) return;
+    currentImages = images;
+    currentIndex = index;
+    showImage();
+    modal.classList.remove("hidden");
+    modal.classList.add("flex");
+    document.body.style.overflow = "hidden";
+  }
+
+  function closeModal() {
+    modal.classList.add("hidden");
+    modal.classList.remove("flex");
+    document.body.style.overflow = "auto";
+  }
+
+  function showImage() {
+    const image = currentImages[currentIndex];
+    if (!image) return;
+
+    // Set aspect ratio on the image elements to reserve space immediately.
+    // This prevents the container from collapsing and causing layout shift,
+    // which fixes the "scrambled" look on initial load.
+    modalImageContainer.style.aspectRatio =
+      image.width && image.height
+        ? `${image.width} / ${image.height}`
+        : "4 / 3";
+    // 1. Immediately set up the loading state UI.
+    // This ensures the spinner and LQIP are visible right away.
+    modalSpinner.style.display = "flex";
+    modalSpinner.style.opacity = "1";
+    modalImage.style.opacity = "0";
+    prevBtn.disabled = true;
+    nextBtn.disabled = true;
+    modalLQIP.src = image.placeholder || image.src;
+    modalLQIP.style.opacity = "0.3";
+    imageCounter.textContent = `${currentIndex + 1} of ${currentImages.length}`;
+    imageAltText.textContent = capitalizeWords(image.alt);
+    updatePreviewThumbnails();
+
+    // 2. Defer the heavy image loading to the next browser paint cycle.
+    // This gives the browser a chance to render the loading state above
+    // before it gets busy downloading the large image.
+    requestAnimationFrame(() => {
+      if (imageCache.has(image.large)) {
+        modalImage.src = imageCache.get(image.large);
+        onImageLoaded();
+        preloadAdjacentImages(); // Preload after current is confirmed loaded
+      } else {
+        const img = new Image();
+        img.onload = () => {
+          imageCache.set(image.large, img.src);
+          modalImage.src = img.src;
+          onImageLoaded();
+          preloadAdjacentImages(); // Preload after current is confirmed loaded
+        };
+        img.onerror = () => {
+          modalSpinner.style.display = "none";
+          modalLQIP.style.opacity = "0.5";
+          prevBtn.disabled = false;
+          nextBtn.disabled = false;
+        };
+        img.src = image.large;
+      }
+    });
+  }
+
+  function onImageLoaded() {
+    modalSpinner.style.opacity = "0";
+    // A short delay before hiding the spinner allows for a fade-out transition.
+    setTimeout(() => {
+      modalSpinner.style.display = "none";
+    }, 300); // This duration should match your CSS transition.
+
+    modalLQIP.style.opacity = "0";
+    modalImage.style.opacity = "1";
+    prevBtn.disabled = false;
+    nextBtn.disabled = false;
+  }
+  function preloadAdjacentImages() {
+    const prevIndex =
+      (currentIndex - 1 + currentImages.length) % currentImages.length;
+    const nextIndex = (currentIndex + 1) % currentImages.length;
+    [prevIndex, nextIndex].forEach((idx) => {
+      if (currentImages[idx] && !imageCache.has(currentImages[idx].large)) {
+        const img = new Image();
+        img.onload = () => imageCache.set(currentImages[idx].large, img.src);
+        img.src = currentImages[idx].large;
+      }
+    });
+  }
+
+  function updatePreviewThumbnails() {
+    const prevIndex =
+      (currentIndex - 1 + currentImages.length) % currentImages.length;
+    const nextIndex = (currentIndex + 1) % currentImages.length;
+
+    prevPreviewImg.src = currentImages[prevIndex]?.src || "";
+    nextPreviewImg.src = currentImages[nextIndex]?.src || "";
+
+    const hasMultipleImages = currentImages.length > 1;
+    prevPreview.style.display = hasMultipleImages ? "flex" : "none";
+    nextPreview.style.display = hasMultipleImages ? "flex" : "none";
+  }
+
+  function nextImage() {
+    currentIndex = (currentIndex + 1) % currentImages.length;
+    showImage();
+  }
+
+  function prevImage() {
+    currentIndex =
+      (currentIndex - 1 + currentImages.length) % currentImages.length;
+    showImage();
+  }
+
+  // Event Listeners
+  document.addEventListener("open-gallery", (e) => {
+    const { images, index } = e.detail;
+    openModal(images, index);
+  });
+
+  closeBtn?.addEventListener("click", closeModal);
+  prevBtn?.addEventListener("click", prevImage);
+  nextBtn?.addEventListener("click", nextImage);
+  prevPreview?.addEventListener("click", prevImage);
+  nextPreview?.addEventListener("click", nextImage);
+
+  document.addEventListener("keydown", (e) => {
+    if (modal?.classList.contains("flex")) {
+      if (e.key === "Escape") closeModal();
+      if (e.key === "ArrowLeft") prevImage();
+      if (e.key === "ArrowRight") nextImage();
+    }
+  });
+
+  modal?.addEventListener("click", (e) => {
+    if (e.target === modal) closeModal();
+  });
+</script>

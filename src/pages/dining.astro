@@ -24,7 +24,7 @@ const experiences = diningExperiences?.map((experience, index) => ({
   heroImage: experience.images?.[0]?.heroImage || experience.images?.[0]?.url || "",
   thumbnail: experience.images?.[0]?.thumbnail || experience.images?.[0]?.url || "",
   placeholder: experience.images?.[0]?.placeholder || experience.images?.[0]?.url || "",
-  slug: experience.restaurantName?.toLowerCase().replace(/\s+/g, '-').replace(/-+$/, '') || `experience-${index + 1}`,
+  slug: experience.url || `experience-${index + 1}`,
   alt: `${experience.restaurantName} dining experience at Limban Resort`
 })) || [];
 

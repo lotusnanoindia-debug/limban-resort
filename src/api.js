@@ -123,22 +123,43 @@ const ROOM_BY_SLUG_QUERY = `
         ... on RoomGalleryItem {
           id
           image {
-            thumbnailUrl: url(
+            url
+            width
+            height
+            thumb400: url(
               transformation: {
                 image: {
-                  resize: {width: 600, height: 400, fit: crop}, 
-                  quality: {value: 70}
+                  resize: {width: 400, height: 400, fit: crop}, 
+                  quality: {value: 65}
                 }, 
                 document: {output: {format: webp}}
               }
             )
-            slideshowUrl: url(
+            thumb800: url(
+              transformation: {
+                image: {
+                  resize: {width: 800, height: 800, fit: crop}, 
+                  quality: {value: 60}
+                }, 
+                document: {output: {format: webp}}
+              }
+            )
+            large: url(
               transformation: {
                 image: {
                   resize: {width: 2000, fit: scale}, 
                   quality: {value: 80}
                 }, 
                 document: {output: {format: webp}}
+              }
+            )
+            placeholder: url(
+              transformation: {
+                image: { 
+                  resize: { width: 20, height: 20, fit: crop },
+                  quality: { value: 20 }
+                },
+                document: { output: { format: webp } }
               }
             )
           }
@@ -402,6 +423,7 @@ export async function fetchDiningExperiencesData() {
       restaurants(first: 100) {
         id
         restaurantName
+        url
         logo {
           url
           width
@@ -417,7 +439,7 @@ export async function fetchDiningExperiencesData() {
         }
         shortIntro
         longDescription
-        images(first: 10) {
+        images(first: 100) {
           url
           width
           height
@@ -460,6 +482,64 @@ export async function fetchDiningExperiencesData() {
 }
 
 
+export async function fetchDiningExperienceBySlug(slug) {
+  const query = `
+    query DiningExperienceBySlug($url: String!) {
+      restaurants(where: { url: $url }, first: 1) {
+        id
+        restaurantName
+        url
+        shortIntro
+        longDescription
+        logo {
+          url
+          micro: url(transformation: {
+            image: { resize: { width: 40, height: 40, fit: crop }, quality: { value: 45 } }
+            document: { output: { format: webp } }
+          })
+          optimised: url(transformation: {
+            image: { resize: { width: 120, height: 120, fit: crop }, quality: { value: 70 } }
+            document: { output: { format: webp } }
+          })
+        }
+        images(first: 20) {
+          url
+          width
+          height
+          placeholder: url(transformation: {
+            image: { resize: { width: 20, height: 15, fit: crop }, quality: { value: 20 } }
+            document: { output: { format: webp } }
+          })
+          thumb400: url(transformation: {
+            image: { resize: { width: 400, height: 400, fit: crop }, quality: { value: 60 } }
+            document: { output: { format: webp } }
+          })
+          thumb800: url(transformation: {
+            image: { resize: { width: 800, height: 800, fit: crop }, quality: { value: 55 } }
+            document: { output: { format: webp } }
+          })
+          large: url(transformation: {
+            image: { resize: { width: 1920, fit: scale }, quality: { value: 80 } }
+            document: { output: { format: webp } }
+          })
+          hero: url(transformation: {
+            image: { resize: { width: 1600, height: 900, fit: crop }, quality: { value: 75 } }
+            document: { output: { format: webp } }
+          })
+        }
+      }
+    }
+  `;
+  const variables = { url: slug };
+
+  try {
+    const data = await request(HYGRAPH_URL, query, variables);
+    return data.restaurants?.[0]; // Return first result or undefined
+  } catch (error) {
+    console.error('Error fetching dining experience by slug:', error);
+    throw error;
+  }
+}
 
 export const fetchSpecialDealData = async () => {
   try {
