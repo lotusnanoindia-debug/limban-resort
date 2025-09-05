@@ -1,5 +1,5 @@
 ---
-// Contact Section - with Supabase integration
+// Contact Section - Enhanced catch-all enquiry form with luxury glass design
 const pageUrl = Astro.url.href;
 ---
 
@@ -7,14 +7,14 @@ const pageUrl = Astro.url.href;
   <div class="max-w-7xl mx-auto px-6 pt-12">
     <div class="text-center mb-20">
       <div class="text-sm text-gray-400 tracking-[0.2em] uppercase mb-4">
-        Reserve Your Experience
+        Get In Touch with Limban Resort
       </div>
       <h2 class="font-serif italic text-4xl md:text-6xl text-white mb-8">
-        Begin Your Journey
+        How Can We Delight You?
       </h2>
       <p class="text-xl text-gray-300 max-w-3xl mx-auto leading-relaxed">
-        Advance reservations recommended. Our team creates bespoke itineraries
-        tailored to your preferences.
+        Stunning rooms, unique dining, breathtaking safaris, and personal &
+        business events.
       </p>
     </div>
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-16">
@@ -113,112 +113,115 @@ const pageUrl = Astro.url.href;
         <div id="form-message" class="hidden mb-6 p-4 rounded-xl text-center">
         </div>
 
-        <form id="contact-form" name="contact" class="space-y-6">
+        <!-- Luxury Glass Form Design -->
+        <form
+          id="contact-form"
+          name="contact"
+          class="space-y-7 bg-gray-800/50 backdrop-blur-xl border border-gray-700 p-8 rounded-2xl border border-white/20 rounded-2xl p-10 shadow-[0_8px_32px_rgba(0,0,0,0.12)]"
+        >
           <input type="hidden" name="form-name" value="contact-general" />
           <input type="hidden" name="pageUrl" value={pageUrl} />
+          <h3 class="text-3xl text-white mb-8 font-serif italic">
+            How Can We Assist You?
+          </h3>
+          <!-- Enquiry Type Dropdown with Fixed Arrow -->
+          <div>
+            <select
+              name="enquiryType"
+              required
+              class="w-full px-4 py-4 bg-white/10 backdrop-blur-xl border border-white/20 rounded-xl text-white focus:border-white/40 focus:ring-2 focus:ring-white/20 focus:bg-white/15 transition-all duration-300 appearance-none bg-no-repeat bg-right pr-14"
+              style="background-image: url('data:image/svg+xml;charset=US-ASCII,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 4 5%22><path fill=%22%23ffffff%22 d=%22M2 0L0 2h4zm0 5L0 3h4z%22/></svg>'); background-position: right 20px center; background-size: 12px;"
+            >
+              <option value="">Please select...</option>
+              <option value="Room Availability"
+                >Room Availability & Rates</option
+              >
+              <option value="Dining Reservation">Dining Reservation</option>
+              <option value="Safari Activities"
+                >Tiger Safaris & Activities</option
+              >
+              <option value="Group Booking">Group Bookings (5+ guests)</option>
+              <option value="Personal Events"
+                >Personal Events (Weddings, Celebrations)</option
+              >
+              <option value="Business Events"
+                >Business Events (Corporate, Seminars)</option
+              >
+              <option value="Travel Agent">Travel Agent Enquiry</option>
+              <option value="General Information">General Information</option>
+              <option value="Feedback/Suggestions"
+                >Feedback or Suggestions</option
+              >
+            </select>
+          </div>
 
           <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <label class="block text-sm font-medium text-gray-300 mb-3"
+              <label class="block text-sm font-medium text-white mb-3"
                 >First Name *</label
               >
               <input
                 name="firstName"
                 type="text"
                 required
-                class="w-full px-4 py-4 bg-gray-800/50 backdrop-blur-xl border border-gray-700 rounded-xl text-white placeholder-gray-400 focus:border-gray-500 focus:ring-2 focus:ring-gray-500/20 transition-all duration-300"
+                class="w-full px-4 py-4 bg-white/10 backdrop-blur-xl border border-white/20 rounded-xl text-white placeholder-white/50 focus:border-white/40 focus:ring-2 focus:ring-white/20 focus:bg-white/15 transition-all duration-300"
               />
             </div>
             <div>
-              <label class="block text-sm font-medium text-gray-300 mb-3"
+              <label class="block text-sm font-medium text-white mb-3"
                 >Last Name *</label
               >
               <input
                 name="lastName"
                 type="text"
                 required
-                class="w-full px-4 py-4 bg-gray-800/50 backdrop-blur-xl border border-gray-700 rounded-xl text-white placeholder-gray-400 focus:border-gray-500 focus:ring-2 focus:ring-gray-500/20 transition-all duration-300"
+                class="w-full px-4 py-4 bg-white/10 backdrop-blur-xl border border-white/20 rounded-xl text-white placeholder-white/50 focus:border-white/40 focus:ring-2 focus:ring-white/20 focus:bg-white/15 transition-all duration-300"
               />
             </div>
           </div>
 
           <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <label class="block text-sm font-medium text-gray-300 mb-3"
+              <label class="block text-sm font-medium text-white mb-3"
                 >Email *</label
               >
               <input
                 name="email"
                 type="email"
                 required
-                class="w-full px-4 py-4 bg-gray-800/50 backdrop-blur-xl border border-gray-700 rounded-xl text-white placeholder-gray-400 focus:border-gray-500 focus:ring-2 focus:ring-gray-500/20 transition-all duration-300"
+                class="w-full px-4 py-4 bg-white/10 backdrop-blur-xl border border-white/20 rounded-xl text-white placeholder-white/50 focus:border-white/40 focus:ring-2 focus:ring-white/20 focus:bg-white/15 transition-all duration-300"
               />
             </div>
             <div>
-              <label class="block text-sm font-medium text-gray-300 mb-3"
+              <label class="block text-sm font-medium text-white mb-3"
                 >Phone *</label
               >
               <input
                 name="phone"
                 type="tel"
                 required
-                class="w-full px-4 py-4 bg-gray-800/50 backdrop-blur-xl border border-gray-700 rounded-xl text-white placeholder-gray-400 focus:border-gray-500 focus:ring-2 focus:ring-gray-500/20 transition-all duration-300"
+                class="w-full px-4 py-4 bg-white/10 backdrop-blur-xl border border-white/20 rounded-xl text-white placeholder-white/50 focus:border-white/40 focus:ring-2 focus:ring-white/20 focus:bg-white/15 transition-all duration-300"
               />
             </div>
           </div>
 
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <label class="block text-sm font-medium text-gray-300 mb-3"
-                >Check-In Date *</label
-              >
-              <div class="relative cursor-pointer">
-                <input
-                  name="checkin"
-                  type="text"
-                  id="check-in"
-                  required
-                  class="w-full px-4 py-4 bg-gray-800/50 backdrop-blur-xl border border-gray-700 rounded-xl text-white placeholder-gray-400 focus:border-gray-500 focus:ring-2 focus:ring-gray-500/20 transition-all duration-300 cursor-pointer"
-                />
-              </div>
-            </div>
-            <div>
-              <label class="block text-sm font-medium text-gray-300 mb-3"
-                >Check-Out Date *</label
-              >
-              <div class="relative cursor-pointer">
-                <input
-                  name="checkout"
-                  type="text"
-                  id="check-out"
-                  required
-                  class="w-full px-4 py-4 bg-gray-800/50 backdrop-blur-xl border border-gray-700 rounded-xl text-white placeholder-gray-400 focus:border-gray-500 focus:ring-2 focus:ring-gray-500/20 transition-all duration-300 cursor-pointer"
-                />
-              </div>
-            </div>
-          </div>
-
-          <div class="text-center">
-            <span id="nights-message" class="text-sm italic"></span>
-          </div>
-
           <div>
-            <label class="block text-sm font-medium text-gray-300 mb-3"
-              >Special Requests</label
+            <label class="block text-sm font-medium text-white mb-3"
+              >Tell Us More</label
             >
             <textarea
               name="message"
               rows="3"
-              class="w-full px-4 py-4 bg-gray-800/50 backdrop-blur-xl border border-gray-700 rounded-xl text-white placeholder-gray-400 focus:border-gray-500 focus:ring-2 focus:ring-gray-500/20 transition-all duration-300 resize-none"
+              class="w-full px-4 py-4 bg-white/10 backdrop-blur-xl border border-white/20 rounded-xl text-white placeholder-white/50 focus:border-white/40 focus:ring-2 focus:ring-white/20 focus:bg-white/15 transition-all duration-300 resize-none"
             ></textarea>
           </div>
 
           <button
             type="submit"
             id="submit-btn"
-            class="w-full bg-gradient-to-r from-gray-600 to-gray-800 font-semibold hover:from-gray-600 hover:to-gray-700 text-white px-8 py-4 rounded-xl text-lg tracking-wide transition-all duration-300 hover:shadow-xl hover:-translate-y-0.5"
+            class="w-full bg-gradient-to-r from-orange-500/80 to-orange-500/60 backdrop-blur-xl border border-white/30 hover:from-orange-300/60 hover:to-orange-500/80 text-white font-semibold px-8 py-5 rounded-xl text-lg tracking-wide transition-all duration-300 hover:shadow-xl hover:-translate-y-1 hover:border-white/50 cursor-pointer"
           >
-            Make Your Reservation
+            Send Your Enquiry
           </button>
         </form>
       </div>
@@ -226,73 +229,8 @@ const pageUrl = Astro.url.href;
   </div>
 </section>
 
-<link
-  rel="stylesheet"
-  href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css"
-/>
-<link
-  rel="stylesheet"
-  href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/dark.css"
-/>
-
 <script>
-  // Import and initialize Flatpickr - EXACTLY like your working version
-  import(
-    "https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/flatpickr.min.js"
-  ).then(() => {
-    const checkInRef = document.getElementById("check-in");
-    const checkOutRef = document.getElementById("check-out");
-    const nightsMessage = document.getElementById("nights-message");
-    let checkInPicker, checkOutPicker;
-
-    const baseConfig = {
-      dateFormat: "M j, Y",
-      minDate: "today",
-      allowInput: false,
-      clickOpens: true,
-      theme: "dark",
-    };
-
-    checkInPicker = flatpickr(checkInRef, {
-      ...baseConfig,
-      maxDate: new Date().fp_incr(365),
-      onChange: function (selectedDates) {
-        if (selectedDates.length > 0) {
-          const selectedDate = selectedDates[0];
-          checkOutPicker?.set("minDate", selectedDate);
-          calculateNights();
-        }
-      },
-    });
-
-    checkOutPicker = flatpickr(checkOutRef, {
-      ...baseConfig,
-      maxDate: new Date().fp_incr(365),
-      onChange: function () {
-        calculateNights();
-      },
-    });
-
-    const calculateNights = () => {
-      if (checkInRef?.value && checkOutRef?.value) {
-        const checkIn = new Date(checkInRef.value);
-        const checkOut = new Date(checkOutRef.value);
-        if (checkOut <= checkIn) {
-          nightsMessage.textContent = "Check-out must be after check-in!";
-          nightsMessage.className = "text-sm italic text-red-400";
-        } else {
-          const diffTime = Math.abs(checkOut - checkIn);
-          const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-          nightsMessage.textContent = `You are reserving for ${diffDays} Night${diffDays !== 1 ? "s" : ""}.`;
-          nightsMessage.className = "text-sm italic text-green-400";
-        }
-      } else {
-        nightsMessage.textContent = "";
-      }
-    };
-  });
-
-  // Add Supabase form submission - same as your working form
+  // Add Supabase form submission - same pattern as your working form
   document.addEventListener("DOMContentLoaded", async () => {
     try {
       const { supabase } = await import("../lib/supabase.js");
@@ -309,32 +247,26 @@ const pageUrl = Astro.url.href;
         // Show loading state
         submitBtn.disabled = true;
         submitBtn.textContent = "Submitting...";
-        showMessage("Submitting your request...", "loading");
+        showMessage("Submitting your enquiry...", "loading");
 
         try {
-          // Get form data
+          // Get form data - clean structure for general enquiries
           const formData = new FormData(form);
           const submission = {
             form_name: formData.get("form-name"),
-            pageUrl: formData.get("pageUrl"),
-            roomName: "General Enquiry", // Default for contact form
-            roomSlug: "general",
-            firstName: formData.get("firstName"),
-            lastName: formData.get("lastName"),
+            page_url: formData.get("pageUrl"),
+            enquiry_type: formData.get("enquiryType"),
+            first_name: formData.get("firstName"),
+            last_name: formData.get("lastName"),
             email: formData.get("email"),
             phone: formData.get("phone"),
-            checkin: formData.get("checkin"),
-            checkout: formData.get("checkout"),
-            adults: 0, // Default values for contact form
-            children: 0,
-            wantSafaris: "Discuss with guest",
-            transfer: "Discuss with guest",
             message: formData.get("message"),
+            submitted_at: new Date().toISOString(),
           };
 
-          // Submit to Supabase - same table as reservation form
+          // Submit to Supabase - general_enquiries table
           const { data, error } = await supabase
-            .from("contact_submissions")
+            .from("general_enquiries")
             .insert([submission]);
 
           if (error) throw error;
@@ -344,11 +276,11 @@ const pageUrl = Astro.url.href;
         } catch (error) {
           console.error("Submission error:", error);
           showMessage(
-            "Sorry, there was an error submitting your request. Please try again or contact us directly.",
+            "Sorry, there was an error submitting your enquiry. Please try again or contact us directly.",
             "error",
           );
           submitBtn.disabled = false;
-          submitBtn.textContent = "Make Your Reservation";
+          submitBtn.textContent = "Send Your Enquiry";
         }
       });
 
@@ -368,23 +300,23 @@ const pageUrl = Astro.url.href;
         // Hide the form completely
         form.style.display = "none";
 
-        // Show elegant success message
+        // Show elegant success message with glass styling
         messageDiv.innerHTML = `
           <div class="text-center py-12">
             <div class="text-6xl mb-6">✨</div>
             <h3 class="text-2xl font-serif italic text-white mb-4">Thank You!</h3>
             <p class="text-lg text-gray-300 mb-6">Your enquiry has been submitted successfully.</p>
-            <p class="text-gray-400 mb-8">Our team will contact you shortly to discuss your stay and arrange your experience.</p>
+            <p class="text-gray-400 mb-8">Our team will contact you shortly to assist with your request.</p>
             <button 
               onclick="location.reload()" 
-              class="bg-gradient-to-r from-gray-600 to-gray-800 text-white font-semibold px-6 py-3 rounded-xl transition-all duration-300 hover:shadow-xl hover:-translate-y-1 hover:from-gray-600 hover:to-gray-700"
+              class="bg-gradient-to-r from-white/20 to-white/10 backdrop-blur-xl border border-white/30 hover:from-white/30 hover:to-white/20 text-white font-semibold px-6 py-3 rounded-xl transition-all duration-300 hover:shadow-xl hover:-translate-y-1 hover:border-white/50"
             >
               Submit Another Enquiry
             </button>
           </div>
         `;
         messageDiv.className =
-          "bg-gradient-to-br from-gray-800/50 to-gray-900/50 backdrop-blur-xl border border-green-600 rounded-2xl p-8 text-center";
+          "bg-gradient-to-br from-white/8 to-gray-100/5 backdrop-blur-3xl border border-white/20 rounded-[2rem] p-8 text-center shadow-[0_8px_32px_rgba(0,0,0,0.12)]";
         messageDiv.classList.remove("hidden");
       }
     } catch (error) {

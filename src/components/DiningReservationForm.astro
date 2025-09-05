@@ -1,4 +1,5 @@
 ---
+// Dining Reservation Form - Standalone (no BaseForm dependency)
 export interface Props {
   itemName: string;
   itemSlug: string;
@@ -8,60 +9,91 @@ const { itemName, itemSlug } = Astro.props;
 const pageUrl = Astro.url.href;
 ---
 
-<!-- Load Flatpickr CSS -->
-<link
-  rel="stylesheet"
-  href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css"
-/>
-<link
-  rel="stylesheet"
-  href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/dark.css"
-/>
-
-<section aria-labelledby="reserve-table-heading">
+<section aria-labelledby="dining-reservation-form-heading">
   <h2
-    id="reserve-table-heading"
+    id="dining-reservation-form-heading"
     class="font-serif italic text-3xl md:text-4xl text-white mb-6"
   >
-    Reserve a Table: {itemName}
+    Reserve Good Time: {itemName}
   </h2>
-  <p class="text-gray-300 mb-12">
-    Request a table and our team will call you to confirm your dining
-    experience.
+  <p class="text-gray-300 mb-6">
+    Request a table and we will call you to confirm your dining experience.
   </p>
 
-  <!-- Success/Error Message -->
-  <div id="dining-form-message" class="hidden mb-6 p-4 rounded-xl text-center">
-  </div>
+  <!-- Success/Error Message Container -->
+  <div id="form-message" class="hidden mb-6 p-4 rounded-xl text-center"></div>
 
   <form
-    id="dining-reservation-form"
+    id="dining-form"
+    name="dining"
     class="bg-gradient-to-br from-gray-800/50 to-gray-900/50 backdrop-blur-xl border border-gray-700 rounded-2xl p-8"
   >
     <input type="hidden" name="form-name" value="dining-reservation" />
     <input type="hidden" name="pageUrl" value={pageUrl} />
-    <input type="hidden" name="itemName" value={itemName} />
-    <input type="hidden" name="itemSlug" value={itemSlug} />
+    <input type="hidden" name="outletName" value={itemName} />
+    <input type="hidden" name="outletSlug" value={itemSlug} />
+
+    <!-- Honeypot -->
+    <div class="hidden" aria-hidden="true">
+      <label for="confirm_email">
+        Do not fill this out if you are human:
+      </label>
+      <input
+        type="email"
+        id="confirm_email"
+        name="confirm_email"
+        tabindex="-1"
+        autocomplete="off"
+      />
+    </div>
 
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-      <!-- Full Name -->
-      <div class="md:col-span-2">
-        <label for="fullName" class="block text-sm text-gray-300 mb-2"
-          >Full Name</label
+      <!-- First Name -->
+      <div>
+        <label for="firstName" class="block text-sm text-gray-300 mb-2"
+          >First Name *</label
         >
         <input
-          id="fullName"
-          name="fullName"
+          id="firstName"
+          name="firstName"
           required
-          minlength="3"
+          minlength="2"
           class="w-full rounded-md bg-gray-800 border border-gray-700 px-4 py-3 text-white focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-colors"
         />
       </div>
 
-      <!-- Phone -->
-      <div class="md:col-span-2">
+      <!-- Last Name -->
+      <div>
+        <label for="lastName" class="block text-sm text-gray-300 mb-2"
+          >Last Name *</label
+        >
+        <input
+          id="lastName"
+          name="lastName"
+          required
+          minlength="2"
+          class="w-full rounded-md bg-gray-800 border border-gray-700 px-4 py-3 text-white focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-colors"
+        />
+      </div>
+
+      <!-- Email -->
+      <div>
+        <label for="email" class="block text-sm text-gray-300 mb-2"
+          >Email *</label
+        >
+        <input
+          id="email"
+          name="email"
+          type="email"
+          required
+          class="w-full rounded-md bg-gray-800 border border-gray-700 px-4 py-3 text-white focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-colors"
+        />
+      </div>
+
+      <!-- Phone/WhatsApp -->
+      <div>
         <label for="phone" class="block text-sm text-gray-300 mb-2"
-          >Phone / WhatsApp</label
+          >Phone/WhatsApp *</label
         >
         <input
           id="phone"
@@ -75,58 +107,82 @@ const pageUrl = Astro.url.href;
       <!-- Date -->
       <div>
         <label for="dining-date" class="block text-sm text-gray-300 mb-2"
-          >Date</label
+          >Dining Date *</label
         >
-        <input
-          id="dining-date"
-          name="diningDate"
-          type="text"
-          required
-          class="w-full rounded-md bg-gray-800 border border-gray-700 px-4 py-3 text-white focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-colors cursor-pointer"
-        />
+        <div class="relative cursor-pointer">
+          <input
+            id="dining-date"
+            name="diningDate"
+            type="text"
+            required
+            class="w-full rounded-md bg-gray-800 border border-gray-700 px-4 py-3 text-white focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-colors cursor-pointer"
+          />
+        </div>
       </div>
 
       <!-- Time -->
       <div>
         <label for="dining-time" class="block text-sm text-gray-300 mb-2"
-          >Time</label
+          >Preferred Time *</label
         >
         <select
           id="dining-time"
           name="diningTime"
+          required
           class="w-full rounded-md bg-gray-800 border border-gray-700 px-4 py-3 text-white focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-colors"
         >
-          <option>Dinner (7:30 PM - 10:00 PM)</option>
-          <option>Lunch (12:30 PM - 2:30 PM)</option>
+          <option value="">Please select...</option>
+          <option value="Morning">Morning</option>
+          <option value="Afternoon">Afternoon</option>
+          <option value="Evening">Evening</option>
+          <option value="Night">Night</option>
         </select>
       </div>
 
-      <!-- Guests -->
-      <div class="md:col-span-2">
-        <label for="guests" class="block text-sm text-gray-300 mb-2"
-          >Number of Guests</label
+      <!-- Adults -->
+      <div>
+        <label for="adults" class="block text-sm text-gray-300 mb-2"
+          >Adults *</label
         >
         <input
-          id="guests"
-          name="guests"
+          id="adults"
+          name="adults"
           type="number"
           min="1"
           max="20"
           value="2"
+          required
+          class="w-full rounded-md bg-gray-800 border border-gray-700 px-4 py-3 text-white focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-colors"
+        />
+      </div>
+
+      <!-- Children -->
+      <div>
+        <label for="children" class="block text-sm text-gray-300 mb-2"
+          >Children</label
+        >
+        <input
+          id="children"
+          name="children"
+          type="number"
+          min="0"
+          max="20"
+          value="0"
           class="w-full rounded-md bg-gray-800 border border-gray-700 px-4 py-3 text-white focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-colors"
         />
       </div>
 
       <!-- Notes -->
       <div class="md:col-span-2">
-        <label for="notes" class="block text-sm text-gray-300 mb-2"
-          >Notes (Allergies, Occasion, etc.)</label
+        <label for="message" class="block text-sm text-gray-300 mb-2"
+          >Special Requests or Occasion?</label
         >
         <textarea
-          id="notes"
-          name="notes"
+          id="message"
+          name="message"
           rows="3"
-          class="w-full rounded-md bg-gray-800 border border-gray-700 px-4 py-3 text-white focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-colors"
+          placeholder="Anniversary, birthday, dietary requirements, etc."
+          class="w-full rounded-md bg-gray-800 border border-gray-700 px-4 py-3 text-white placeholder-gray-400 focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-colors resize-none"
         ></textarea>
       </div>
     </div>
@@ -134,7 +190,7 @@ const pageUrl = Astro.url.href;
     <div class="text-center pt-8">
       <button
         type="submit"
-        id="dining-submit-btn"
+        id="submit-btn"
         class="w-full md:w-auto bg-gradient-to-r from-amber-500 to-orange-600 text-white font-semibold px-8 py-4 rounded-xl transition-all duration-300 hover:shadow-xl hover:-translate-y-1 hover:from-amber-600 hover:to-orange-700 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
       >
         Request a Table
@@ -143,57 +199,91 @@ const pageUrl = Astro.url.href;
   </form>
 </section>
 
+<link
+  rel="stylesheet"
+  href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css"
+/>
+<link
+  rel="stylesheet"
+  href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/dark.css"
+/>
+
 <script>
+  // Import and initialize Flatpickr - EXACTLY like your working version
   import(
     "https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/flatpickr.min.js"
   ).then(() => {
-    flatpickr("#dining-date", {
+    const diningDateRef = document.getElementById("dining-date");
+
+    if (!diningDateRef) return;
+
+    const diningDatePicker = flatpickr(diningDateRef, {
       dateFormat: "M j, Y",
       minDate: "today",
+      maxDate: new Date().fp_incr(90), // 3 months ahead
       allowInput: false,
+      clickOpens: true,
       theme: "dark",
     });
   });
 
+  // Add Supabase form submission - same pattern as your working form
   document.addEventListener("DOMContentLoaded", async () => {
     try {
       const { supabase } = await import("../lib/supabase.js");
-      const form = document.getElementById("dining-reservation-form");
-      const submitBtn = document.getElementById("dining-submit-btn");
-      const messageDiv = document.getElementById("dining-form-message");
+
+      const form = document.getElementById("dining-form");
+      const submitBtn = document.getElementById("submit-btn");
+      const messageDiv = document.getElementById("form-message");
 
       if (!form) return;
 
       form.addEventListener("submit", async (e) => {
         e.preventDefault();
+
+        // Check honeypot
+        const formData = new FormData(form);
+        if (formData.get("confirm_email")) {
+          showSuccessMessage(); // Show success to bots
+          return;
+        }
+
+        // Show loading state
         submitBtn.disabled = true;
-        submitBtn.textContent = "Sending Request...";
+        submitBtn.textContent = "Submitting...";
+        showMessage("Submitting your table request...", "loading");
 
         try {
-          const formData = new FormData(form);
+          // Get form data - matching your form-handler.js structure
           const submission = {
             form_name: formData.get("form-name"),
-            pageUrl: formData.get("pageUrl"),
-            itemName: formData.get("itemName"),
-            itemSlug: formData.get("itemSlug"),
-            fullName: formData.get("fullName"),
+            page_url: formData.get("pageUrl"),
+            outletname: formData.get("outletName"),
+            outletslug: formData.get("outletSlug"),
+            first_name: formData.get("firstName"),
+            last_name: formData.get("lastName"),
+            email: formData.get("email"),
             phone: formData.get("phone"),
-            diningDate: formData.get("diningDate"),
-            diningTime: formData.get("diningTime"),
-            guests: parseInt(formData.get("guests")),
-            message: formData.get("notes"),
+            dining_date: formData.get("diningDate"),
+            dining_time: formData.get("diningTime"),
+            adults: parseInt(formData.get("adults")) || 0,
+            children: parseInt(formData.get("children")) || 0,
+            message: formData.get("message"),
           };
 
-          const { error } = await supabase
-            .from("contact_submissions")
+          // Submit to Supabase - using dining_submissions table
+          const { data, error } = await supabase
+            .from("dining_submissions")
             .insert([submission]);
+
           if (error) throw error;
 
+          // Success! Show elegant success message
           showSuccessMessage();
         } catch (error) {
           console.error("Submission error:", error);
           showMessage(
-            "Sorry, there was an error. Please try again or call us.",
+            "Sorry, there was an error submitting your table request. Please try again or contact us directly.",
             "error",
           );
           submitBtn.disabled = false;
@@ -214,21 +304,30 @@ const pageUrl = Astro.url.href;
       }
 
       function showSuccessMessage() {
+        // Hide the form completely
         form.style.display = "none";
+
+        // Show elegant success message
         messageDiv.innerHTML = `
           <div class="text-center py-12">
-            <div class="text-6xl mb-6">🎉</div>
-            <h3 class="text-2xl font-serif italic text-white mb-4">Thank You!</h3>
-            <p class="text-lg text-gray-300">Your table request has been sent.</p>
-            <p class="text-gray-400 mt-2">Our team will call you shortly to confirm.</p>
+            <div class="text-6xl mb-6">🍽️</div>
+            <h3 class="text-2xl font-serif italic text-white mb-4">Table Request Received!</h3>
+            <p class="text-lg text-gray-300 mb-6">Your table request has been submitted successfully.</p>
+            <p class="text-gray-400 mb-8">Our team will contact you shortly to confirm your dining experience.</p>
+            <button 
+              onclick="location.reload()" 
+              class="bg-gradient-to-r from-amber-500 to-orange-600 text-white font-semibold px-6 py-3 rounded-xl transition-all duration-300 hover:shadow-xl hover:-translate-y-1 hover:from-amber-600 hover:to-orange-700"
+            >
+              Request Another Table
+            </button>
           </div>
         `;
         messageDiv.className =
-          "bg-gradient-to-br from-gray-800/50 to-gray-900/50 backdrop-blur-xl border border-green-600 rounded-2xl p-8 text-center";
+          "bg-gradient-to-br from-gray-800/50 to-gray-900/50 backdrop-blur-xl border border-amber-600 rounded-2xl p-8 text-center";
         messageDiv.classList.remove("hidden");
       }
     } catch (error) {
-      console.error("Failed to load Supabase for dining form:", error);
+      console.error("Failed to load Supabase:", error);
     }
   });
 </script>

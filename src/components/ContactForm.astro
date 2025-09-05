@@ -1,0 +1,177 @@
+---
+import BaseForm from './BaseForm.astro';
+---
+
+<link
+  rel="stylesheet"
+  href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css"
+/>
+<link
+  rel="stylesheet"
+  href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/dark.css"
+/>
+
+<BaseForm
+  formId="contact-form"
+  formName="contact-general"
+  supabaseTable="contact_submissions"
+  heading="Begin Your Journey"
+  description="Advance reservations recommended. Our team creates bespoke itineraries tailored to your preferences."
+  submitButtonText="Make Your Reservation"
+  successMessage="Your enquiry has been submitted successfully."
+  successSubMessage="Our team will contact you shortly to discuss your stay and arrange your experience."
+  formDataMapperKey="contact"
+>
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <div>
+      <label for="firstName" class="block text-sm font-medium text-gray-300 mb-3"
+        >First Name *</label
+      >
+      <input
+        name="firstName"
+        type="text"
+        required
+        class="w-full px-4 py-4 bg-gray-800/50 backdrop-blur-xl border border-gray-700 rounded-xl text-white placeholder-gray-400 focus:border-gray-500 focus:ring-2 focus:ring-gray-500/20 transition-all duration-300"
+      />
+    </div>
+    <div>
+      <label for="lastName" class="block text-sm font-medium text-gray-300 mb-3"
+        >Last Name *</label
+      >
+      <input
+        name="lastName"
+        type="text"
+        required
+        class="w-full px-4 py-4 bg-gray-800/50 backdrop-blur-xl border border-gray-700 rounded-xl text-white placeholder-gray-400 focus:border-gray-500 focus:ring-2 focus:ring-gray-500/20 transition-all duration-300"
+      />
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <div>
+      <label for="email" class="block text-sm font-medium text-gray-300 mb-3"
+        >Email *</label
+      >
+      <input
+        name="email"
+        type="email"
+        required
+        class="w-full px-4 py-4 bg-gray-800/50 backdrop-blur-xl border border-gray-700 rounded-xl text-white placeholder-gray-400 focus:border-gray-500 focus:ring-2 focus:ring-gray-500/20 transition-all duration-300"
+      />
+    </div>
+    <div>
+      <label for="phone" class="block text-sm font-medium text-gray-300 mb-3"
+        >Phone *</label
+      >
+      <input
+        name="phone"
+        type="tel"
+        required
+        class="w-full px-4 py-4 bg-gray-800/50 backdrop-blur-xl border border-gray-700 rounded-xl text-white placeholder-gray-400 focus:border-gray-500 focus:ring-2 focus:ring-gray-500/20 transition-all duration-300"
+      />
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <div>
+      <label for="checkin" class="block text-sm font-medium text-gray-300 mb-3"
+        >Check-In Date *</label
+      >
+      <div class="relative cursor-pointer">
+        <input
+          name="checkin"
+          type="text"
+          id="check-in"
+          required
+          class="w-full px-4 py-4 bg-gray-800/50 backdrop-blur-xl border border-gray-700 rounded-xl text-white placeholder-gray-400 focus:border-gray-500 focus:ring-2 focus:ring-gray-500/20 transition-all duration-300 cursor-pointer"
+        />
+      </div>
+    </div>
+    <div>
+      <label for="checkout" class="block text-sm font-medium text-gray-300 mb-3"
+        >Check-Out Date *</label
+      >
+      <div class="relative cursor-pointer">
+        <input
+          name="checkout"
+          type="text"
+          id="check-out"
+          required
+          class="w-full px-4 py-4 bg-gray-800/50 backdrop-blur-xl border border-gray-700 rounded-xl text-white placeholder-gray-400 focus:border-gray-500 focus:ring-2 focus:ring-gray-500/20 transition-all duration-300 cursor-pointer"
+        />
+      </div>
+    </div>
+  </div>
+
+  <div class="text-center">
+    <span id="nights-message" class="text-sm italic"></span>
+  </div>
+
+  <div>
+    <label for="message" class="block text-sm font-medium text-gray-300 mb-3"
+      >Special Requests</label
+    >
+    <textarea
+      name="message"
+      rows="3"
+      class="w-full px-4 py-4 bg-gray-800/50 backdrop-blur-xl border border-gray-700 rounded-xl text-white placeholder-gray-400 focus:border-gray-500 focus:ring-2 focus:ring-gray-500/20 transition-all duration-300 resize-none"
+    ></textarea>
+  </div>
+</BaseForm>
+
+<script>
+  import(
+    "https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/flatpickr.min.js"
+  ).then(() => {
+    const checkInRef = document.getElementById("check-in");
+    const checkOutRef = document.getElementById("check-out");
+    const nightsMessage = document.getElementById("nights-message");
+    let checkInPicker, checkOutPicker;
+
+    const baseConfig = {
+      dateFormat: "M j, Y",
+      minDate: "today",
+      allowInput: false,
+      clickOpens: true,
+      theme: "dark",
+    };
+
+    checkInPicker = flatpickr(checkInRef, {
+      ...baseConfig,
+      maxDate: new Date().fp_incr(365),
+      onChange: function (selectedDates) {
+        if (selectedDates.length > 0) {
+          const selectedDate = selectedDates[0];
+          checkOutPicker?.set("minDate", selectedDate);
+          calculateNights();
+        }
+      },
+    });
+
+    checkOutPicker = flatpickr(checkOutRef, {
+      ...baseConfig,
+      maxDate: new Date().fp_incr(365),
+      onChange: function () {
+        calculateNights();
+      },
+    });
+
+    const calculateNights = () => {
+      if (checkInRef?.value && checkOutRef?.value) {
+        const checkIn = new Date(checkInRef.value);
+        const checkOut = new Date(checkOutRef.value);
+        if (checkOut <= checkIn) {
+          nightsMessage.textContent = "Check-out must be after check-in!";
+          nightsMessage.className = "text-sm italic text-red-400";
+        } else {
+          const diffTime = Math.abs(checkOut - checkIn);
+          const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+          nightsMessage.textContent = `You are reserving for ${diffDays} Night${diffDays !== 1 ? "s" : ""}.`;
+          nightsMessage.className = "text-sm italic text-green-400";
+        }
+      } else {
+        nightsMessage.textContent = "";
+      }
+    };
+  });
+</script>
