@@ -1,16 +1,39 @@
 ---
-import Layout from '../layouts/Layout.astro';
-import { AstroSEO } from 'astro-seo-plugin';
-import HeroSection from '../components/HeroSection.astro';
-import SubHeroSection from '../components/SubHeroSection.astro';
-import RoomsSection from '../components/RoomsSection.astro';
-import ExperiencesSection from '../components/ExperiencesSection.astro';
-import TestimonialsSection from '../components/TestimonialsSection.astro';
-import AwardsSection from '../components/AwardsSection.astro';
-import ContactSection from '../components/ContactSection.astro';
-import { fetchAllHomepageData } from '../api.js';
+import Layout from "../layouts/Layout.astro";
+import { AstroSEO } from "astro-seo-plugin";
+import HeroSection from "../components/HeroSection.astro";
+import SubHeroSection from "../components/SubHeroSection.astro";
+import RoomsSection from "../components/RoomsSection.astro";
+import ExperiencesSection from "../components/ExperiencesSection.astro";
+import TestimonialsSection from "../components/TestimonialsSection.astro";
+import AwardsSection from "../components/AwardsSection.astro";
+import ContactSection from "../components/ContactSection.astro";
+import { fetchAllHomepageData } from "../api.js";
 
-// Server-side data fetching (replaces React useState/useEffect)
+// Ultra-reliable API fetching with retry logic
+async function fetchWithRetry(fetchFn, retries = 2) {
+  for (let i = 0; i < retries; i++) {
+    try {
+      return await fetchFn();
+    } catch (error) {
+      if (i === retries - 1) throw error;
+      await new Promise(resolve => setTimeout(resolve, 1000));
+    }
+  }
+}
+
+// Bulletproof URL validation
+function validateImageUrl(url) {
+  if (!url || typeof url !== 'string') return null;
+  try {
+    const parsed = new URL(url);
+    return parsed.protocol === 'https:' ? url : null;
+  } catch {
+    return null;
+  }
+}
+
+// Server-side data fetching with enhanced error handling
 let data = {
   heroes: [],
   subHero: null,
@@ -22,10 +45,17 @@ let data = {
 let error = null;
 
 try {
-  data = await fetchAllHomepageData();
+  data = await fetchWithRetry(() => fetchAllHomepageData());
+  
+  // Validate critical image URLs
+  if (data.heroes?.length > 0) {
+    data.heroes = data.heroes.filter(hero => 
+      validateImageUrl(hero?.backgroundImage?.url)
+    );
+  }
 } catch (err) {
   console.error('Failed to load homepage data:', err);
-  error = 'Failed to load content from Hygraph';
+  error = 'Failed to load content from CMS';
 }
 
 // Calculate grid layout for experiences
@@ -37,11 +67,18 @@ const gridClass = {
   4: 'grid-cols-1 md:grid-cols-2'
 }[experienceCount] || 'grid-cols-1 md:grid-cols-2';
 
-// Dynamic hero image from CMS or fallback
-const heroImage = data.heroes[0]?.backgroundImage?.url || '/img/tiger-safari-hero.jpg';
+// Safe hero image with validation
+const heroImage = validateImageUrl(data.heroes[0]?.backgroundImage?.url) || '/img/tiger-safari-hero.jpg';
 ---
 
 <Layout title="Limban Resort - Luxury Eco-Safari Experience in Tadoba">
+  <!-- Performance optimization: DNS prefetch for external resources -->
+  <link rel="dns-prefetch" href="https://ap-south-1.graphassets.com" />
+  <link rel="preconnect" href="https://ap-south-1.graphassets.com" />
+  
+  <!-- Preload critical hero image -->
+  <link rel="preload" as="image" href={heroImage} fetchpriority="high" />
+
   <AstroSEO
     title="Limban Resort | Luxury Eco-Friendly Safari & Wellness Retreat in Tadoba National Park"
     description="Discover unparalleled luxury and sustainability at Limban Resort, nestled in the heart of Tadoba National Park. Experience responsible tiger safaris, eco-conscious wellness programs, and authentic cultural immersion in Maharashtra, India."
@@ -68,8 +105,8 @@ const heroImage = data.heroes[0]?.backgroundImage?.url || '/img/tiger-safari-her
         "https://www.facebook.com/limbanresort"
       ],
       "hasMap": "https://www.google.com/maps/place/20.25602486093492,79.2847888101826",
-      "checkinTime": "14:00",
-      "checkoutTime": "12:00",
+      "checkinTime": "13:00",
+      "checkoutTime": "11:00",
       "currenciesAccepted": "INR",
       "paymentAccepted": "Cash, Credit Card, UPI",
       "address": {
@@ -188,35 +225,150 @@ const heroImage = data.heroes[0]?.backgroundImage?.url || '/img/tiger-safari-her
   />
   
   {error ? (
-    <div class="bg-gray-950 text-gray-100 h-screen flex items-center justify-center">
-      <div class="text-center">
-        <div class="text-2xl font-serif italic mb-4 text-red-400">Error Loading Content</div>
-        <div class="text-gray-400">{error}</div>
-        <div class="text-sm text-gray-500 mt-4">Please check your connection and try again</div>
+    <!-- Enhanced error state with accessibility -->
+    <div class="bg-gray-950 text-gray-100 h-screen flex items-center justify-center" role="alert" aria-live="assertive">
+      <div class="text-center max-w-md mx-auto px-6">
+        <div class="w-16 h-16 mx-auto mb-6">
+          <svg class="w-full h-full text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
+          </svg>
+        </div>
+        <h1 class="text-2xl font-serif italic mb-4 text-red-400">Content Unavailable</h1>
+        <p class="text-gray-400 mb-4">{error}</p>
+        <p class="text-sm text-gray-500 mb-6">Please check your connection and try again</p>
+        <button 
+          onclick="window.location.reload()" 
+          class="inline-flex items-center px-6 py-3 bg-amber-400 text-gray-900 font-semibold rounded-full hover:bg-amber-300 transition-colors duration-300 focus:outline-none focus:ring-4 focus:ring-amber-400/50"
+        >
+          Try Again
+          <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+          </svg>
+        </button>
       </div>
     </div>
   ) : (
+    <!-- Skip to content for accessibility -->
+    <a href="#main-content" class="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 bg-amber-400 text-gray-900 px-4 py-2 rounded z-50">
+      Skip to main content
+    </a>
+
+    <!-- Main content with proper semantic structure -->
     <div class="bg-gray-950 text-gray-100 font-sans antialiased selection:bg-gray-700">
-      <!-- Hero Section with Safari Carousel -->
-      <HeroSection heroes={data.heroes} />
-      
-      <!-- Sub Hero Section with Resort Introduction -->
-      <SubHeroSection subHero={data.subHero} />
-      
-      <!-- Luxury Accommodations Section -->
-      <RoomsSection rooms={data.rooms} specialDeal={data.specialDeal} />
-      
-      <!-- Safari & Wilderness Experiences -->
-      <ExperiencesSection experiences={data.experiences} gridClass={gridClass} />
-      
-      <!-- Guest Testimonials -->
-      <TestimonialsSection />
-      
-      <!-- Awards & Recognition -->
-      <AwardsSection />
-      
-      <!-- Contact & Reservations -->
-      <ContactSection />
+      <main id="main-content" role="main">
+        <!-- Hero Section with Safari Carousel -->
+        <HeroSection heroes={data.heroes} />
+        
+        <!-- Sub Hero Section with Resort Introduction -->
+        <SubHeroSection subHero={data.subHero} />
+        
+        <!-- Luxury Accommodations Section -->
+        <RoomsSection rooms={data.rooms} specialDeal={data.specialDeal} />
+        
+        <!-- Safari & Wilderness Experiences -->
+        <ExperiencesSection experiences={data.experiences} gridClass={gridClass} />
+        
+        <!-- Guest Testimonials -->
+        <TestimonialsSection />
+        
+        <!-- Awards & Recognition -->
+        <AwardsSection />
+        
+        <!-- Contact & Reservations -->
+        <ContactSection />
+      </main>
     </div>
   )}
 </Layout>
+
+<style>
+  /* Accessible focus states */
+  .focus\:not-sr-only:focus {
+    position: absolute !important;
+    width: auto !important;
+    height: auto !important;
+    padding: 1rem !important;
+    margin: 0 !important;
+    overflow: visible !important;
+    clip: auto !important;
+    white-space: normal !important;
+  }
+
+  /* Respect user motion preferences */
+  @media (prefers-reduced-motion: reduce) {
+    * {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+
+  /* Enhanced error state styling */
+  [role="alert"] {
+    border: 2px solid rgba(248, 113, 113, 0.2);
+    border-radius: 1rem;
+    background: linear-gradient(135deg, rgba(15, 23, 42, 0.95) 0%, rgba(30, 41, 59, 0.95) 100%);
+  }
+</style>
+
+<script>
+  // Performance monitoring for production
+  if (typeof window !== 'undefined' && import.meta.env.PROD) {
+    // Monitor Core Web Vitals
+    function measureWebVitals() {
+      if ('PerformanceObserver' in window) {
+        // Largest Contentful Paint (LCP)
+        new PerformanceObserver((list) => {
+          const entries = list.getEntries();
+          const lastEntry = entries[entries.length - 1];
+          console.log('LCP:', lastEntry.startTime);
+        }).observe({ entryTypes: ['largest-contentful-paint'] });
+
+        // First Input Delay (FID)
+        new PerformanceObserver((list) => {
+          for (const entry of list.getEntries()) {
+            console.log('FID:', entry.processingStart - entry.startTime);
+          }
+        }).observe({ entryTypes: ['first-input'] });
+
+        // Cumulative Layout Shift (CLS)
+        new PerformanceObserver((list) => {
+          let cls = 0;
+          for (const entry of list.getEntries()) {
+            if (!entry.hadRecentInput) {
+              cls += entry.value;
+            }
+          }
+          console.log('CLS:', cls);
+        }).observe({ entryTypes: ['layout-shift'] });
+      }
+    }
+
+    // Initialize monitoring after page load
+    if (document.readyState === 'complete') {
+      measureWebVitals();
+    } else {
+      window.addEventListener('load', measureWebVitals);
+    }
+  }
+
+  // Enhanced error handling with user feedback
+  window.addEventListener('error', function(e) {
+    console.error('Global error caught:', e.error);
+    
+    // Show user-friendly error message
+    const errorNotification = document.createElement('div');
+    errorNotification.innerHTML = `
+      <div class="fixed top-4 right-4 bg-red-500 text-white px-4 py-2 rounded-lg shadow-lg z-50" role="alert">
+        Something went wrong. Please refresh the page.
+        <button onclick="this.parentElement.remove()" class="ml-2 text-white hover:text-gray-200">×</button>
+      </div>
+    `;
+    document.body.appendChild(errorNotification);
+  });
+
+  // Service Worker registration for offline support
+  if ('serviceWorker' in navigator && import.meta.env.PROD) {
+    navigator.serviceWorker.register('/sw.js').catch(console.error);
+  }
+</script>

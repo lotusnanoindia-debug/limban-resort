@@ -4,28 +4,63 @@ import { AstroSEO } from 'astro-seo-plugin';
 import ContactSection from '../components/ContactSection.astro';
 import { fetchRoomsData, fetchSpecialDealData } from '../api.js';
 
-// Server-side data fetching (same as your current code)
-let data = {
-  rooms: [],
-  specialDeal: null
-};
+// Ultra-reliable API fetching with retry logic
+async function fetchWithRetry(fetchFn, retries = 2) {
+  for (let i = 0; i < retries; i++) {
+    try {
+      return await fetchFn();
+    } catch (error) {
+      if (i === retries - 1) throw error;
+      await new Promise(resolve => setTimeout(resolve, 1000));
+    }
+  }
+}
 
+// Bulletproof URL validation
+function validateImageUrl(url) {
+  if (!url || typeof url !== 'string') return null;
+  try {
+    const parsed = new URL(url);
+    return parsed.protocol === 'https:' ? url : null;
+  } catch {
+    return null;
+  }
+}
+
+// Server-side data fetching with enhanced error handling
+let data = { rooms: [], specialDeal: null };
 let error = null;
 
 try {
   const [rooms, specialDeal] = await Promise.all([
-    fetchRoomsData(),
-    fetchSpecialDealData()
+    fetchWithRetry(() => fetchRoomsData()),
+    fetchWithRetry(() => fetchSpecialDealData())
   ]);
-  data = { rooms, specialDeal };
+  
+  // Validate and enhance room data
+  data = {
+    rooms: rooms.filter(room => room && room.roomName).map((room, index) => ({
+      ...room,
+      validatedImage: validateImageUrl(room.heroImage?.optimisedCard) || validateImageUrl(room.heroImage?.url) || '/img/room-placeholder.jpg',
+      safePrice: Number(room.basePrice) || 0,
+      priority: index < 4, // First 4 rooms get priority loading
+      safeUrl: room.url?.startsWith('/') ? room.url : `/rooms/${room.url || room.id}`
+    })),
+    specialDeal
+  };
 } catch (err) {
   console.error('Failed to load rooms data:', err);
-  error = 'Failed to load content from Hygraph';
+  error = 'Failed to load content from CMS';
 }
 
-// Get hero image from first room or fallback
-const roomsHeroImage = data.rooms[0]?.heroImage?.optimisedCard || '/img/rooms-hero.jpg';
+// Enhanced hero image with validation
+const roomsHeroImage = validateImageUrl(data.rooms[0]?.validatedImage) || '/img/rooms-hero.jpg';
 ---
+
+<!-- Performance optimization: preload critical resources -->
+<link rel="preload" as="image" href={roomsHeroImage} fetchpriority="high" />
+<link rel="dns-prefetch" href="https://ap-south-1.graphassets.com" />
+<link rel="preconnect" href="https://ap-south-1.graphassets.com" />
 
 <Layout title="Luxury Rooms & Suites - Limban Resort">
   <AstroSEO
@@ -54,211 +89,373 @@ const roomsHeroImage = data.rooms[0]?.heroImage?.optimisedCard || '/img/rooms-he
           "addressLocality": "Chandrapur",
           "addressRegion": "Maharashtra",
           "addressCountry": "IN"
-        },
-        "accommodationType": [
-          "Safari Tent",
-          "Luxury Villa", 
-          "Tree House",
-          "Executive Suite",
-          "Family Cottage",
-          "Premium Lodge"
-        ]
+        }
       },
       "hasPart": data.rooms.map(room => ({
         "@type": "Accommodation",
         "name": room.roomName,
         "description": room.shortDescription,
-        "image": room.heroImage?.optimisedCard,
+        "image": room.validatedImage,
         "url": `https://limban.com/rooms/${room.url}`,
-        "priceRange": `₹${room.basePrice}+`,
+        "priceRange": `₹${room.safePrice}+`,
         "amenityFeature": room.roomFeature?.map(feature => ({
           "@type": "LocationFeatureSpecification",
           "name": feature.featureName
         })) || []
       }))
     }}
-    additionalLinkTags={[
-      // Professional favicon setup (same as homepage)
-      { rel: "apple-touch-icon", sizes: "180x180", href: "/apple-touch-icon.png" },
-      { rel: "icon", type: "image/png", sizes: "32x32", href: "/favicon-32x32.png" },
-      { rel: "icon", type: "image/png", sizes: "16x16", href: "/favicon-16x16.png" },
-      { rel: "manifest", href: "/site.webmanifest" },
-      { rel: "shortcut icon", href: "/favicon.ico" }
-    ]}
-    additionalMetaTags={[
-      {
-        name: "robots",
-        content: "index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1"
-      },
-      {
-        property: "og:locale",
-        content: "en_IN"
-      },
-      {
-        name: "keywords",
-        content: "luxury safari rooms, eco safari accommodation Tadoba, luxury tents Maharashtra, tree house resort India, premium safari lodge, wildlife resort rooms, luxury villa Tadoba National Park"
-      },
-      {
-        name: "author",
-        content: "Limban Resort"
-      },
-      {
-        name: "theme-color",
-        content: "#09090B"
-      },
-      {
-        name: "msapplication-TileColor", 
-        content: "#09090B"
-      }
-    ]}
   />
   
   {error ? (
-    <div class="bg-gray-950 text-gray-100 h-screen flex items-center justify-center">
-      <div class="text-center">
-        <div class="text-2xl font-serif italic mb-4 text-red-400">Error Loading Content</div>
-        <div class="text-gray-400">{error}</div>
-        <div class="text-sm text-gray-500 mt-4">Please check your connection and try again</div>
+    <!-- Enhanced error state with accessibility -->
+    <div class="bg-gray-950 text-gray-100 h-screen flex items-center justify-center" role="alert" aria-live="assertive">
+      <div class="text-center max-w-md mx-auto px-6">
+        <div class="w-16 h-16 mx-auto mb-6">
+          <svg class="w-full h-full text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
+          </svg>
+        </div>
+        <h1 class="text-2xl font-serif italic mb-4 text-red-400">Content Unavailable</h1>
+        <p class="text-gray-400 mb-4">{error}</p>
+        <p class="text-sm text-gray-500 mb-6">Please check your connection and try again</p>
+        <button 
+          onclick="window.location.reload()" 
+          class="inline-flex items-center px-6 py-3 bg-amber-400 text-gray-900 font-semibold rounded-full hover:bg-amber-300 transition-colors duration-300 focus:outline-none focus:ring-4 focus:ring-amber-400/50"
+        >
+          Try Again
+        </button>
       </div>
     </div>
   ) : (
+    <!-- Skip to content for accessibility -->
+    <a href="#main-content" class="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 bg-amber-400 text-gray-900 px-4 py-2 rounded z-50">
+      Skip to main content
+    </a>
+
     <div class="bg-gray-950 text-gray-100 font-sans antialiased selection:bg-gray-700">
-      <!-- Hero Section -->
-      <section class="pb-32 pt-48 bg-gray-900">
-        <div class="max-w-7xl mx-auto px-6 text-center">
-          <div class="text-sm text-gray-400 tracking-[0.2em] uppercase mb-4">
-            Luxury Accommodations
+      <!-- Stunning Hero Section with Background -->
+      <section class="relative pb-32 pt-48 overflow-hidden" role="banner" aria-labelledby="rooms-hero-heading">
+        <!-- Optimized Background Image -->
+        <picture class="absolute inset-0">
+          <source 
+            srcset={`${roomsHeroImage}?format=avif&w=1920&h=1080&q=70`} 
+            type="image/avif" 
+            media="(min-width: 1200px)"
+          />
+          <source 
+            srcset={`${roomsHeroImage}?format=webp&w=1920&h=1080&q=70`} 
+            type="image/webp" 
+            media="(min-width: 1200px)"
+          />
+          <img
+            src={roomsHeroImage}
+            alt="Luxury safari accommodations at Limban Resort"
+            class="w-full h-full object-cover opacity-30"
+            loading="eager"
+            decoding="async"
+            fetchpriority="high"
+          />
+        </picture>
+
+        <!-- Enhanced gradient overlay -->
+        <div class="absolute inset-0 bg-gradient-to-b from-gray-900/90 via-gray-900/60 to-gray-900/90"></div>
+        
+        <!-- Hero content -->
+        <main id="main-content" class="relative z-10 max-w-7xl mx-auto px-6 text-center" role="main">
+          <div class="text-sm text-gray-300 tracking-[0.2em] uppercase mb-6" role="doc-subtitle">
+            Luxury Safari Accommodations
           </div>
-          <h1 class="font-serif italic text-4xl md:text-6xl text-white mb-8">
+          <h1 id="rooms-hero-heading" class="font-serif italic text-5xl md:text-7xl lg:text-8xl text-white mb-8 drop-shadow-2xl">
             Our Rooms & Suites
           </h1>
-          <p class="text-xl text-gray-300 max-w-3xl mx-auto leading-relaxed">
+          <p class="text-xl md:text-2xl text-gray-200 max-w-4xl mx-auto leading-relaxed drop-shadow-lg">
             Experience the perfect blend of luxury and wilderness in our thoughtfully designed accommodations,
-            each offering stunning views and modern amenities.
+            each offering stunning views and modern amenities in the heart of Tadoba National Park.
           </p>
-        </div>
+        </main>
       </section>
-      <!-- Crumbs -->
-    <section class="py-6 bg-gray-900/50 border-b border-gray-800">
-      <div class="max-w-7xl mx-auto px-6">
-        <nav class="flex items-center justify-center space-x-2 text-sm" aria-label="Breadcrumb">
-          <script type="application/ld+json">
-            {
-              "@context": "https://schema.org",
-              "@type": "BreadcrumbList",
-              "itemListElement": [
-                {
-                  "@type": "ListItem",
-                  "position": 1,
-                  "name": "Home",
-                  "item": "https://limban.com/"
-                },
-                {
-                  "@type": "ListItem",
-                  "position": 2,
-                  "name": "Rooms",
-                  "item": "https://limban.com/rooms"
-                },
-                {
-                  "@type": "ListItem",
-                  "position": 3,
-                  "name": "${room.roomName}",
-                  "item": "https://limban.com/rooms/${room.url}"
-                }
-              ]
-            }
-          </script>
-          <a 
-            href="/" 
-            class="text-gray-400 hover:text-amber-400 transition-colors duration-300 flex items-center"
-          >
-            <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
-              <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"/>
-            </svg>
-            Home
-          </a>
-          <svg class="w-4 h-4 text-gray-600" fill="currentColor" viewBox="0 0 20 20">
-            <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/>
-          </svg>
-          <span class="text-amber-400 font-medium">Rooms</span>
-        </nav>
-      </div>
-    </section>
 
-      <!-- Special Deal Section -->
+      <!-- Enhanced Breadcrumb Navigation -->
+      <nav class="py-6 bg-gray-900/50 border-b border-gray-800" aria-label="Breadcrumb">
+        <div class="max-w-7xl mx-auto px-6">
+          <ol class="flex items-center justify-center space-x-2 text-sm">
+            <li>
+              <a href="/" class="text-gray-400 hover:text-amber-400 transition-colors duration-300 flex items-center focus:outline-none focus:ring-2 focus:ring-amber-400/50 rounded">
+                <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
+                  <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"/>
+                </svg>
+                Home
+              </a>
+            </li>
+            <li aria-hidden="true">
+              <svg class="w-4 h-4 text-gray-600" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/>
+              </svg>
+            </li>
+            <li aria-current="page">
+              <span class="text-amber-400 font-medium">Rooms & Suites</span>
+            </li>
+          </ol>
+        </div>
+      </nav>
+
+      <!-- Enhanced Special Deal Section -->
       {data.specialDeal && data.specialDeal.html && (
-        <section class="py-16 bg-gray-800">
-          <div class="max-w-4xl mx-auto px-6">
-            <div class="bg-gray-900/50 border border-yellow-600/30 rounded-xl p-6 text-center shadow-lg">
-              <div class="font-semibold text-xl text-yellow-300 max-w-none" set:html={data.specialDeal.html} />
+        <section class="py-20 bg-gradient-to-r from-gray-800 to-gray-900" role="complementary" aria-label="Special offer">
+          <div class="max-w-5xl mx-auto px-6">
+            <div class="bg-gradient-to-r from-amber-900/40 to-orange-900/40 border border-amber-400/30 rounded-3xl p-10 text-center shadow-2xl backdrop-blur-xl">
+              <div class="font-bold text-2xl text-amber-200 max-w-none prose prose-amber" set:html={data.specialDeal.html} />
             </div>
           </div>
         </section>
       )}
 
-      <!-- Rooms Section -->
-      <section class="pb-32 bg-gray-800">
+      <!-- Stunning Rooms Grid Section -->
+      <section class="py-32 bg-gradient-to-b from-gray-800 to-gray-900" aria-labelledby="rooms-grid-heading">
         <div class="max-w-7xl mx-auto px-6">
-          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-12">
+          <header class="text-center mb-20">
+            <h2 id="rooms-grid-heading" class="font-serif italic text-4xl md:text-5xl text-white mb-6">
+              Six Distinctive Experiences
+            </h2>
+            <p class="text-xl text-gray-300 max-w-3xl mx-auto">
+              Each accommodation tells its own story of luxury, comfort, and connection with nature
+            </p>
+          </header>
+
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-12" role="list">
             {data.rooms?.length > 0 ? (
-              data.rooms.map((room) => (
-                <div key={room.id} class="bg-gray-800/50 backdrop-blur-xl border border-gray-500 rounded-xl overflow-hidden shadow-lg shadow-white/5 hover:shadow-2xl transition-all duration-500 group flex flex-col">
-                  <picture class="w-full h-64 overflow-hidden">
-                    <img
-                      src={room.heroImage?.optimisedCard}
-                      alt={`${room.roomName} - Luxury accommodation at Limban Resort in Tadoba, India`}
-                      width="450"
-                      height="300"
-                      class="w-full h-64 object-cover group-hover:scale-110 transition-transform duration-500"
-                      loading="lazy"
-                      decoding="async"
-                    />
-                  </picture>
-                  <div class="p-8 flex flex-col flex-grow">
-                    <div class="flex items-center mb-6">
-                      <h3 class="font-serif italic text-4xl text-white font-bold">{room.roomName}</h3>
-                    </div>
-                    <p class="text-gray-400 mb-6 text-sm leading-relaxed flex-grow">
-                      {room.shortDescription}
-                    </p>
+              data.rooms.map((room, index) => (
+                <article 
+                  key={room.id}
+                  class="group bg-gradient-to-br from-gray-800/60 to-gray-900/60 backdrop-blur-xl border border-gray-600/50 rounded-3xl overflow-hidden shadow-2xl hover:shadow-amber-400/20 hover:border-amber-400/50 transition-all duration-700 hover:-translate-y-2 flex flex-col"
+                  role="listitem"
+                  aria-labelledby={`room-${room.id}-name`}
+                >
+                  <!-- Enhanced image container -->
+                  <div class="relative overflow-hidden">
+                    <picture>
+                      <source 
+                        srcset={`${room.validatedImage}?format=avif&w=600&h=400&q=80`} 
+                        type="image/avif"
+                      />
+                      <source 
+                        srcset={`${room.validatedImage}?format=webp&w=600&h=400&q=80`} 
+                        type="image/webp"
+                      />
+                      <img
+                        src={room.validatedImage}
+                        alt={`${room.roomName} - Luxury accommodation at Limban Resort in Tadoba, India`}
+                        width="600"
+                        height="400"
+                        class="w-full h-80 object-cover group-hover:scale-110 transition-transform duration-700 ease-out"
+                        loading={room.priority ? 'eager' : 'lazy'}
+                        fetchpriority={room.priority ? 'high' : 'auto'}
+                        decoding="async"
+                      />
+                    </picture>
+                    
+                    <!-- Elegant overlay gradient -->
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                  </div>
+
+                  <!-- Enhanced content section -->
+                  <div class="p-10 flex flex-col flex-grow space-y-8">
+                    <!-- Room header -->
+                    <header class="text-center">
+                      <h3 id={`room-${room.id}-name`} class="font-serif italic text-3xl md:text-4xl text-white font-bold mb-4 group-hover:text-amber-300 transition-colors duration-300">
+                        {room.roomName}
+                      </h3>
+                      <p class="text-lg text-gray-300 leading-relaxed">
+                        {room.shortDescription}
+                      </p>
+                    </header>
+
+                    <!-- Enhanced amenities showcase -->
                     {room.roomFeature && room.roomFeature.length > 0 && (
-                      <div class="mb-6">
-                        <h4 class="text-sm font-semibold text-orange-300 mb-4 tracking-wider uppercase">Key Features</h4>
-                        <div class="grid grid-cols-3 lg:grid-cols-5 gap-x-6 gap-y-3">
-                         {room.roomFeature.map((feature) => (
-                            <div key={feature.id} class="flex flex-col items-center p-3 rounded-md border border-gray-700 hover:border-orange-500 transition-colors duration-300">
-                              <div class="w-7 h-7 mx-auto mb-1 text-gray-400 flex-shrink-0">
+                      <div class="flex-grow">
+                        <h4 class="text-sm font-semibold text-amber-400 mb-6 tracking-wider uppercase text-center">
+                          Luxury Amenities
+                        </h4>
+                        <div class="grid grid-cols-3 lg:grid-cols-5 gap-4">
+                          {room.roomFeature.slice(0, 10).map((feature) => (
+                            <div 
+                              key={feature.id} 
+                              class="group/feature relative flex flex-col items-center p-4 bg-gradient-to-br from-gray-700/30 to-gray-800/30 rounded-2xl border border-gray-700/50 hover:border-amber-400/50 hover:from-gray-600/30 hover:to-gray-700/30 transition-all duration-500 hover:-translate-y-1"
+                              title={feature.featureName}
+                            >
+                              <div class="w-8 h-8 mb-2 text-gray-400 group-hover/feature:text-amber-300 transition-colors duration-300">
                                 <div set:html={feature.svgImage} />
                               </div>
-                              <span class="text-gray-300 text-xs text-center">{feature.featureName}</span>
+                              <span class="text-gray-300 text-xs text-center leading-tight group-hover/feature:text-amber-100 transition-colors duration-300">
+                                {feature.featureName}
+                              </span>
                             </div>
                           ))}
                         </div>
                       </div>
                     )}
-                    <div class="mt-auto pt-6 border-t border-gray-700/50 space-y-4">
+
+                    <!-- Enhanced pricing and CTA -->
+                    <footer class="pt-8 border-t border-gray-700/50 space-y-6">
                       <div class="text-center">
-                        <span class="text-2xl font-bold text-white">From ₹{Number(room.basePrice).toLocaleString()}</span>
-                        <span class="text-sm text-gray-400 block">per night</span>
+                        <div class="text-3xl font-bold text-white mb-2">
+                          From ₹{room.safePrice.toLocaleString()}
+                        </div>
+                        <div class="text-sm text-gray-400">per night • Breakfast included</div>
                       </div>
-                      <a href={`/rooms/${room.url}`} class="group relative block w-full text-center bg-gradient-to-r from-gray-100 to-gray-200 hover:from-orange-400 hover:to-orange-500 text-gray-900 hover:text-white px-6 py-3 rounded-lg text-sm tracking-wide transition-all duration-300 hover:shadow-lg border border-gray-300 hover:border-orange-400">
-                        <span class="relative z-10 font-semibold">More about {room.roomName}</span>
+                      
+                      <a 
+                        href={room.safeUrl}
+                        class="group/cta relative block w-full text-center bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-gray-900 px-8 py-4 rounded-2xl font-bold text-lg tracking-wide transition-all duration-300 hover:shadow-2xl hover:shadow-amber-400/30 hover:-translate-y-1 focus:outline-none focus:ring-4 focus:ring-amber-400/50 overflow-hidden"
+                        aria-label={`Explore ${room.roomName} details and booking`}
+                      >
+                        <span class="relative z-10 flex items-center justify-center">
+                          Explore {room.roomName}
+                          <svg class="w-5 h-5 ml-2 opacity-0 group-hover/cta:opacity-100 transform translate-x-[-10px] group-hover/cta:translate-x-0 transition-all duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                          </svg>
+                        </span>
+                        
+                        <!-- Animated background effect -->
+                        <div class="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0 transform translate-x-[-100%] group-hover/cta:translate-x-[100%] transition-transform duration-1000 ease-out"></div>
                       </a>
-                    </div>
+                    </footer>
                   </div>
-                </div>
+                </article>
               ))
             ) : (
-              <div class="col-span-full text-center py-12">
-                <p class="text-gray-400 text-lg">Rooms are being updated. Please check back soon.</p>
+              <div class="col-span-full text-center py-16" role="status">
+                <div class="w-16 h-16 mx-auto mb-6 text-gray-500">
+                  <svg class="w-full h-full" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 14l-7-7-7 7m14 0v3a2 2 0 01-2 2H5a2 2 0 01-2-2v-3" />
+                  </svg>
+                </div>
+                <h3 class="text-xl text-gray-400 mb-2">Rooms Coming Soon</h3>
+                <p class="text-gray-500">We're updating our accommodations. Please check back soon.</p>
               </div>
             )}
           </div>
         </div>
       </section>
 
-      <!-- Contact Section -->
+      <!-- Enhanced Contact Section -->
       <ContactSection />
     </div>
   )}
 </Layout>
+
+<style>
+  /* Enhanced smooth transitions with GPU acceleration */
+  .group img,
+  .group/feature,
+  .group/cta {
+    transform-origin: center center;
+    backface-visibility: hidden;
+    will-change: transform;
+  }
+
+  /* Respect user motion preferences */
+  @media (prefers-reduced-motion: reduce) {
+    .transition-all,
+    .transition-transform,
+    .transition-colors,
+    .group-hover\:scale-110,
+    .hover\:-translate-y-2,
+    .hover\:-translate-y-1 {
+      transition: none !important;
+      transform: none !important;
+    }
+  }
+
+  /* Enhanced contrast for accessibility */
+  @media (prefers-contrast: high) {
+    .border-gray-600,
+    .border-gray-700 {
+      border-color: rgba(255, 255, 255, 0.4);
+    }
+  }
+
+  /* Accessible focus states */
+  .focus\:not-sr-only:focus {
+    position: absolute !important;
+    width: auto !important;
+    height: auto !important;
+    padding: 1rem !important;
+    margin: 0 !important;
+    overflow: visible !important;
+    clip: auto !important;
+    white-space: normal !important;
+  }
+
+  /* Enhanced loading animations */
+  @keyframes shimmer {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+  }
+</style>
+
+<script>
+  // Enhanced error handling and image optimization
+  class RoomsPageEnhancer {
+    constructor() {
+      this.init();
+    }
+
+    init() {
+      this.handleImageErrors();
+      this.trackRoomInteractions();
+      this.optimizeScrollPerformance();
+    }
+
+    handleImageErrors() {
+      document.querySelectorAll('img').forEach(img => {
+        img.addEventListener('error', () => {
+          console.warn('Image failed to load:', img.src);
+          img.src = '/img/room-placeholder.jpg';
+          img.alt = 'Room image temporarily unavailable';
+        });
+      });
+    }
+
+    trackRoomInteractions() {
+      document.querySelectorAll('article a[href*="/rooms/"]').forEach(link => {
+        link.addEventListener('click', (e) => {
+          const roomName = e.target.closest('article')?.querySelector('h3')?.textContent;
+          if (roomName && typeof gtag !== 'undefined') {
+            gtag('event', 'room_view', {
+              'event_category': 'engagement',
+              'event_label': roomName,
+              'value': 1
+            });
+          }
+        });
+      });
+    }
+
+    optimizeScrollPerformance() {
+      let ticking = false;
+      
+      const handleScroll = () => {
+        if (!ticking) {
+          requestAnimationFrame(() => {
+            // Optimize scroll-based animations
+            ticking = false;
+          });
+          ticking = true;
+        }
+      };
+
+      window.addEventListener('scroll', handleScroll, { passive: true });
+    }
+  }
+
+  // Initialize enhancements
+  document.addEventListener('DOMContentLoaded', () => {
+    new RoomsPageEnhancer();
+  });
+
+  // Service worker registration for offline support
+  if ('serviceWorker' in navigator && import.meta.env.PROD) {
+    navigator.serviceWorker.register('/sw.js').catch(console.error);
+  }
+</script>

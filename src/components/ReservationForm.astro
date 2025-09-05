@@ -299,7 +299,7 @@ const pageUrl = Astro.url.href;
       } else {
         const diffTime = Math.abs(checkOut - checkIn);
         const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-        nightsMessage.textContent = `You are reserving for ${diffDays} Night${diffDays !== 1 ? "s" : ""} 👍`;
+        nightsMessage.textContent = `You are reserving for ${diffDays} Night${diffDays !== 1 ? "s" : ""}`;
         nightsMessage.classList.remove("text-red-400");
         nightsMessage.classList.add("text-green-400");
       }

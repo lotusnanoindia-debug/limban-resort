@@ -1,76 +1,153 @@
 ---
-// Hero Section Component
-export interface Props {
-  heroes: Array<{
-    slideTitle: string;
-    subtitle?: string;
-    ctaText?: string;
-    ctaLink?: string;
-    backgroundImage?: {
-      hero4K?: string;
-      heroDesktop?: string;
-      heroTablet?: string;
-      heroMobile?: string;
-      url: string;
-    };
-  }>;
-}
-
 const { heroes } = Astro.props;
 ---
 
 <section class="h-screen relative overflow-hidden">
+  <!-- Navigation Arrows -->
+  <div
+    class="carousel-nav absolute inset-y-0 left-0 right-0 z-30 flex items-center justify-between px-6 opacity-0 hover:opacity-100 transition-opacity duration-300 pointer-events-none"
+  >
+    <button
+      id="prev-btn"
+      class="bg-black/30 hover:bg-black/50 backdrop-blur-md rounded-full p-4 text-white hover:text-amber-300 transition-all duration-300 pointer-events-auto cursor-pointer"
+    >
+      <svg
+        class="w-6 h-6"
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+      >
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="M15 19l-7-7 7-7"></path>
+      </svg>
+    </button>
+    <button
+      id="next-btn"
+      class="bg-black/30 hover:bg-black/50 backdrop-blur-md rounded-full p-4 text-white hover:text-amber-300 transition-all duration-300 pointer-events-auto cursor-pointer"
+    >
+      <svg
+        class="w-6 h-6"
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+      >
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="M9 5l7 7-7 7"></path>
+      </svg>
+    </button>
+  </div>
+
   <div id="hero-carousel" class="h-full relative">
     {
       heroes.map((hero, index) => (
         <div
-          class={`hero-slide absolute inset-0 w-full h-full transition-opacity duration-1200 ${index === 0 ? "opacity-100" : "opacity-0"}`}
+          class="hero-slide absolute inset-0 w-full h-full"
           data-slide={index}
+          style={
+            index === 0 ? "opacity: 1; z-index: 2;" : "opacity: 0; z-index: 1;"
+          }
         >
           <picture class="absolute inset-0 w-full h-full">
-            <source
-              media="(min-width: 2560px)"
-              srcset={hero.backgroundImage?.hero4K || hero.backgroundImage?.url}
-            />
-            <source
-              media="(min-width: 1200px)"
-              srcset={
-                hero.backgroundImage?.heroDesktop || hero.backgroundImage?.url
-              }
-            />
-            <source
-              media="(min-width: 768px)"
-              srcset={
-                hero.backgroundImage?.heroTablet || hero.backgroundImage?.url
-              }
-            />
-            <img
-              src={
-                hero.backgroundImage?.heroMobile || hero.backgroundImage?.url
-              }
-              alt={hero.slideTitle}
-              class="w-full h-full object-cover"
-              loading="lazy"
-            />
+            {/* Only load first image immediately, others get placeholder */}
+            {index === 0 ? (
+              <>
+                <source
+                  media="(min-width: 2560px)"
+                  srcset={
+                    hero.backgroundImage?.hero4K || hero.backgroundImage?.url
+                  }
+                  sizes="2560px"
+                />
+                <source
+                  media="(min-width: 1200px)"
+                  srcset={
+                    hero.backgroundImage?.heroDesktop ||
+                    hero.backgroundImage?.url
+                  }
+                  sizes="100vw"
+                />
+                <source
+                  media="(min-width: 768px)"
+                  srcset={
+                    hero.backgroundImage?.heroTablet ||
+                    hero.backgroundImage?.url
+                  }
+                  sizes="100vw"
+                />
+                <img
+                  src={
+                    hero.backgroundImage?.heroMobile ||
+                    hero.backgroundImage?.url
+                  }
+                  alt={hero.slideTitle}
+                  class="w-full h-full object-cover"
+                  sizes="100vw"
+                />
+              </>
+            ) : (
+              <>
+                {/* Lazy loading placeholders */}
+                <source
+                  media="(min-width: 2560px)"
+                  data-srcset={
+                    hero.backgroundImage?.hero4K || hero.backgroundImage?.url
+                  }
+                  sizes="2560px"
+                />
+                <source
+                  media="(min-width: 1200px)"
+                  data-srcset={
+                    hero.backgroundImage?.heroDesktop ||
+                    hero.backgroundImage?.url
+                  }
+                  sizes="100vw"
+                />
+                <source
+                  media="(min-width: 768px)"
+                  data-srcset={
+                    hero.backgroundImage?.heroTablet ||
+                    hero.backgroundImage?.url
+                  }
+                  sizes="100vw"
+                />
+                <img
+                  src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='50'%3E%3Crect width='100%25' height='100%25' fill='%23000000'/%3E%3C/svg%3E"
+                  data-src={
+                    hero.backgroundImage?.heroMobile ||
+                    hero.backgroundImage?.url
+                  }
+                  alt={hero.slideTitle}
+                  class="w-full h-full object-cover lazy-image"
+                  sizes="100vw"
+                />
+              </>
+            )}
           </picture>
           <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-black/20" />
           <div class="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/60" />
-          <div class="relative h-full flex items-center justify-center text-center z-10">
-            <div class="max-w-5xl mx-auto px-6">
-              <h1 class="font-serif italic text-5xl md:text-7xl lg:text-8xl text-white mb-6 leading-tight drop-shadow-dark-lg">
+          <div class="relative h-full flex items-center justify-center text-center z-20">
+            <div class="max-w-4xl mx-auto px-8">
+              <h1 class="font-serif italic text-4xl sm:text-6xl md:text-7xl lg:text-8xl text-white mb-6 sm:mb-8 leading-[0.95] tracking-tight text-shadow-2">
                 {hero.slideTitle}
               </h1>
               {hero.subtitle && (
-                <h2 class="text-xl text-white font-semibold mb-12 leading-tight drop-shadow-dark-lg">
+                <h2 class="text-lg sm:text-xl md:text-2xl lg:text-3xl text-white/90 font-light mb-12 sm:mb-16 leading-relaxed max-w-3xl mx-auto tracking-wide text-shadow-gray-950">
                   {hero.subtitle}
                 </h2>
               )}
               {hero.ctaText && (
                 <a
                   href={hero.ctaLink || "#"}
-                  class="inline-block rounded-lg border border-amber-600/50 bg-gradient-to-br from-amber-400 to-amber-600 px-8 py-4 text-lg font-semibold tracking-wide text-gray-950 shadow-lg transition-all duration-300 ease-in-out transform hover:-translate-y-1 hover:from-amber-300 hover:to-amber-500 hover:shadow-xl"
+                  class="cta-button group relative inline-block rounded-2xl border border-amber-500/30 bg-amber-600/15 backdrop-blur-xl px-12 py-6 text-xl font-medium tracking-wide text-amber-50 shadow-[0_8px_24px_rgba(217,119,6,0.25)] transition-all duration-700 ease-out overflow-hidden z-40 cursor-pointer"
                 >
-                  {hero.ctaText}
+                  <span class="absolute inset-0 -top-[2px] -left-full h-[102%] w-1/2 bg-gradient-to-r from-transparent via-white/20 to-transparent skew-x-[-20deg] transition-all duration-1000 ease-out group-hover:left-full opacity-0 group-hover:opacity-100" />
+                  <span class="relative z-10">{hero.ctaText}</span>
                 </a>
               )}
             </div>
@@ -80,25 +157,252 @@ const { heroes } = Astro.props;
     }
   </div>
 
-  <script>
-    // Simple hero carousel functionality
-    let currentSlide = 0;
-    const slides = document.querySelectorAll(".hero-slide");
-    const totalSlides = slides.length;
-
-    function showNextSlide() {
-      slides[currentSlide].classList.remove("opacity-100");
-      slides[currentSlide].classList.add("opacity-0");
-
-      currentSlide = (currentSlide + 1) % totalSlides;
-
-      slides[currentSlide].classList.remove("opacity-0");
-      slides[currentSlide].classList.add("opacity-100");
-    }
-
-    // Auto-advance slides every 8 seconds
-    if (totalSlides > 1) {
-      setInterval(showNextSlide, 8000);
-    }
-  </script>
+  <!-- Dot Navigation -->
+  <div class="absolute bottom-8 left-1/2 transform -translate-x-1/2 z-30">
+    <div class="flex space-x-3">
+      {
+        heroes.map((_, index) => (
+          <button
+            class={`dot-indicator w-3 h-3 rounded-full transition-all duration-300 cursor-pointer ${index === 0 ? "bg-amber-400 scale-125" : "bg-white/40 hover:bg-white/70 hover:scale-110"}`}
+            data-slide={index}
+          />
+        ))
+      }
+    </div>
+  </div>
 </section>
+
+<style>
+  /* Smooth crossfade transition */
+  .hero-slide {
+    transition: opacity 2s ease-in-out;
+  }
+
+  /* Ken Burns Effect */
+  .hero-slide img {
+    transform: scale(1.05);
+    transition: transform 15s ease-out;
+  }
+
+  .hero-slide.active img {
+    transform: scale(1);
+  }
+
+  /* CTA Button Working Hover Effects */
+  .cta-button:hover {
+    transform: translateY(-8px);
+    background-color: rgba(245, 158, 11, 0.25);
+    border-color: rgba(251, 191, 36, 0.5);
+    box-shadow: 0 16px 40px rgba(217, 119, 6, 0.4);
+    color: white;
+  }
+
+  /* Loading state for lazy images */
+  .lazy-image {
+    filter: blur(0.5px);
+    transition: filter 0.3s ease-in-out;
+  }
+
+  .lazy-image.loaded {
+    filter: none;
+  }
+
+  /* Parallax only on larger screens */
+  @media (min-width: 768px) {
+    .hero-slide {
+      transform: translateY(var(--scroll-offset, 0));
+    }
+  }
+
+  /* Ensure images stay responsive on small screens */
+  @media (max-width: 767px) {
+    .hero-slide {
+      transform: none !important;
+    }
+    .hero-slide img {
+      transform: scale(1.02);
+    }
+    .hero-slide.active img {
+      transform: scale(1);
+    }
+
+    /* Show arrows on mobile/touch devices */
+    .carousel-nav {
+      opacity: 1;
+    }
+  }
+
+  /* Touch device support */
+  @media (hover: none) and (pointer: coarse) {
+    .carousel-nav {
+      opacity: 1;
+    }
+  }
+</style>
+
+<script>
+  let currentSlide = 0;
+  let autoAdvanceInterval;
+  let loadedImages = new Set([0]); // Track which images are loaded
+  const slides = document.querySelectorAll(".hero-slide");
+  const dots = document.querySelectorAll(".dot-indicator");
+  const totalSlides = slides.length;
+  const prevBtn = document.getElementById("prev-btn");
+  const nextBtn = document.getElementById("next-btn");
+
+  // Lazy load image function
+  function lazyLoadImage(slideIndex) {
+    if (loadedImages.has(slideIndex)) return;
+
+    const slide = slides[slideIndex];
+    const img = slide.querySelector(".lazy-image");
+    const sources = slide.querySelectorAll("source[data-srcset]");
+
+    if (img && img.dataset.src) {
+      // Load sources first
+      sources.forEach((source) => {
+        if (source.dataset.srcset) {
+          source.srcset = source.dataset.srcset;
+          delete source.dataset.srcset;
+        }
+      });
+
+      // Load main image
+      const newImg = new Image();
+      newImg.onload = () => {
+        img.src = img.dataset.src;
+        img.classList.add("loaded");
+        delete img.dataset.src;
+        loadedImages.add(slideIndex);
+      };
+      newImg.src = img.dataset.src;
+    }
+  }
+
+  // Preload adjacent images (previous and next)
+  function preloadAdjacentImages(currentIndex) {
+    const nextIndex = (currentIndex + 1) % totalSlides;
+    const prevIndex = (currentIndex - 1 + totalSlides) % totalSlides;
+
+    lazyLoadImage(nextIndex);
+    lazyLoadImage(prevIndex);
+  }
+
+  function goToSlide(slideIndex) {
+    // Load the target image if not already loaded
+    lazyLoadImage(slideIndex);
+
+    // Set up the new slide first (behind the current one)
+    slides[slideIndex].style.zIndex = "2";
+    slides[slideIndex].style.opacity = "0";
+
+    // Force reflow
+    slides[slideIndex].offsetHeight;
+
+    // Start the crossfade
+    slides[slideIndex].style.opacity = "1";
+    slides[currentSlide].style.opacity = "0";
+
+    // Update dots immediately
+    dots[currentSlide].classList.remove("bg-amber-400", "scale-125");
+    dots[currentSlide].classList.add("bg-white/40");
+    dots[slideIndex].classList.remove("bg-white/40");
+    dots[slideIndex].classList.add("bg-amber-400", "scale-125");
+
+    // Clean up after transition completes and preload adjacent
+    setTimeout(() => {
+      slides[currentSlide].style.zIndex = "1";
+      currentSlide = slideIndex;
+      preloadAdjacentImages(currentSlide);
+    }, 2000);
+  }
+
+  function showNextSlide() {
+    const nextIndex = (currentSlide + 1) % totalSlides;
+    goToSlide(nextIndex);
+  }
+
+  function showPrevSlide() {
+    const prevIndex = (currentSlide - 1 + totalSlides) % totalSlides;
+    goToSlide(prevIndex);
+  }
+
+  function startAutoAdvance() {
+    if (autoAdvanceInterval) {
+      clearInterval(autoAdvanceInterval);
+    }
+
+    if (totalSlides > 1) {
+      autoAdvanceInterval = setInterval(showNextSlide, 8000);
+    }
+  }
+
+  function resetTimer() {
+    startAutoAdvance();
+  }
+
+  // Arrow navigation
+  if (prevBtn) {
+    prevBtn.addEventListener("click", (event) => {
+      event.stopPropagation();
+      showPrevSlide();
+      resetTimer();
+    });
+  }
+
+  if (nextBtn) {
+    nextBtn.addEventListener("click", (event) => {
+      event.stopPropagation();
+      showNextSlide();
+      resetTimer();
+    });
+  }
+
+  // Dot navigation
+  dots.forEach((dot, index) => {
+    dot.addEventListener("click", (event) => {
+      event.stopPropagation();
+      if (index !== currentSlide) {
+        goToSlide(index);
+        resetTimer();
+      }
+    });
+  });
+
+  // Keyboard navigation
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "ArrowLeft") {
+      showPrevSlide();
+      resetTimer();
+    } else if (event.key === "ArrowRight") {
+      showNextSlide();
+      resetTimer();
+    }
+  });
+
+  // Initialize: preload adjacent images after page load
+  window.addEventListener("load", () => {
+    preloadAdjacentImages(0);
+  });
+
+  startAutoAdvance();
+
+  if (window.innerWidth > 768) {
+    let ticking = false;
+
+    function updateParallax() {
+      const scrollY = window.scrollY;
+      slides.forEach((slide) => {
+        slide.style.setProperty("--scroll-offset", scrollY * 0.15 + "px");
+      });
+      ticking = false;
+    }
+
+    window.addEventListener("scroll", () => {
+      if (!ticking) {
+        requestAnimationFrame(updateParallax);
+        ticking = true;
+      }
+    });
+  }
+</script>
