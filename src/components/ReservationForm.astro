@@ -18,8 +18,7 @@ const pageUrl = Astro.url.href;
     Reserve Now: {roomName}
   </h2>
   <p class="text-gray-300 mb-6">
-    Complete the form and our reservations team will confirm availability and
-    safaris.
+    Complete the form and our team will confirm availability and safaris.
   </p>
 
   <p
@@ -35,7 +34,7 @@ const pageUrl = Astro.url.href;
         d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.518.76a11.034 11.034 0 006.364 6.364l.76-1.518a1 1 0 011.06-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z"
       ></path>
     </svg>
-    <span>24/7 Reservation Hotline:</span>
+    <span>Hotline:</span>
     <a
       href="tel:+919022680451"
       class="font-semibold text-amber-400 hover:text-amber-300 transition-colors duration-300 whitespace-nowrap"
@@ -50,7 +49,7 @@ const pageUrl = Astro.url.href;
   <form
     id="reservation-form"
     name="reservation"
-    class="bg-gradient-to-br from-gray-800/50 to-gray-900/50 backdrop-blur-xl border border-gray-700 rounded-2xl p-8"
+    class="sm:bg-gradient-to-br sm:from-gray-800/50 sm:to-gray-900/50 sm:backdrop-blur-xl sm:border sm:border-gray-700 sm:rounded-2xl sm:p-8"
   >
     <input type="hidden" name="form-name" value="reservation-room" />
     <input type="hidden" name="pageUrl" value={pageUrl} />
@@ -61,6 +60,17 @@ const pageUrl = Astro.url.href;
         <input type="hidden" name="basePrice" value={String(basePrice)} />
       )
     }
+    <!-- Honeypot -->
+    <div class="hidden" aria-hidden="true">
+      <label for="confirm_email">Do not fill this out if you are human:</label>
+      <input
+        type="email"
+        id="confirm_email"
+        name="confirm_email"
+        tabindex="-1"
+        autocomplete="off"
+      />
+    </div>
 
     <div class="text-center pt-2">
       <div
@@ -70,8 +80,8 @@ const pageUrl = Astro.url.href;
       </div>
     </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-      <div>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 mb-8 min-w-0">
+      <div class="min-w-0">
         <label for="check-in" class="block text-sm text-gray-300 mb-2"
           >Check-in</label
         >
@@ -93,12 +103,13 @@ const pageUrl = Astro.url.href;
             id="check-in"
             name="checkin"
             type="text"
+            autocomplete="off"
             required
-            class="w-full rounded-md bg-gray-800 border border-gray-700 pl-12 pr-4 py-3 text-white focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-colors cursor-pointer"
+            class="w-full min-w-0 rounded-md bg-gray-800 border border-gray-700 pl-12 pr-4 py-3 text-white focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-colors cursor-pointer"
           />
         </div>
       </div>
-      <div>
+      <div class="min-w-0">
         <label for="check-out" class="block text-sm text-gray-300 mb-2"
           >Check-out</label
         >
@@ -120,8 +131,9 @@ const pageUrl = Astro.url.href;
             id="check-out"
             name="checkout"
             type="text"
+            autocomplete="off"
             required
-            class="w-full rounded-md bg-gray-800 border border-gray-700 pl-12 pr-4 py-3 text-white focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-colors cursor-pointer"
+            class="w-full min-w-0 rounded-md bg-gray-800 border border-gray-700 pl-12 pr-4 py-3 text-white focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-colors cursor-pointer"
           />
         </div>
       </div>
@@ -193,7 +205,7 @@ const pageUrl = Astro.url.href;
       </div>
       <div>
         <label for="children" class="block text-sm text-gray-300 mb-2"
-          >Children</label
+          >Minors</label
         >
         <input
           id="children"
@@ -263,29 +275,73 @@ const pageUrl = Astro.url.href;
   </form>
 </section>
 
+<!-- Air Datepicker CSS - Simple English default theme -->
 <link
   rel="stylesheet"
-  href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css"
-/>
-<link
-  rel="stylesheet"
-  href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/dark.css"
+  href="https://cdn.jsdelivr.net/npm/air-datepicker@3.6.0/air-datepicker.css"
 />
 
-<script>
-  // Import and initialize Flatpickr with advanced date validation
-  import(
-    "https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/flatpickr.min.js"
-  ).then(() => {
+<script type="module" client:visible>
+  import AirDatepicker from "https://cdn.jsdelivr.net/npm/air-datepicker@3.6.0/+esm";
+
+  document.addEventListener("DOMContentLoaded", () => {
     const checkInRef = document.getElementById("check-in");
     const checkOutRef = document.getElementById("check-out");
     const nightsMessage = document.getElementById("nights-message");
-    let checkInPicker, checkOutPicker;
 
+    // Define English locale inline (from the CDN file you attached)
+    const localeEn = {
+      days: [
+        "Sunday",
+        "Monday",
+        "Tuesday",
+        "Wednesday",
+        "Thursday",
+        "Friday",
+        "Saturday",
+      ],
+      daysShort: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
+      daysMin: ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"],
+      months: [
+        "January",
+        "February",
+        "March",
+        "April",
+        "May",
+        "June",
+        "July",
+        "August",
+        "September",
+        "October",
+        "November",
+        "December",
+      ],
+      monthsShort: [
+        "Jan",
+        "Feb",
+        "Mar",
+        "Apr",
+        "May",
+        "Jun",
+        "Jul",
+        "Aug",
+        "Sep",
+        "Oct",
+        "Nov",
+        "Dec",
+      ],
+      today: "Today",
+      clear: "Clear",
+      dateFormat: "MMM dd, yyyy",
+      timeFormat: "hh:mm aa",
+      firstDay: 0,
+    };
+
+    // YOUR EXACT CALCULATION LOGIC
     const calculateNights = () => {
       if (!nightsMessage || !checkInRef?.value || !checkOutRef?.value) {
-        nightsMessage.classList.remove("opacity-100");
-        nightsMessage.textContent = "";
+        nightsMessage?.classList.remove("opacity-100");
+        if (nightsMessage) nightsMessage.textContent = "";
         return;
       }
 
@@ -306,98 +362,199 @@ const pageUrl = Astro.url.href;
       nightsMessage.classList.add("opacity-100");
     };
 
-    const baseConfig = {
-      dateFormat: "M j, Y",
-      allowInput: false,
-      clickOpens: true,
-      theme: "dark",
-    };
-
-    // Initialize Check-In Picker
-    checkInPicker = flatpickr(checkInRef, {
-      ...baseConfig,
-      minDate: "today",
-      maxDate: new Date().fp_incr(365),
-      onChange: function (selectedDates) {
-        if (selectedDates.length > 0) {
-          const selectedCheckIn = selectedDates[0];
+    const checkInPicker = new AirDatepicker(checkInRef, {
+      locale: localeEn,
+      autoClose: true,
+      minDate: new Date(),
+      maxDate: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000),
+      onSelect: ({ date }) => {
+        if (date) {
+          const selectedCheckIn = date;
           const minCheckOut = new Date(selectedCheckIn);
-          minCheckOut.setDate(minCheckOut.getDate() + 1); // At least 1 day after check-in
+          minCheckOut.setDate(minCheckOut.getDate() + 1);
 
-          // Update check-out picker constraints
-          checkOutPicker?.set("minDate", minCheckOut);
+          checkOutPicker.update({ minDate: minCheckOut });
 
-          // Auto-clear check-out if it's now invalid (same day or before check-in)
           if (
-            checkOutPicker?.selectedDates[0] &&
+            checkOutPicker.selectedDates[0] &&
             checkOutPicker.selectedDates[0] <= selectedCheckIn
           ) {
             checkOutPicker.clear();
-            nightsMessage.classList.remove("opacity-100");
-            nightsMessage.textContent = "";
+            nightsMessage?.classList.remove("opacity-100");
+            if (nightsMessage) nightsMessage.textContent = "";
           }
 
           calculateNights();
         } else {
-          // Check-in cleared - reset check-out constraints to default
           const tomorrow = new Date();
           tomorrow.setDate(tomorrow.getDate() + 1);
-          checkOutPicker?.set("minDate", tomorrow);
+          checkOutPicker.update({ minDate: tomorrow });
           calculateNights();
         }
       },
     });
 
-    // Initialize Check-Out Picker (starts from tomorrow by default)
     const tomorrow = new Date();
     tomorrow.setDate(tomorrow.getDate() + 1);
 
-    checkOutPicker = flatpickr(checkOutRef, {
-      ...baseConfig,
-      minDate: tomorrow, // Smart default: starts from tomorrow
-      maxDate: new Date().fp_incr(365),
-      onChange: function (selectedDates) {
-        if (selectedDates.length > 0) {
-          const selectedCheckOut = selectedDates[0];
+    const checkOutPicker = new AirDatepicker(checkOutRef, {
+      locale: localeEn,
+      autoClose: true,
+      minDate: tomorrow,
+      maxDate: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000),
+      onSelect: ({ date }) => {
+        if (date) {
+          const selectedCheckOut = date;
           const maxCheckIn = new Date(selectedCheckOut);
-          maxCheckIn.setDate(maxCheckIn.getDate() - 1); // At least 1 day before check-out
+          maxCheckIn.setDate(maxCheckIn.getDate() - 1);
 
-          // Update check-in picker constraints (reverse logic)
-          checkInPicker?.set("maxDate", maxCheckIn);
+          checkInPicker.update({ maxDate: maxCheckIn });
 
-          // Auto-clear check-in if it's now invalid (same day or after check-out)
           if (
-            checkInPicker?.selectedDates[0] &&
+            checkInPicker.selectedDates[0] &&
             checkInPicker.selectedDates[0] >= selectedCheckOut
           ) {
             checkInPicker.clear();
-            nightsMessage.classList.remove("opacity-100");
-            nightsMessage.textContent = "";
+            nightsMessage?.classList.remove("opacity-100");
+            if (nightsMessage) nightsMessage.textContent = "";
           }
 
           calculateNights();
         } else {
-          // Check-out cleared - reset check-in constraints to default
-          checkInPicker?.set("maxDate", new Date().fp_incr(365));
+          checkInPicker.update({
+            maxDate: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000),
+          });
           calculateNights();
         }
       },
     });
 
-    // Helper function to reset both pickers (useful for debugging)
+    // YOUR EXACT RESET FUNCTION
     window.resetDatePickers = () => {
-      checkInPicker?.clear();
-      checkOutPicker?.clear();
+      checkInPicker.clear();
+      checkOutPicker.clear();
 
-      // Reset to default constraints
-      checkInPicker?.set("maxDate", new Date().fp_incr(365));
+      checkInPicker.update({
+        maxDate: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000),
+      });
 
       const tomorrow = new Date();
       tomorrow.setDate(tomorrow.getDate() + 1);
-      checkOutPicker?.set("minDate", tomorrow);
+      checkOutPicker.update({ minDate: tomorrow });
 
-      nightsMessage.classList.remove("opacity-100");
-      nightsMessage.textContent = "";
+      nightsMessage?.classList.remove("opacity-100");
+      if (nightsMessage) nightsMessage.textContent = "";
     };
+
+    console.log("✅ Air Datepicker initialized with English locale");
+  });
+</script>
+
+<script>
+  // Corrected Supabase form submission script for ReservationForm.astro
+  document.addEventListener("DOMContentLoaded", async () => {
+    try {
+      const { supabase } = await import("../lib/supabase.js");
+
+      const form = document.getElementById("reservation-form");
+      const submitBtn = document.getElementById("submit-btn");
+      const messageDiv = document.getElementById("form-message");
+
+      if (!form) return;
+
+      form.addEventListener("submit", async (e) => {
+        e.preventDefault();
+
+        // Check honeypot (if you have one)
+        const formData = new FormData(form);
+        if (formData.get("confirm_email")) {
+          showSuccessMessage(); // Show success to bots
+          return;
+        }
+
+        // Show loading state
+        submitBtn.disabled = true;
+        submitBtn.textContent = "Submitting...";
+        showMessage("Submitting your reservation request...", "loading");
+
+        try {
+          // Get form data - EXACT field names from your Supabase table
+          const submission = {
+            form_name: formData.get("form-name"),
+            pageUrl: formData.get("pageUrl"),
+            roomName: formData.get("roomName"),
+            roomSlug: formData.get("roomSlug"),
+            basePrice: formData.get("basePrice"),
+            checkin: formData.get("checkin"),
+            checkout: formData.get("checkout"),
+            firstName: formData.get("firstName"),
+            lastName: formData.get("lastName"),
+            email: formData.get("email"),
+            phone: formData.get("phone"),
+            adults: parseInt(formData.get("adults")) || 0,
+            children: parseInt(formData.get("children")) || 0,
+            wantSafaris: formData.get("wantSafaris"),
+            transfer: formData.get("transfer"),
+            message: formData.get("message"),
+          };
+
+          // Submit to Supabase - using YOUR EXACT TABLE NAME
+          const { data, error } = await supabase
+            .from("contact_submissions")
+            .insert([submission]);
+
+          if (error) throw error;
+
+          // Success! Show elegant success message
+          showSuccessMessage();
+        } catch (error) {
+          console.error("Submission error:", error);
+          showMessage(
+            "Sorry, there was an error submitting your reservation. Please try again or contact us directly at +91 90226 80451.",
+            "error"
+          );
+          submitBtn.disabled = false;
+          submitBtn.textContent = "Request Reservation";
+        }
+      });
+
+      function showMessage(text, type) {
+        messageDiv.innerHTML = text;
+        messageDiv.className = `mb-6 p-4 rounded-xl text-center ${
+          type === "success"
+            ? "bg-green-900/50 text-green-300 border border-green-700"
+            : type === "error"
+              ? "bg-red-900/50 text-red-300 border border-red-700"
+              : "bg-blue-900/50 text-blue-300 border border-blue-700"
+        }`;
+        messageDiv.classList.remove("hidden");
+      }
+
+      function showSuccessMessage() {
+        // Hide the form completely
+        form.style.display = "none";
+
+        // Show elegant success message
+        messageDiv.innerHTML = `
+          <div class="text-center py-12">
+            <div class="text-6xl mb-6">🏨</div>
+            <h3 class="text-2xl font-serif italic text-white mb-4">Reservation Request Received!</h3>
+            <p class="text-lg text-gray-300 mb-6">Your reservation request has been submitted successfully.</p>
+            <p class="text-gray-400 mb-8">Our reservations team will contact you shortly to confirm availability and arrange your safari experience.</p>
+              <button 
+                onclick="location.reload()" 
+                class="bg-gradient-to-r from-amber-500 to-orange-600 text-white font-semibold px-6 py-3 rounded-xl transition-all duration-300 hover:shadow-xl hover:-translate-y-1 hover:from-amber-600 hover:to-orange-700"
+              >
+                Make Another Reservation
+              </button>
+        </div>
+        `;
+        messageDiv.className =
+          "bg-gradient-to-br from-gray-800/50 to-gray-900/50 backdrop-blur-xl border border-amber-600 rounded-2xl p-8 text-center";
+        messageDiv.classList.remove("hidden");
+      }
+    } catch (error) {
+      console.error("Failed to load Supabase:", error);
+    }
   });
 </script>

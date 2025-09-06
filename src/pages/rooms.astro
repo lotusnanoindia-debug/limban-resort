@@ -203,8 +203,8 @@ const roomsHeroImage = validateImageUrl(data.rooms[0]?.validatedImage) || '/img/
       {data.specialDeal && data.specialDeal.html && (
         <section class="py-20 bg-gradient-to-r from-gray-800 to-gray-900" role="complementary" aria-label="Special offer">
           <div class="max-w-5xl mx-auto px-6">
-            <div class="bg-gradient-to-r from-amber-900/40 to-orange-900/40 border border-amber-400/30 rounded-3xl p-10 text-center shadow-2xl backdrop-blur-xl">
-              <div class="font-bold text-2xl text-amber-200 max-w-none prose prose-amber" set:html={data.specialDeal.html} />
+            <div class="bg-gradient-to-r from-purple-900/40 to-orange-900/40 border border-amber-400/30 rounded-lg p-4 text-center shadow-2xl backdrop-blur-xl">
+              <div class="font-bold text-lg text-white max-w-none prose prose-amber" set:html={data.specialDeal.html} />
             </div>
           </div>
         </section>

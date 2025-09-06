@@ -14,10 +14,28 @@ const pageUrl = Astro.url.href;
     id="dining-reservation-form-heading"
     class="font-serif italic text-3xl md:text-4xl text-white mb-6"
   >
-    Reserve Good Time: {itemName}
+    <span class="bg-gray-800 px-4 py-1 rounded-2xl">{itemName}</span> - Reserve Now:
   </h2>
-  <p class="text-gray-300 mb-6">
-    Request a table and we will call you to confirm your dining experience.
+  <p
+    class="border border-amber-300 p-2 rounded-xl text-center text-gray-400 my-12 flex items-center justify-center gap-2"
+  >
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      class="h-5 w-5"
+      viewBox="0 0 20 20"
+      fill="currentColor"
+    >
+      <path
+        d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.518.76a11.034 11.034 0 006.364 6.364l.76-1.518a1 1 0 011.06-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z"
+      ></path>
+    </svg>
+    <span>Hotline:</span>
+    <a
+      href="tel:+919022680451"
+      class="font-semibold text-amber-400 hover:text-amber-300 transition-colors duration-300 whitespace-nowrap"
+    >
+      +91 90226 80451
+    </a>
   </p>
 
   <!-- Success/Error Message Container -->
@@ -28,6 +46,9 @@ const pageUrl = Astro.url.href;
     name="dining"
     class="bg-gradient-to-br from-gray-800/50 to-gray-900/50 backdrop-blur-xl border border-gray-700 rounded-2xl p-8"
   >
+    <!-- Hidden dummy input to prevent autocomplete -->
+    <input autocomplete="off" name="fake" style="display:none;" />
+
     <input type="hidden" name="form-name" value="dining-reservation" />
     <input type="hidden" name="pageUrl" value={pageUrl} />
     <input type="hidden" name="outletName" value={itemName} />
@@ -35,9 +56,7 @@ const pageUrl = Astro.url.href;
 
     <!-- Honeypot -->
     <div class="hidden" aria-hidden="true">
-      <label for="confirm_email">
-        Do not fill this out if you are human:
-      </label>
+      <label for="confirm_email">Do not fill this out if you are human:</label>
       <input
         type="email"
         id="confirm_email"
@@ -104,18 +123,32 @@ const pageUrl = Astro.url.href;
         />
       </div>
 
-      <!-- Date -->
+      <!-- Date with Air Datepicker -->
       <div>
         <label for="dining-date" class="block text-sm text-gray-300 mb-2"
           >Dining Date *</label
         >
-        <div class="relative cursor-pointer">
+        <div class="relative">
+          <div
+            class="absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none"
+          >
+            <svg
+              class="w-5 h-5 text-gray-400"
+              fill="currentColor"
+              viewBox="0 0 20 20"
+            >
+              <path
+                d="M6 2a1 1 0 00-2 0v1H3a2 2 0 00-2 2v1h18V5a2 2 0 00-2-2h-1V2a1 1 0 10-2 0v1H6V2zM2 8v8a2 2 0 002 2h12a2 2 0 002-2V8H2zm3 3a1 1 0 011-1h1a1 1 0 110 2H6a1 1 0 01-1-1zm5 0a1 1 0 011-1h1a1 1 0 110 2h-1a1 1 0 01-1-1z"
+              ></path>
+            </svg>
+          </div>
           <input
             id="dining-date"
             name="diningDate"
             type="text"
             required
-            class="w-full rounded-md bg-gray-800 border border-gray-700 px-4 py-3 text-white focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-colors cursor-pointer"
+            autocomplete="off"
+            class="w-full rounded-md bg-gray-800 border border-gray-700 pl-12 pr-4 py-3 text-white focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-colors cursor-pointer"
           />
         </div>
       </div>
@@ -181,7 +214,7 @@ const pageUrl = Astro.url.href;
           id="message"
           name="message"
           rows="3"
-          placeholder="Anniversary, birthday, dietary requirements, etc."
+          placeholder="Anniversary, birthday, work event, special occasion, special dietary requirements, etc."
           class="w-full rounded-md bg-gray-800 border border-gray-700 px-4 py-3 text-white placeholder-gray-400 focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-colors resize-none"
         ></textarea>
       </div>
@@ -199,35 +232,83 @@ const pageUrl = Astro.url.href;
   </form>
 </section>
 
+<!-- Air Datepicker CSS -->
 <link
   rel="stylesheet"
-  href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css"
-/>
-<link
-  rel="stylesheet"
-  href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/dark.css"
+  href="https://cdn.jsdelivr.net/npm/air-datepicker@3.6.0/air-datepicker.css"
 />
 
-<script>
-  // Import and initialize Flatpickr - EXACTLY like your working version
-  import(
-    "https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/flatpickr.min.js"
-  ).then(() => {
+<script type="module" client:visible>
+  import AirDatepicker from "https://cdn.jsdelivr.net/npm/air-datepicker@3.6.0/+esm";
+
+  document.addEventListener("DOMContentLoaded", () => {
     const diningDateRef = document.getElementById("dining-date");
 
     if (!diningDateRef) return;
 
-    const diningDatePicker = flatpickr(diningDateRef, {
-      dateFormat: "M j, Y",
-      minDate: "today",
-      maxDate: new Date().fp_incr(90), // 3 months ahead
-      allowInput: false,
-      clickOpens: true,
-      theme: "dark",
+    // Define English locale inline
+    const localeEn = {
+      days: [
+        "Sunday",
+        "Monday",
+        "Tuesday",
+        "Wednesday",
+        "Thursday",
+        "Friday",
+        "Saturday",
+      ],
+      daysShort: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
+      daysMin: ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"],
+      months: [
+        "January",
+        "February",
+        "March",
+        "April",
+        "May",
+        "June",
+        "July",
+        "August",
+        "September",
+        "October",
+        "November",
+        "December",
+      ],
+      monthsShort: [
+        "Jan",
+        "Feb",
+        "Mar",
+        "Apr",
+        "May",
+        "Jun",
+        "Jul",
+        "Aug",
+        "Sep",
+        "Oct",
+        "Nov",
+        "Dec",
+      ],
+      today: "Today",
+      clear: "Clear",
+      dateFormat: "MMM dd, yyyy",
+      timeFormat: "hh:mm aa",
+      firstDay: 0,
+    };
+
+    // Create today's date for default
+    const today = new Date();
+
+    // Initialize Air Datepicker for dining date
+    const diningDatePicker = new AirDatepicker(diningDateRef, {
+      locale: localeEn, // English locale
+      autoClose: true,
+      minDate: today, // Can't book in the past
+      maxDate: new Date(Date.now() + 180 * 24 * 60 * 60 * 1000), // 6 months ahead
     });
   });
+</script>
 
-  // Add Supabase form submission - same pattern as your working form
+<script>
+  // Keep your existing form submission script here
   document.addEventListener("DOMContentLoaded", async () => {
     try {
       const { supabase } = await import("../lib/supabase.js");
@@ -284,7 +365,7 @@ const pageUrl = Astro.url.href;
           console.error("Submission error:", error);
           showMessage(
             "Sorry, there was an error submitting your table request. Please try again or contact us directly.",
-            "error",
+            "error"
           );
           submitBtn.disabled = false;
           submitBtn.textContent = "Request a Table";
@@ -311,8 +392,8 @@ const pageUrl = Astro.url.href;
         messageDiv.innerHTML = `
           <div class="text-center py-12">
             <div class="text-6xl mb-6">🍽️</div>
-            <h3 class="text-2xl font-serif italic text-white mb-4">Table Request Received!</h3>
-            <p class="text-lg text-gray-300 mb-6">Your table request has been submitted successfully.</p>
+            <h3 class="text-2xl font-serif italic text-white mb-4">Request Received!</h3>
+            <p class="text-lg text-gray-300 mb-6">Your request has been submitted successfully.</p>
             <p class="text-gray-400 mb-8">Our team will contact you shortly to confirm your dining experience.</p>
             <button 
               onclick="location.reload()" 
