@@ -20,15 +20,15 @@ const IMAGE_FIELDS_FRAGMENT = `
 
 const HERO_QUERY = `
   query GetHeroSlides {
-    heroSlides {
+    heroSlides(where: { active: true }, orderBy: displayOrder_ASC) {
       slideTitle
       subtitle
       backgroundImage { 
         url
-        hero4K: url(transformation: { image: { resize: { width: 2560, height: 1440, fit: crop } }, document: { output: { format: webp } } })
-        heroDesktop: url(transformation: { image: { resize: { width: 1600, height: 900, fit: crop } }, document: { output: { format: webp } } })
-        heroTablet: url(transformation: { image: { resize: { width: 1024, height: 576, fit: crop } }, document: { output: { format: webp } } })
-        heroMobile: url(transformation: { image: { resize: { width: 768, height: 432, fit: crop } }, document: { output: { format: webp } } })
+        hero4K: url(transformation: { image: { resize: { width: 2560, height: 1440, fit: crop }, quality: { value: 40 } }, document: { output: { format: webp } } })
+        heroDesktop: url(transformation: { image: { resize: { width: 1600, height: 900, fit: crop }, quality: { value: 40 } }, document: { output: { format: webp } } })
+        heroTablet: url(transformation: { image: { resize: { width: 1024, height: 576, fit: crop }, quality: { value: 40 } }, document: { output: { format: webp } } })
+        heroMobile: url(transformation: { image: { resize: { width: 768, height: 432, fit: crop }, quality: { value: 40 } }, document: { output: { format: webp } } })
       }
       ctaText
       ctaLink
@@ -46,7 +46,7 @@ const SUB_HERO_QUERY = `
       imageAltText
       bodyText { html }
       image {
-        url(transformation: { image: { resize: { width: 600, height: 600, fit: crop }, quality: { value: 60 } }, document: { output: { format: webp } } })
+        url(transformation: { image: { resize: { width: 500, height: 500, fit: crop }, quality: { value: 60 } }, document: { output: { format: webp } } })
       }
       stats {
         number
@@ -66,7 +66,7 @@ const ROOMS_QUERY = `
       shortDescription
       basePrice
       heroImage {
-        optimisedCard: url(transformation: { image: { resize: { width: 500, height: 350, fit: crop }, quality: { value: 70 } }, document: { output: { format: webp } } })
+        optimisedCard: url(transformation: { image: { resize: { width: 500, height: 350, fit: crop }, quality: { value: 60 } }, document: { output: { format: webp } } })
       }
       roomFeature(first: 100) {
         id
@@ -87,7 +87,7 @@ const ROOM_BY_SLUG_QUERY = `
       description { html }
       basePrice
       heroImage {
-        optimisedCard: url(transformation: { image: { resize: { width: 600, fit: crop }, quality: { value: 70 } }, document: { output: { format: webp } } })
+        optimisedCard: url(transformation: { image: { resize: { width: 600, fit: crop }, quality: { value: 60 } }, document: { output: { format: webp } } })
       }
       gallery(first: 100) {
         __typename
@@ -146,15 +146,15 @@ const ABOUT_PAGE_QUERY = `
       }
       philosophyImage {
         url
-        optimisedWide: url(transformation: { image: { resize: { width: 1200, height: 800, fit: crop }, quality: { value: 70 } }, document: { output: { format: webp } } })
+        optimisedWide: url(transformation: { image: { resize: { width: 1200, height: 800, fit: crop }, quality: { value: 60 } }, document: { output: { format: webp } } })
       }
       foundersImage {
         url
-        optimisedPortrait: url(transformation: { image: { resize: { width: 1000, height: 1000, fit: crop }, quality: { value: 65 } }, document: { output: { format: webp } } })
+        optimisedPortrait: url(transformation: { image: { resize: { width: 1000, height: 1000, fit: crop }, quality: { value: 60 } }, document: { output: { format: webp } } })
       }
       teamImages(first: 100) {
         url
-        optimisedSquare: url(transformation: { image: { resize: { width: 400, height: 400, fit: crop }, quality: { value: 70 } }, document: { output: { format: webp } } })
+        optimisedSquare: url(transformation: { image: { resize: { width: 400, height: 400, fit: crop }, quality: { value: 60 } }, document: { output: { format: webp } } })
       }
     }
     vibeGallery(where: {id: "cmf0lo9eja9wk07pcwlzw8zdh"}) {
@@ -249,7 +249,7 @@ const CORPORATE_GALLERY_QUERY = `
       altText
       displayOrder
       image {
-        url(transformation: { image: { resize: { width: 400, height: 400, fit: crop } }, document: { output: { format: webp } } })
+        url(transformation: { image: { resize: { width: 400, height: 400, fit: crop }, quality: { value: 40 } }, document: { output: { format: webp } } })
         id
         width
         height

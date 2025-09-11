@@ -72,13 +72,7 @@ const heroImage = validateImageUrl(data.heroes[0]?.backgroundImage?.url) || '/im
 ---
 
 <Layout title="Limban Resort - Luxury Eco-Safari Experience in Tadoba">
-  <!-- Performance optimization: DNS prefetch for external resources -->
-  <link rel="dns-prefetch" href="https://ap-south-1.graphassets.com" />
-  <link rel="preconnect" href="https://ap-south-1.graphassets.com" />
   
-  <!-- Preload critical hero image -->
-  <link rel="preload" as="image" href={heroImage} fetchpriority="high" />
-
   <AstroSEO
     title="Limban Resort | Luxury Eco-Friendly Safari & Wellness Retreat in Tadoba National Park"
     description="Discover unparalleled luxury and sustainability at Limban Resort, nestled in the heart of Tadoba National Park. Experience responsible tiger safaris, eco-conscious wellness programs, and authentic cultural immersion in Maharashtra, India."

@@ -1,8 +1,23 @@
 ---
 const { heroes } = Astro.props;
+// NO generateResponsiveSrc function needed - use API variants directly!
 ---
 
 <section class="h-screen relative overflow-hidden">
+  <!-- Loading Overlay -->
+  <div
+    id="loading-overlay"
+    class="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 opacity-0 invisible transition-all duration-300"
+  >
+    <div class="text-center">
+      <div
+        class="w-12 h-12 border-4 border-amber-400 border-t-transparent rounded-full animate-spin mx-auto mb-4"
+      >
+      </div>
+      <p class="text-white text-lg font-light">Loading image...</p>
+    </div>
+  </div>
+
   <!-- Navigation Arrows -->
   <div
     class="carousel-nav absolute inset-y-0 left-0 right-0 z-30 flex items-center justify-between px-6 opacity-0 hover:opacity-100 transition-opacity duration-300 pointer-events-none"
@@ -53,91 +68,68 @@ const { heroes } = Astro.props;
             index === 0 ? "opacity: 1; z-index: 2;" : "opacity: 0; z-index: 1;"
           }
         >
-          <picture class="absolute inset-0 w-full h-full">
-            {/* Only load first image immediately, others get placeholder */}
-            {index === 0 ? (
-              <>
-                <source
-                  media="(min-width: 2560px)"
-                  srcset={
-                    hero.backgroundImage?.hero4K || hero.backgroundImage?.url
-                  }
-                  sizes="2560px"
-                />
-                <source
-                  media="(min-width: 1200px)"
-                  srcset={
-                    hero.backgroundImage?.heroDesktop ||
-                    hero.backgroundImage?.url
-                  }
-                  sizes="100vw"
-                />
-                <source
-                  media="(min-width: 768px)"
-                  srcset={
-                    hero.backgroundImage?.heroTablet ||
-                    hero.backgroundImage?.url
-                  }
-                  sizes="100vw"
-                />
-                <img
-                  src={
-                    hero.backgroundImage?.heroMobile ||
-                    hero.backgroundImage?.url
-                  }
-                  alt={hero.slideTitle}
-                  class="w-full h-full object-cover"
-                  sizes="100vw"
-                />
-              </>
-            ) : (
-              <>
-                {/* Lazy loading placeholders */}
-                <source
-                  media="(min-width: 2560px)"
-                  data-srcset={
-                    hero.backgroundImage?.hero4K || hero.backgroundImage?.url
-                  }
-                  sizes="2560px"
-                />
-                <source
-                  media="(min-width: 1200px)"
-                  data-srcset={
-                    hero.backgroundImage?.heroDesktop ||
-                    hero.backgroundImage?.url
-                  }
-                  sizes="100vw"
-                />
-                <source
-                  media="(min-width: 768px)"
-                  data-srcset={
-                    hero.backgroundImage?.heroTablet ||
-                    hero.backgroundImage?.url
-                  }
-                  sizes="100vw"
-                />
-                <img
-                  src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='50'%3E%3Crect width='100%25' height='100%25' fill='%23000000'/%3E%3C/svg%3E"
-                  data-src={
-                    hero.backgroundImage?.heroMobile ||
-                    hero.backgroundImage?.url
-                  }
-                  alt={hero.slideTitle}
-                  class="w-full h-full object-cover lazy-image"
-                  sizes="100vw"
-                />
-              </>
-            )}
-          </picture>
+          {/* Use GraphCMS optimized variants directly - NO fallbacks to original URL */}
+          {index === 0 ? (
+            <picture class="absolute inset-0 w-full h-full">
+              <source
+                srcset={hero.backgroundImage?.hero4K}
+                type="image/webp"
+                media="(min-width: 1600px)"
+              />
+              <source
+                srcset={hero.backgroundImage?.heroDesktop}
+                type="image/webp"
+                media="(min-width: 1200px)"
+              />
+              <source
+                srcset={hero.backgroundImage?.heroTablet}
+                type="image/webp"
+                media="(min-width: 768px)"
+              />
+              <img
+                src={hero.backgroundImage?.heroMobile}
+                alt={hero.slideTitle}
+                class="w-full h-full object-cover"
+                loading="eager"
+                fetchpriority="high"
+              />
+            </picture>
+          ) : (
+            <picture class="absolute inset-0 w-full h-full">
+              <source
+                data-srcset={hero.backgroundImage?.hero4K}
+                type="image/webp"
+                media="(min-width: 1600px)"
+              />
+              <source
+                data-srcset={hero.backgroundImage?.heroDesktop}
+                type="image/webp"
+                media="(min-width: 1200px)"
+              />
+              <source
+                data-srcset={hero.backgroundImage?.heroTablet}
+                type="image/webp"
+                media="(min-width: 768px)"
+              />
+              <img
+                src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='50'%3E%3Crect width='100%25' height='100%25' fill='%23000000'/%3E%3C/svg%3E"
+                data-src={hero.backgroundImage?.heroMobile}
+                alt={hero.slideTitle}
+                class="w-full h-full object-cover lazy-image"
+              />
+            </picture>
+          )}
+
           <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-black/20" />
           <div class="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/60" />
+
           <div class="relative h-full flex items-center justify-center text-center z-20">
             <div class="max-w-4xl mx-auto px-8">
-              <h1 class="font-serif italic text-4xl sm:text-6xl md:text-7xl lg:text-8xl text-white mb-6 sm:mb-8 leading-[0.95] tracking-tight text-shadow-2">
+              <h1 class="font-serif italic text-4xl sm:text-6xl md:text-7xl lg:text-8xl text-white mb-6 sm:mb-8 leading-[0.95] tracking-tight">
                 {hero.slideTitle}
               </h1>
               {hero.subtitle && (
-                <h2 class="text-lg sm:text-xl md:text-2xl lg:text-3xl text-white/90 font-light mb-12 sm:mb-16 leading-relaxed max-w-3xl mx-auto tracking-wide text-shadow-gray-950">
+                <h2 class="text-lg sm:text-xl md:text-2xl lg:text-3xl text-white/90 font-light mb-12 sm:mb-16 leading-relaxed max-w-3xl mx-auto tracking-wide">
                   {hero.subtitle}
                 </h2>
               )}
@@ -173,67 +165,30 @@ const { heroes } = Astro.props;
 </section>
 
 <style>
-  /* Smooth crossfade transition */
   .hero-slide {
     transition: opacity 2s ease-in-out;
   }
 
-  /* Ken Burns Effect */
   .hero-slide img {
     transform: scale(1.05);
     transition: transform 15s ease-out;
   }
 
-  .hero-slide.active img {
-    transform: scale(1);
-  }
-
-  /* CTA Button Working Hover Effects */
-  .cta-button:hover {
-    transform: translateY(-8px);
-    background-color: rgba(245, 158, 11, 0.25);
-    border-color: rgba(251, 191, 36, 0.5);
-    box-shadow: 0 16px 40px rgba(217, 119, 6, 0.4);
-    color: white;
-  }
-
-  /* Loading state for lazy images */
   .lazy-image {
-    filter: blur(0.5px);
-    transition: filter 0.3s ease-in-out;
+    filter: blur(5px);
+    transition: filter 0.5s ease-in-out;
   }
 
   .lazy-image.loaded {
     filter: none;
   }
 
-  /* Parallax only on larger screens */
-  @media (min-width: 768px) {
-    .hero-slide {
-      transform: translateY(var(--scroll-offset, 0));
-    }
+  .loading-overlay-visible {
+    opacity: 1 !important;
+    visibility: visible !important;
   }
 
-  /* Ensure images stay responsive on small screens */
   @media (max-width: 767px) {
-    .hero-slide {
-      transform: none !important;
-    }
-    .hero-slide img {
-      transform: scale(1.02);
-    }
-    .hero-slide.active img {
-      transform: scale(1);
-    }
-
-    /* Show arrows on mobile/touch devices */
-    .carousel-nav {
-      opacity: 1;
-    }
-  }
-
-  /* Touch device support */
-  @media (hover: none) and (pointer: coarse) {
     .carousel-nav {
       opacity: 1;
     }
@@ -243,23 +198,34 @@ const { heroes } = Astro.props;
 <script>
   let currentSlide = 0;
   let autoAdvanceInterval;
-  let loadedImages = new Set([0]); // Track which images are loaded
+  let loadedImages = new Set([0]);
   const slides = document.querySelectorAll(".hero-slide");
   const dots = document.querySelectorAll(".dot-indicator");
   const totalSlides = slides.length;
-  const prevBtn = document.getElementById("prev-btn");
-  const nextBtn = document.getElementById("next-btn");
+  const loadingOverlay = document.getElementById("loading-overlay");
 
-  // Lazy load image function
-  function lazyLoadImage(slideIndex) {
-    if (loadedImages.has(slideIndex)) return;
+  function lazyLoadImage(slideIndex, priority = "low") {
+    return new Promise((resolve, reject) => {
+      if (loadedImages.has(slideIndex)) {
+        resolve();
+        return;
+      }
 
-    const slide = slides[slideIndex];
-    const img = slide.querySelector(".lazy-image");
-    const sources = slide.querySelectorAll("source[data-srcset]");
+      const slide = slides[slideIndex];
+      if (!slide) {
+        reject(new Error("Slide not found"));
+        return;
+      }
 
-    if (img && img.dataset.src) {
-      // Load sources first
+      const img = slide.querySelector(".lazy-image");
+      const sources = slide.querySelectorAll("source[data-srcset]");
+
+      if (!img || !img.dataset.src) {
+        resolve();
+        return;
+      }
+
+      // Load sources - these are already optimized by GraphCMS
       sources.forEach((source) => {
         if (source.dataset.srcset) {
           source.srcset = source.dataset.srcset;
@@ -267,142 +233,151 @@ const { heroes } = Astro.props;
         }
       });
 
-      // Load main image
-      const newImg = new Image();
-      newImg.onload = () => {
+      // Preload the mobile version (smallest)
+      const preloadImg = new Image();
+
+      if (priority === "high") {
+        preloadImg.fetchPriority = "high";
+      }
+
+      preloadImg.onload = () => {
         img.src = img.dataset.src;
         img.classList.add("loaded");
         delete img.dataset.src;
         loadedImages.add(slideIndex);
+        console.log(`✅ Slide ${slideIndex} loaded (GraphCMS optimized)`);
+        resolve();
       };
-      newImg.src = img.dataset.src;
+
+      preloadImg.onerror = (error) => {
+        console.error(`❌ Failed to load slide ${slideIndex}`);
+        reject(error);
+      };
+
+      preloadImg.src = img.dataset.src;
+    });
+  }
+
+  function showLoadingOverlay(show = true) {
+    if (!loadingOverlay) return;
+
+    if (show) {
+      loadingOverlay.classList.add("loading-overlay-visible");
+    } else {
+      loadingOverlay.classList.remove("loading-overlay-visible");
     }
   }
 
-  // Preload adjacent images (previous and next)
-  function preloadAdjacentImages(currentIndex) {
-    const nextIndex = (currentIndex + 1) % totalSlides;
-    const prevIndex = (currentIndex - 1 + totalSlides) % totalSlides;
+  function initializeProgressiveLoading() {
+    console.log("🚀 Using GraphCMS optimized images...");
 
-    lazyLoadImage(nextIndex);
-    lazyLoadImage(prevIndex);
+    // Load next slide after 1 second
+    if (totalSlides > 1) {
+      setTimeout(() => {
+        lazyLoadImage(1, "high").then(() => {
+          console.log("📸 Next slide ready for auto-advance");
+        });
+      }, 1000);
+    }
+
+    // Load others very conservatively
+    setTimeout(() => {
+      for (let i = 2; i < totalSlides; i++) {
+        setTimeout(
+          () => {
+            lazyLoadImage(i, "low");
+          },
+          (i - 2) * 3000
+        ); // 3 second intervals
+      }
+    }, 5000);
   }
 
-  function goToSlide(slideIndex) {
-    // Load the target image if not already loaded
-    lazyLoadImage(slideIndex);
+  async function goToSlide(slideIndex, userInitiated = false) {
+    if (slideIndex === currentSlide) return;
 
-    // Set up the new slide first (behind the current one)
+    if (userInitiated && !loadedImages.has(slideIndex)) {
+      console.log(
+        `⏳ Loading GraphCMS optimized image for slide ${slideIndex}...`
+      );
+      showLoadingOverlay(true);
+
+      try {
+        await lazyLoadImage(slideIndex, "high");
+      } catch (error) {
+        console.error("Failed to load image:", error);
+        showLoadingOverlay(false);
+        return;
+      }
+
+      showLoadingOverlay(false);
+    }
+
+    // Crossfade animation
     slides[slideIndex].style.zIndex = "2";
     slides[slideIndex].style.opacity = "0";
-
-    // Force reflow
     slides[slideIndex].offsetHeight;
-
-    // Start the crossfade
     slides[slideIndex].style.opacity = "1";
     slides[currentSlide].style.opacity = "0";
 
-    // Update dots immediately
+    // Update dots
     dots[currentSlide].classList.remove("bg-amber-400", "scale-125");
     dots[currentSlide].classList.add("bg-white/40");
     dots[slideIndex].classList.remove("bg-white/40");
     dots[slideIndex].classList.add("bg-amber-400", "scale-125");
 
-    // Clean up after transition completes and preload adjacent
     setTimeout(() => {
       slides[currentSlide].style.zIndex = "1";
       currentSlide = slideIndex;
-      preloadAdjacentImages(currentSlide);
     }, 2000);
   }
 
   function showNextSlide() {
     const nextIndex = (currentSlide + 1) % totalSlides;
-    goToSlide(nextIndex);
+    goToSlide(nextIndex, false);
   }
 
   function showPrevSlide() {
     const prevIndex = (currentSlide - 1 + totalSlides) % totalSlides;
-    goToSlide(prevIndex);
+    goToSlide(prevIndex, false);
   }
 
   function startAutoAdvance() {
-    if (autoAdvanceInterval) {
-      clearInterval(autoAdvanceInterval);
-    }
-
+    if (autoAdvanceInterval) clearInterval(autoAdvanceInterval);
     if (totalSlides > 1) {
       autoAdvanceInterval = setInterval(showNextSlide, 8000);
     }
   }
 
-  function resetTimer() {
+  // Event listeners
+  document.getElementById("prev-btn")?.addEventListener("click", (e) => {
+    e.stopPropagation();
+    showPrevSlide();
+    clearInterval(autoAdvanceInterval);
     startAutoAdvance();
-  }
+  });
 
-  // Arrow navigation
-  if (prevBtn) {
-    prevBtn.addEventListener("click", (event) => {
-      event.stopPropagation();
-      showPrevSlide();
-      resetTimer();
-    });
-  }
+  document.getElementById("next-btn")?.addEventListener("click", (e) => {
+    e.stopPropagation();
+    showNextSlide();
+    clearInterval(autoAdvanceInterval);
+    startAutoAdvance();
+  });
 
-  if (nextBtn) {
-    nextBtn.addEventListener("click", (event) => {
-      event.stopPropagation();
-      showNextSlide();
-      resetTimer();
-    });
-  }
-
-  // Dot navigation
   dots.forEach((dot, index) => {
-    dot.addEventListener("click", (event) => {
-      event.stopPropagation();
+    dot.addEventListener("click", (e) => {
+      e.stopPropagation();
       if (index !== currentSlide) {
-        goToSlide(index);
-        resetTimer();
+        goToSlide(index, true);
+        clearInterval(autoAdvanceInterval);
+        startAutoAdvance();
       }
     });
   });
 
-  // Keyboard navigation
-  document.addEventListener("keydown", (event) => {
-    if (event.key === "ArrowLeft") {
-      showPrevSlide();
-      resetTimer();
-    } else if (event.key === "ArrowRight") {
-      showNextSlide();
-      resetTimer();
-    }
-  });
-
-  // Initialize: preload adjacent images after page load
   window.addEventListener("load", () => {
-    preloadAdjacentImages(0);
+    console.log("🎬 Hero carousel initialized with GraphCMS optimization");
+    initializeProgressiveLoading();
+    startAutoAdvance();
   });
-
-  startAutoAdvance();
-
-  if (window.innerWidth > 768) {
-    let ticking = false;
-
-    function updateParallax() {
-      const scrollY = window.scrollY;
-      slides.forEach((slide) => {
-        slide.style.setProperty("--scroll-offset", scrollY * 0.15 + "px");
-      });
-      ticking = false;
-    }
-
-    window.addEventListener("scroll", () => {
-      if (!ticking) {
-        requestAnimationFrame(updateParallax);
-        ticking = true;
-      }
-    });
-  }
 </script>
