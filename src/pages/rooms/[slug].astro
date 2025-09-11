@@ -3,6 +3,7 @@ import Layout from '../../layouts/Layout.astro';
 import { AstroSEO } from 'astro-seo-plugin';
 import { fetchRoomBySlug, fetchRoomsData, fetchSpecialDealData } from '../../api.js';
 import GalleryGrid from '../../components/GalleryGrid.astro';
+import LoadMoreGallery from '../../components/LoadMoreGallery.astro';
 import ReservationForm from '../../components/ReservationForm.astro';
 
 // Ultra-reliable API fetching with retry logic
@@ -63,19 +64,27 @@ if (!room) {
   return Astro.redirect('/rooms');
 }
 
-// Process and validate gallery images
-const galleryImages = (room.gallery || [])
-  .filter(item => validateImageUrl(item?.image?.url))
-  .map((item, index) => ({
-    src: validateImageUrl(item.image?.thumb800) || validateImageUrl(item.image?.url),
-    srcset: `${validateImageUrl(item.image?.thumb400) || validateImageUrl(item.image?.url)} 400w, ${validateImageUrl(item.image?.thumb800) || validateImageUrl(item.image?.url)} 800w`,
-    large: validateImageUrl(item.image?.large) || validateImageUrl(item.image?.url),
-    placeholder: validateImageUrl(item.image?.placeholder) || validateImageUrl(item.image?.url),
-    alt: item.caption || `${room.roomName} - luxury safari room view ${index + 1}`,
-    width: item.image?.width || 800,
-    height: item.image?.height || 600,
-    priority: index < 6, // First 6 images get priority loading
+// Simple gallery processing - EXACTLY like about page  
+function processRoomImages(gallery) {
+  if (!gallery?.length) return [];
+  
+  return gallery.map((item, idx) => ({
+    src: validateImageUrl(item.image?.grid) || validateImageUrl(item.image?.url) || "",
+    srcset: `${validateImageUrl(item.image?.grid) || ""} 300w, ${validateImageUrl(item.image?.thumb400) || ""} 400w`,
+    placeholder: validateImageUrl(item.image?.placeholder) || validateImageUrl(item.image?.url) || "",
+    large: validateImageUrl(item.image?.large) || validateImageUrl(item.image?.url) || "",
+    alt: item.caption || `${room.roomName} - luxury safari room view ${idx + 1}`,
+    width: item.image?.width || 300,
+    height: item.image?.height || 300,
   }));
+}
+
+// Process room gallery consistently
+const allRoomImages = processRoomImages(room.gallery || []);
+
+// Split for load more functionality (like about page)
+const initialRoomImages = allRoomImages.slice(0, 12);
+const remainingRoomImages = allRoomImages.slice(12);
 
 // Validate hero image
 const heroImage = validateImageUrl(room.heroImage?.optimisedCard) || 
@@ -86,10 +95,9 @@ const heroImage = validateImageUrl(room.heroImage?.optimisedCard) ||
 const safePrice = Number(room.basePrice) || 0;
 ---
 
+
 <!-- Performance optimization: preload critical resources -->
 <link rel="preload" as="image" href={heroImage} fetchpriority="high" />
-<link rel="dns-prefetch" href="https://ap-south-1.graphassets.com" />
-<link rel="preconnect" href="https://ap-south-1.graphassets.com" />
 
 <Layout title={`${room.roomName} - Limban Resort`}>
   <AstroSEO
@@ -110,13 +118,13 @@ const safePrice = Number(room.basePrice) || 0;
       "name": "Limban Resort",
       "url": "https://limban.com",
       "logo": "https://limban.com/limban-logo.png",
-      "image": [heroImage, ...galleryImages.slice(0, 6).map(img => img.large)].filter(Boolean),
+      "image": [heroImage, ...allRoomImages.slice(0, 6).map(img => img.large)].filter(Boolean),
       "description": "Luxury safari resort in Tadoba National Park offering premium eco-friendly accommodation and tiger safari experiences in Maharashtra, India.",
       "containsPlace": {
         "@type": "Accommodation",
         "name": room.roomName,
         "description": room.shortDescription,
-        "image": [heroImage, ...galleryImages.slice(0, 4).map(img => img.large)].filter(Boolean),
+        "image": [heroImage, ...allRoomImages.slice(0, 4).map(img => img.large)].filter(Boolean),
         "amenityFeature": room.roomFeature?.map(feature => ({
           "@type": "LocationFeatureSpecification",
           "name": feature.featureName,
@@ -142,37 +150,15 @@ const safePrice = Number(room.basePrice) || 0;
   <div class="bg-gray-950 text-gray-100 font-sans antialiased selection:bg-gray-700">
     <!-- Enhanced Hero Section -->
     <section class="relative pt-36 pb-16 overflow-hidden bg-gray-900" role="banner" aria-labelledby="room-hero-heading">
-      <!-- Optimized Background Image with Modern Formats -->
-      <picture class="absolute inset-0">
-        <source 
-          srcset={`${heroImage}?format=avif&w=1920&h=1080&q=80`} 
-          type="image/avif" 
-          media="(min-width: 1200px)"
-        />
-        <source 
-          srcset={`${heroImage}?format=webp&w=1920&h=1080&q=80`} 
-          type="image/webp" 
-          media="(min-width: 1200px)"
-        />
-        <source 
-          srcset={`${heroImage}?format=avif&w=768&h=1024&q=80`} 
-          type="image/avif" 
-          media="(max-width: 1199px)"
-        />
-        <source 
-          srcset={`${heroImage}?format=webp&w=768&h=1024&q=80`} 
-          type="image/webp" 
-          media="(max-width: 1199px)"
-        />
-        <img
-          src={heroImage}
-          alt={`${room.roomName} hero - luxury safari accommodation`}
-          class="w-full h-full object-cover opacity-40"
-          loading="eager"
-          decoding="async"
-          fetchpriority="high"
-        />
-      </picture>
+      <!-- Simplified hero image - no complex transformations -->
+      <img
+        src={heroImage}
+        alt={`${room.roomName} hero - luxury safari accommodation`}
+        class="absolute inset-0 w-full h-full object-cover opacity-40"
+        loading="eager"
+        decoding="async"
+        fetchpriority="high"
+      />
       
       <!-- Enhanced gradient overlay for better text contrast -->
       <div class="absolute inset-0 bg-gradient-to-b from-gray-900/90 via-gray-900/60 to-gray-900/90"></div>
@@ -252,11 +238,31 @@ const safePrice = Number(room.basePrice) || 0;
             {room.roomName} Gallery
           </h2>
           <p class="text-xl text-gray-300 max-w-2xl mx-auto">
-            Explore every detail of your luxury safari accommodation through our immersive gallery
+            Explore every detail of your luxury safari accommodation
           </p>
         </header>
         
-        <GalleryGrid images={galleryImages} layout="grid" galleryType="room" />
+        <GalleryGrid
+          images={initialRoomImages}
+          layout="grid"
+          galleryType="room"
+          gridId="room-gallery-grid"
+        />
+
+        <LoadMoreGallery
+          buttonId="load-more-room"
+          remainingImages={remainingRoomImages}
+          initialImages={initialRoomImages}
+          galleryType="room"
+          galleryGridId="room-gallery-grid"
+          layout="grid"
+        />
+
+        <div class="text-center mt-6">
+          <p class="text-gray-400 font-light italic">
+            Click any image to explore {room.roomName} in detail
+          </p>
+        </div>
       </div>
     </section>
 
@@ -364,26 +370,15 @@ const safePrice = Number(room.basePrice) || 0;
                     class="block w-full h-full focus:outline-none focus:ring-4 focus:ring-amber-400/50 rounded-2xl"
                     aria-label={`View ${otherRoom.roomName} details`}
                   >
-                    <!-- Optimized background image -->
-                    <picture>
-                      <source 
-                        srcset={`${otherRoomImage}?format=avif&w=400&h=500&q=80`} 
-                        type="image/avif"
-                      />
-                      <source 
-                        srcset={`${otherRoomImage}?format=webp&w=400&h=500&q=80`} 
-                        type="image/webp"
-                      />
-                      <img
-                        src={otherRoomImage}
-                        alt={`${otherRoom.roomName} accommodation`}
-                        class="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
-                        loading="lazy"
-                        decoding="async"
-                        width="400"
-                        height="500"
-                      />
-                    </picture>
+                    <img
+                      src={otherRoomImage}
+                      alt={`${otherRoom.roomName} accommodation at Limban Resort in Tadoba`}
+                      class="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                      loading="lazy"
+                      decoding="async"
+                      width="400"
+                      height="500"
+                    />
                     
                     <!-- Enhanced gradient overlay -->
                     <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent group-hover:from-black/70 group-hover:via-black/30 transition-all duration-500"></div>
@@ -463,58 +458,3 @@ const safePrice = Number(room.basePrice) || 0;
   }
 </style>
 
-<script define:vars={{ galleryImages }}>
-  // Enhanced gallery modal integration
-  class RoomGalleryHandler {
-    constructor() {
-      this.init();
-    }
-
-    init() {
-      // Dispatch event to open the global gallery modal
-      document.querySelectorAll('[data-gallery-index]').forEach(el => {
-        el.addEventListener('click', (e) => {
-          e.preventDefault();
-          const index = parseInt(el.dataset.galleryIndex, 10);
-          if (!isNaN(index) && galleryImages[index]) {
-            this.openGallery(index);
-          }
-        });
-      });
-
-      // Add keyboard support for gallery items
-      document.querySelectorAll('[data-gallery-index]').forEach(el => {
-        el.addEventListener('keydown', (e) => {
-          if (e.key === 'Enter' || e.key === ' ') {
-            e.preventDefault();
-            el.click();
-          }
-        });
-      });
-    }
-
-    openGallery(index) {
-      const openGalleryEvent = new CustomEvent('open-gallery', {
-        detail: {
-          images: galleryImages,
-          index: index,
-        },
-      });
-      document.dispatchEvent(openGalleryEvent);
-    }
-  }
-
-  // Initialize enhanced gallery handler
-  document.addEventListener('DOMContentLoaded', () => {
-    new RoomGalleryHandler();
-  });
-
-  // Enhanced error handling
-  window.addEventListener('error', (e) => {
-    if (e.target && e.target.tagName === 'IMG') {
-      console.warn('Image failed to load:', e.target.src);
-      e.target.src = '/img/room-placeholder.jpg';
-      e.target.alt = 'Image temporarily unavailable';
-    }
-  });
-</script>

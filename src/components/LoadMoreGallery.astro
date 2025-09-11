@@ -1,0 +1,189 @@
+---
+export interface Props {
+  buttonId: string;
+  remainingImages: Array<any>;
+  initialImages: Array<any>;
+  galleryType: string;
+  galleryGridId: string;
+  layout?: string;
+}
+
+const {
+  buttonId,
+  remainingImages,
+  initialImages,
+  galleryType,
+  galleryGridId,
+  layout = "grid",
+} = Astro.props;
+
+// Only show button if there are remaining images
+const hasMoreImages = remainingImages.length > 0;
+---
+
+<!-- ALWAYS render the div (for the script), conditionally render the button -->
+<div>
+  {
+    hasMoreImages && (
+      <div
+        class={
+          galleryType === "vibe" ? "text-center mt-16" : "text-center mt-12"
+        }
+      >
+        <button
+          id={buttonId}
+          class="load-more-btn inline-flex items-center px-8 py-4 border border-amber-400/50 text-amber-400 rounded-full hover:bg-amber-400/10 hover:scale-105 transition-all duration-300"
+          type="button"
+        >
+          Show {remainingImages.length} More{" "}
+          {galleryType === "vibe"
+            ? "Limban Moments"
+            : galleryType === "room"
+              ? "Room"
+              : galleryType === "guest"
+                ? "Guest"
+                : galleryType === "dining"
+                  ? "Dining"
+                  : ""}{" "}
+          Photos
+          <svg
+            class="w-5 h-5 ml-3"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M19 9l-7 7-7-7"
+            />
+          </svg>
+        </button>
+      </div>
+    )
+  }
+</div>
+
+<script
+  define:vars={{
+    buttonId,
+    remainingImages,
+    initialImages,
+    galleryType,
+    galleryGridId,
+    layout,
+  }}
+>
+  // This script ALWAYS runs now, ensuring modal integration works
+  window.addEventListener("load", () => {
+    // Set up global images array for modal (CRITICAL for modal to work)
+    window.galleryImages = window.galleryImages || {};
+    window.galleryImages[galleryType] = [...initialImages, ...remainingImages];
+
+    // Only set up button functionality if button exists
+    const button = document.getElementById(buttonId);
+    if (button) {
+      let loadedCount = 0;
+      const batchSize = 8;
+
+      button.addEventListener("click", function (e) {
+        e.preventDefault();
+
+        const grid = document.getElementById(galleryGridId);
+        if (!grid) return;
+
+        const start = loadedCount;
+        const end = Math.min(start + batchSize, remainingImages.length);
+
+        for (let i = start; i < end; i++) {
+          const img = remainingImages[i];
+          const globalIndex = initialImages.length + i;
+          const div = createGalleryItem(img, globalIndex);
+          grid.appendChild(div);
+
+          const lazyImg = div.querySelector(".lazy-image");
+          if (lazyImg && window.globalImageObserver) {
+            window.globalImageObserver.observe(lazyImg);
+          }
+        }
+
+        loadedCount = end;
+
+        if (loadedCount >= remainingImages.length) {
+          button.style.display = "none";
+        } else {
+          const remaining = remainingImages.length - loadedCount;
+          const newText =
+            galleryType === "vibe"
+              ? `Show ${remaining} More Limban Moments`
+              : galleryType === "room"
+                ? `Show ${remaining} More Room Photos`
+                : galleryType === "guest"
+                  ? `Show ${remaining} More Guest Photos`
+                  : galleryType === "dining"
+                    ? `Show ${remaining} More Dining Photos`
+                    : `Show ${remaining} More Photos`;
+
+          button.innerHTML = `${newText}<svg class="w-5 h-5 ml-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>`;
+        }
+      });
+
+      function createGalleryItem(image, index) {
+        const div = document.createElement("div");
+        const containerClass =
+          layout === "masonry" ? "break-inside-avoid mb-6" : "aspect-square";
+        div.className = `group cursor-pointer ${containerClass}`;
+        div.dataset.galleryIndex = index;
+        div.dataset.galleryType = galleryType;
+
+        div.innerHTML = `
+          <div class="relative w-full h-full overflow-hidden rounded-2xl bg-gray-800 hover:shadow-2xl hover:shadow-black/50 transition-all duration-1000 hover:scale-[1.01]">
+            <div class="absolute inset-0">
+              <img src="${image.placeholder || image.src}" alt="" class="w-full h-full object-cover blur-sm scale-110" />
+            </div>
+            <img
+              src="${image.placeholder || image.src}"
+              data-srcset="${image.srcset || ""}"
+              data-src="${image.src}"
+              sizes="(min-width: 1024px) 25vw, (min-width: 768px) 33vw, 50vw"
+              alt="${image.alt}"
+              class="relative w-full h-full object-cover lazy-image opacity-0 transition-opacity duration-700"
+              loading="lazy"
+              width="${image.width || 300}"
+              height="${image.height || 300}"
+            />
+            <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-500 flex items-center justify-center font-semibold">
+              <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+              </svg>
+            </div>
+          </div>
+        `;
+        return div;
+      }
+    }
+
+    // Set up modal handler ONCE per page (CRITICAL - this must always run)
+    if (!window.modalSetup) {
+      window.modalSetup = true;
+      document.addEventListener("click", function (e) {
+        const item = e.target.closest("[data-gallery-type]");
+        if (!item || e.target.closest("button")) return;
+
+        e.preventDefault();
+        const gType = item.dataset.galleryType;
+        const idx = parseInt(item.dataset.galleryIndex, 10);
+        const images = window.galleryImages[gType] || [];
+
+        if (images.length > 0) {
+          document.dispatchEvent(
+            new CustomEvent("open-gallery", {
+              detail: { images, index: idx },
+            })
+          );
+        }
+      });
+    }
+  });
+</script>

@@ -3,6 +3,7 @@ import Layout from "../layouts/Layout.astro";
 import { AstroSEO } from "astro-seo-plugin";
 import { fetchVibePageData } from "../api.js";
 import GalleryGrid from "../components/GalleryGrid.astro";
+import LoadMoreGallery from "../components/LoadMoreGallery.astro";
 
 // Ultra-reliable API fetching with retry logic
 async function fetchWithRetry(fetchFn, retries = 2) {
@@ -45,23 +46,24 @@ if (!vibeData) {
   };
 }
 
-// Ultra-safe image processing with validation
+// Standardized image processing with validation
 const vibeImages = (vibeData.vibeImages || [])
   .filter((item) => validateImageUrl(item?.image?.url))
   .map((item, index) => {
     const image = item.image;
     return {
-      src: validateImageUrl(image.thumb800) || validateImageUrl(image.url),
-      srcset: `${validateImageUrl(image.thumb400) || validateImageUrl(image.url)} 400w, ${validateImageUrl(image.thumb800) || validateImageUrl(image.url)} 800w`,
+      src: validateImageUrl(image.grid) || validateImageUrl(image.url) || "",
+      srcset: `${validateImageUrl(image.grid) || ""} 300w, ${validateImageUrl(image.thumb400) || ""} 400w`,
       placeholder:
-        validateImageUrl(image.placeholder) || validateImageUrl(image.url),
-      large: validateImageUrl(image.large) || validateImageUrl(image.url),
+        validateImageUrl(image.placeholder) ||
+        validateImageUrl(image.url) ||
+        "",
+      large: validateImageUrl(image.large) || validateImageUrl(image.url) || "",
       alt:
         (item.altText || "").trim() ||
         `Experience the Limban vibe ${index + 1}`,
-      width: parseInt(image.width) || 600,
-      height: parseInt(image.height) || 450,
-      priority: index < 4, // First 4 images get priority loading
+      width: parseInt(image.width) || 300,
+      height: parseInt(image.height) || 300,
     };
   });
 
@@ -70,29 +72,29 @@ const wildlifeImages = (vibeData.wildlifeImages || [])
   .map((item, index) => {
     const image = item.image;
     return {
-      src: validateImageUrl(image.thumb800) || validateImageUrl(image.url),
-      srcset: `${validateImageUrl(image.thumb400) || validateImageUrl(image.url)} 400w, ${validateImageUrl(image.thumb800) || validateImageUrl(image.url)} 800w`,
+      src: validateImageUrl(image.grid) || validateImageUrl(image.url) || "",
+      srcset: `${validateImageUrl(image.grid) || ""} 300w, ${validateImageUrl(image.thumb400) || ""} 400w`,
       placeholder:
-        validateImageUrl(image.placeholder) || validateImageUrl(image.url),
-      large: validateImageUrl(image.large) || validateImageUrl(image.url),
+        validateImageUrl(image.placeholder) ||
+        validateImageUrl(image.url) ||
+        "",
+      large: validateImageUrl(image.large) || validateImageUrl(image.url) || "",
       alt: (item.alt || "").trim() || `Tadoba wildlife encounter ${index + 1}`,
-      width: parseInt(image.width) || 600,
-      height: parseInt(image.height) || 450,
-      priority: index < 2, // First 2 wildlife images get priority
+      width: parseInt(image.width) || 300,
+      height: parseInt(image.height) || 300,
     };
   });
+
+// Split for load more functionality
+const initialVibeImages = vibeImages.slice(0, 16);
+const remainingVibeImages = vibeImages.slice(16);
+
+const initialWildlifeImages = wildlifeImages.slice(0, 12);
+const remainingWildlifeImages = wildlifeImages.slice(12);
 
 // Safe hero image for OpenGraph
 const heroImage =
   vibeImages.find((img) => img.src)?.src || "/limban-vibe-hero.webp";
-
-// Helper function to capitalize first letter of each word
-function capitalizeWords(str) {
-  return str.replace(
-    /\w\S*/g,
-    (txt) => txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase()
-  );
-}
 ---
 
 <Layout title="The Limban Vibe - Feel What Calls You Wild">
@@ -240,7 +242,7 @@ function capitalizeWords(str) {
         </div>
       </nav>
 
-      <!-- Resort Vibe Section -->
+      <!-- Resort Vibe Section with LoadMore -->
       <section class="py-32 bg-gray-900" aria-labelledby="resort-heading">
         <div class="max-w-7xl mx-auto px-6">
           <div class="text-center mb-20">
@@ -266,11 +268,28 @@ function capitalizeWords(str) {
               how luxury feels when it's crafted with soul.
             </p>
           </div>
+
           <GalleryGrid
-            images={vibeImages}
+            images={initialVibeImages}
             layout="masonry"
             galleryType="vibe"
+            gridId="vibe-gallery-grid"
           />
+
+          <LoadMoreGallery
+            buttonId="load-more-vibe"
+            remainingImages={remainingVibeImages}
+            initialImages={initialVibeImages}
+            galleryType="vibe"
+            galleryGridId="vibe-gallery-grid"
+            layout="masonry"
+          />
+
+          <div class="text-center mt-6">
+            <p class="text-gray-400 font-light italic">
+              Click any image to explore the Limban experience in detail
+            </p>
+          </div>
         </div>
       </section>
 
@@ -288,7 +307,7 @@ function capitalizeWords(str) {
         </div>
       </section>
 
-      <!-- Wildlife Gallery Section -->
+      <!-- Wildlife Gallery Section with LoadMore -->
       <section class="py-32 bg-gray-950" aria-labelledby="wildlife-heading">
         <div class="max-w-7xl mx-auto px-6">
           <div class="text-center mb-20">
@@ -314,11 +333,28 @@ function capitalizeWords(str) {
               ancient kingdom. These are the moments that change you forever.
             </p>
           </div>
+
           <GalleryGrid
-            images={wildlifeImages}
+            images={initialWildlifeImages}
             layout="grid"
             galleryType="wildlife"
+            gridId="wildlife-gallery-grid"
           />
+
+          <LoadMoreGallery
+            buttonId="load-more-wildlife"
+            remainingImages={remainingWildlifeImages}
+            initialImages={initialWildlifeImages}
+            galleryType="wildlife"
+            galleryGridId="wildlife-gallery-grid"
+            layout="grid"
+          />
+
+          <div class="text-center mt-6">
+            <p class="text-gray-400 font-light italic">
+              Click any image to explore Tadoba's magnificent wildlife
+            </p>
+          </div>
         </div>
       </section>
 
@@ -340,7 +376,7 @@ function capitalizeWords(str) {
               href="/rooms"
               class="inline-flex items-center px-10 py-5 bg-amber-400 text-gray-900 font-semibold rounded-full hover:bg-amber-300 hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-2xl text-lg focus:outline-none focus:ring-4 focus:ring-amber-400/50"
             >
-              Book Your Experience
+              Reserve Your Room Now
               <svg
                 class="w-6 h-6 ml-3"
                 fill="none"
@@ -359,7 +395,7 @@ function capitalizeWords(str) {
               href="/safaris"
               class="inline-flex items-center px-10 py-5 border-2 border-amber-400 text-amber-400 font-semibold rounded-full hover:bg-amber-400/10 hover:scale-105 transition-all duration-300 text-lg focus:outline-none focus:ring-4 focus:ring-amber-400/50"
             >
-              Plan Your Safari
+              Explore Tiger Safaris
               <svg
                 class="w-6 h-6 ml-3"
                 fill="none"
@@ -371,8 +407,7 @@ function capitalizeWords(str) {
                   stroke-linecap="round"
                   stroke-linejoin="round"
                   stroke-width="2"
-                  d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
-                ></path>
+                  d="M17 8l4 4m0 0l-4 4m4-4H3"></path>
               </svg>
             </a>
           </div>
@@ -380,148 +415,66 @@ function capitalizeWords(str) {
       </section>
     </main>
   </div>
+
+  <script>
+    // Enhanced lazy loading for hero mosaic
+    const lazyImages = document.querySelectorAll(".lazy-image");
+    const imageObserver = new IntersectionObserver(
+      (entries, observer) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            const img = entry.target;
+            img.src = img.dataset.src;
+            img.classList.remove("lazy-image");
+            observer.unobserve(img);
+          }
+        });
+      },
+      { rootMargin: "50px 0px", threshold: 0.1 }
+    );
+
+    lazyImages.forEach((img) => imageObserver.observe(img));
+
+    // Smooth scroll to main content
+    document
+      .getElementById("scroll-indicator")
+      ?.addEventListener("click", () => {
+        document.getElementById("main-content")?.scrollIntoView({
+          behavior: "smooth",
+        });
+      });
+  </script>
+
+  <style>
+    /* Performance-optimized transitions */
+    .lazy-image {
+      transition: opacity 0.7s ease-in-out;
+      will-change: opacity;
+    }
+
+    /* Accessible focus states */
+    .focus\:not-sr-only:focus {
+      position: absolute !important;
+      width: auto !important;
+      height: auto !important;
+      padding: 1rem !important;
+      margin: 0 !important;
+      overflow: visible !important;
+      clip: auto !important;
+      white-space: normal !important;
+    }
+
+    /* Respect user motion preferences */
+    @media (prefers-reduced-motion: reduce) {
+      .transition-all,
+      .transition-transform,
+      .transition-colors,
+      .hover\:scale-105,
+      .animate-bounce {
+        transition: none !important;
+        transform: none !important;
+        animation: none !important;
+      }
+    }
+  </style>
 </Layout>
-
-<script define:vars={{ vibeImages, wildlifeImages }}>
-  // Enhanced lazy loading system
-  class OptimizedLazyLoader {
-    constructor() {
-      this.observer = null;
-      this.loadQueue = new Set();
-      this.init();
-    }
-
-    init() {
-      if ("IntersectionObserver" in window) {
-        this.observer = new IntersectionObserver(
-          (entries) => this.handleIntersection(entries),
-          { rootMargin: "50px 0px", threshold: 0.1 }
-        );
-      }
-      this.observeImages();
-    }
-
-    observeImages() {
-      const lazyImages = document.querySelectorAll(".lazy-image");
-      lazyImages.forEach((img) => {
-        if (this.observer) {
-          this.observer.observe(img);
-        } else {
-          this.loadImage(img);
-        }
-      });
-    }
-
-    handleIntersection(entries) {
-      entries.forEach((entry) => {
-        if (entry.isIntersecting) {
-          this.loadImage(entry.target);
-          this.observer.unobserve(entry.target);
-        }
-      });
-    }
-
-    async loadImage(img) {
-      const src = img.dataset.src;
-      if (!src || this.loadQueue.has(src)) return;
-
-      this.loadQueue.add(src);
-
-      try {
-        await this.preloadImage(src);
-        img.src = src;
-        img.classList.add("opacity-100");
-        img.classList.remove("lazy-image");
-      } catch (error) {
-        console.warn("Failed to load image:", src);
-      } finally {
-        this.loadQueue.delete(src);
-      }
-    }
-
-    preloadImage(src) {
-      return new Promise((resolve, reject) => {
-        const img = new Image();
-        img.onload = resolve;
-        img.onerror = reject;
-        img.src = src;
-      });
-    }
-  }
-
-  // Initialize optimized loader
-  new OptimizedLazyLoader();
-
-  // Gallery modal integration
-  const galleryData = { vibe: vibeImages, wildlife: wildlifeImages };
-
-  document.querySelectorAll("[data-gallery-type]").forEach((el) => {
-    el.addEventListener("click", () => {
-      const galleryType = el.dataset.galleryType;
-      const index = parseInt(el.dataset.galleryIndex, 10);
-      const images = galleryData[galleryType];
-
-      if (images && images.length > 0) {
-        document.dispatchEvent(
-          new CustomEvent("open-gallery", {
-            detail: { images, index },
-          })
-        );
-      }
-    });
-  });
-
-  // Smooth scroll to main content
-  document.getElementById("scroll-indicator")?.addEventListener("click", () => {
-    document.getElementById("main-content")?.scrollIntoView({
-      behavior: "smooth",
-    });
-  });
-</script>
-
-<style>
-  /* Performance-optimized transitions */
-  .lazy-image {
-    transition: opacity 0.7s ease-in-out;
-    will-change: opacity;
-  }
-
-  /* Staggered animation for hero mosaic */
-  @keyframes fadeInScale {
-    from {
-      opacity: 0;
-      transform: scale(1.1);
-    }
-    to {
-      opacity: 0.3;
-      transform: scale(1);
-    }
-  }
-
-  /* Accessible focus states */
-  .focus\:not-sr-only:focus {
-    position: absolute !important;
-    width: auto !important;
-    height: auto !important;
-    padding: 1rem !important;
-    margin: 0 !important;
-    overflow: visible !important;
-    clip: auto !important;
-    white-space: normal !important;
-  }
-
-  /* Custom scrollbar styling */
-  ::-webkit-scrollbar {
-    width: 8px;
-  }
-  ::-webkit-scrollbar-track {
-    background: #1f2937;
-  }
-  ::-webkit-scrollbar-thumb {
-    background: #f59e0b;
-    border-radius: 4px;
-  }
-  ::-webkit-scrollbar-thumb:hover {
-    background: #d97706;
-  }
-</style>

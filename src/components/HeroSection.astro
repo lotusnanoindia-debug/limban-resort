@@ -144,7 +144,7 @@ const { heroes } = Astro.props;
               {hero.ctaText && (
                 <a
                   href={hero.ctaLink || "#"}
-                  class="cta-button group relative inline-block rounded-2xl border border-amber-500/30 bg-amber-600/15 backdrop-blur-xl px-12 py-6 text-xl font-medium tracking-wide text-amber-50 shadow-[0_8px_24px_rgba(217,119,6,0.25)] transition-all duration-700 ease-out overflow-hidden z-40 cursor-pointer"
+                  class="cta-button group relative inline-block rounded-2xl border border-amber-500/30 bg-amber-300/30 backdrop-blur-xl px-12 py-6 text-xl font-semibold tracking-wide text-amber-50 shadow-[0_8px_24px_rgba(217,119,6,0.25)] transition-all duration-700 ease-out overflow-hidden z-40 cursor-pointer"
                 >
                   <span class="absolute inset-0 -top-[2px] -left-full h-[102%] w-1/2 bg-gradient-to-r from-transparent via-white/20 to-transparent skew-x-[-20deg] transition-all duration-1000 ease-out group-hover:left-full opacity-0 group-hover:opacity-100" />
                   <span class="relative z-10">{hero.ctaText}</span>

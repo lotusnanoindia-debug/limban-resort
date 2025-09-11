@@ -1,0 +1,934 @@
+---
+import Layout from "../layouts/Layout.astro";
+import { AstroSEO } from "astro-seo-plugin";
+import GalleryGrid from "../components/GalleryGrid.astro";
+import LoadMoreGallery from "../components/LoadMoreGallery.astro";
+import { fetchVibePageData } from "../api.js"; // Reuse existing wildlife data
+
+// Ultra-reliable API fetching with retry logic
+async function fetchWithRetry(fetchFn, retries = 2) {
+  for (let i = 0; i < retries; i++) {
+    try {
+      return await fetchFn();
+    } catch (error) {
+      if (i === retries - 1) throw error;
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+    }
+  }
+}
+
+// Bulletproof URL validation
+function validateImageUrl(url) {
+  if (!url || typeof url !== "string") return null;
+  try {
+    const parsed = new URL(url);
+    return parsed.protocol === "https:" ? url : null;
+  } catch {
+    return null;
+  }
+}
+
+// Fetch wildlife data
+let vibeData = null;
+try {
+  vibeData = await fetchWithRetry(() => fetchVibePageData());
+} catch (err) {
+  console.error("Failed to load wildlife data:", err);
+  vibeData = { wildlifeImages: [] };
+}
+
+// Standardized wildlife image processing
+const wildlifeImages = (vibeData.wildlifeImages || [])
+  .filter((item) => validateImageUrl(item?.image?.url))
+  .map((item, index) => {
+    const image = item.image;
+    return {
+      src: validateImageUrl(image.grid) || validateImageUrl(image.url) || "",
+      srcset: `${validateImageUrl(image.grid) || ""} 300w, ${validateImageUrl(image.thumb400) || ""} 400w`,
+      placeholder:
+        validateImageUrl(image.placeholder) ||
+        validateImageUrl(image.url) ||
+        "",
+      large: validateImageUrl(image.large) || validateImageUrl(image.url) || "",
+      alt: (item.alt || "").trim() || `Tadoba wildlife encounter ${index + 1}`,
+      width: parseInt(image.width) || 300,
+      height: parseInt(image.height) || 300,
+    };
+  });
+
+// Split for load more functionality
+const initialWildlifeImages = wildlifeImages.slice(0, 12);
+const remainingWildlifeImages = wildlifeImages.slice(12);
+
+// Testimonials data - FIXED!
+const testimonials = [
+  {
+    name: "Dr. Priya Sharma",
+    image: "/img/testimonials/priya-wildlife.jpg",
+    quote: "Tadoba changed how I see conservation. Limban made me part of it.",
+    review:
+      "The morning we spotted the legendary Maya tigress with her cubs just 25 minutes from our Limban suite - that was the moment wildlife photography became my calling.",
+    location: "Mumbai, India",
+    experience: "Wildlife Photography Retreat",
+    stayDate: "April 2025",
+  },
+  {
+    name: "Arjun Patel",
+    image: "/img/testimonials/arjun-safari.jpg",
+    quote:
+      "90 tigers live here, but finding one still feels like discovering treasure.",
+    review:
+      "Our Limban guide knew exactly where Maya's territory overlapped with the morning light. Three safaris, two tiger sightings, countless memories that will last forever.",
+    location: "Bangalore, India",
+    experience: "Tiger Safari Adventure",
+    stayDate: "March 2025",
+  },
+  {
+    name: "Meera Krishnan",
+    image: "/img/testimonials/meera-conservation.jpg",
+    quote:
+      "Staying at Limban taught me that luxury and conservation can be the same thing.",
+    review:
+      "Every morning safari felt like contributing to something bigger. When you see a sloth bear with cubs thriving in protected habitat, you understand why Tadoba matters.",
+    location: "Chennai, India",
+    experience: "Eco-Conservation Experience",
+    stayDate: "February 2025",
+  },
+];
+
+const heroImage =
+  wildlifeImages.find((img) => img.src)?.src || "/img/tadoba-hero.jpg";
+---
+
+<Layout title="Tadoba National Park - Where India's Wild Heart Still Beats">
+  <AstroSEO
+    title="Tadoba National Park | India's Wild Heart - Limban Eco Resort Gateway"
+    description="Experience Maharashtra's crown jewel - 625 sq km of untamed wilderness, 90+ Bengal tigers, and secrets whispered through ancient forests. Stay at Limban, your eco-luxury gateway just 25 minutes from Moharli Gate."
+    canonical="https://limban.com/tadoba-national-park"
+    openGraph={{
+      title: "Tadoba National Park - Where India's Wild Heart Still Beats",
+      description:
+        "90+ Bengal tigers, 280+ bird species, ancient forests. Experience Maharashtra's largest national park from Limban Resort - your exclusive eco-luxury gateway.",
+      image: heroImage,
+      type: "website",
+      url: "https://limban.com/tadoba-national-park",
+    }}
+    jsonLd={{
+      "@context": "https://schema.org",
+      "@type": ["TouristDestination", "NationalPark"],
+      name: "Tadoba National Park",
+      description:
+        "Maharashtra's largest national park, home to 90+ Bengal tigers and 280+ bird species",
+      url: "https://limban.com/tadoba-national-park",
+      image: heroImage,
+      address: {
+        "@type": "PostalAddress",
+        addressRegion: "Maharashtra",
+        addressCountry: "IN",
+      },
+    }}
+  />
+
+  <div
+    class="bg-gray-950 text-gray-100 font-sans antialiased selection:bg-amber-400/20"
+  >
+    <!-- Skip to content for accessibility -->
+    <a
+      href="#main-content"
+      class="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 bg-amber-400 text-gray-900 px-4 py-2 rounded z-50"
+    >
+      Skip to main content
+    </a>
+
+    <!-- Epic Hero Section -->
+    <section
+      class="relative min-h-screen overflow-hidden"
+      role="banner"
+      aria-labelledby="tadoba-hero-heading"
+    >
+      <!-- Dynamic Background -->
+      <div class="absolute inset-0">
+        <img
+          src={heroImage}
+          alt="Misty dawn over Tadoba's ancient forests with silhouette of Bengal tiger"
+          class="w-full h-full object-cover"
+          loading="eager"
+          decoding="async"
+          fetchpriority="high"
+        />
+      </div>
+
+      <!-- Sophisticated Gradient -->
+      <div
+        class="absolute inset-0 bg-gradient-to-b from-black/60 via-black/30 to-black/70"
+      >
+      </div>
+
+      <!-- Hero Content -->
+      <div
+        class="relative z-20 min-h-screen flex items-center justify-center text-center px-6"
+      >
+        <div class="max-w-6xl space-y-8">
+          <div class="space-y-6">
+            <div
+              class="inline-block px-6 py-2 bg-green-500/20 border border-green-400/40 rounded-full mb-6"
+            >
+              <span
+                class="text-green-400 text-sm font-medium tracking-widest uppercase"
+                >Maharashtra's Crown Jewel</span
+              >
+            </div>
+            <h1
+              id="tadoba-hero-heading"
+              class="font-serif text-5xl md:text-7xl lg:text-8xl text-white leading-none tracking-tight"
+            >
+              Tadoba National Park
+              <span
+                class="block text-amber-400 italic text-4xl md:text-5xl lg:text-6xl mt-4"
+                >Where India's Wild Heart Still Beats</span
+              >
+            </h1>
+            <p
+              class="text-xl md:text-2xl text-gray-200 font-light leading-relaxed max-w-4xl mx-auto"
+            >
+              625 square kilometers of untamed wilderness. 90+ Bengal tigers.
+              280+ bird species.
+              <span class="block mt-4 text-amber-300"
+                >Ancient secrets that have whispered through these forests for
+                millennia.</span
+              >
+            </p>
+          </div>
+
+          <div class="flex flex-col sm:flex-row gap-6 justify-center pt-8">
+            <a
+              href="/rooms"
+              class="inline-flex items-center px-10 py-5 bg-amber-400 text-gray-900 font-semibold rounded-full hover:bg-amber-300 hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-2xl text-lg focus:outline-none focus:ring-4 focus:ring-amber-400/50"
+            >
+              Book Your Gateway to the Wild
+              <svg
+                class="w-6 h-6 ml-3"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                aria-hidden="true"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M17 8l4 4m0 0l-4 4m4-4H3"></path>
+              </svg>
+            </a>
+            <a
+              href="#discover-more"
+              class="inline-flex items-center px-10 py-5 border-2 border-amber-400 text-amber-400 font-semibold rounded-full hover:bg-amber-400/10 hover:scale-105 transition-all duration-300 text-lg focus:outline-none focus:ring-4 focus:ring-amber-400/50"
+            >
+              Discover the Legend
+              <svg
+                class="w-6 h-6 ml-3"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                aria-hidden="true"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M19 14l-7 7m0 0l-7-7m7 7V3"></path>
+              </svg>
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Main Content -->
+    <main id="main-content" role="main">
+      <!-- The Legend Lives Section -->
+      <section
+        id="discover-more"
+        class="py-32 bg-gradient-to-b from-gray-950 to-gray-900"
+        aria-labelledby="legend-heading"
+      >
+        <div class="max-w-7xl mx-auto px-6">
+          <div class="text-center mb-20">
+            <h2
+              id="legend-heading"
+              class="font-serif italic text-4xl md:text-6xl text-white mb-8"
+            >
+              The Legend <span class="text-amber-400">Lives</span>
+            </h2>
+            <p class="text-xl text-gray-300 max-w-4xl mx-auto leading-relaxed">
+              In the heart of Maharashtra's Vidarbha region lies a secret that
+              predates human memory
+            </p>
+          </div>
+
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+            <!-- Story Content -->
+            <div class="space-y-8">
+              <div class="prose prose-invert prose-xl max-w-none">
+                <p class="text-gray-300 leading-relaxed">
+                  Named after the tribal god <strong class="text-amber-400"
+                    >"Tadoba,"</strong
+                  > worshipped by local tribes for centuries, this 625-square-kilometer
+                  cathedral of wilderness holds stories that began long before the
+                  first human footstep touched its soil.
+                </p>
+
+                <p class="text-gray-300 leading-relaxed">
+                  Established in <strong class="text-green-400">1955</strong> as
+                  Maharashtra's first and largest national park, Tadoba is home to
+                  over <strong class="text-amber-400">90 Bengal tigers</strong> -
+                  one of India's highest tiger densities. But here's what most never
+                  discover: Tadoba is part of the world's largest contiguous tiger
+                  habitat, connecting it to an ancient network of wild corridors.
+                </p>
+
+                <blockquote
+                  class="border-l-4 border-amber-400 pl-6 py-4 bg-gray-800/50 rounded-r-lg"
+                >
+                  <p class="text-amber-300 italic text-lg">
+                    "While visitors come for tigers, Tadoba reveals layers of
+                    magic: the mysterious Tadoba Lake that never runs dry, even
+                    in scorching 45°C summers, and the elusive black panther -
+                    spotted in 2018 - prowling through forests where it
+                    shouldn't even exist."
+                  </p>
+                </blockquote>
+              </div>
+            </div>
+
+            <!-- Stats Cards -->
+            <div class="grid grid-cols-2 gap-6">
+              <div
+                class="bg-gradient-to-br from-gray-800/60 to-gray-900/60 backdrop-blur-xl border border-gray-600/50 rounded-3xl p-8 text-center hover:border-amber-400/50 transition-colors duration-500"
+              >
+                <div class="text-4xl font-bold text-amber-400 mb-2">90+</div>
+                <div class="text-gray-300 text-sm">Bengal Tigers</div>
+                <div class="text-gray-500 text-xs mt-2">
+                  Highest density in Maharashtra
+                </div>
+              </div>
+
+              <div
+                class="bg-gradient-to-br from-gray-800/60 to-gray-900/60 backdrop-blur-xl border border-gray-600/50 rounded-3xl p-8 text-center hover:border-green-400/50 transition-colors duration-500"
+              >
+                <div class="text-4xl font-bold text-green-400 mb-2">280+</div>
+                <div class="text-gray-300 text-sm">Bird Species</div>
+                <div class="text-gray-500 text-xs mt-2">
+                  Including Grey-headed Fish Eagle
+                </div>
+              </div>
+
+              <div
+                class="bg-gradient-to-br from-gray-800/60 to-gray-900/60 backdrop-blur-xl border border-gray-600/50 rounded-3xl p-8 text-center hover:border-amber-400/50 transition-colors duration-500"
+              >
+                <div class="text-4xl font-bold text-amber-400 mb-2">625</div>
+                <div class="text-gray-300 text-sm">Square Kilometers</div>
+                <div class="text-gray-500 text-xs mt-2">
+                  Of pristine wilderness
+                </div>
+              </div>
+
+              <div
+                class="bg-gradient-to-br from-gray-800/60 to-gray-900/60 backdrop-blur-xl border border-gray-600/50 rounded-3xl p-8 text-center hover:border-green-400/50 transition-colors duration-500"
+              >
+                <div class="text-4xl font-bold text-green-400 mb-2">1955</div>
+                <div class="text-gray-300 text-sm">Established</div>
+                <div class="text-gray-500 text-xs mt-2">
+                  Maharashtra's first national park
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Wildlife Gallery -->
+      <section class="py-32 bg-gray-900" aria-labelledby="wildlife-heading">
+        <div class="max-w-7xl mx-auto px-6">
+          <div class="text-center mb-20">
+            <div
+              class="inline-block px-6 py-2 bg-green-400/10 border border-green-400/30 rounded-full mb-8"
+            >
+              <span
+                class="text-green-400 text-sm font-medium tracking-widest uppercase"
+                >Wild Encounters</span
+              >
+            </div>
+            <h2
+              id="wildlife-heading"
+              class="font-serif italic text-5xl md:text-7xl text-white mb-8"
+            >
+              Meet the <span class="text-green-400">Residents</span>
+            </h2>
+            <p class="text-xl text-gray-300 max-w-4xl mx-auto leading-relaxed">
+              From the legendary Maya tigress to marsh crocodiles basking like
+              living fossils - these are the moments that change you forever
+            </p>
+          </div>
+
+          <GalleryGrid
+            images={initialWildlifeImages}
+            layout="grid"
+            galleryType="wildlife"
+            gridId="tadoba-wildlife-grid"
+          />
+
+          <LoadMoreGallery
+            buttonId="load-more-tadoba-wildlife"
+            remainingImages={remainingWildlifeImages}
+            initialImages={initialWildlifeImages}
+            galleryType="wildlife"
+            galleryGridId="tadoba-wildlife-grid"
+            layout="grid"
+          />
+
+          <div class="text-center mt-8">
+            <p class="text-gray-400 font-light italic">
+              Click any image to explore Tadoba's magnificent wildlife in detail
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Safari & Access Information -->
+      <section
+        class="py-32 bg-gradient-to-b from-gray-900 to-gray-800"
+        aria-labelledby="safari-heading"
+      >
+        <div class="max-w-7xl mx-auto px-6">
+          <div class="text-center mb-20">
+            <h2
+              id="safari-heading"
+              class="font-serif italic text-4xl md:text-6xl text-white mb-8"
+            >
+              Your Gateway to <span class="text-amber-400">Wonder</span>
+            </h2>
+          </div>
+
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-16">
+            <!-- Safari Information -->
+            <div class="space-y-8">
+              <h3 class="text-3xl font-bold text-amber-400 mb-6">
+                Safari Intelligence
+              </h3>
+
+              <div class="space-y-6">
+                <div
+                  class="bg-gray-800/50 rounded-2xl p-6 border border-gray-700/50"
+                >
+                  <h4 class="text-xl font-semibold text-white mb-3">
+                    Peak Season Magic
+                  </h4>
+                  <p class="text-gray-300">
+                    March-June: 45°C heat brings animals to water. Early morning
+                    safaris (5:30 AM) offer 70% higher tiger sighting chances.
+                  </p>
+                </div>
+
+                <div
+                  class="bg-gray-800/50 rounded-2xl p-6 border border-gray-700/50"
+                >
+                  <h4 class="text-xl font-semibold text-white mb-3">
+                    Green Season Wonder
+                  </h4>
+                  <p class="text-gray-300">
+                    October-February: Lush landscapes, 195+ bird species active,
+                    perfect photography weather.
+                  </p>
+                </div>
+
+                <div
+                  class="bg-gray-800/50 rounded-2xl p-6 border border-gray-700/50"
+                >
+                  <h4 class="text-xl font-semibold text-white mb-3">
+                    Safari Timings
+                  </h4>
+                  <p class="text-gray-300">
+                    Morning: 6:00 AM - 9:30 AM | Evening: 3:00 PM - 6:30 PM<br
+                    />
+                    <span class="text-amber-300"
+                      >Closed July-September (Monsoon)</span
+                    >
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Access & Travel -->
+            <div class="space-y-8">
+              <h3 class="text-3xl font-bold text-amber-400 mb-6">
+                From Limban Resort
+              </h3>
+
+              <div class="space-y-4">
+                <div
+                  class="flex justify-between items-center py-4 border-b border-gray-700/50"
+                >
+                  <span class="text-white font-medium">Moharli Gate</span>
+                  <span class="text-amber-400 font-bold">25 minutes</span>
+                </div>
+                <div
+                  class="flex justify-between items-center py-4 border-b border-gray-700/50"
+                >
+                  <span class="text-white font-medium">Navegaon Gate</span>
+                  <span class="text-green-400">35 minutes</span>
+                </div>
+                <div
+                  class="flex justify-between items-center py-4 border-b border-gray-700/50"
+                >
+                  <span class="text-white font-medium">Kolara Gate</span>
+                  <span class="text-green-400">45 minutes</span>
+                </div>
+              </div>
+
+              <div
+                class="bg-amber-400/10 rounded-2xl p-6 border border-amber-400/30"
+              >
+                <h4 class="text-xl font-semibold text-amber-400 mb-3">
+                  Travel to Limban
+                </h4>
+                <div class="space-y-2 text-gray-300">
+                  <div>
+                    🛫 Nagpur Airport: <strong>2.5 hours</strong> (140km)
+                  </div>
+                  <div>
+                    🚂 Chandrapur Station: <strong>45 minutes</strong> (36km)
+                  </div>
+                  <div>🚗 Mumbai: <strong>9 hours</strong> drive</div>
+                  <div>✈️ Bangalore: Flight to Nagpur + 2.5 hours</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Conservation Story -->
+      <section class="py-32 bg-gray-950" aria-labelledby="conservation-heading">
+        <div class="max-w-7xl mx-auto px-6">
+          <div class="text-center mb-16">
+            <h2
+              id="conservation-heading"
+              class="font-serif italic text-4xl md:text-6xl text-white mb-8"
+            >
+              Hope in <span class="text-green-400">Action</span>
+            </h2>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div class="text-center bg-gray-900/50 rounded-3xl p-8">
+              <div
+                class="w-16 h-16 bg-green-400/20 rounded-full flex items-center justify-center mx-auto mb-6"
+              >
+                <svg
+                  class="w-8 h-8 text-green-400"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="1.5"
+                    d="M5 13l4 4L19 7"></path>
+                </svg>
+              </div>
+              <h3 class="text-xl font-bold text-green-400 mb-4">
+                Tiger Recovery
+              </h3>
+              <p class="text-gray-300">
+                From near-extinction to 90+ individuals - a conservation miracle
+                spanning decades of dedicated protection.
+              </p>
+            </div>
+
+            <div class="text-center bg-gray-900/50 rounded-3xl p-8">
+              <div
+                class="w-16 h-16 bg-amber-400/20 rounded-full flex items-center justify-center mx-auto mb-6"
+              >
+                <svg
+                  class="w-8 h-8 text-amber-400"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="1.5"
+                    d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
+                  ></path>
+                </svg>
+              </div>
+              <h3 class="text-xl font-bold text-amber-400 mb-4">
+                Community Partners
+              </h3>
+              <p class="text-gray-300">
+                Local tribes as conservation allies - traditional knowledge
+                meeting modern wildlife protection strategies.
+              </p>
+            </div>
+
+            <div class="text-center bg-gray-900/50 rounded-3xl p-8">
+              <div
+                class="w-16 h-16 bg-green-400/20 rounded-full flex items-center justify-center mx-auto mb-6"
+              >
+                <svg
+                  class="w-8 h-8 text-green-400"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="1.5"
+                    d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"
+                  ></path>
+                </svg>
+              </div>
+              <h3 class="text-xl font-bold text-green-400 mb-4">
+                Limban's Role
+              </h3>
+              <p class="text-gray-300">
+                Eco-luxury supporting sustainable tourism - where your stay
+                directly contributes to wildlife conservation.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Testimonials -->
+      <section class="py-32 bg-gray-900" aria-labelledby="testimonials-heading">
+        <div class="max-w-7xl mx-auto px-6">
+          <div class="text-center mb-20">
+            <h2
+              id="testimonials-heading"
+              class="font-serif italic text-4xl md:text-6xl text-white mb-8"
+            >
+              Voices from the <span class="text-amber-400">Wild</span>
+            </h2>
+          </div>
+
+          <div class="grid grid-cols-1 lg:grid-cols-1 gap-8 max-w-4xl mx-auto">
+            {
+              testimonials.map((testimonial, index) => (
+                <div
+                  key={index}
+                  class="bg-gradient-to-br from-gray-900/50 to-gray-800/50 backdrop-blur-xl border border-gray-700 rounded-3xl p-10 text-center"
+                >
+                  <div class="flex justify-center mb-8">
+                    <div class="w-20 h-20 rounded-full overflow-hidden border-2 border-amber-400/50">
+                      <img
+                        src={testimonial.image}
+                        alt={`${testimonial.name} - Guest at Limban Resort`}
+                        class="w-full h-full object-cover"
+                        loading="lazy"
+                      />
+                    </div>
+                  </div>
+
+                  <blockquote class="mb-8">
+                    <p class="font-serif italic text-2xl text-white leading-relaxed mb-6">
+                      "{testimonial.quote}"
+                    </p>
+                    <p class="text-gray-300 leading-relaxed">
+                      {testimonial.review}
+                    </p>
+                  </blockquote>
+
+                  <div class="pt-6 border-t border-gray-700/50">
+                    <div class="font-semibold text-lg text-amber-400 mb-1">
+                      {testimonial.name}
+                    </div>
+                    <div class="text-sm text-gray-400">
+                      {testimonial.location}
+                    </div>
+                    <div class="text-xs text-gray-500 mt-2">
+                      <div>{testimonial.experience}</div>
+                      <div>{testimonial.stayDate}</div>
+                    </div>
+                  </div>
+                </div>
+              ))
+            }
+          </div>
+        </div>
+      </section>
+
+      <!-- The Limban Advantage -->
+      <section
+        class="py-32 bg-gradient-to-b from-gray-900 to-gray-950"
+        aria-labelledby="advantage-heading"
+      >
+        <div class="max-w-7xl mx-auto px-6">
+          <div class="text-center mb-20">
+            <h2
+              id="advantage-heading"
+              class="font-serif italic text-4xl md:text-6xl text-white mb-8"
+            >
+              The Limban <span class="text-amber-400">Advantage</span>
+            </h2>
+            <p class="text-xl text-gray-300 max-w-4xl mx-auto leading-relaxed">
+              Where luxury meets legacy, and your stay becomes part of Tadoba's
+              conservation story
+            </p>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+            <div class="space-y-8">
+              <div class="flex items-start gap-6">
+                <div
+                  class="w-12 h-12 bg-amber-400/20 rounded-xl flex items-center justify-center flex-shrink-0"
+                >
+                  <svg
+                    class="w-6 h-6 text-amber-400"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="1.5"
+                      d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
+                    ></path>
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="1.5"
+                      d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                  </svg>
+                </div>
+                <div>
+                  <h3 class="text-xl font-bold text-white mb-2">
+                    Exclusive Location
+                  </h3>
+                  <p class="text-gray-300">
+                    25 minutes from Moharli Gate - closest luxury option to
+                    Tadoba's core zones
+                  </p>
+                </div>
+              </div>
+
+              <div class="flex items-start gap-6">
+                <div
+                  class="w-12 h-12 bg-green-400/20 rounded-xl flex items-center justify-center flex-shrink-0"
+                >
+                  <svg
+                    class="w-6 h-6 text-green-400"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="1.5"
+                      d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
+                    ></path>
+                  </svg>
+                </div>
+                <div>
+                  <h3 class="text-xl font-bold text-white mb-2">
+                    Eco-Luxury Pioneer
+                  </h3>
+                  <p class="text-gray-300">
+                    Sustainable practices supporting conservation - your stay
+                    protects Tadoba's future
+                  </p>
+                </div>
+              </div>
+
+              <div class="flex items-start gap-6">
+                <div
+                  class="w-12 h-12 bg-amber-400/20 rounded-xl flex items-center justify-center flex-shrink-0"
+                >
+                  <svg
+                    class="w-6 h-6 text-amber-400"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="1.5"
+                      d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"
+                    ></path>
+                  </svg>
+                </div>
+                <div>
+                  <h3 class="text-xl font-bold text-white mb-2">
+                    Local Expertise
+                  </h3>
+                  <p class="text-gray-300">
+                    Guides with generational knowledge - stories and secrets
+                    passed down through families
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div
+              class="bg-gradient-to-br from-gray-800/60 to-gray-900/60 backdrop-blur-xl border border-amber-400/30 rounded-3xl p-10"
+            >
+              <h3 class="text-2xl font-bold text-amber-400 mb-6 text-center">
+                Your Tadoba Journey
+              </h3>
+              <div class="space-y-4">
+                <div class="flex items-center gap-4">
+                  <div
+                    class="w-8 h-8 bg-amber-400 rounded-full flex items-center justify-center text-gray-900 font-bold text-sm"
+                  >
+                    1
+                  </div>
+                  <div class="text-gray-300">
+                    Seamless safari coordination from Limban
+                  </div>
+                </div>
+                <div class="flex items-center gap-4">
+                  <div
+                    class="w-8 h-8 bg-amber-400 rounded-full flex items-center justify-center text-gray-900 font-bold text-sm"
+                  >
+                    2
+                  </div>
+                  <div class="text-gray-300">
+                    Expert naturalists reveal Tadoba's secrets
+                  </div>
+                </div>
+                <div class="flex items-center gap-4">
+                  <div
+                    class="w-8 h-8 bg-amber-400 rounded-full flex items-center justify-center text-gray-900 font-bold text-sm"
+                  >
+                    3
+                  </div>
+                  <div class="text-gray-300">
+                    Return to luxury that respects the wild
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Final CTA -->
+      <section class="py-32 bg-gray-950">
+        <div class="max-w-5xl mx-auto px-6 text-center">
+          <h2 class="font-serif italic text-5xl md:text-7xl text-white mb-8">
+            Your Wild Heart
+            <span class="block text-amber-400">Is Calling</span>
+          </h2>
+          <p
+            class="text-2xl text-gray-300 font-light leading-relaxed mb-12 max-w-4xl mx-auto"
+          >
+            The ancient forests whisper. The tigers roam. The legend lives on.
+            <span class="block mt-4 text-amber-400"
+              >Your Tadoba story begins at Limban.</span
+            >
+          </p>
+
+          <div class="flex flex-col sm:flex-row gap-6 justify-center">
+            <a
+              href="/rooms"
+              class="inline-flex items-center px-12 py-6 bg-amber-400 text-gray-900 font-bold rounded-full hover:bg-amber-300 hover:scale-105 transition-all duration-300 shadow-xl hover:shadow-2xl text-xl focus:outline-none focus:ring-4 focus:ring-amber-400/50"
+            >
+              Book Your Tadoba Adventure
+              <svg
+                class="w-6 h-6 ml-3"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                aria-hidden="true"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M17 8l4 4m0 0l-4 4m4-4H3"></path>
+              </svg>
+            </a>
+            <a
+              href="/corporate-events"
+              class="inline-flex items-center px-12 py-6 border-2 border-amber-400 text-amber-400 font-bold rounded-full hover:bg-amber-400/10 hover:scale-105 transition-all duration-300 text-xl focus:outline-none focus:ring-4 focus:ring-amber-400/50"
+            >
+              Corporate Conservation Retreats
+              <svg
+                class="w-6 h-6 ml-3"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                aria-hidden="true"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
+                ></path>
+              </svg>
+            </a>
+          </div>
+
+          <div class="mt-12 pt-8 border-t border-gray-800">
+            <p class="text-gray-400 text-lg">
+              Questions about your Tadoba experience?
+              <a
+                href="tel:+919022680451"
+                class="text-amber-400 hover:text-amber-300 transition-colors duration-300"
+                >+91 90226 80451</a
+              >
+            </p>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+</Layout>
+
+<style>
+  /* Enhanced smooth transitions with GPU acceleration */
+  .hover\:scale-105 {
+    transform-origin: center center;
+    backface-visibility: hidden;
+    will-change: transform;
+  }
+
+  /* Respect user motion preferences */
+  @media (prefers-reduced-motion: reduce) {
+    .transition-all,
+    .transition-transform,
+    .transition-colors,
+    .hover\:scale-105 {
+      transition: none !important;
+      transform: none !important;
+    }
+  }
+
+  /* Enhanced contrast for accessibility */
+  @media (prefers-contrast: high) {
+    .border-gray-600,
+    .border-gray-700 {
+      border-color: rgba(255, 255, 255, 0.4);
+    }
+  }
+
+  /* Accessible focus states */
+  .focus\:not-sr-only:focus {
+    position: absolute !important;
+    width: auto !important;
+    height: auto !important;
+    padding: 1rem !important;
+    margin: 0 !important;
+    overflow: visible !important;
+    clip: auto !important;
+    white-space: normal !important;
+  }
+</style>
