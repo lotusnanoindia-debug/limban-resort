@@ -4,117 +4,6 @@ import { AstroSEO } from "astro-seo-plugin";
 
 const heroImage =
   "https://the-knowledge-brokers.sirv.com/limban/morning-in-tadoba-national-park.jpg?q=50&sharpen=1&w=1920";
-
-const jsonLd = {
-  "@context": "https://schema.org",
-  "@graph": [
-    {
-      "@type": "Article",
-      headline: "The Complete Guide to Tadoba National Park | Limban Resort",
-      description:
-        "The definitive insider's guide to Maharashtra's greatest tiger reserve. From ancient Gond legends to modern conservation triumphs, understand what makes Tadoba truly extraordinary.",
-      image: heroImage,
-      author: {
-        "@type": "Organization",
-        name: "Limban Resort",
-        url: "https://limban.com",
-      },
-      publisher: {
-        "@type": "Organization",
-        name: "Limban Resort",
-        logo: {
-          "@type": "ImageObject",
-          url: "https://limban.com/img/limban-logo.jpg",
-        },
-      },
-      mainEntityOfPage: {
-        "@type": "WebPage",
-        "@id": "https://limban.com/tadoba-guide",
-      },
-      about: {
-        "@type": "TouristDestination",
-        name: "Tadoba Andhari Tiger Reserve",
-        description:
-          "Maharashtra's oldest and largest national park, a premier tiger sanctuary known for its dense forests, rich biodiversity, and successful conservation programs.",
-        address: {
-          "@type": "PostalAddress",
-          addressLocality: "Chandrapur",
-          addressRegion: "Maharashtra",
-          addressCountry: "IN",
-        },
-      },
-    },
-    {
-      "@type": "FAQPage",
-      mainEntity: [
-        {
-          "@type": "Question",
-          name: "How does safari booking work at Limban?",
-          acceptedAnswer: {
-            "@type": "Answer",
-            text: "As a Limban guest, we handle all safari bookings for you through the official Maharashtra portal. We recommend booking your stay first, then we'll secure the best available permits based on your preferences for gates and timing. We know which zones are performing well each season.",
-          },
-        },
-        {
-          "@type": "Question",
-          name: "What are the weekly closure days?",
-          acceptedAnswer: {
-            "@type": "Answer",
-            text: "Core zones are completely closed every Tuesday for wildlife rest. Buffer zones are closed every Wednesday. We build your itinerary around these closures and can suggest alternative activities on closure days.",
-          },
-        },
-        {
-          "@type": "Question",
-          name: "What should I pack for different seasons?",
-          acceptedAnswer: {
-            "@type": "Answer",
-            text: "All seasons: Neutral colors only (khaki, olive, brown), full sleeves, closed shoes, hat, sunglasses. Winter: Layers for cold mornings (5-10°C), light jacket, scarf. Summer: Lightweight cotton, extra sun protection, electrolyte tablets. Monsoon: Light rain jacket, quick-dry fabrics, waterproof day pack.",
-          },
-        },
-        {
-          "@type": "Question",
-          name: "How many safaris should I plan?",
-          acceptedAnswer: {
-            "@type": "Answer",
-            text: "We recommend minimum 4-6 safaris over 3-4 days for a meaningful experience. This allows you to visit different zones, experience both morning and afternoon timing, and increases your chances of diverse wildlife encounters. Each safari reveals different aspects of the ecosystem.",
-          },
-        },
-        {
-          "@type": "Question",
-          name: "Why can't I use my mobile phone on safari?",
-          acceptedAnswer: {
-            "@type": "Answer",
-            text: "Phones are deposited at the gate to prevent location sharing that causes vehicle crowding at sightings. This protects animal welfare and ensures better experiences for everyone. It also eliminates the distraction, letting you be fully present in the forest. Emergency communication happens via guide radios.",
-          },
-        },
-        {
-          "@type": "Question",
-          name: "What if we don't see tigers?",
-          acceptedAnswer: {
-            "@type": "Answer",
-            text: "Every safari offers something remarkable. Beyond tigers, you'll encounter leopards, wild dogs, sloth bears, massive gaur, and over 280 bird species. The forest's soundscape—alarm calls, bird songs, rustling leaves—tells stories as compelling as any sighting. Many guests say their \"no tiger\" safaris were their most educational.",
-          },
-        },
-        {
-          "@type": "Question",
-          name: "Can I carry a camera?",
-          acceptedAnswer: {
-            "@type": "Answer",
-            text: "Camera fees apply to lenses above 250mm focal length, typically ₹250-500 per safari depending on lens size. Basic cameras and phones (when allowed in buffer zones) are usually free. We can advise on current fee structures and help with payments at gates.",
-          },
-        },
-        {
-          "@type": "Question",
-          name: "Is it suitable for children and elderly guests?",
-          acceptedAnswer: {
-            "@type": "Answer",
-            text: "Safaris require sitting quietly for 3-4 hours on sometimes rough tracks. Children 8+ typically do well with proper preparation. For younger kids or guests with mobility concerns, we can arrange shorter nature walks, resort-based activities, and visits to the interpretation center. Our naturalists are skilled at engaging all age groups.",
-          },
-        },
-      ],
-    },
-  ],
-};
 ---
 
 <Layout>
@@ -122,7 +11,7 @@ const jsonLd = {
     slot="head"
     title="The Complete Guide to Tadoba National Park | Limban Resort"
     description="The definitive insider's guide to Maharashtra's greatest tiger reserve. From ancient Gond legends to modern conservation triumphs, understand what makes Tadoba truly extraordinary."
-    canonical="https://limban.com/tadoba-guide"
+    canonical="https://limban.com/tadoba"
     openGraph={{
       title: "The Complete Guide to Tadoba National Park | Limban Resort",
       description:
@@ -131,7 +20,117 @@ const jsonLd = {
       type: "article",
       url: "https://limban.com/tadoba-guide",
     }}
-    jsonLd={jsonLd}
+    jsonLd={{
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "Article",
+          headline:
+            "The Complete Guide to Tadoba National Park | Limban Resort",
+          description:
+            "The definitive insider's guide to Maharashtra's greatest tiger reserve. From ancient Gond legends to modern conservation triumphs, understand what makes Tadoba truly extraordinary.",
+          image: heroImage,
+          author: {
+            "@type": "Organization",
+            name: "Limban Resort",
+            url: "https://limban.com",
+          },
+          publisher: {
+            "@type": "Organization",
+            name: "Limban Resort",
+            logo: {
+              "@type": "ImageObject",
+              url: "https://limban.com/img/limban-logo.jpg",
+            },
+          },
+          mainEntityOfPage: {
+            "@type": "WebPage",
+            "@id": "https://limban.com/tadoba",
+          },
+          about: {
+            "@type": "TouristDestination",
+            name: "Tadoba Andhari Tiger Reserve",
+            description:
+              "Maharashtra's oldest and largest national park, a premier tiger sanctuary known for its dense forests, rich biodiversity, and successful conservation programs.",
+            address: {
+              "@type": "PostalAddress",
+              addressLocality: "Chandrapur",
+              addressRegion: "Maharashtra",
+              addressCountry: "IN",
+            },
+          },
+        },
+        {
+          "@type": "FAQPage",
+          mainEntity: [
+            {
+              "@type": "Question",
+              name: "How does safari booking work at Limban?",
+              acceptedAnswer: {
+                "@type": "Answer",
+                text: "As a Limban guest, we handle all safari bookings for you through the official Maharashtra portal. We recommend booking your stay first, then we'll secure the best available permits based on your preferences for gates and timing. We know which zones are performing well each season.",
+              },
+            },
+            {
+              "@type": "Question",
+              name: "What are the weekly closure days?",
+              acceptedAnswer: {
+                "@type": "Answer",
+                text: "Core zones are completely closed every Tuesday for wildlife rest. Buffer zones are closed every Wednesday. We build your itinerary around these closures and can suggest alternative activities on closure days.",
+              },
+            },
+            {
+              "@type": "Question",
+              name: "What should I pack for different seasons?",
+              acceptedAnswer: {
+                "@type": "Answer",
+                text: "All seasons: Neutral colors only (khaki, olive, brown), full sleeves, closed shoes, hat, sunglasses. Winter: Layers for cold mornings (5-10°C), light jacket, scarf. Summer: Lightweight cotton, extra sun protection, electrolyte tablets. Monsoon: Light rain jacket, quick-dry fabrics, waterproof day pack.",
+              },
+            },
+            {
+              "@type": "Question",
+              name: "How many safaris should I plan?",
+              acceptedAnswer: {
+                "@type": "Answer",
+                text: "We recommend minimum 4-6 safaris over 3-4 days for a meaningful experience. This allows you to visit different zones, experience both morning and afternoon timing, and increases your chances of diverse wildlife encounters. Each safari reveals different aspects of the ecosystem.",
+              },
+            },
+            {
+              "@type": "Question",
+              name: "Why can't I use my mobile phone on safari?",
+              acceptedAnswer: {
+                "@type": "Answer",
+                text: "Phones are deposited at the gate to prevent location sharing that causes vehicle crowding at sightings. This protects animal welfare and ensures better experiences for everyone. It also eliminates the distraction, letting you be fully present in the forest. Emergency communication happens via guide radios.",
+              },
+            },
+            {
+              "@type": "Question",
+              name: "What if we don't see tigers?",
+              acceptedAnswer: {
+                "@type": "Answer",
+                text: "Every safari offers something remarkable. Beyond tigers, you'll encounter leopards, wild dogs, sloth bears, massive gaur, and over 280 bird species. The forest's soundscape—alarm calls, bird songs, rustling leaves—tells stories as compelling as any sighting. Many guests say their \"no tiger\" safaris were their most educational.",
+              },
+            },
+            {
+              "@type": "Question",
+              name: "Can I carry a camera?",
+              acceptedAnswer: {
+                "@type": "Answer",
+                text: "Camera fees apply to lenses above 250mm focal length, typically ₹250-500 per safari depending on lens size. Basic cameras and phones (when allowed in buffer zones) are usually free. We can advise on current fee structures and help with payments at gates.",
+              },
+            },
+            {
+              "@type": "Question",
+              name: "Is it suitable for children and elderly guests?",
+              acceptedAnswer: {
+                "@type": "Answer",
+                text: "Safaris require sitting quietly for 3-4 hours on sometimes rough tracks. Children 8+ typically do well with proper preparation. For younger kids or guests with mobility concerns, we can arrange shorter nature walks, resort-based activities, and visits to the interpretation center. Our naturalists are skilled at engaging all age groups.",
+              },
+            },
+          ],
+        },
+      ],
+    }}
   />
 
   <!-- Hero Section - Cinematic Introduction -->
