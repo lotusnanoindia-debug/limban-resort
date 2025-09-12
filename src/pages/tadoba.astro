@@ -1,952 +1,1172 @@
 ---
 import Layout from "../layouts/Layout.astro";
 import { AstroSEO } from "astro-seo-plugin";
-import { fetchVibePageData } from "../api.js";
-
-// Fetch wildlife data for individual images throughout the page
-let vibeData = null;
-try {
-  vibeData = await fetchVibePageData();
-} catch (err) {
-  vibeData = { wildlifeImages: [] };
-}
-
-// Process individual wildlife images for sprinkling throughout
-const wildlifeImages = (vibeData.wildlifeImages || [])
-  .slice(0, 8)
-  .map((item, index) => ({
-    src: item.image?.grid || item.image?.url || "",
-    alt: item.alt || `Tadoba wildlife ${index + 1}`,
-    large: item.image?.large || item.image?.url || "",
-  }));
 
 const heroImage =
-  wildlifeImages[0]?.large ||
-  "https://ap-south-1.graphassets.com/tadoba-hero.jpg";
+  "https://the-knowledge-brokers.sirv.com/limban/morning-in-tadoba-national-park.jpg?q=50&sharpen=1&w=1920";
+
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Article",
+      headline: "The Complete Guide to Tadoba National Park | Limban Resort",
+      description:
+        "The definitive insider's guide to Maharashtra's greatest tiger reserve. From ancient Gond legends to modern conservation triumphs, understand what makes Tadoba truly extraordinary.",
+      image: heroImage,
+      author: {
+        "@type": "Organization",
+        name: "Limban Resort",
+        url: "https://limban.com",
+      },
+      publisher: {
+        "@type": "Organization",
+        name: "Limban Resort",
+        logo: {
+          "@type": "ImageObject",
+          url: "https://limban.com/img/limban-logo.jpg",
+        },
+      },
+      mainEntityOfPage: {
+        "@type": "WebPage",
+        "@id": "https://limban.com/tadoba-guide",
+      },
+      about: {
+        "@type": "TouristDestination",
+        name: "Tadoba Andhari Tiger Reserve",
+        description:
+          "Maharashtra's oldest and largest national park, a premier tiger sanctuary known for its dense forests, rich biodiversity, and successful conservation programs.",
+        address: {
+          "@type": "PostalAddress",
+          addressLocality: "Chandrapur",
+          addressRegion: "Maharashtra",
+          addressCountry: "IN",
+        },
+      },
+    },
+    {
+      "@type": "FAQPage",
+      mainEntity: [
+        {
+          "@type": "Question",
+          name: "How does safari booking work at Limban?",
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: "As a Limban guest, we handle all safari bookings for you through the official Maharashtra portal. We recommend booking your stay first, then we'll secure the best available permits based on your preferences for gates and timing. We know which zones are performing well each season.",
+          },
+        },
+        {
+          "@type": "Question",
+          name: "What are the weekly closure days?",
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: "Core zones are completely closed every Tuesday for wildlife rest. Buffer zones are closed every Wednesday. We build your itinerary around these closures and can suggest alternative activities on closure days.",
+          },
+        },
+        {
+          "@type": "Question",
+          name: "What should I pack for different seasons?",
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: "All seasons: Neutral colors only (khaki, olive, brown), full sleeves, closed shoes, hat, sunglasses. Winter: Layers for cold mornings (5-10°C), light jacket, scarf. Summer: Lightweight cotton, extra sun protection, electrolyte tablets. Monsoon: Light rain jacket, quick-dry fabrics, waterproof day pack.",
+          },
+        },
+        {
+          "@type": "Question",
+          name: "How many safaris should I plan?",
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: "We recommend minimum 4-6 safaris over 3-4 days for a meaningful experience. This allows you to visit different zones, experience both morning and afternoon timing, and increases your chances of diverse wildlife encounters. Each safari reveals different aspects of the ecosystem.",
+          },
+        },
+        {
+          "@type": "Question",
+          name: "Why can't I use my mobile phone on safari?",
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: "Phones are deposited at the gate to prevent location sharing that causes vehicle crowding at sightings. This protects animal welfare and ensures better experiences for everyone. It also eliminates the distraction, letting you be fully present in the forest. Emergency communication happens via guide radios.",
+          },
+        },
+        {
+          "@type": "Question",
+          name: "What if we don't see tigers?",
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: "Every safari offers something remarkable. Beyond tigers, you'll encounter leopards, wild dogs, sloth bears, massive gaur, and over 280 bird species. The forest's soundscape—alarm calls, bird songs, rustling leaves—tells stories as compelling as any sighting. Many guests say their \"no tiger\" safaris were their most educational.",
+          },
+        },
+        {
+          "@type": "Question",
+          name: "Can I carry a camera?",
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: "Camera fees apply to lenses above 250mm focal length, typically ₹250-500 per safari depending on lens size. Basic cameras and phones (when allowed in buffer zones) are usually free. We can advise on current fee structures and help with payments at gates.",
+          },
+        },
+        {
+          "@type": "Question",
+          name: "Is it suitable for children and elderly guests?",
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: "Safaris require sitting quietly for 3-4 hours on sometimes rough tracks. Children 8+ typically do well with proper preparation. For younger kids or guests with mobility concerns, we can arrange shorter nature walks, resort-based activities, and visits to the interpretation center. Our naturalists are skilled at engaging all age groups.",
+          },
+        },
+      ],
+    },
+  ],
+};
 ---
 
-<Layout title="Tadoba Andhari Tiger Reserve - A Naturalist's Guide">
+<Layout>
   <AstroSEO
-    title="Tadoba Andhari Tiger Reserve | Complete Wildlife Guide"
-    description="Comprehensive guide to Maharashtra's premier tiger reserve. 625 sq km of wilderness, 80+ Bengal tigers, and everything you need to know before visiting."
-    canonical="https://limban.com/tadoba-national-park"
+    slot="head"
+    title="The Complete Guide to Tadoba National Park | Limban Resort"
+    description="The definitive insider's guide to Maharashtra's greatest tiger reserve. From ancient Gond legends to modern conservation triumphs, understand what makes Tadoba truly extraordinary."
+    canonical="https://limban.com/tadoba-guide"
     openGraph={{
-      title: "Tadoba Andhari Tiger Reserve - Complete Wildlife Guide",
+      title: "The Complete Guide to Tadoba National Park | Limban Resort",
       description:
-        "Maharashtra's largest national park. Home to 80+ Bengal tigers across ancient forests.",
+        "Discover the secrets of India's premier tiger sanctuary. Ancient forests, legendary cats, and sacred heritage await.",
       image: heroImage,
-      type: "website",
-      url: "https://limban.com/tadoba-national-park",
+      type: "article",
+      url: "https://limban.com/tadoba-guide",
     }}
+    jsonLd={jsonLd}
   />
 
-  <div
-    class="bg-gray-950 text-gray-100 font-sans antialiased selection:bg-amber-400/20"
+  <!-- Hero Section - Cinematic Introduction -->
+  <section
+    class="relative min-h-screen flex items-center justify-center overflow-hidden"
   >
-    <!-- Skip to content -->
-    <a
-      href="#main-content"
-      class="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 bg-amber-400 text-gray-900 px-4 py-2 rounded z-50"
-    >
-      Skip to main content
-    </a>
-
-    <!-- Hero Section -->
-    <section class="relative min-h-screen overflow-hidden" role="banner">
-      <div class="absolute inset-0">
-        <img
-          src={heroImage}
-          alt="Tadoba's ancient forests at dawn"
-          class="w-full h-full object-cover"
-          loading="eager"
-          fetchpriority="high"
-        />
-      </div>
-
+    <!-- Animated background -->
+    <div class="absolute inset-0">
+      <img
+        src={heroImage}
+        alt="Majestic nature in Tadoba National Park - experience it at Limban Resort"
+        class="w-full h-full object-cover scale-110 animate-slow-zoom"
+        loading="eager"
+        fetchpriority="high"
+      />
       <div
-        class="absolute inset-0 bg-gradient-to-b from-black/60 via-black/30 to-black/70"
+        class="absolute inset-0 bg-gradient-to-b from-gray-950/40 via-transparent to-gray-950/80"
       >
       </div>
-
       <div
-        class="relative z-20 min-h-screen flex items-center justify-center text-center px-6"
+        class="absolute inset-0 bg-gradient-radial from-transparent via-gray-950/20 to-gray-950/60"
       >
-        <div class="max-w-6xl space-y-8">
-          <div
-            class="inline-block px-6 py-2 bg-green-500/20 border border-green-400/40 rounded-full mb-6"
-          >
-            <span
-              class="text-green-400 text-sm font-medium tracking-widest uppercase"
-              >Maharashtra's Crown Jewel</span
-            >
-          </div>
+      </div>
+    </div>
 
-          <h1
-            class="font-serif text-6xl md:text-8xl text-white leading-none tracking-tight"
+    <div class="relative z-20 max-w-7xl mx-auto px-6 text-center">
+      <!-- Welcome badge with sophisticated animation -->
+      <div class="inline-block mb-8 group">
+        <div
+          class="bg-gradient-to-r from-green-400/20 via-green-500/20 to-emerald-400/20 backdrop-blur-md border border-green-400/40 rounded-full px-8 py-3 group-hover:scale-105 transition-all duration-700"
+        >
+          <span
+            class="text-green-300 text-sm font-medium tracking-[0.3em] uppercase"
           >
-            Tadoba Andhari
-            <span class="block text-amber-400 italic text-4xl md:text-5xl mt-4"
-              >Tiger Reserve</span
-            >
-          </h1>
-
-          <p
-            class="text-xl md:text-2xl text-gray-200 font-light leading-relaxed max-w-4xl mx-auto"
-          >
-            A naturalist's guide to understanding 625 square kilometres of
-            Central India's most significant wilderness
-          </p>
+            The Wild Heart of India
+          </span>
         </div>
       </div>
-    </section>
 
-    <!-- Breadcrumb Navigation -->
-    <nav
-      class="py-6 bg-gray-900/50 border-b border-gray-800"
-      aria-label="Breadcrumb"
+      <!-- Main headline with sophisticated typography -->
+      <h1
+        class="font-serif italic text-7xl md:text-9xl xl:text-10xl text-white leading-[0.9] mb-8 relative"
+      >
+        <span
+          class="block transform hover:scale-105 transition-transform duration-700"
+          >This is</span
+        >
+        <span
+          class="block text-transparent bg-gradient-to-r from-amber-300 via-amber-400 to-yellow-400 bg-clip-text transform hover:scale-105 transition-transform duration-700 delay-100"
+        >
+          Tadoba
+        </span>
+        <div
+          class="absolute -top-4 -right-8 w-32 h-32 bg-amber-400/10 rounded-full blur-3xl animate-pulse"
+        >
+        </div>
+      </h1>
+
+      <!-- Sophisticated subtitle with staggered animation -->
+      <div class="max-w-5xl mx-auto mb-16">
+        <p
+          class="text-2xl md:text-4xl xl:text-3xl text-gray-200 font-semibold leading-[1.3] mb-6"
+        >
+          <span class="inline-block animate-fade-in-up delay-300"
+            >Maharashtra's greatest wilderness.</span
+          >
+          <span class="inline-block animate-fade-in-up delay-500"
+            >Home to tigers,</span
+          >
+          <span class="inline-block animate-fade-in-up delay-700"
+            >ancient forests,</span
+          >
+          <span class="inline-block animate-fade-in-up delay-900"
+            >and experiences that will</span
+          >
+          <span
+            class="inline-block text-amber-300 animate-fade-in-up delay-1100"
+            >change you forever.</span
+          >
+        </p>
+      </div>
+    </div>
+
+    <!-- Floating elements -->
+    <div
+      class="hidden lg:block absolute bottom-20 left-10 bg-gray-800/30 backdrop-blur-md rounded-2xl p-6 border border-gray-700/50 floating-card"
     >
-      <div class="max-w-7xl mx-auto px-6">
-        <ol class="flex items-center justify-center space-x-2 text-sm">
-          <li>
-            <a
-              href="/"
-              class="text-gray-400 hover:text-amber-400 transition-colors duration-300 flex items-center focus:outline-none focus:ring-2 focus:ring-amber-400/50 rounded"
-            >
-              <svg
-                class="w-4 h-4 mr-1"
-                fill="currentColor"
-                viewBox="0 0 20 20"
-                aria-hidden="true"
-              >
-                <path
-                  d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"
-                ></path>
-              </svg>
-              Home
-            </a>
-          </li>
-          <li aria-hidden="true">
+      <div class="text-amber-400 text-sm font-medium mb-2">Tiger Sightings</div>
+      <div class="text-white text-2xl font-bold">90+ Tigers</div>
+      <div class="text-gray-400 text-xs">In 625 sq km</div>
+    </div>
+
+    <div
+      class="hidden lg:block absolute bottom-32 right-10 bg-gray-800/30 backdrop-blur-md rounded-2xl p-6 border border-gray-700/50 floating-card delay-animation"
+    >
+      <div class="text-green-400 text-sm font-medium mb-2">Forest Age</div>
+      <div class="text-white text-2xl font-bold">200+ Years</div>
+      <div class="text-gray-400 text-xs">Ancient teak trees</div>
+    </div>
+  </section>
+  <!-- Enhanced Breadcrumb Navigation -->
+  <nav
+    class="py-6 bg-gray-900/50 border-b border-gray-800"
+    aria-label="Breadcrumb"
+  >
+    <div class="max-w-7xl mx-auto px-6">
+      <ol class="flex items-center justify-center space-x-2 text-sm">
+        <li>
+          <a
+            href="/"
+            class="text-gray-400 hover:text-amber-400 transition-colors duration-300 flex items-center focus:outline-none focus:ring-2 focus:ring-amber-400/50 rounded"
+          >
             <svg
-              class="w-4 h-4 text-gray-600"
+              class="w-4 h-4 mr-1"
               fill="currentColor"
               viewBox="0 0 20 20"
-            >
-              <path
-                fill-rule="evenodd"
-                d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
-                clip-rule="evenodd"></path>
-            </svg>
-          </li>
-          <li aria-current="page">
-            <span class="text-amber-400 font-medium">Tadoba National Park</span>
-          </li>
-        </ol>
-      </div>
-    </nav>
-
-    <!-- Main Content -->
-    <main id="main-content" role="main">
-      <!-- Introduction with Tiger Image -->
-      <section class="py-32 bg-gray-950">
-        <div class="max-w-7xl mx-auto px-6">
-          <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
-            <div class="space-y-8">
-              <h2
-                class="font-serif italic text-5xl md:text-6xl text-white leading-tight"
-              >
-                What You're <span class="text-amber-400">Entering</span>
-              </h2>
-
-              <div class="prose prose-invert prose-xl max-w-none">
-                <p
-                  class="text-gray-300 text-xl leading-relaxed first-letter:text-7xl first-letter:font-bold first-letter:text-amber-400 first-letter:float-left first-letter:mr-3 first-letter:mt-1"
-                >
-                  Tadoba Andhari Tiger Reserve spans 625 square kilometres of
-                  Central Indian forest in Maharashtra's Chandrapur district.
-                  Established in 1955, it protects one of India's most
-                  significant tiger populations alongside a complex ecosystem
-                  that has adapted to seasonal rhythms for millennia.
-                </p>
-
-                <p class="text-gray-400 text-lg leading-relaxed mt-6">
-                  This is not a zoo. What you witness here is authentic wildness
-                  - raw, unpredictable, and entirely on nature's terms. The
-                  80-90 Bengal tigers that call this forest home follow ancient
-                  patterns unchanged by human presence.
-                </p>
-              </div>
-            </div>
-
-            {
-              wildlifeImages[0] && (
-                <div class="relative group">
-                  <div class="overflow-hidden rounded-3xl bg-gray-800 hover:shadow-2xl hover:shadow-black/50 transition-all duration-1000">
-                    <img
-                      src={wildlifeImages[0].src}
-                      alt={wildlifeImages[0].alt}
-                      class="w-full h-96 object-cover group-hover:scale-105 transition-transform duration-700"
-                      loading="lazy"
-                    />
-                    <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                  </div>
-                </div>
-              )
-            }
-          </div>
-        </div>
-      </section>
-
-      <!-- The Living Landscape with Flora -->
-      <section class="py-32 bg-gradient-to-b from-gray-950 to-gray-900">
-        <div class="max-w-7xl mx-auto px-6">
-          <div class="text-center mb-20">
-            <h2 class="font-serif italic text-5xl md:text-6xl text-white mb-8">
-              The Living <span class="text-green-400">Landscape</span>
-            </h2>
-            <p class="text-xl text-gray-300 max-w-4xl mx-auto leading-relaxed">
-              Understanding Tadoba means understanding its intricate web of
-              terrain, water, and vegetation
-            </p>
-          </div>
-
-          <div class="grid grid-cols-1 lg:grid-cols-3 gap-12">
-            <!-- Terrain -->
-            <div
-              class="bg-gradient-to-br from-gray-800/60 to-gray-900/60 backdrop-blur-xl border border-gray-600/50 rounded-3xl p-10 hover:border-amber-400/50 transition-all duration-700"
-            >
-              <div
-                class="w-16 h-16 bg-amber-400/20 rounded-2xl flex items-center justify-center mb-6"
-              >
-                <svg
-                  class="w-8 h-8 text-amber-400"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="1.5"
-                    d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064"
-                  ></path>
-                </svg>
-              </div>
-              <h3 class="text-2xl font-bold text-amber-400 mb-6">
-                The Terrain
-              </h3>
-              <p class="text-gray-300 leading-relaxed">
-                Undulating hills clothed in deciduous forest, interspersed with
-                seasonal grasslands. The Pench River system threads through
-                valleys that flood and recede with monsoon precision, creating
-                habitat diversity that supports remarkable wildlife communities.
-              </p>
-            </div>
-
-            <!-- Water Sources with Wildlife Image -->
-            <div class="space-y-8">
-              <div
-                class="bg-gradient-to-br from-gray-800/60 to-gray-900/60 backdrop-blur-xl border border-gray-600/50 rounded-3xl p-10 hover:border-blue-400/50 transition-all duration-700"
-              >
-                <div
-                  class="w-16 h-16 bg-blue-400/20 rounded-2xl flex items-center justify-center mb-6"
-                >
-                  <svg
-                    class="w-8 h-8 text-blue-400"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="1.5"
-                      d="M5 8a7 7 0 1114 0c0 5.25-7 13-7 13s-7-7.75-7-13z"
-                    ></path>
-                  </svg>
-                </div>
-                <h3 class="text-2xl font-bold text-blue-400 mb-6">
-                  Water Sources
-                </h3>
-                <p class="text-gray-300 leading-relaxed">
-                  Tadoba Lake anchors the reserve - a permanent water body that
-                  never fails even during severe droughts. Kolsa Lake,
-                  Panchadhara waterhole, and Irai backwaters each support
-                  distinct communities and serve as natural theaters during
-                  harsh summer months.
-                </p>
-              </div>
-
-              {
-                wildlifeImages[1] && (
-                  <div class="relative group overflow-hidden rounded-3xl">
-                    <img
-                      src={wildlifeImages[1].src}
-                      alt={wildlifeImages[1].alt}
-                      class="w-full h-64 object-cover group-hover:scale-105 transition-transform duration-700"
-                      loading="lazy"
-                    />
-                  </div>
-                )
-              }
-            </div>
-
-            <!-- Forest Flora -->
-            <div
-              class="bg-gradient-to-br from-gray-800/60 to-gray-900/60 backdrop-blur-xl border border-gray-600/50 rounded-3xl p-10 hover:border-green-400/50 transition-all duration-700"
-            >
-              <div
-                class="w-16 h-16 bg-green-400/20 rounded-2xl flex items-center justify-center mb-6"
-              >
-                <svg
-                  class="w-8 h-8 text-green-400"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="1.5"
-                    d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"
-                  ></path>
-                </svg>
-              </div>
-              <h3 class="text-2xl font-bold text-green-400 mb-6">
-                Forest Composition
-              </h3>
-              <p class="text-gray-300 leading-relaxed mb-4">
-                Ancient <strong class="text-green-300">teak forests</strong> form
-                the canopy, with dense <strong class="text-green-300"
-                  >bamboo groves</strong
-                > creating understory cover. <strong class="text-green-300"
-                  >Ain trees</strong
-                > (crocodile bark) mark water courses, while <strong
-                  class="text-green-300">dhawda</strong
-                > and economically valuable <strong class="text-green-300"
-                  >tendu</strong
-                > create complex vertical layers.
-              </p>
-              <p class="text-gray-400 text-sm leading-relaxed">
-                Understanding these trees helps decode animal movement - tigers
-                follow bamboo corridors, leopards prefer rocky outcrops where
-                ain trees indicate old water channels.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- Wildlife Communities with Scattered Images -->
-      <section class="py-32 bg-gray-900">
-        <div class="max-w-7xl mx-auto px-6">
-          <div class="text-center mb-20">
-            <h2 class="font-serif italic text-5xl md:text-6xl text-white mb-8">
-              Wildlife <span class="text-amber-400">Communities</span>
-            </h2>
-          </div>
-
-          <div class="space-y-20">
-            <!-- Apex Predators -->
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
-              <div class="space-y-6">
-                <h3 class="text-3xl font-bold text-amber-400">
-                  Apex Predators
-                </h3>
-                <p class="text-gray-300 text-lg leading-relaxed">
-                  The reserve supports approximately 80-90 tigers across defined
-                  territories, with individuals identified through camera trap
-                  technology. Notable residents include <strong
-                    class="text-amber-300">Maya T-16</strong
-                  >, <strong class="text-amber-300">Chotti Tara</strong>, and <strong
-                    class="text-amber-300">Matkasur</strong
-                  > - tigers whose territories and behaviors have been documented
-                  over years.
-                </p>
-                <p class="text-gray-400 leading-relaxed">
-                  Leopards occupy different ecological niches, often in rocky
-                  terrain away from tiger corridors, demonstrating remarkable
-                  adaptability to coexist with their larger cousins.
-                </p>
-              </div>
-
-              {
-                wildlifeImages[2] && (
-                  <div class="relative group">
-                    <div class="overflow-hidden rounded-3xl bg-gray-800 hover:shadow-2xl hover:shadow-amber-400/20 transition-all duration-1000">
-                      <img
-                        src={wildlifeImages[2].src}
-                        alt={wildlifeImages[2].alt}
-                        class="w-full h-96 object-cover group-hover:scale-105 transition-transform duration-700"
-                        loading="lazy"
-                      />
-                    </div>
-                  </div>
-                )
-              }
-            </div>
-
-            <!-- Herbivore Foundation with Multiple Images -->
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-12 items-start">
-              <div class="space-y-6">
-                <h3 class="text-3xl font-bold text-green-400">
-                  The Herbivore Foundation
-                </h3>
-                <p class="text-gray-300 leading-relaxed">
-                  Spotted deer form the primary prey base, their alarm calls
-                  serving as the forest's early warning system. Sambar deer
-                  prefer deeper forest areas, while nilgai venture into
-                  grasslands.
-                </p>
-              </div>
-
-              {
-                wildlifeImages[3] && (
-                  <div class="relative group overflow-hidden rounded-3xl">
-                    <img
-                      src={wildlifeImages[3].src}
-                      alt={wildlifeImages[3].alt}
-                      class="w-full h-72 object-cover group-hover:scale-105 transition-transform duration-700"
-                      loading="lazy"
-                    />
-                  </div>
-                )
-              }
-
-              <div class="space-y-6">
-                <p class="text-gray-400 leading-relaxed">
-                  <strong class="text-green-300">Gaur</strong> - massive wild cattle
-                  - create pathways through dense forest that smaller animals follow,
-                  essentially serving as ecosystem engineers shaping the very landscape.
-                </p>
-                <blockquote
-                  class="border-l-4 border-amber-400 pl-6 py-4 bg-gray-800/50 rounded-r-lg"
-                >
-                  <p class="text-amber-300 italic">
-                    "In Tadoba, every species plays a role in the larger
-                    symphony - from the smallest insect to the mighty tiger."
-                  </p>
-                </blockquote>
-              </div>
-            </div>
-
-            <!-- Sloth Bears and Pack Hunters -->
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-16">
-              {
-                wildlifeImages[4] && (
-                  <div class="relative group overflow-hidden rounded-3xl">
-                    <img
-                      src={wildlifeImages[4].src}
-                      alt={wildlifeImages[4].alt}
-                      class="w-full h-80 object-cover group-hover:scale-105 transition-transform duration-700"
-                      loading="lazy"
-                    />
-                  </div>
-                )
-              }
-
-              <div class="space-y-8">
-                <div>
-                  <h3 class="text-2xl font-bold text-amber-400 mb-4">
-                    Sloth Bears
-                  </h3>
-                  <p class="text-gray-300 leading-relaxed">
-                    Tadoba hosts one of Central India's healthiest sloth bear
-                    populations. These solitary, primarily insectivorous bears
-                    are most active during early morning and late evening, often
-                    heard before seen as they crash through bamboo stands.
-                  </p>
-                </div>
-
-                <div>
-                  <h3 class="text-2xl font-bold text-red-400 mb-4">
-                    Pack Hunters
-                  </h3>
-                  <p class="text-gray-300 leading-relaxed">
-                    Dhole (wild dog) packs of 8-12 individuals demonstrate
-                    sophisticated cooperative hunting. Their presence indicates
-                    healthy prey populations, while their territorial ranges
-                    overlap with tigers in complex relationships researchers
-                    continue studying.
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- Seasonal Rhythms -->
-      <section class="py-32 bg-gradient-to-b from-gray-900 to-gray-800">
-        <div class="max-w-7xl mx-auto px-6">
-          <div class="text-center mb-20">
-            <h2 class="font-serif italic text-5xl md:text-6xl text-white mb-8">
-              Seasonal <span class="text-amber-400">Rhythms</span>
-            </h2>
-            <p class="text-xl text-gray-300 max-w-4xl mx-auto leading-relaxed">
-              Tadoba transforms dramatically through Maharashtra's seasonal
-              cycle
-            </p>
-          </div>
-
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div
-              class="bg-gradient-to-br from-orange-900/30 to-red-900/30 border border-orange-400/30 rounded-3xl p-8 hover:border-orange-400/60 transition-colors duration-500"
-            >
-              <div class="text-center mb-6">
-                <div
-                  class="w-20 h-20 bg-orange-400/20 rounded-full flex items-center justify-center mx-auto mb-4"
-                >
-                  <svg
-                    class="w-10 h-10 text-orange-400"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="1.5"
-                      d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"
-                    ></path>
-                  </svg>
-                </div>
-                <h3 class="text-2xl font-bold text-orange-400 mb-4">Summer</h3>
-                <p class="text-orange-200 text-sm font-medium mb-4">
-                  March - June
-                </p>
-              </div>
-              <p class="text-gray-300 leading-relaxed">
-                Extreme heat (up to 47°C) concentrates animals around water
-                sources. Highest tiger visibility as vegetation becomes sparse
-                and movement predictable. Challenging but rewarding for
-                dedicated enthusiasts.
-              </p>
-            </div>
-
-            <div
-              class="bg-gradient-to-br from-green-900/30 to-blue-900/30 border border-green-400/30 rounded-3xl p-8 hover:border-green-400/60 transition-colors duration-500"
-            >
-              <div class="text-center mb-6">
-                <div
-                  class="w-20 h-20 bg-green-400/20 rounded-full flex items-center justify-center mx-auto mb-4"
-                >
-                  <svg
-                    class="w-10 h-10 text-green-400"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="1.5"
-                      d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"
-                    ></path>
-                  </svg>
-                </div>
-                <h3 class="text-2xl font-bold text-green-400 mb-4">
-                  Post-Monsoon
-                </h3>
-                <p class="text-green-200 text-sm font-medium mb-4">
-                  October - February
-                </p>
-              </div>
-              <p class="text-gray-300 leading-relaxed">
-                Lush landscape with active birdlife including winter migrants.
-                Tigers more elusive due to abundant water. Ideal photography
-                light, comfortable temperatures, peak butterfly activity.
-              </p>
-            </div>
-
-            <div
-              class="bg-gradient-to-br from-blue-900/30 to-purple-900/30 border border-blue-400/30 rounded-3xl p-8 hover:border-blue-400/60 transition-colors duration-500"
-            >
-              <div class="text-center mb-6">
-                <div
-                  class="w-20 h-20 bg-blue-400/20 rounded-full flex items-center justify-center mx-auto mb-4"
-                >
-                  <svg
-                    class="w-10 h-10 text-blue-400"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="1.5"
-                      d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-                    ></path>
-                  </svg>
-                </div>
-                <h3 class="text-2xl font-bold text-blue-400 mb-4">
-                  Pre-Monsoon
-                </h3>
-                <p class="text-blue-200 text-sm font-medium mb-4">
-                  February - April
-                </p>
-              </div>
-              <p class="text-gray-300 leading-relaxed">
-                Balance of visibility and comfort. New grass growth attracts
-                herbivores to meadows. Courting behavior among various species.
-                Optimal for first-time visitors.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- Things to Do - Innovative Layout -->
-      <section class="py-32 bg-gray-950">
-        <div class="max-w-7xl mx-auto px-6">
-          <div class="text-center mb-20">
-            <h2 class="font-serif italic text-5xl md:text-6xl text-white mb-8">
-              Experiencing <span class="text-amber-400">Tadoba</span>
-            </h2>
-            <p class="text-xl text-gray-300 max-w-4xl mx-auto leading-relaxed">
-              Activities that provide different perspectives on this complex
-              ecosystem
-            </p>
-          </div>
-
-          <!-- Core Wildlife Experiences -->
-          <div class="mb-20">
-            <h3 class="text-3xl font-bold text-amber-400 mb-12 text-center">
-              Core Wildlife Experiences
-            </h3>
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-              <div class="space-y-8">
-                <div class="border-l-4 border-amber-400 pl-8 py-6">
-                  <h4 class="text-xl font-bold text-white mb-3">
-                    Jeep Safaris
-                  </h4>
-                  <p class="text-gray-300 leading-relaxed">
-                    Morning (0600-0930) and evening (1500-1800) drives through
-                    core and buffer zones. Private jeeps with experienced
-                    naturalist guides.
-                  </p>
-                </div>
-
-                <div class="border-l-4 border-blue-400 pl-8 py-6">
-                  <h4 class="text-xl font-bold text-white mb-3">
-                    Boat Safari on Irai Lake
-                  </h4>
-                  <p class="text-gray-300 leading-relaxed">
-                    Serene water-based wildlife viewing focusing on aquatic
-                    birds and marsh crocodiles. Particularly rewarding during
-                    early morning hours.
-                  </p>
-                </div>
-
-                <div class="border-l-4 border-purple-400 pl-8 py-6">
-                  <h4 class="text-xl font-bold text-white mb-3">
-                    Night Safaris
-                  </h4>
-                  <p class="text-gray-300 leading-relaxed">
-                    Limited availability in buffer zones. Three-hour experiences
-                    revealing nocturnal behavior patterns invisible during
-                    daylight.
-                  </p>
-                </div>
-              </div>
-
-              {
-                wildlifeImages[5] && (
-                  <div class="relative group">
-                    <div class="overflow-hidden rounded-3xl bg-gray-800 hover:shadow-2xl hover:shadow-amber-400/20 transition-all duration-1000">
-                      <img
-                        src={wildlifeImages[5].src}
-                        alt={wildlifeImages[5].alt}
-                        class="w-full h-96 object-cover group-hover:scale-105 transition-transform duration-700"
-                        loading="lazy"
-                      />
-                    </div>
-                  </div>
-                )
-              }
-            </div>
-          </div>
-
-          <!-- Adventure & Family Activities -->
-          <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <div
-              class="bg-gray-900/50 rounded-3xl p-8 border border-gray-700/50 hover:border-green-400/50 transition-colors duration-500"
-            >
-              <h4 class="text-2xl font-bold text-green-400 mb-6">Adventure</h4>
-              <ul class="space-y-4 text-gray-300">
-                <li class="flex items-start gap-3">
-                  <div
-                    class="w-2 h-2 bg-green-400 rounded-full mt-2 flex-shrink-0"
-                  >
-                  </div>
-                  <span
-                    ><strong>Cycling Trails:</strong> Eco-friendly buffer zone exploration</span
-                  >
-                </li>
-                <li class="flex items-start gap-3">
-                  <div
-                    class="w-2 h-2 bg-green-400 rounded-full mt-2 flex-shrink-0"
-                  >
-                  </div>
-                  <span
-                    ><strong>Nature Walks:</strong> Guided forest walks with tracking
-                    skills</span
-                  >
-                </li>
-                <li class="flex items-start gap-3">
-                  <div
-                    class="w-2 h-2 bg-green-400 rounded-full mt-2 flex-shrink-0"
-                  >
-                  </div>
-                  <span
-                    ><strong>Adventure Park:</strong> Agarzari rope courses and challenges</span
-                  >
-                </li>
-                <li class="flex items-start gap-3">
-                  <div
-                    class="w-2 h-2 bg-green-400 rounded-full mt-2 flex-shrink-0"
-                  >
-                  </div>
-                  <span
-                    ><strong>Watch Towers:</strong> Elevated observation points</span
-                  >
-                </li>
-              </ul>
-            </div>
-
-            <div
-              class="bg-gray-900/50 rounded-3xl p-8 border border-gray-700/50 hover:border-blue-400/50 transition-colors duration-500"
-            >
-              <h4 class="text-2xl font-bold text-blue-400 mb-6">Educational</h4>
-              <ul class="space-y-4 text-gray-300">
-                <li class="flex items-start gap-3">
-                  <div
-                    class="w-2 h-2 bg-blue-400 rounded-full mt-2 flex-shrink-0"
-                  >
-                  </div>
-                  <span
-                    ><strong>Butterfly Garden:</strong> 80+ species near Agarzari
-                    Gate</span
-                  >
-                </li>
-                <li class="flex items-start gap-3">
-                  <div
-                    class="w-2 h-2 bg-blue-400 rounded-full mt-2 flex-shrink-0"
-                  >
-                  </div>
-                  <span
-                    ><strong>Tribal Village Visits:</strong> Cultural exchanges and
-                    traditions</span
-                  >
-                </li>
-                <li class="flex items-start gap-3">
-                  <div
-                    class="w-2 h-2 bg-blue-400 rounded-full mt-2 flex-shrink-0"
-                  >
-                  </div>
-                  <span
-                    ><strong>Conservation Programs:</strong> Forest officer interactions</span
-                  >
-                </li>
-                <li class="flex items-start gap-3">
-                  <div
-                    class="w-2 h-2 bg-blue-400 rounded-full mt-2 flex-shrink-0"
-                  >
-                  </div>
-                  <span
-                    ><strong>Photography Workshops:</strong> Ethical wildlife techniques</span
-                  >
-                </li>
-              </ul>
-            </div>
-
-            <div
-              class="bg-gray-900/50 rounded-3xl p-8 border border-gray-700/50 hover:border-amber-400/50 transition-colors duration-500"
-            >
-              <h4 class="text-2xl font-bold text-amber-400 mb-6">
-                Family & Children
-              </h4>
-              <ul class="space-y-4 text-gray-300">
-                <li class="flex items-start gap-3">
-                  <div
-                    class="w-2 h-2 bg-amber-400 rounded-full mt-2 flex-shrink-0"
-                  >
-                  </div>
-                  <span
-                    ><strong>Nature Camps:</strong> Age-appropriate programs (6-16
-                    years)</span
-                  >
-                </li>
-                <li class="flex items-start gap-3">
-                  <div
-                    class="w-2 h-2 bg-amber-400 rounded-full mt-2 flex-shrink-0"
-                  >
-                  </div>
-                  <span
-                    ><strong>Family Safaris:</strong> Interactive wildlife activities</span
-                  >
-                </li>
-                <li class="flex items-start gap-3">
-                  <div
-                    class="w-2 h-2 bg-amber-400 rounded-full mt-2 flex-shrink-0"
-                  >
-                  </div>
-                  <span
-                    ><strong>Kayaking:</strong> Calm water paddling experiences</span
-                  >
-                </li>
-                <li class="flex items-start gap-3">
-                  <div
-                    class="w-2 h-2 bg-amber-400 rounded-full mt-2 flex-shrink-0"
-                  >
-                  </div>
-                  <span
-                    ><strong>Camping:</strong> Supervised overnight experiences</span
-                  >
-                </li>
-              </ul>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- Access Information with Final Wildlife Image -->
-      <section class="py-32 bg-gray-900">
-        <div class="max-w-7xl mx-auto px-6">
-          <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
-            <div class="space-y-8">
-              <h2 class="font-serif italic text-4xl md:text-5xl text-white">
-                Access & <span class="text-amber-400">Expectations</span>
-              </h2>
-
-              <div class="space-y-6">
-                <div
-                  class="bg-gray-800/50 rounded-2xl p-6 border border-gray-700/50"
-                >
-                  <h3 class="text-xl font-bold text-amber-400 mb-3">
-                    Entry Gates
-                  </h3>
-                  <div class="space-y-2 text-gray-300">
-                    <p>
-                      <strong>Moharli:</strong> Core zone access, 15 minutes from
-                      Limban Resort
-                    </p>
-                    <p>
-                      <strong>Kolara:</strong> Varied terrain, bamboo forests (30
-                      minutes)
-                    </p>
-                    <p>
-                      <strong>Navegaon:</strong> Lake ecosystem focus (25 minutes)
-                    </p>
-                  </div>
-                </div>
-
-                <div
-                  class="bg-gray-800/50 rounded-2xl p-6 border border-gray-700/50"
-                >
-                  <h3 class="text-xl font-bold text-blue-400 mb-3">
-                    Safari Protocol
-                  </h3>
-                  <p class="text-gray-300 leading-relaxed">
-                    Government-regulated 6-seat jeeps with licensed guides
-                    mandatory. Complete silence during wildlife encounters
-                    required - animal behavior changes dramatically with noise.
-                  </p>
-                </div>
-              </div>
-
-              <div
-                class="bg-amber-50/5 p-6 rounded-lg border-l-4 border-amber-400"
-              >
-                <p class="text-gray-300 leading-relaxed">
-                  <strong class="text-amber-400">Remember:</strong> You are a guest
-                  in their home. Animals owe visitors nothing. Every sighting is
-                  a privilege, not a right.
-                </p>
-              </div>
-            </div>
-
-            {
-              wildlifeImages[6] && (
-                <div class="relative group">
-                  <div class="overflow-hidden rounded-3xl bg-gray-800 hover:shadow-2xl hover:shadow-black/50 transition-all duration-1000">
-                    <img
-                      src={wildlifeImages[6].src}
-                      alt={wildlifeImages[6].alt}
-                      class="w-full h-96 object-cover group-hover:scale-105 transition-transform duration-700"
-                      loading="lazy"
-                    />
-                  </div>
-                </div>
-              )
-            }
-          </div>
-        </div>
-      </section>
-
-      <!-- Final CTA -->
-      <section class="py-32 bg-gray-950">
-        <div class="max-w-4xl mx-auto px-6 text-center">
-          <h2 class="font-serif italic text-4xl md:text-5xl text-white mb-8">
-            Understanding Builds <span class="text-amber-400">Connection</span>
-          </h2>
-
-          <p class="text-xl text-gray-300 leading-relaxed mb-12">
-            For those who approach Tadoba with genuine curiosity and respect for
-            wild spaces, the reserve offers experiences that shift perspective
-            permanently. The complexity of forest ecosystems, the privilege of
-            witnessing apex predators in natural habitat, and the growing
-            success of conservation efforts create memories that resonate long
-            after departure.
-          </p>
-
-          <a
-            href="/activities"
-            class="inline-flex items-center px-12 py-5 bg-amber-400 text-gray-900 font-bold rounded-full hover:bg-amber-300 hover:scale-105 transition-all duration-300 shadow-xl hover:shadow-2xl text-lg focus:outline-none focus:ring-4 focus:ring-amber-400/50"
-          >
-            Explore Tadoba Experiences
-            <svg
-              class="w-6 h-6 ml-3"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
               aria-hidden="true"
             >
               <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M17 8l4 4m0 0l-4 4m4-4H3"></path>
+                d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"
+              ></path>
             </svg>
+            Home
+          </a>
+        </li>
+        <li aria-hidden="true">
+          <svg
+            class="w-4 h-4 text-gray-600"
+            fill="currentColor"
+            viewBox="0 0 20 20"
+          >
+            <path
+              fill-rule="evenodd"
+              d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
+              clip-rule="evenodd"></path>
+          </svg>
+        </li>
+        <li aria-current="page">
+          <span class="text-amber-400 font-medium">About Tadoba</span>
+        </li>
+      </ol>
+    </div>
+  </nav>
+
+  <!-- The Ancient Story -->
+  <section id="the-story" class="py-32 bg-gray-900/50">
+    <div class="max-w-6xl mx-auto px-6">
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div class="lg:col-span-2">
+          <h2 class="font-serif italic text-4xl text-white mb-6">
+            The Ancient Story
+          </h2>
+          <div
+            class="prose prose-gray prose-lg max-w-none text-gray-300 space-y-6"
+          >
+            <p class="text-xl leading-relaxed">
+              In the beginning, there was Taru. Not the park, not the
+              reserve—just a Gond chieftain whose legend would outlive empires.
+              When he fell to a tiger in mythic combat, his people didn't mourn;
+              they deified him. Today, pilgrims still journey to his lakeside
+              shrine, where incense mingles with forest air and ancient
+              reverence shapes modern conservation.
+            </p>
+
+            <figure class="my-8">
+              <img
+                src="https://the-knowledge-brokers.sirv.com/limban/traditional-gond-art-deer-trees-against-colorful-background-tadoba.webp?q=50"
+                alt="Traditional Gond tribal artwork depicting forest spirits and wildlife"
+                class="w-full aspect-video object-cover rounded-xl"
+                loading="lazy"
+              />
+              <!-- Target: 1200px wide, WebP, <120KB -->
+              <figcaption class="text-sm text-gray-500 mt-2 text-center">
+                Gond tribal art reflects centuries of forest wisdom
+              </figcaption>
+            </figure>
+
+            <p>
+              The British recognised something special here, declaring it a
+              Reserved Forest in 1879. But true protection came with
+              independence—National Park status in 1955, expanded with the
+              Andhari Wildlife Sanctuary merger in 1995. Today's Tadoba Andhari
+              Tiger Reserve spans 1,727 km² of Southern Tropical Dry Deciduous
+              Forest, where 625 km² of core habitat nurtures one of India's most
+              successful tiger populations.
+            </p>
+
+            <h3 class="text-2xl font-semibold text-amber-400 mt-8 mb-4">
+              The Gond Villages Today
+            </h3>
+            <p>
+              Five Gond villages remain within the buffer zones—<strong
+                >Moharli</strong
+              >, <strong>Kolsa</strong>, <strong>Jamni</strong>, <strong
+                >Kanha</strong
+              >, and <strong>Navegaon</strong>—their inhabitants now partners in
+              conservation. Traditional honey gatherers have become naturalist
+              guides, and ancient tracking skills serve modern wildlife
+              research. It's a living example of how indigenous knowledge
+              enhances scientific conservation.
+            </p>
+          </div>
+        </div>
+
+        <div class="space-y-6">
+          <div class="bg-gray-800/50 rounded-2xl p-6 border border-gray-700">
+            <h4 class="font-semibold text-emerald-400 mb-3">
+              Conservation Timeline
+            </h4>
+            <ul class="space-y-2 text-sm text-gray-300">
+              <li><strong>1879:</strong> Reserved Forest status</li>
+              <li><strong>1955:</strong> National Park declared</li>
+              <li><strong>1986:</strong> Andhari Sanctuary created</li>
+              <li><strong>1995:</strong> Tiger Reserve formed</li>
+              <li><strong>2012:</strong> Core-buffer system refined</li>
+            </ul>
+          </div>
+
+          <div class="bg-gray-800/50 rounded-2xl p-6 border border-gray-700">
+            <h4 class="font-semibold text-amber-400 mb-3">By the Numbers</h4>
+            <ul class="space-y-2 text-sm text-gray-300">
+              <li><strong>Total Area:</strong> 1,727 km²</li>
+              <li><strong>Core Zone:</strong> 625 km²</li>
+              <li><strong>Tiger Population:</strong> 97 (2023 census)</li>
+              <li><strong>Bird Species:</strong> 280+</li>
+              <li><strong>Mammal Species:</strong> 60+</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- The Famous Tigers -->
+  <section class="py-32">
+    <div class="max-w-6xl mx-auto px-6">
+      <h2 class="font-serif italic text-4xl text-white text-center mb-12">
+        The Legendary Residents
+      </h2>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
+        <article
+          class="bg-gray-800/30 rounded-2xl p-6 border border-orange-500/30"
+        >
+          <h3 class="text-xl font-semibold text-orange-400 mb-3">
+            Maya (T-16)
+          </h3>
+          <p class="text-gray-300 text-sm mb-4">
+            The undisputed queen of Pandharpauni Lake territory. Maya's domain
+            includes some of Tadoba's most scenic waterholes, making her one of
+            the most photographed tigers in India.
+          </p>
+          <div class="text-xs text-orange-300">
+            <div><strong>Territory:</strong> Pandharpauni-Kolara circuit</div>
+            <div>
+              <strong>Known for:</strong> Calm demeanor, lakeside hunting
+            </div>
+          </div>
+        </article>
+
+        <article
+          class="bg-gray-800/30 rounded-2xl p-6 border border-purple-500/30"
+        >
+          <h3 class="text-xl font-semibold text-purple-400 mb-3">
+            Choti Tara (T-83)
+          </h3>
+          <p class="text-gray-300 text-sm mb-4">
+            Named "Little Star" for the distinctive mark on her forehead. This
+            young female has established herself in the Moharli sector, often
+            seen with cubs near the main safari routes.
+          </p>
+          <div class="text-xs text-purple-300">
+            <div><strong>Territory:</strong> Moharli-Khutwanda corridor</div>
+            <div>
+              <strong>Known for:</strong> Successful breeding, road crossings
+            </div>
+          </div>
+        </article>
+
+        <article
+          class="bg-gray-800/30 rounded-2xl p-6 border border-green-500/30"
+        >
+          <h3 class="text-xl font-semibold text-green-400 mb-3">
+            Matkasur (T-41)
+          </h3>
+          <p class="text-gray-300 text-sm mb-4">
+            The "Broken-pot" tiger, named for his distinctive facial markings. A
+            dominant male whose territory spans multiple zones, making
+            encounters unpredictable and exciting.
+          </p>
+          <div class="text-xs text-green-300">
+            <div><strong>Territory:</strong> Multi-zone roamer</div>
+            <div>
+              <strong>Known for:</strong> Large size, territorial disputes
+            </div>
+          </div>
+        </article>
+      </div>
+
+      <figure class="relative">
+        <img
+          src="https://the-knowledge-brokers.sirv.com/limban/bengal-tiger-tadoba.jpg?w=1300&q=50"
+          alt="A Bengal tiger prominently posing in Tadoba's core territory"
+          class="w-full aspect-[16/9] object-cover rounded-2xl"
+          loading="lazy"
+        />
+        <!-- Target: 1400px wide, WebP, <140KB -->
+        <figcaption class="text-sm text-gray-500 mt-2 text-center">
+          Bengal tigers like Maya have made Tadoba famous worldwide
+        </figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <!-- The Forest Ecosystem -->
+  <section class="py-32 bg-gray-900/50">
+    <div class="max-w-6xl mx-auto px-6">
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
+        <div>
+          <h2 class="font-serif italic text-4xl text-white mb-6">
+            The Living Forest
+          </h2>
+          <div class="prose prose-gray prose-lg max-w-none text-gray-300">
+            <p>
+              Tadoba's Southern Tropical Dry Deciduous Forest is an intricate
+              world built on Teak ("Tectona grandis"). These giants, some over
+              200 years old, create a multi-layered canopy system that defines
+              the entire ecosystem.
+            </p>
+
+            <h4 class="text-lg font-semibold text-emerald-400 mt-6 mb-3">
+              Forest Architecture
+            </h4>
+            <ul class="space-y-2 text-sm">
+              <li>
+                <strong>Canopy Layer:</strong> Teak, Ain ("Terminalia tomentosa"),
+                Bija ("Pterocarpus marsupium")
+              </li>
+              <li>
+                <strong>Under-canopy:</strong> Dhok ("Anogeissus latifolia"), Haldu
+                ("Haldina cordifolia")
+              </li>
+              <li>
+                <strong>Understory:</strong> Dense bamboo ("Dendrocalamus strictus")
+                groves
+              </li>
+              <li>
+                <strong>Ground Layer:</strong> Seasonal grasses and forest floor
+                herbs
+              </li>
+            </ul>
+
+            <p class="mt-6">
+              This layered system supports an incredible diversity of life. The
+              bamboo understory alone harbors over 60% of the forest's mammal
+              species, from tiny shrews to massive gaur.
+            </p>
+          </div>
+        </div>
+
+        <div class="space-y-6">
+          <figure>
+            <img
+              src="https://the-knowledge-brokers.sirv.com/limban/bamboo-and-teak-tadoba.jpg?cw=600&ch=600&sharpen=1"
+              alt="Dense bamboo groves creating cathedral-like spaces in Tadoba forest"
+              class="w-full aspect-square object-cover rounded-2xl"
+              loading="lazy"
+            />
+            <!-- Target: 1000px wide, WebP, <100KB -->
+          </figure>
+
+          <div class="bg-gray-800/50 rounded-2xl p-6 border border-gray-700">
+            <h4 class="font-semibold text-cyan-400 mb-4">
+              Seasonal Transformations
+            </h4>
+            <div class="space-y-3 text-sm text-gray-300">
+              <div>
+                <strong class="text-white">Pre-monsoon (Apr-May):</strong> Bare teak
+                branches, visible undergrowth, concentrated wildlife at water sources
+              </div>
+              <div>
+                <strong class="text-white">Monsoon (Jun-Sep):</strong> Explosive
+                green growth, dense canopy, dispersed wildlife
+              </div>
+              <div>
+                <strong class="text-white">Post-monsoon (Oct-Mar):</strong> Golden
+                grasslands, clear sight lines, active wildlife
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Zones and Access -->
+  <section class="py-32">
+    <div class="max-w-6xl mx-auto px-6">
+      <h2 class="font-serif italic text-4xl text-white text-center mb-4">
+        Zones, Gates & Geography
+      </h2>
+      <p class="text-center text-gray-400 mb-12 max-w-3xl mx-auto">
+        Understanding Tadoba's layout is crucial for planning meaningful
+        safaris. Each zone offers different experiences, from classic core
+        wilderness to community-integrated buffer areas.
+      </p>
+
+      <!-- Map Section - Replace the existing map div -->
+      <div
+        class="bg-slate-800/30 rounded-2xl p-6 border border-slate-700 mb-12"
+      >
+        <div
+          id="tadoba-map"
+          class="w-full h-96 rounded-xl overflow-hidden bg-slate-900 border border-slate-600"
+        >
+        </div>
+        <p class="text-xs text-slate-500 mt-6 text-center">
+          Interactive map showing the exact central location of Limban Resort
+        </p>
+      </div>
+
+      <!-- Zone Details -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div>
+          <h3 class="text-2xl font-semibold text-emerald-400 mb-4">
+            Core Zones
+          </h3>
+          <p class="text-gray-300 mb-6">
+            The protected heart of the reserve with minimal human presence and
+            maximum wildlife density.
+          </p>
+
+          <div class="space-y-4">
+            <div
+              class="bg-gray-800/30 rounded-xl p-4 border-l-4 border-emerald-400"
+            >
+              <h4 class="font-semibold text-white">Moharli Gate</h4>
+              <p class="text-sm text-gray-300 mt-1">
+                15 minutes from Limban. Most popular gate with excellent
+                infrastructure and consistent sightings.
+              </p>
+            </div>
+            <div
+              class="bg-gray-800/30 rounded-xl p-4 border-l-4 border-emerald-400"
+            >
+              <h4 class="font-semibold text-white">Khutwanda Gate</h4>
+              <p class="text-sm text-gray-300 mt-1">
+                20 minutes from Limban. Maya's primary territory with scenic
+                lake circuits.
+              </p>
+            </div>
+            <div
+              class="bg-gray-800/30 rounded-xl p-4 border-l-4 border-emerald-400"
+            >
+              <h4 class="font-semibold text-white">Kolara Gate</h4>
+              <p class="text-sm text-gray-300 mt-1">
+                70 minutes from Limban. Remote and pristine, often less crowded.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <h3 class="text-2xl font-semibold text-amber-400 mb-4">
+            Buffer Zones
+          </h3>
+          <p class="text-gray-300 mb-6">
+            Areas where conservation coexists with local communities, offering
+            different wildlife experiences.
+          </p>
+
+          <div class="space-y-4">
+            <div
+              class="bg-gray-800/30 rounded-xl p-4 border-l-4 border-amber-400"
+            >
+              <h4 class="font-semibold text-white">Agarzari Gate</h4>
+              <p class="text-sm text-gray-300 mt-1">
+                25 minutes from Limban. Diverse terrain excellent for birding
+                and year-round access.
+              </p>
+            </div>
+            <div
+              class="bg-gray-800/30 rounded-xl p-4 border-l-4 border-amber-400"
+            >
+              <h4 class="font-semibold text-white">Junona Gate</h4>
+              <p class="text-sm text-gray-300 mt-1">
+                35 minutes from Limban. Mixed forest-grassland with good leopard
+                sightings.
+              </p>
+            </div>
+            <div
+              class="bg-gray-800/30 rounded-xl p-4 border-l-4 border-amber-400"
+            >
+              <h4 class="font-semibold text-white">Navegaon-Nagzira</h4>
+              <p class="text-sm text-gray-300 mt-1">
+                45 minutes from Limban. Connected to Navegaon National Park.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Seasonal Guide -->
+  <section class="py-32 bg-gray-900/50">
+    <div class="max-w-6xl mx-auto px-6">
+      <h2 class="font-serif italic text-4xl text-white text-center mb-12">
+        Three Seasons, Three Different Parks
+      </h2>
+
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <article
+          class="bg-blue-900/20 rounded-2xl p-8 border border-blue-400/30 transition-all duration-300 ease-in-out hover:scale-105 hover:border-blue-400 hover:shadow-xl hover:shadow-blue-500/10"
+        >
+          <div class="text-center mb-6">
+            <h3 class="text-2xl font-serif italic text-blue-300 mb-2">
+              Cool Season
+            </h3>
+            <p class="text-sm text-blue-200">November - February</p>
+            <p class="text-xs text-blue-200/70 mt-1">Peak visitor season</p>
+          </div>
+
+          <figure class="mb-6">
+            <img
+              src="https://the-knowledge-brokers.sirv.com/limban/monkeys-in-tadoba.webp?q=50&canvas.height=200&sharpen=1&w=400"
+              alt="A monkey enjoying the cool season in Tadoba sitting on a street milestone"
+              class="w-full aspect-video object-cover rounded-xl"
+              loading="lazy"
+            />
+            <!-- Target: 800px wide, WebP, <80KB -->
+          </figure>
+
+          <div class="space-y-4 text-sm text-gray-300">
+            <div>
+              <strong class="text-white">Weather:</strong> 10-28°C, cool mornings
+              with pleasant afternoons
+            </div>
+            <div>
+              <strong class="text-white">Wildlife:</strong> Active throughout the
+              day, tigers often sunbathing
+            </div>
+            <div>
+              <strong class="text-white">Vegetation:</strong> Post-monsoon golden
+              grasslands, clear sight lines
+            </div>
+            <div>
+              <strong class="text-white">Best for:</strong> First-timers, families,
+              comfortable extended safaris
+            </div>
+          </div>
+        </article>
+
+        <article
+          class="bg-orange-900/20 rounded-2xl p-8 border border-orange-400/30 transition-all duration-300 ease-in-out hover:scale-105 hover:border-orange-400 hover:shadow-xl hover:shadow-orange-500/10"
+        >
+          <div class="text-center mb-6">
+            <h3 class="text-2xl font-serif italic text-orange-300 mb-2">
+              Hot Season
+            </h3>
+            <p class="text-sm text-orange-200">March - June</p>
+            <p class="text-xs text-orange-200/70 mt-1">Prime sighting season</p>
+          </div>
+
+          <figure class="mb-6">
+            <img
+              src="https://the-knowledge-brokers.sirv.com/limban/puma-tadoba-national-park.jpg?sharpen=1&w=400"
+              alt="A leopard looking on in Tadoba's hot summer season in the national park"
+              class="w-full aspect-video object-cover rounded-xl"
+              loading="lazy"
+            />
+            <!-- Target: 800px wide, WebP, <80KB -->
+          </figure>
+
+          <div class="space-y-4 text-sm text-gray-300">
+            <div>
+              <strong class="text-white">Weather:</strong> 30-47°C, intense heat
+              with clear skies
+            </div>
+            <div>
+              <strong class="text-white">Wildlife:</strong> Concentrated at remaining
+              water sources
+            </div>
+            <div>
+              <strong class="text-white">Vegetation:</strong> Dry deciduous, bare
+              trees, excellent visibility
+            </div>
+            <div>
+              <strong class="text-white">Best for:</strong> Serious wildlife enthusiasts,
+              photographers
+            </div>
+          </div>
+        </article>
+
+        <article
+          class="bg-green-900/20 rounded-2xl p-8 border border-green-400/30 transition-all duration-300 ease-in-out hover:scale-105 hover:border-green-400 hover:shadow-xl hover:shadow-green-500/10"
+        >
+          <div class="text-center mb-6">
+            <h3 class="text-2xl font-serif italic text-green-300 mb-2">
+              Monsoon
+            </h3>
+            <p class="text-sm text-green-200">July - October</p>
+            <p class="text-xs text-green-200/70 mt-1">Limited core access</p>
+          </div>
+
+          <figure class="mb-6">
+            <img
+              src="https://the-knowledge-brokers.sirv.com/limban/tadoba-sloth-bear-during-monsoon.jpeg?w=400"
+              alt="A sloth bear enjoying a walk through the lush green monsoon forest in Tadoba"
+              class="w-full aspect-video object-cover rounded-xl"
+              loading="lazy"
+            />
+            <!-- Target: 800px wide, WebP, <80KB -->
+          </figure>
+
+          <div class="space-y-4 text-sm text-gray-300">
+            <div>
+              <strong class="text-white">Weather:</strong> 24-35°C, heavy rainfall,
+              high humidity
+            </div>
+            <div>
+              <strong class="text-white">Wildlife:</strong> Dispersed, excellent
+              birding opportunities
+            </div>
+            <div>
+              <strong class="text-white">Vegetation:</strong> Explosive green growth,
+              dense canopy
+            </div>
+            <div>
+              <strong class="text-white">Best for:</strong> Nature lovers, birders,
+              landscape photography
+            </div>
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- Comprehensive FAQ -->
+  <section class="py-32">
+    <div class="max-w-6xl mx-auto px-6">
+      <h2 class="font-serif italic text-4xl text-white text-center mb-12">
+        Everything You Need to Know
+      </h2>
+
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div class="space-y-6">
+          <h3
+            class="text-xl font-semibold text-emerald-400 border-b border-emerald-400/30 pb-2"
+          >
+            Planning & Logistics
+          </h3>
+
+          <details
+            class="group bg-gray-800/30 rounded-xl p-6 border border-gray-700"
+          >
+            <summary
+              class="font-medium text-white flex justify-between items-center cursor-pointer list-none"
+              >How does safari booking work at Limban?<svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke-width="2"
+                stroke="currentColor"
+                class="w-6 h-6 ml-4 text-amber-400 transition-transform duration-300 shrink-0 group-open:rotate-180"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="m19.5 8.25-7.5 7.5-7.5-7.5"></path></svg
+              ></summary
+            >
+            <p class="text-gray-300 text-sm leading-relaxed mt-3">
+              As a Limban guest, we handle all safari bookings for you through
+              the official Maharashtra portal. We recommend booking your stay
+              first, then we'll secure the best available permits based on your
+              preferences for gates and timing. We know which zones are
+              performing well each season.
+            </p>
+          </details>
+
+          <details
+            class="group bg-gray-800/30 rounded-xl p-6 border border-gray-700"
+          >
+            <summary
+              class="font-medium text-white flex justify-between items-center cursor-pointer list-none"
+              >What are the weekly closure days?<svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke-width="2"
+                stroke="currentColor"
+                class="w-6 h-6 ml-4 text-amber-400 transition-transform duration-300 shrink-0 group-open:rotate-180"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="m19.5 8.25-7.5 7.5-7.5-7.5"></path></svg
+              ></summary
+            >
+            <p class="text-gray-300 text-sm leading-relaxed mt-3">
+              Core zones are completely closed every Tuesday for wildlife rest.
+              Buffer zones are closed every Wednesday. We build your itinerary
+              around these closures and can suggest alternative activities on
+              closure days.
+            </p>
+          </details>
+
+          <details
+            class="group bg-gray-800/30 rounded-xl p-6 border border-gray-700"
+          >
+            <summary
+              class="font-medium text-white flex justify-between items-center cursor-pointer list-none"
+              >What should I pack for different seasons?<svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke-width="2"
+                stroke="currentColor"
+                class="w-6 h-6 ml-4 text-amber-400 transition-transform duration-300 shrink-0 group-open:rotate-180"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="m19.5 8.25-7.5 7.5-7.5-7.5"></path></svg
+              ></summary
+            >
+            <div class="text-gray-300 text-sm leading-relaxed">
+              <p class="mb-3">
+                <strong>All seasons:</strong> Neutral colors only (khaki, olive,
+                brown), full sleeves, closed shoes, hat, sunglasses.
+              </p>
+              <p class="mb-2">
+                <strong>Winter:</strong> Layers for cold mornings (5-10°C), light
+                jacket, scarf.
+              </p>
+              <p class="mb-2">
+                <strong>Summer:</strong> Lightweight cotton, extra sun protection,
+                electrolyte tablets.
+              </p>
+              <p>
+                <strong>Monsoon:</strong> Light rain jacket, quick-dry fabrics, waterproof
+                day pack.
+              </p>
+            </div>
+          </details>
+
+          <details
+            class="group bg-gray-800/30 rounded-xl p-6 border border-gray-700"
+          >
+            <summary
+              class="font-medium text-white flex justify-between items-center cursor-pointer list-none"
+              >How many safaris should I plan?<svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke-width="2"
+                stroke="currentColor"
+                class="w-6 h-6 ml-4 text-amber-400 transition-transform duration-300 shrink-0 group-open:rotate-180"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="m19.5 8.25-7.5 7.5-7.5-7.5"></path></svg
+              ></summary
+            >
+            <p class="text-gray-300 text-sm leading-relaxed mt-3">
+              We recommend minimum 4-6 safaris over 3-4 days for a meaningful
+              experience. This allows you to visit different zones, experience
+              both morning and afternoon timing, and increases your chances of
+              diverse wildlife encounters. Each safari reveals different aspects
+              of the ecosystem.
+            </p>
+          </details>
+        </div>
+
+        <div class="space-y-6">
+          <h3
+            class="text-xl font-semibold text-amber-400 border-b border-amber-400/30 pb-2"
+          >
+            Safari Experience
+          </h3>
+
+          <details
+            class="group bg-gray-800/30 rounded-xl p-6 border border-gray-700"
+          >
+            <summary
+              class="font-medium text-white flex justify-between items-center cursor-pointer list-none"
+              >Why can't I use my mobile phone on safari?<svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke-width="2"
+                stroke="currentColor"
+                class="w-6 h-6 ml-4 text-amber-400 transition-transform duration-300 shrink-0 group-open:rotate-180"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="m19.5 8.25-7.5 7.5-7.5-7.5"></path></svg
+              ></summary
+            >
+            <p class="text-gray-300 text-sm leading-relaxed mt-3">
+              Phones are deposited at the gate to prevent location sharing that
+              causes vehicle crowding at sightings. This protects animal welfare
+              and ensures better experiences for everyone. It also eliminates
+              the distraction, letting you be fully present in the forest.
+              Emergency communication happens via guide radios.
+            </p>
+          </details>
+
+          <details
+            class="group bg-gray-800/30 rounded-xl p-6 border border-gray-700"
+          >
+            <summary
+              class="font-medium text-white flex justify-between items-center cursor-pointer list-none"
+              >What if we don't see tigers?<svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke-width="2"
+                stroke="currentColor"
+                class="w-6 h-6 ml-4 text-amber-400 transition-transform duration-300 shrink-0 group-open:rotate-180"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="m19.5 8.25-7.5 7.5-7.5-7.5"></path></svg
+              ></summary
+            >
+            <p class="text-gray-300 text-sm leading-relaxed mt-3">
+              Every safari offers something remarkable. Beyond tigers, you'll
+              encounter leopards, wild dogs, sloth bears, massive gaur, and over
+              280 bird species. The forest's soundscape—alarm calls, bird songs,
+              rustling leaves—tells stories as compelling as any sighting. Many
+              guests say their "no tiger" safaris were their most educational.
+            </p>
+          </details>
+
+          <details
+            class="group bg-gray-800/30 rounded-xl p-6 border border-gray-700"
+          >
+            <summary
+              class="font-medium text-white flex justify-between items-center cursor-pointer list-none"
+              >Can I carry a camera?<svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke-width="2"
+                stroke="currentColor"
+                class="w-6 h-6 ml-4 text-amber-400 transition-transform duration-300 shrink-0 group-open:rotate-180"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="m19.5 8.25-7.5 7.5-7.5-7.5"></path></svg
+              ></summary
+            >
+            <p class="text-gray-300 text-sm leading-relaxed mt-3">
+              Camera fees apply to lenses above 250mm focal length, typically
+              ₹250-500 per safari depending on lens size. Basic cameras and
+              phones (when allowed in buffer zones) are usually free. We can
+              advise on current fee structures and help with payments at gates.
+            </p>
+          </details>
+
+          <details
+            class="group bg-gray-800/30 rounded-xl p-6 border border-gray-700"
+          >
+            <summary
+              class="font-medium text-white flex justify-between items-center cursor-pointer list-none"
+              >Is it suitable for children and elderly guests?<svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke-width="2"
+                stroke="currentColor"
+                class="w-6 h-6 ml-4 text-amber-400 transition-transform duration-300 shrink-0 group-open:rotate-180"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="m19.5 8.25-7.5 7.5-7.5-7.5"></path></svg
+              ></summary
+            >
+            <p class="text-gray-300 text-sm leading-relaxed mt-3">
+              Safaris require sitting quietly for 3-4 hours on sometimes rough
+              tracks. Children 8+ typically do well with proper preparation. For
+              younger kids or guests with mobility concerns, we can arrange
+              shorter nature walks, resort-based activities, and visits to the
+              interpretation center. Our naturalists are skilled at engaging all
+              age groups.
+            </p>
+          </details>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Final CTA -->
+  <section class="py-32 bg-gray-900/50">
+    <div class="max-w-6xl mx-auto px-6 border-gray-800">
+      <div class="max-w-4xl mx-auto px-6 text-center">
+        <h2 class="font-serif italic text-5xl text-white mb-6">
+          Begin Your Tadoba Journey
+        </h2>
+        <p class="text-xl text-gray-300 mb-8 leading-relaxed">
+          Now that you understand what awaits in Maharashtra's greatest
+          wilderness, let us craft your perfect Tadoba experience. From the
+          moment you arrive at Limban, we'll guide you through every step of
+          your transformative journey into the wild heart of India.
+        </p>
+
+        <div class="flex flex-wrap gap-6 justify-center">
+          <a
+            href="/safaris"
+            class="inline-flex items-center px-8 py-4 bg-amber-400 text-gray-900 font-semibold rounded-full hover:bg-amber-300 transition-colors"
+          >
+            Explore Safari Experiences
+          </a>
+          <a
+            href="/rooms"
+            class="inline-flex items-center px-8 py-4 border-2 border-amber-400 text-amber-400 rounded-full hover:bg-amber-400/10 transition-colors"
+          >
+            Reserve Your Limban Stay
           </a>
         </div>
-      </section>
-    </main>
-  </div>
+        <!-- Additional trust signals -->
+        <div class="mt-16 text-center">
+          <p class="text-gray-400 text-sm mb-4">
+            Trusted by wildlife enthusiasts worldwide
+          </p>
+          <div class="flex justify-center items-center space-x-8 text-gray-500">
+            <div class="flex items-center space-x-2">
+              <svg
+                class="w-5 h-5 text-green-400"
+                fill="currentColor"
+                viewBox="0 0 20 20"
+              >
+                <path
+                  fill-rule="evenodd"
+                  d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                  clip-rule="evenodd"></path>
+              </svg>
+              <span class="text-sm">Expert naturalist guides</span>
+            </div>
+            <div class="flex items-center space-x-2">
+              <svg
+                class="w-5 h-5 text-blue-400"
+                fill="currentColor"
+                viewBox="0 0 20 20"
+              >
+                <path
+                  fill-rule="evenodd"
+                  d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                  clip-rule="evenodd"></path>
+              </svg>
+              <span class="text-sm">15+ years experience</span>
+            </div>
+            <div class="flex items-center space-x-2">
+              <svg
+                class="w-5 h-5 text-amber-400"
+                fill="currentColor"
+                viewBox="0 0 20 20"
+              >
+                <path
+                  fill-rule="evenodd"
+                  d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                  clip-rule="evenodd"></path>
+              </svg>
+              <span class="text-sm">Conservation committed</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Map and Interactive Elements -->
+  <script>
+    // Initialize Leaflet map - no API key required!
+    document.addEventListener("DOMContentLoaded", function () {
+      // Load Leaflet CSS and JS if not already loaded
+      if (!document.querySelector('link[href*="leaflet"]')) {
+        const leafletCSS = document.createElement("link");
+        leafletCSS.rel = "stylesheet";
+        leafletCSS.href = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css";
+        document.head.appendChild(leafletCSS);
+      }
+
+      if (typeof L === "undefined") {
+        const leafletJS = document.createElement("script");
+        leafletJS.src = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.js";
+        leafletJS.onload = initializeMap;
+        document.head.appendChild(leafletJS);
+      } else {
+        initializeMap();
+      }
+    });
+
+    function initializeMap() {
+      // Initialize map centered on Tadoba area
+      const map = L.map("tadoba-map", {
+        center: [20.3, 79.4], // Centered to show all gates
+        zoom: 9, // Good zoom to show all gates
+        zoomControl: true,
+        scrollWheelZoom: true,
+      });
+
+      // Add tile layer
+      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+        attribution: "© OpenStreetMap contributors",
+        maxZoom: 18,
+      }).addTo(map);
+
+      // LIMBAN RESORT - EXACT COORDINATES
+      const limbanMarker = L.marker([20.25602486093492, 79.2847888101826])
+        .addTo(map)
+        .openPopup();
+
+      // Add Limban label with line
+      const limbanLabelPos = [
+        20.25602486093492 + 0.02,
+        79.2847888101826 + 0.03,
+      ];
+
+      // Limban text label
+      L.marker(limbanLabelPos, {
+        icon: L.divIcon({
+          className: "text-label",
+          html: '<div style="background: rgba(220, 38, 38, 0.9); color: white; padding: 2px 6px; border-radius: 4px; font-size: 12px; font-weight: 600; white-space: nowrap;">Limban Resort</div>',
+          iconSize: [100, 20],
+          iconAnchor: [0, 10],
+        }),
+      }).addTo(map);
+    }
+  </script>
 </Layout>
-
-<style>
-  /* Enhanced smooth transitions */
-  .hover\:scale-105 {
-    transform-origin: center center;
-    backface-visibility: hidden;
-    will-change: transform;
-  }
-
-  /* Respect user motion preferences */
-  @media (prefers-reduced-motion: reduce) {
-    .transition-all,
-    .transition-transform,
-    .hover\:scale-105 {
-      transition: none !important;
-      transform: none !important;
-    }
-  }
-
-  /* Enhanced first-letter styling */
-  @media (max-width: 640px) {
-    .first-letter\:text-7xl {
-      font-size: 4rem;
-    }
-  }
-</style>

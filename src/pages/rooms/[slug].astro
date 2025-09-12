@@ -99,8 +99,8 @@ const safePrice = Number(room.basePrice) || 0;
 <!-- Performance optimization: preload critical resources -->
 <link rel="preload" as="image" href={heroImage} fetchpriority="high" />
 
-<Layout title={`${room.roomName} - Limban Resort`}>
-  <AstroSEO
+<Layout>
+  <AstroSEO slot="head"
     title={`${room.roomName} | Luxury Safari Accommodation - Limban Resort`}
     description={`Experience luxury in our ${room.roomName} at Limban Resort. ${room.shortDescription} Book your exclusive safari accommodation in Tadoba National Park, Maharashtra.`}
     canonical={`https://limban.com/rooms/${room.url}`}
@@ -113,31 +113,37 @@ const safePrice = Number(room.basePrice) || 0;
     }}
     jsonLd={{
       "@context": "https://schema.org",
-      "@type": "Resort",
+      "@type": "LodgingBusiness",
       "@id": `https://limban.com/rooms/${room.url}#resort`,
       "name": "Limban Resort",
       "url": "https://limban.com",
-      "logo": "https://limban.com/limban-logo.png",
+      "logo": "https://limban.com/limban-logo.jpg",
       "image": [heroImage, ...allRoomImages.slice(0, 6).map(img => img.large)].filter(Boolean),
       "description": "Luxury safari resort in Tadoba National Park offering premium eco-friendly accommodation and tiger safari experiences in Maharashtra, India.",
-      "containsPlace": {
-        "@type": "Accommodation",
-        "name": room.roomName,
-        "description": room.shortDescription,
-        "image": [heroImage, ...allRoomImages.slice(0, 4).map(img => img.large)].filter(Boolean),
-        "amenityFeature": room.roomFeature?.map(feature => ({
-          "@type": "LocationFeatureSpecification",
-          "name": feature.featureName,
-          "value": true
-        })) || [],
-        "offers": {
-          "@type": "Offer",
-          "price": safePrice,
-          "priceCurrency": "INR",
-          "availability": "https://schema.org/InStock",
-          "url": `https://limban.com/rooms/${room.url}`,
-          "validFrom": new Date().toISOString().split('T')[0]
-        }
+      "location": {
+        "@type": "Place",
+        "name": "Tadoba National Park",
+        "address": "Maharashtra, India"
+      },
+      "accommodationCategory": "Resort",
+      "amenityFeature": room.roomFeature?.map(feature => ({
+        "@type": "LocationFeatureSpecification",
+        "name": feature.featureName,
+        "value": true
+      })) || [],
+      "makesOffer": {
+        "@type": "Offer",
+        "itemOffered": {
+          "@type": "Accommodation",
+          "name": room.roomName,
+          "description": room.shortDescription,
+          "image": [heroImage, ...allRoomImages.slice(0, 4).map(img => img.large)].filter(Boolean)
+        },
+        "price": safePrice,
+        "priceCurrency": "INR",
+        "availability": "https://schema.org/InStock",
+        "url": `https://limban.com/rooms/${room.url}`,
+        "validFrom": new Date().toISOString().split('T')[0]
       }
     }}
   />

@@ -77,6 +77,7 @@ const testimonials = [
 
 <Layout title="Corporate Events & Executive Retreats - Limban Resort">
   <AstroSEO
+    slot="head"
     title="Corporate Events & Executive Retreats | Limban Resort Tadoba"
     description="Transform your next work events into extraordinary experiences. Executive retreats, team building, awards, celebrations, and strategy sessions in India's premier tiger reserve in Tadoba. Exclusive venues for 5-40 attendees in Maharashtra's luxury eco-resort."
     canonical="https://limban.com/corporate-events"
@@ -91,52 +92,362 @@ const testimonials = [
     }}
     jsonLd={{
       "@context": "https://schema.org",
-      "@type": ["Resort", "EventVenue"],
-      name: "Limban Resort - Corporate Events & Executive Retreats",
-      description:
-        "Luxury eco-resort in Tadoba offering exclusive corporate events, executive retreats, and team-building programs in India's premier tiger reserve",
-      url: "https://limban.com/corporate-events",
-      logo: "https://limban.com/img/limban-logo.png",
-      image: validatedHeroImage,
-      address: {
+      "@type": ["EventVenue", "Resort", "LodgingBusiness"],
+      "@id": "https://limban.com/corporate-events#venue",
+      "name": "Limban Resort - Corporate Events & Executive Retreats",
+      "alternateName": [
+        "Limban Corporate Event Venue",
+        "Limban Executive Retreat Center",
+        "Tadoba Corporate Venue"
+      ],
+      "description": "Exclusive luxury eco-resort in Tadoba National Park offering transformative corporate events, executive retreats, and team-building programs. Maximum 40 attendees for intimate, focused experiences in India's premier tiger reserve.",
+      "url": "https://limban.com/corporate-events",
+      "sameAs": [
+        "https://www.tripadvisor.in/Hotel_Review-g10594630-d12902646-Reviews-Limban_Resort-Chandrapur_District_Maharashtra.html",
+        "https://www.instagram.com/limbanresorts/",
+        "https://www.facebook.com/limbanresortstadoba/"
+      ],
+      "logo": "https://limban.com/img/limban-logo.jpg",
+      "image": [
+        validatedHeroImage,
+        ...corporateGallery?.slice(0, 6).map(item => item.image?.url).filter(Boolean) || []
+      ].filter(Boolean),
+      "address": {
         "@type": "PostalAddress",
-        addressLocality: "Chandrapur",
-        addressRegion: "Maharashtra",
-        addressCountry: "IN",
+        "streetAddress": "Survey No. 306, Village Mudholi, Taluka Bhadravati",
+        "addressLocality": "Chandrapur",
+        "addressRegion": "Maharashtra", 
+        "postalCode": "442906",
+        "addressCountry": "IN"
       },
-      telephone: "+91-90226-80451",
-      email: "info@limban.com",
-      maximumAttendeeCapacity: 40,
-      eventType: [
+      "geo": {
+        "@type": "GeoCoordinates",
+        "latitude": 20.25602486093492,
+        "longitude": 79.2847888101826
+      },
+      "contactPoint": [
+        {
+          "@type": "ContactPoint",
+          "telephone": "+91-90226-80451",
+          "contactType": "reservations",
+          "availableLanguage": ["English", "Hindi"],
+          "areaServed": "IN"
+        },
+        {
+          "@type": "ContactPoint",
+          "email": "info@limban.com", 
+          "contactType": "customer service",
+          "availableLanguage": ["English", "Hindi"]
+        }
+      ],
+      "maximumAttendeeCapacity": 40,
+      "minimumAttendeeCapacity": 5,
+      "eventCapacity": {
+        "@type": "QuantitativeValue",
+        "minValue": 5,
+        "maxValue": 40,
+        "unitText": "attendees"
+      },
+      "eventType": [
         "Executive Retreat",
-        "Corporate Team Building",
+        "Corporate Team Building", 
         "Business Strategy Session",
-        "Leadership Development",
+        "Leadership Development Program",
         "Board Meeting",
         "Client Entertainment",
+        "Innovation Workshop",
+        "Management Training",
+        "Corporate Celebration",
+        "Product Launch",
+        "Awards Ceremony"
       ],
-      amenityFeature: [
+      "amenityFeature": [
         {
           "@type": "LocationFeatureSpecification",
-          name: "Private Meeting Facilities",
-          value: true,
+          "name": "Private Meeting Facilities",
+          "value": true
         },
         {
           "@type": "LocationFeatureSpecification",
-          name: "Safari Team Building Programs",
-          value: true,
+          "name": "Safari Team Building Programs", 
+          "value": true
         },
         {
           "@type": "LocationFeatureSpecification",
-          name: "Luxury Eco-Accommodations",
-          value: true,
+          "name": "Luxury Eco-Accommodations",
+          "value": true
         },
+        {
+          "@type": "LocationFeatureSpecification",
+          "name": "Wildlife Safari Integration",
+          "value": true
+        },
+        {
+          "@type": "LocationFeatureSpecification", 
+          "name": "Outdoor Meeting Spaces",
+          "value": true
+        },
+        {
+          "@type": "LocationFeatureSpecification",
+          "name": "Audio Visual Equipment",
+          "value": true
+        },
+        {
+          "@type": "LocationFeatureSpecification",
+          "name": "High-Speed Internet",
+          "value": true
+        },
+        {
+          "@type": "LocationFeatureSpecification",
+          "name": "Catering Services", 
+          "value": true
+        },
+        {
+          "@type": "LocationFeatureSpecification",
+          "name": "Spa & Wellness Facilities",
+          "value": true
+        },
+        {
+          "@type": "LocationFeatureSpecification",
+          "name": "Swimming Pool",
+          "value": true
+        },
+        {
+          "@type": "LocationFeatureSpecification",
+          "name": "Private Transportation",
+          "value": true
+        },
+        {
+          "@type": "LocationFeatureSpecification",
+          "name": "24/7 Concierge Service",
+          "value": true
+        }
       ],
-      geo: {
-        "@type": "GeoCoordinates",
-        latitude: "20.2961",
-        longitude: "79.2961",
+      "containedInPlace": {
+        "@type": "TouristDestination",
+        "name": "Tadoba Andhari Tiger Reserve",
+        "description": "India's premier tiger reserve and wildlife sanctuary",
+        "address": {
+          "@type": "PostalAddress", 
+          "addressLocality": "Tadoba",
+          "addressRegion": "Maharashtra",
+          "addressCountry": "IN"
+        }
       },
+      "isPartOf": {
+        "@type": "LodgingBusiness",
+        "name": "Limban Resort",
+        "url": "https://limban.com",
+        "@id": "https://limban.com/#resort",
+        "description": "Luxury safari resort in Tadoba National Park"
+      },
+      "hasOfferCatalog": {
+        "@type": "OfferCatalog",
+        "name": "Corporate Event Packages",
+        "itemListElement": [
+          {
+            "@type": "Offer",
+            "name": "Executive Retreat Package",
+            "description": "Strategic planning sessions for C-suite teams with luxury accommodation and safari experiences",
+            "itemOffered": {
+              "@type": "Service",
+              "serviceType": "Executive Retreat"
+            },
+            "eligibleQuantity": {
+              "@type": "QuantitativeValue",
+              "minValue": 8,
+              "maxValue": 20,
+              "unitText": "executives"
+            },
+            "availability": "https://schema.org/InStock"
+          },
+          {
+            "@type": "Offer",
+            "name": "Team Building Adventure",
+            "description": "Safari-integrated team building programs with wilderness challenges",
+            "itemOffered": {
+              "@type": "Service", 
+              "serviceType": "Team Building"
+            },
+            "eligibleQuantity": {
+              "@type": "QuantitativeValue",
+              "minValue": 15,
+              "maxValue": 40,
+              "unitText": "team members"
+            },
+            "availability": "https://schema.org/InStock"
+          },
+          {
+            "@type": "Offer",
+            "name": "Client Entertainment Experience",
+            "description": "Premium client hosting with exclusive wildlife experiences",
+            "itemOffered": {
+              "@type": "Service",
+              "serviceType": "Client Entertainment"
+            },
+            "eligibleQuantity": {
+              "@type": "QuantitativeValue",
+              "minValue": 5,
+              "maxValue": 25,
+              "unitText": "guests" 
+            },
+            "availability": "https://schema.org/InStock"
+          }
+        ]
+      },
+      "makesOffer": [
+        {
+          "@type": "Offer",
+          "itemOffered": {
+            "@type": "Event",
+            "eventType": "Corporate Event",
+            "name": "Bespoke Corporate Experience"
+          },
+          "priceSpecification": {
+            "@type": "PriceSpecification",
+            "priceCurrency": "INR",
+            "eligibleQuantity": {
+              "@type": "QuantitativeValue", 
+              "minValue": 1,
+              "unitText": "event"
+            }
+          },
+          "availability": "https://schema.org/PreOrder",
+          "advanceBookingRequirement": {
+            "@type": "QuantitativeValue",
+            "minValue": 30,
+            "unitText": "days"
+          }
+        }
+      ],
+      "audience": {
+        "@type": "Audience",
+        "audienceType": [
+          "Corporate Executives",
+          "Business Leaders", 
+          "Management Teams",
+          "Board Members",
+          "Senior Leadership",
+          "C-Suite Executives",
+          "Business Development Teams",
+          "Innovation Teams"
+        ]
+      },
+      "knowsAbout": [
+        "Executive Retreat Planning",
+        "Corporate Team Building",
+        "Leadership Development",
+        "Strategic Planning Facilitation", 
+        "Client Entertainment",
+        "Wildlife Safari Integration",
+        "Luxury Event Management",
+        "Sustainable Corporate Events",
+        "Innovation Workshop Facilitation"
+      ],
+      "specialFeature": [
+        {
+          "@type": "Thing",
+          "name": "Safari Team Building",
+          "description": "Unique team building experiences integrated with wildlife safaris in Tadoba National Park"
+        },
+        {
+          "@type": "Thing",
+          "name": "Eco-Luxury Setting",
+          "description": "Sustainable luxury environment that inspires breakthrough thinking and innovation"
+        },
+        {
+          "@type": "Thing",
+          "name": "Intimate Exclusivity", 
+          "description": "Maximum 40 attendees ensuring personalized attention and focused experiences"
+        },
+        {
+          "@type": "Thing",
+          "name": "Wilderness Inspiration",
+          "description": "Nature-based environments proven to unlock creativity and strategic thinking"
+        }
+      ],
+      "additionalProperty": [
+        {
+          "@type": "PropertyValue",
+          "name": "Venue Style", 
+          "value": "Luxury Eco-Resort"
+        },
+        {
+          "@type": "PropertyValue",
+          "name": "Setting",
+          "value": "Tiger Reserve Wildlife Sanctuary"
+        },
+        {
+          "@type": "PropertyValue",
+          "name": "Unique Selling Point",
+          "value": "Safari-Integrated Corporate Experiences"
+        },
+        {
+          "@type": "PropertyValue",
+          "name": "Accommodation Type",
+          "value": "Luxury Safari Lodge"
+        },
+        {
+          "@type": "PropertyValue",
+          "name": "Distance from Airport",
+          "value": "125 km from Nagpur Airport"
+        }
+      ],
+      "potentialAction": [
+        {
+          "@type": "ReserveAction",
+          "target": {
+            "@type": "EntryPoint",
+            "urlTemplate": "https://limban.com/corporate-events#enquiry-form",
+            "actionPlatform": [
+              "https://schema.org/DesktopWebPlatform",
+              "https://schema.org/MobileWebPlatform"
+            ]
+          },
+          "name": "Request Corporate Event Proposal"
+        },
+        {
+          "@type": "CommunicateAction",
+          "target": {
+            "@type": "EntryPoint",
+            "urlTemplate": "tel:+919022680451"
+          },
+          "name": "Call for Corporate Event Planning"
+        }
+      ],
+      "openingHours": "Mo-Su 00:00-24:00",
+      "openingHoursSpecification": {
+        "@type": "OpeningHoursSpecification",
+        "dayOfWeek": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
+        "opens": "00:00",
+        "closes": "24:00",
+        "description": "24/7 resort operations with dedicated event coordination"
+      },
+      "paymentAccepted": ["Cash", "Credit Card", "Bank Transfer", "Corporate Invoice"],
+      "currenciesAccepted": "INR",
+      "priceRange": "₹₹₹₹",
+      "aggregateRating": {
+        "@type": "AggregateRating",
+        "ratingValue": 4.9,
+        "reviewCount": 171,
+        "bestRating": 5,
+        "worstRating": 1
+      },
+      "award": [
+        "TripAdvisor Travellers' Choice Award",
+        "#7 of 25 Hotels in Chandrapur District"
+      ],
+      "provider": {
+        "@type": "Organization",
+        "name": "Limban Resort",
+        "url": "https://limban.com",
+        "logo": "https://limban.com/img/limban-logo.jpg"
+      },
+      "publisher": {
+        "@type": "Organization",
+        "name": "Limban Resort", 
+        "url": "https://limban.com"
+      }
     }}
   />
 

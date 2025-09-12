@@ -77,32 +77,303 @@ const roomsHeroImage = validateImageUrl(data.rooms[0]?.validatedImage) || '/img/
     }}
     jsonLd={{
       "@context": "https://schema.org",
-      "@type": "CollectionPage",
+      "@type": ["CollectionPage", "AccommodationCatalog"],
+      "@id": "https://limban.com/rooms#catalog",
       "name": "Luxury Rooms & Suites - Limban Resort",
-      "description": "Discover six distinctive luxury accommodations at Limban Resort in Tadoba National Park, offering eco-friendly comfort with wilderness views",
+      "alternateName": [
+        "Limban Resort Accommodations",
+        "Tadoba Safari Lodge Rooms",
+        "Luxury Safari Accommodations"
+      ],
+      "description": "Discover six distinctive luxury accommodations at Limban Resort in Tadoba National Park. From safari tents to luxury villas, each room offers eco-friendly comfort with stunning wilderness views and modern amenities in Maharashtra, India.",
       "url": "https://limban.com/rooms",
+      "sameAs": [
+        "https://www.tripadvisor.in/Hotel_Review-g10594630-d12902646-Reviews-Limban_Resort-Chandrapur_District_Maharashtra.html",
+        "https://www.instagram.com/limbanresorts/",
+        "https://www.facebook.com/limbanresortstadoba/"
+      ],
+      "logo": "https://limban.com/img/limban-logo.jpg",
+      "image": [
+        roomsHeroImage,
+        ...data.rooms?.slice(0, 6).map(room => room.validatedImage).filter(Boolean) || []
+      ].filter(Boolean),
       "mainEntity": {
-        "@type": "Resort",
+        "@type": "LodgingBusiness",
+        "@id": "https://limban.com/#resort",
         "name": "Limban Resort",
+        "description": "Luxury eco-resort in Tadoba National Park offering six distinctive safari accommodations with modern amenities and wilderness immersion",
+        "url": "https://limban.com",
+        "logo": "https://limban.com/img/limban-logo.jpg",
         "address": {
           "@type": "PostalAddress",
+          "streetAddress": "Survey No. 306, Village Mudholi, Taluka Bhadravati",
           "addressLocality": "Chandrapur",
+          "addressRegion": "Maharashtra",
+          "postalCode": "442906",
+          "addressCountry": "IN"
+        },
+        "geo": {
+          "@type": "GeoCoordinates",
+          "latitude": 20.25602486093492,
+          "longitude": 79.2847888101826
+        },
+        "contactPoint": [
+          {
+            "@type": "ContactPoint",
+            "telephone": "+91-90226-80451",
+            "contactType": "reservations",
+            "availableLanguage": ["English", "Hindi"]
+          },
+          {
+            "@type": "ContactPoint",
+            "email": "info@limban.com",
+            "contactType": "customer service"
+          }
+        ],
+        "checkinTime": "14:00",
+        "checkoutTime": "11:00",
+        "priceRange": "₹₹₹₹",
+        "currenciesAccepted": "INR",
+        "paymentAccepted": ["Cash", "Credit Card", "Bank Transfer"],
+        "numberOfRooms": data.rooms?.length || 6,
+        "petsAllowed": false,
+        "aggregateRating": {
+          "@type": "AggregateRating",
+          "ratingValue": 4.9,
+          "reviewCount": 171,
+          "bestRating": 5,
+          "worstRating": 1
+        },
+        "starRating": {
+          "@type": "Rating",
+          "ratingValue": 5
+        },
+        "award": [
+          "TripAdvisor Travellers' Choice Award",
+          "#7 of 25 Hotels in Chandrapur District"
+        ]
+      },
+      "hasPart": data.rooms?.map((room, index) => ({
+        "@type": "Accommodation",
+        "@id": `https://limban.com/rooms/${room.url}#accommodation`,
+        "name": room.roomName,
+        "description": room.shortDescription,
+        "url": `https://limban.com/rooms/${room.url}`,
+        "image": [
+          room.validatedImage,
+          ...(room.additionalImages?.slice(0, 4) || [])
+        ].filter(Boolean),
+        "floorSize": {
+          "@type": "QuantitativeValue",
+          "value": room.floorSize || "500",
+          "unitText": "square feet"
+        },
+        "numberOfRooms": 1,
+        "occupancy": {
+          "@type": "QuantitativeValue",
+          "maxValue": room.maxOccupancy || 2,
+          "unitText": "persons"
+        },
+        "bed": {
+          "@type": "BedDetails",
+          "numberOfBeds": room.bedCount || 1,
+          "typeOfBed": room.bedType || "King"
+        },
+        "amenityFeature": room.roomFeature?.map(feature => ({
+          "@type": "LocationFeatureSpecification",
+          "name": feature.featureName,
+          "value": true
+        })) || [],
+        "offers": {
+          "@type": "Offer",
+          "price": room.safePrice,
+          "priceCurrency": "INR",
+          "priceSpecification": {
+            "@type": "PriceSpecification",
+            "price": room.safePrice,
+            "priceCurrency": "INR",
+            "eligibleQuantity": {
+              "@type": "QuantitativeValue",
+              "minValue": 1,
+              "maxValue": 1,
+              "unitText": "night"
+            }
+          },
+          "availability": "https://schema.org/InStock",
+          "validFrom": new Date().toISOString().split('T')[0],
+          "includedInOffer": [
+            "Breakfast",
+            "WiFi",
+            "Airport Transfer",
+            "Safari Assistance"
+          ]
+        },
+        "isPartOf": {
+          "@type": "LodgingBusiness",
+          "name": "Limban Resort",
+          "@id": "https://limban.com/#resort"
+        }
+      })) || [],
+      "containedInPlace": {
+        "@type": "TouristDestination",
+        "name": "Tadoba Andhari Tiger Reserve",
+        "description": "India's premier tiger reserve and wildlife sanctuary",
+        "address": {
+          "@type": "PostalAddress",
+          "addressLocality": "Tadoba",
           "addressRegion": "Maharashtra",
           "addressCountry": "IN"
         }
       },
-      "hasPart": data.rooms.map(room => ({
-        "@type": "Accommodation",
-        "name": room.roomName,
-        "description": room.shortDescription,
-        "image": room.validatedImage,
-        "url": `https://limban.com/rooms/${room.url}`,
-        "priceRange": `₹${room.safePrice}+`,
-        "amenityFeature": room.roomFeature?.map(feature => ({
+      "audience": {
+        "@type": "Audience",
+        "audienceType": [
+          "Wildlife Enthusiasts",
+          "Luxury Travelers",
+          "Nature Photographers",
+          "Eco-Conscious Tourists",
+          "Safari Adventurers",
+          "Couples",
+          "Families"
+        ]
+      },
+      "amenityFeature": [
+        {
           "@type": "LocationFeatureSpecification",
-          "name": feature.featureName
+          "name": "Swimming Pool",
+          "value": true
+        },
+        {
+          "@type": "LocationFeatureSpecification",
+          "name": "Spa Services",
+          "value": true
+        },
+        {
+          "@type": "LocationFeatureSpecification",
+          "name": "Restaurant",
+          "value": true
+        },
+        {
+          "@type": "LocationFeatureSpecification",
+          "name": "Safari Coordination",
+          "value": true
+        },
+        {
+          "@type": "LocationFeatureSpecification",
+          "name": "Free WiFi",
+          "value": true
+        },
+        {
+          "@type": "LocationFeatureSpecification",
+          "name": "Airport Transfer",
+          "value": true
+        },
+        {
+          "@type": "LocationFeatureSpecification",
+          "name": "24/7 Front Desk",
+          "value": true
+        },
+        {
+          "@type": "LocationFeatureSpecification",
+          "name": "Eco-Friendly Practices",
+          "value": true
+        }
+      ],
+      "knowsAbout": [
+        "Luxury Safari Accommodations",
+        "Tadoba Wildlife Tourism",
+        "Eco-Friendly Hospitality",
+        "Tiger Safari Experiences",
+        "Maharashtra Tourism",
+        "Wildlife Photography",
+        "Conservation Tourism"
+      ],
+      "specialFeature": [
+        {
+          "@type": "Thing",
+          "name": "Safari Integration",
+          "description": "All accommodations designed for optimal safari experience with early morning and evening game drives"
+        },
+        {
+          "@type": "Thing",
+          "name": "Eco-Luxury Design",
+          "description": "Sustainable architecture by award-winning architects blending luxury with environmental consciousness"
+        },
+        {
+          "@type": "Thing",
+          "name": "Wildlife Immersion",
+          "description": "Accommodations positioned for natural wildlife viewing and bird watching from private spaces"
+        }
+      ],
+      "additionalProperty": [
+        {
+          "@type": "PropertyValue",
+          "name": "Accommodation Types",
+          "value": "Safari Tents, Luxury Cottages, Tree Houses, Villas"
+        },
+        {
+          "@type": "PropertyValue",
+          "name": "Design Philosophy",
+          "value": "Sustainable Luxury with Wilderness Integration"
+        },
+        {
+          "@type": "PropertyValue",
+          "name": "Unique Selling Point",
+          "value": "Architect-designed Safari Lodge with Tiger Reserve Access"
+        },
+        {
+          "@type": "PropertyValue",
+          "name": "Property Size",
+          "value": "3.5 acres of landscaped wilderness buffer"
+        }
+      ],
+      "hasOfferCatalog": {
+        "@type": "OfferCatalog",
+        "name": "Accommodation Packages",
+        "itemListElement": data.rooms?.map((room, index) => ({
+          "@type": "Offer",
+          "position": index + 1,
+          "itemOffered": {
+            "@type": "Accommodation",
+            "name": room.roomName,
+            "description": room.shortDescription
+          },
+          "price": room.safePrice,
+          "priceCurrency": "INR",
+          "availability": "https://schema.org/InStock",
+          "url": `https://limban.com/rooms/${room.url}`
         })) || []
-      }))
+      },
+      "potentialAction": [
+        {
+          "@type": "ReserveAction",
+          "target": {
+            "@type": "EntryPoint",
+            "urlTemplate": "https://limban.com/contact",
+            "actionPlatform": [
+              "https://schema.org/DesktopWebPlatform",
+              "https://schema.org/MobileWebPlatform"
+            ]
+          },
+          "name": "Book Accommodation"
+        },
+        {
+          "@type": "ViewAction",
+          "target": "https://limban.com/rooms",
+          "name": "Browse All Accommodations"
+        }
+      ],
+      "provider": {
+        "@type": "Organization",
+        "name": "Limban Resort",
+        "url": "https://limban.com",
+        "logo": "https://limban.com/img/limban-logo.jpg"
+      },
+      "publisher": {
+        "@type": "Organization",
+        "name": "Limban Resort",
+        "url": "https://limban.com"
+      }
     }}
   />
   

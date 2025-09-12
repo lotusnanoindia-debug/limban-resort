@@ -67,8 +67,9 @@ const initialGuestImages = allGuestImages.slice(0, 12);
 const remainingGuestImages = allGuestImages.slice(12);
 ---
 
-<Layout title="About Limban Resort - Where the Wild Meets the Soul">
+<Layout>
   <AstroSEO
+    slot="head"
     title="About Limban Resort | Where the Wild Meets the Soul - Tadoba Safari Lodge"
     description="Discover the philosophy behind Limban Resort - a luxury safari sanctuary crafted by visionary architects in the heart of Tadoba National Park. Experience where wilderness meets luxury."
     canonical="https://limban.com/about"
@@ -80,11 +81,182 @@ const remainingGuestImages = allGuestImages.slice(12);
       type: "website",
       url: "https://limban.com/about",
     }}
-    additionalLinkTags={[{ rel: "preload", as: "image", href: heroImageSrc }]}
-    additionalMetaTags={[
-      { name: "robots", content: "index, follow" },
-      { name: "theme-color", content: "#1f2937" },
-    ]}
+    jsonLd={{
+      "@context": "https://schema.org",
+      "@type": "AboutPage",
+      name: "About Limban Resort - Where the Wild Meets the Soul",
+      description:
+        "Discover the philosophy behind Limban Resort - a luxury safari sanctuary crafted by visionary architects in the heart of Tadoba National Park.",
+      url: "https://limban.com/about",
+      image: [
+        heroImageSrc,
+        philosophyImageSrc,
+        foundersImageSrc,
+        ...initialVibeImages.slice(0, 4).map((img) => img.src),
+        ...initialGuestImages.slice(0, 3).map((img) => img.src),
+      ].filter(Boolean),
+      mainEntity: {
+        "@type": "LodgingBusiness",
+        "@id": "https://limban.com/#organization",
+        name: "Limban Resort",
+        alternateName: "Limban Safari Lodge",
+        description:
+          "A luxury safari sanctuary where architecture, wilderness, and soul converge. Crafted for those who seek meaning in nature, connection in simplicity, and magic in the moment.",
+        url: "https://limban.com",
+        logo: "https://limban.com/limban-logo.png",
+        slogan: "Where the Wild Meets the Soul",
+        foundingDate: "2020",
+        address: {
+          "@type": "PostalAddress",
+          streetAddress: "Survey No. 306, Village Mudholi, Taluka Bhadravati",
+          addressLocality: "Chandrapur",
+          addressRegion: "Maharashtra",
+          postalCode: "442906",
+          addressCountry: "IN",
+        },
+        geo: {
+          "@type": "GeoCoordinates",
+          latitude: 20.25602486093492,
+          longitude: 79.2847888101826,
+        },
+        founder: [
+          {
+            "@type": "Person",
+            name: "Amala Sheth",
+            jobTitle: "Founder & Principal Architect",
+            description:
+              "Visionary architect whose revolutionary approach to sustainable luxury earned international recognition and redefined safari lodge design.",
+            worksFor: {
+              "@type": "Organization",
+              name: "Metaphors Design",
+              url: "http://www.metaphors-design.com/",
+            },
+            knowsAbout: [
+              "Sustainable Architecture",
+              "Luxury Resort Design",
+              "Eco-Tourism",
+            ],
+            award: "International recognition for sustainable luxury design",
+          },
+          {
+            "@type": "Person",
+            name: "Anand Bhagat",
+            jobTitle: "Founder & Principal Architect",
+            description:
+              "Architectural visionary dedicated to creating spaces that connect people with nature and conserve the wild.",
+            worksFor: {
+              "@type": "Organization",
+              name: "Metaphors Design",
+              url: "http://www.metaphors-design.com/",
+            },
+            knowsAbout: [
+              "Sustainable Architecture",
+              "Wildlife Conservation",
+              "Eco-Tourism Design",
+            ],
+          },
+        ],
+        mission:
+          "To celebrate life's raw beauty, honour the wild with grace, and create meaningful experiences that connect guests with nature while preserving the wilderness for future generations.",
+        values: ["People", "Planet", "Purpose"],
+        amenityFeature: [
+          {
+            "@type": "LocationFeatureSpecification",
+            name: "Sustainable Luxury Accommodation",
+            value: true,
+          },
+          {
+            "@type": "LocationFeatureSpecification",
+            name: "Tiger Safari Experiences",
+            value: true,
+          },
+          {
+            "@type": "LocationFeatureSpecification",
+            name: "Eco-Friendly Design",
+            value: true,
+          },
+          {
+            "@type": "LocationFeatureSpecification",
+            name: "Wildlife Photography Opportunities",
+            value: true,
+          },
+        ],
+        serviceArea: {
+          "@type": "GeoCircle",
+          geoMidpoint: {
+            "@type": "GeoCoordinates",
+            latitude: 20.25602486093492,
+            longitude: 79.2847888101826,
+          },
+          geoRadius: "50000",
+        },
+        areaServed: [
+          {
+            "@type": "Place",
+            name: "Tadoba National Park",
+            description: "Home to magnificent tigers and diverse wildlife",
+          },
+          {
+            "@type": "AdministrativeArea",
+            name: "Maharashtra",
+            addressCountry: "IN",
+          },
+        ],
+        knowsAbout: [
+          "Tiger Conservation",
+          "Sustainable Tourism",
+          "Wildlife Photography",
+          "Eco-Luxury Hospitality",
+          "Tadoba Ecosystem",
+        ],
+        award:
+          "International recognition for sustainable luxury safari lodge design",
+        certifications: ["Eco-Tourism", "Sustainable Hospitality"],
+        audience: {
+          "@type": "Audience",
+          audienceType: [
+            "Luxury Travelers",
+            "Wildlife Enthusiasts",
+            "Nature Photographers",
+            "Eco-Conscious Travelers",
+          ],
+        },
+      },
+      about: [
+        {
+          "@type": "Thing",
+          name: "Sustainable Luxury Tourism",
+          description:
+            "Creating luxury experiences that leave the wild untouched",
+        },
+        {
+          "@type": "Thing",
+          name: "Architectural Innovation",
+          description:
+            "Revolutionary approach to safari lodge design by award-winning architects",
+        },
+        {
+          "@type": "Thing",
+          name: "Wildlife Conservation",
+          description: "Commitment to protecting Tadoba's ecosystem and tigers",
+        },
+        {
+          "@type": "Thing",
+          name: "Cultural Heritage",
+          description: "Honoring local community and traditional values",
+        },
+      ],
+      keywords: [
+        "luxury safari lodge",
+        "Tadoba National Park",
+        "sustainable tourism",
+        "tiger safari",
+        "eco-luxury",
+        "wildlife photography",
+        "Maharashtra tourism",
+        "architectural innovation",
+      ],
+    }}
   />
 
   <div class="bg-gray-950 text-gray-100 selection:bg-gray-700">

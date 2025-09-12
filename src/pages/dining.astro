@@ -38,25 +38,289 @@ function generateAltText(experienceName, shortIntro) {
 
 <Layout title="Dining Experiences - Limban Resort">
   <AstroSEO
-    title="Dining Experiences | Limban Resort - Tadoba Safari Lodge"
-    description="Discover authentic dining experiences at Limban Resort - from jungle-fresh ingredients to intimate bush dinners under starlit skies in the heart of Tadoba."
-    canonical="https://limban.com/dining"
-    openGraph={{
-      title: "Dining Experiences at Limban Resort - Tadoba Safari Lodge",
-      description: "Authentic Indian cuisine, locally sourced ingredients, and unforgettable dining settings in the wilderness of Tadoba National Park.",
-      image: experiences?.heroImage || "",
-      type: "website",
-      url: "https://limban.com/dining",
-    }}
-    additionalMetaTags={[
-      { name: "robots", content: "index, follow" },
+  slot="head"
+  title="Dining Experiences | Limban Resort - Tadoba Safari Lodge"
+  description="Discover authentic dining experiences at Limban Resort - from jungle-fresh ingredients to intimate bush dinners under starlit skies in the heart of Tadoba."
+  canonical="https://limban.com/dining"
+  openGraph={{
+    title: "Dining Experiences at Limban Resort - Tadoba Safari Lodge",
+    description: "Authentic Indian cuisine, locally sourced ingredients, and unforgettable dining settings in the wilderness of Tadoba National Park.",
+    image: experiences[0]?.heroImage || "/default-dining-hero.jpg",
+    type: "website",
+    url: "https://limban.com/dining",
+  }}
+  jsonLd={{
+    "@context": "https://schema.org",
+    "@type": ["Restaurant", "TouristDestination"],
+    "@id": "https://limban.com/dining#restaurant",
+    "name": "Limban Resort Dining Experiences",
+    "alternateName": [
+      "Limban Restaurant",
+      "Tadoba Safari Lodge Dining",
+      "Limban Culinary Experiences"
+    ],
+    "description": "Authentic dining experiences in the heart of Tadoba National Park. From dawn coffee with morning chorus to candlelit dinners under ancient trees, discover flavors crafted from the freshest local ingredients.",
+    "url": "https://limban.com/dining",
+    "sameAs": [
+      "https://www.tripadvisor.in/Hotel_Review-g10594630-d12902646-Reviews-Limban_Resort-Chandrapur_District_Maharashtra.html",
+      "https://www.instagram.com/limbanresorts/",
+      "https://www.facebook.com/limbanresortstadoba/"
+    ],
+    "logo": "https://limban.com/img/limban-logo.jpg",
+    "image": [
+      experiences[0]?.heroImage || "/default-dining-hero.jpg",
+      ...experiences.slice(1, 6).map(exp => exp.heroImage).filter(Boolean)
+    ].filter(Boolean),
+    "address": {
+      "@type": "PostalAddress",
+      "streetAddress": "Survey No. 306, Village Mudholi, Taluka Bhadravati",
+      "addressLocality": "Chandrapur",
+      "addressRegion": "Maharashtra",
+      "postalCode": "442906",
+      "addressCountry": "IN"
+    },
+    "geo": {
+      "@type": "GeoCoordinates",
+      "latitude": 20.25602486093492,
+      "longitude": 79.2847888101826
+    },
+    "contactPoint": [
       {
-        name: "keywords",
-        content: "Limban Resort dining, Tadoba safari lodge restaurant, local Indian cuisine, bush dining, safari bar",
+        "@type": "ContactPoint",
+        "telephone": "+91-90226-80451",
+        "contactType": "reservations",
+        "availableLanguage": ["English", "Hindi"]
       },
-      { name: "theme-color", content: "#1f2937" },
-    ]}
-  />
+      {
+        "@type": "ContactPoint",
+        "email": "info@limban.com",
+        "contactType": "customer service"
+      }
+    ],
+    "servesCuisine": [
+      "Indian Cuisine",
+      "Local Maharashtrian",
+      "Farm-to-Table",
+      "Authentic Regional",
+      "Fresh Local Ingredients",
+      "Bush Dining",
+      "Safari Lodge Cuisine"
+    ],
+    "priceRange": "₹₹₹",
+    "currenciesAccepted": "INR",
+    "paymentAccepted": ["Cash", "Credit Card", "Debit Card", "Room Charge"],
+    "acceptsReservations": true,
+    "reservationPolicy": "Advance booking recommended for special dining experiences",
+    "hasMenu": true,
+    "menu": {
+      "@type": "Menu",
+      "name": "Limban Dining Experiences",
+      "description": "Fresh, locally-sourced ingredients crafted into memorable wilderness dining experiences",
+      "hasMenuSection": experiences.map(exp => ({
+        "@type": "MenuSection",
+        "name": exp.name,
+        "description": exp.intro,
+        "url": `https://limban.com/dining/${exp.slug}`,
+        "image": exp.heroImage
+      }))
+    },
+    "hasOfferCatalog": {
+      "@type": "OfferCatalog",
+      "name": "Dining Experience Collection",
+      "itemListElement": experiences.map((exp, index) => ({
+        "@type": "Offer",
+        "position": index + 1,
+        "itemOffered": {
+          "@type": "FoodEvent",
+          "name": exp.name,
+          "description": exp.intro,
+          "url": `https://limban.com/dining/${exp.slug}`,
+          "image": exp.heroImage
+        },
+        "availability": "https://schema.org/InStock",
+        "availableAtOrFrom": {
+          "@type": "Place",
+          "name": "Limban Resort"
+        }
+      }))
+    },
+    "openingHours": [
+      "Mo-Su 06:30-10:30",  // Breakfast
+      "Mo-Su 12:30-15:00",  // Lunch
+      "Mo-Su 19:30-22:30"   // Dinner
+    ],
+    "openingHoursSpecification": [
+      {
+        "@type": "OpeningHoursSpecification",
+        "dayOfWeek": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
+        "opens": "06:30",
+        "closes": "10:30",
+        "description": "Breakfast with morning safari sounds"
+      },
+      {
+        "@type": "OpeningHoursSpecification",
+        "dayOfWeek": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
+        "opens": "19:30",
+        "closes": "22:30",
+        "description": "Dinner under the starlit sky"
+      }
+    ],
+    "amenityFeature": [
+      {
+        "@type": "LocationFeatureSpecification",
+        "name": "Bush Dining Experiences",
+        "value": true
+      },
+      {
+        "@type": "LocationFeatureSpecification",
+        "name": "Outdoor Dining Areas",
+        "value": true
+      },
+      {
+        "@type": "LocationFeatureSpecification",
+        "name": "Locally Sourced Ingredients",
+        "value": true
+      },
+      {
+        "@type": "LocationFeatureSpecification",
+        "name": "Farm-to-Table Cuisine",
+        "value": true
+      },
+      {
+        "@type": "LocationFeatureSpecification",
+        "name": "Wildlife Viewing During Meals",
+        "value": true
+      },
+      {
+        "@type": "LocationFeatureSpecification",
+        "name": "Private Dining Options",
+        "value": true
+      },
+      {
+        "@type": "LocationFeatureSpecification",
+        "name": "Vegetarian Options",
+        "value": true
+      },
+      {
+        "@type": "LocationFeatureSpecification",
+        "name": "Dietary Accommodations",
+        "value": true
+      }
+    ],
+    "isPartOf": {
+      "@type": "LodgingBusiness",
+      "name": "Limban Resort",
+      "url": "https://limban.com",
+      "@id": "https://limban.com/#resort"
+    },
+    "containedInPlace": {
+      "@type": "TouristDestination",
+      "name": "Tadoba Andhari Tiger Reserve",
+      "address": {
+        "@type": "PostalAddress",
+        "addressLocality": "Tadoba",
+        "addressRegion": "Maharashtra",
+        "addressCountry": "IN"
+      }
+    },
+    "audience": {
+      "@type": "Audience",
+      "audienceType": [
+        "Safari Enthusiasts",
+        "Nature Lovers",
+        "Food Connoisseurs",
+        "Eco-Conscious Travelers",
+        "Wildlife Tourists",
+        "Luxury Travelers"
+      ]
+    },
+    "knowsAbout": [
+      "Local Maharashtrian Cuisine",
+      "Farm-to-Table Cooking",
+      "Bush Dining Experiences",
+      "Safari Lodge Hospitality",
+      "Regional Ingredients",
+      "Sustainable Dining Practices",
+      "Wildlife Sanctuary Dining"
+    ],
+    "specialFeature": [
+      {
+        "@type": "Thing",
+        "name": "Wilderness Dining",
+        "description": "Unique dining experiences set in the heart of Tadoba's wilderness"
+      },
+      {
+        "@type": "Thing",
+        "name": "Farm-to-Table Philosophy",
+        "description": "Fresh, locally-sourced ingredients prepared with authentic regional techniques"
+      },
+      {
+        "@type": "Thing",
+        "name": "Safari Integration",
+        "description": "Dining experiences perfectly timed with safari schedules and wildlife viewing"
+      }
+    ],
+    "additionalProperty": [
+      {
+        "@type": "PropertyValue",
+        "name": "Dining Style",
+        "value": "Safari Lodge Fine Casual"
+      },
+      {
+        "@type": "PropertyValue",
+        "name": "Culinary Philosophy",
+        "value": "Fresh, Local, Authentic"
+      },
+      {
+        "@type": "PropertyValue",
+        "name": "Setting",
+        "value": "Wilderness Safari Lodge"
+      },
+      {
+        "@type": "PropertyValue",
+        "name": "Specialty",
+        "value": "Bush Dining & Wildlife Viewing"
+      }
+    ],
+    "potentialAction": [
+      {
+        "@type": "ReserveAction",
+        "target": {
+          "@type": "EntryPoint",
+          "urlTemplate": "https://limban.com/rooms",
+          "actionPlatform": [
+            "https://schema.org/DesktopWebPlatform",
+            "https://schema.org/MobileWebPlatform"
+          ]
+        },
+        "name": "Book Dining Experience"
+      },
+      {
+        "@type": "ViewAction",
+        "target": "https://limban.com/dining",
+        "name": "Explore Dining Options"
+      }
+    ],
+    "aggregateRating": {
+      "@type": "AggregateRating",
+      "ratingValue": 4.9,
+      "reviewCount": 171,
+      "bestRating": 5,
+      "worstRating": 1
+    },
+    "provider": {
+      "@type": "Organization",
+      "name": "Limban Resort",
+      "url": "https://limban.com",
+      "logo": "https://limban.com/img/limban-logo.jpg"
+    },
+    "publisher": {
+      "@type": "Organization",
+      "name": "Limban Resort",
+      "url": "https://limban.com"
+    }
+  }}
+/>
 
   <div class="bg-gray-950 text-gray-100 selection:bg-gray-700">
     

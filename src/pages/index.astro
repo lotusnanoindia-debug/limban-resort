@@ -71,9 +71,10 @@ const gridClass = {
 const heroImage = validateImageUrl(data.heroes[0]?.backgroundImage?.url) || '/img/tiger-safari-hero.jpg';
 ---
 
-<Layout title="Limban Resort - Luxury Eco-Safari Experience in Tadoba">
+<Layout>
   
   <AstroSEO
+    slot="head"
     title="Limban Resort | Luxury Eco-Friendly Safari & Wellness Retreat in Tadoba National Park"
     description="Discover unparalleled luxury and sustainability at Limban Resort, nestled in the heart of Tadoba National Park. Experience responsible tiger safaris, eco-conscious wellness programs, and authentic cultural immersion in Maharashtra, India."
     canonical="https://limban.com"
@@ -91,12 +92,12 @@ const heroImage = validateImageUrl(data.heroes[0]?.backgroundImage?.url) || '/im
       "name": "Limban Resort",
       "description": "Luxury eco-friendly safari resort in Tadoba National Park offering sustainable tiger safaris, wellness programs, and conservation-focused hospitality in Maharashtra, India",
       "url": "https://limban.com",
-      "logo": "https://limban.com/img/limban-logo.png",
+      "logo": "https://limban.com/img/limban-logo.jpg",
       "image": heroImage,
       "sameAs": [
         "https://www.tripadvisor.in/Hotel_Review-g10594630-d12902646-Reviews-Limban_Resort-Chandrapur_District_Maharashtra.html",
         "https://www.instagram.com/limbanresorts/",
-        "https://www.facebook.com/limbanresort"
+        "https://www.facebook.com/limbanresortstadoba/"
       ],
       "hasMap": "https://www.google.com/maps/place/20.25602486093492,79.2847888101826",
       "checkinTime": "13:00",
@@ -315,7 +316,6 @@ const heroImage = validateImageUrl(data.heroes[0]?.backgroundImage?.url) || '/im
         new PerformanceObserver((list) => {
           const entries = list.getEntries();
           const lastEntry = entries[entries.length - 1];
-          console.log('LCP:', lastEntry.startTime);
         }).observe({ entryTypes: ['largest-contentful-paint'] });
 
         // First Input Delay (FID)
@@ -333,7 +333,6 @@ const heroImage = validateImageUrl(data.heroes[0]?.backgroundImage?.url) || '/im
               cls += entry.value;
             }
           }
-          console.log('CLS:', cls);
         }).observe({ entryTypes: ['layout-shift'] });
       }
     }

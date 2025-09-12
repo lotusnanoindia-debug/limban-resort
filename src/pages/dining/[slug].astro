@@ -105,6 +105,7 @@ function generateAltText(experienceName, shortIntro) {
 
 <Layout title={`${experience.restaurantName} - Limban Resort`}>
   <AstroSEO
+    slot="head"
     title={`${experience.restaurantName} | Dining Experience - Limban Resort`}
     description={`Experience authentic dining at ${experience.restaurantName} - ${experience.shortIntro} Discover flavors that connect you to the heart of Tadoba National Park.`}
     canonical={`https://limban.com/dining/${slug}`}
@@ -123,12 +124,19 @@ function generateAltText(experienceName, shortIntro) {
       "@type": "Restaurant",
       "@id": `https://limban.com/dining/${slug}#restaurant`,
       name: experience.restaurantName,
-      description: experience.shortIntro,
+      alternateName: `${experience.restaurantName} at Limban Resort`,
+      description: `${experience.shortIntro} Located in the heart of Tadoba National Park, offering an intimate dining experience that celebrates local flavors and sustainable cuisine.`,
       url: `https://limban.com/dining/${slug}`,
+      sameAs: [
+        "https://www.tripadvisor.in/Hotel_Review-g10594630-d12902646-Reviews-Limban_Resort-Chandrapur_District_Maharashtra.html",
+        "https://www.instagram.com/limbanresorts/",
+        "https://www.facebook.com/limbanresortstadoba/",
+      ],
       image: [
         allDiningImages[0]?.large || allDiningImages[0]?.src,
-        ...allDiningImages.slice(1, 7).map((img) => img.large || img.src),
+        ...allDiningImages.slice(1, 8).map((img) => img.large || img.src),
       ].filter(Boolean),
+      logo: "https://limban.com/limban-logo.png",
       address: {
         "@type": "PostalAddress",
         streetAddress: "Survey No. 306, Village Mudholi, Taluka Bhadravati",
@@ -139,18 +147,244 @@ function generateAltText(experienceName, shortIntro) {
       },
       geo: {
         "@type": "GeoCoordinates",
-        latitude: "20.25602486093492",
-        longitude: "79.2847888101826",
+        latitude: 20.25602486093492,
+        longitude: 79.2847888101826,
       },
-      telephone: "+91 90226 80451",
-      email: "info@limban.com",
-      servesCuisine: "Indian",
+      contactPoint: [
+        {
+          "@type": "ContactPoint",
+          telephone: "+91 90226 80451",
+          contactType: "reservations",
+          availableLanguage: ["English", "Hindi"],
+        },
+        {
+          "@type": "ContactPoint",
+          email: "dining@limban.com",
+          contactType: "customer service",
+        },
+      ],
+      servesCuisine: [
+        "Indian Cuisine",
+        "Local Maharashtrian",
+        "Farm-to-Table",
+        "Sustainable Cuisine",
+        "Continental",
+      ],
       priceRange: "₹₹₹",
+      currenciesAccepted: "INR",
+      paymentAccepted: ["Cash", "Credit Card", "Debit Card", "UPI"],
       acceptsReservations: true,
+      reservationPolicy: "Advance booking recommended",
       hasMenu: true,
-      menuStyle: "Fresh, Local, Seasonal",
+      menu: {
+        "@type": "Menu",
+        name: `${experience.restaurantName} Menu`,
+        description:
+          "Fresh, locally-sourced ingredients crafted into memorable dining experiences",
+        menuAddOn: "Wine pairing available",
+        offers: {
+          "@type": "Offer",
+          availability: "https://schema.org/InStock",
+          availableAtOrFrom: experience.restaurantName,
+        },
+      },
+      openingHours: [
+        "Mo-Su 07:00-10:30", // Breakfast
+        "Mo-Su 12:30-15:00", // Lunch
+        "Mo-Su 19:30-22:30", // Dinner
+      ],
+      specialOpeningHoursSpecification: {
+        "@type": "OpeningHoursSpecification",
+        dayOfWeek: [
+          "Monday",
+          "Tuesday",
+          "Wednesday",
+          "Thursday",
+          "Friday",
+          "Saturday",
+          "Sunday",
+        ],
+        opens: "19:30",
+        closes: "22:30",
+        validFrom: new Date().toISOString().split("T")[0],
+        description: "Evening dining experience under the stars",
+      },
+      amenityFeature: [
+        {
+          "@type": "LocationFeatureSpecification",
+          name: "Outdoor Dining",
+          value: true,
+        },
+        {
+          "@type": "LocationFeatureSpecification",
+          name: "Wildlife Viewing During Meals",
+          value: true,
+        },
+        {
+          "@type": "LocationFeatureSpecification",
+          name: "Private Dining Options",
+          value: true,
+        },
+        {
+          "@type": "LocationFeatureSpecification",
+          name: "Sustainable Local Sourcing",
+          value: true,
+        },
+        {
+          "@type": "LocationFeatureSpecification",
+          name: "Wine Selection",
+          value: true,
+        },
+        {
+          "@type": "LocationFeatureSpecification",
+          name: "Vegetarian Options",
+          value: true,
+        },
+        {
+          "@type": "LocationFeatureSpecification",
+          name: "Vegan Options",
+          value: true,
+        },
+      ],
       isPartOf: {
-        "@type": "Resort",
+        "@type": "LodgingBusiness",
+        name: "Limban Resort",
+        url: "https://limban.com",
+        description: "Luxury safari resort in Tadoba National Park",
+        "@id": "https://limban.com/#resort",
+      },
+      containedInPlace: {
+        "@type": "TouristDestination",
+        name: "Tadoba Andhari Tiger Reserve",
+        address: {
+          "@type": "PostalAddress",
+          addressLocality: "Tadoba",
+          addressRegion: "Maharashtra",
+          addressCountry: "IN",
+        },
+      },
+      audience: {
+        "@type": "Audience",
+        audienceType: [
+          "Luxury Travelers",
+          "Wildlife Enthusiasts",
+          "Food Connoisseurs",
+          "Eco-Conscious Diners",
+          "Resort Guests",
+        ],
+      },
+      knowsAbout: [
+        "Sustainable Dining",
+        "Local Ingredients",
+        "Maharashtrian Cuisine",
+        "Farm-to-Table Cooking",
+        "Wine Pairing",
+        "Dietary Accommodations",
+      ],
+      additionalProperty: [
+        {
+          "@type": "PropertyValue",
+          name: "Dining Style",
+          value: "Fine Casual",
+        },
+        {
+          "@type": "PropertyValue",
+          name: "Setting",
+          value: "Safari Lodge",
+        },
+        {
+          "@type": "PropertyValue",
+          name: "Atmosphere",
+          value: "Intimate Wilderness Dining",
+        },
+        {
+          "@type": "PropertyValue",
+          name: "Capacity",
+          value: "24 guests maximum",
+        },
+      ],
+      makesOffer: [
+        {
+          "@type": "Offer",
+          itemOffered: {
+            "@type": "Service",
+            name: "Dining Experience",
+            description: experience.shortIntro,
+          },
+          availability: "https://schema.org/InStock",
+          availableAtOrFrom: {
+            "@type": "Place",
+            name: "Limban Resort",
+          },
+          priceSpecification: {
+            "@type": "PriceSpecification",
+            priceCurrency: "INR",
+            eligibleQuantity: {
+              "@type": "QuantitativeValue",
+              minValue: 1,
+              unitText: "person",
+            },
+          },
+        },
+        {
+          "@type": "Offer",
+          itemOffered: {
+            "@type": "Service",
+            name: "Private Dining",
+            description: "Exclusive dining experiences for special occasions",
+          },
+          availability: "https://schema.org/PreOrder",
+        },
+      ],
+      potentialAction: [
+        {
+          "@type": "ReserveAction",
+          target: {
+            "@type": "EntryPoint",
+            urlTemplate: `https://limban.com/dining/${slug}#reservation`,
+            actionPlatform: [
+              "https://schema.org/DesktopWebPlatform",
+              "https://schema.org/MobileWebPlatform",
+            ],
+          },
+          name: "Make Dining Reservation",
+        },
+        {
+          "@type": "ViewAction",
+          target: `https://limban.com/dining/${slug}`,
+          name: "View Dining Experience Details",
+        },
+      ],
+      hasOfferCatalog: {
+        "@type": "OfferCatalog",
+        name: "Dining Experiences at Limban",
+        itemListElement: [
+          {
+            "@type": "Offer",
+            itemOffered: {
+              "@type": "FoodEvent",
+              name: "Wilderness Breakfast",
+              description: "Dawn dining experience with wildlife viewing",
+            },
+          },
+          {
+            "@type": "Offer",
+            itemOffered: {
+              "@type": "FoodEvent",
+              name: "Candlelit Bush Dinner",
+              description: "Romantic evening dining under the stars",
+            },
+          },
+        ],
+      },
+      provider: {
+        "@type": "Organization",
+        name: "Limban Resort",
+        url: "https://limban.com",
+        logo: "https://limban.com/limban-logo.jpg",
+      },
+      publisher: {
+        "@type": "Organization",
         name: "Limban Resort",
         url: "https://limban.com",
       },
