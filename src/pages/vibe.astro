@@ -4,6 +4,7 @@ import { AstroSEO } from "astro-seo-plugin";
 import { fetchVibePageData } from "../api.js";
 import GalleryGrid from "../components/GalleryGrid.astro";
 import LoadMoreGallery from "../components/LoadMoreGallery.astro";
+import GalleryModal from "../components/GalleryModal.astro";
 
 // Ultra-reliable API fetching with retry logic
 async function fetchWithRetry(fetchFn, retries = 2) {
@@ -165,7 +166,7 @@ const heroImage =
         "@type": "LodgingBusiness",
         name: "Limban Resort",
         url: "https://limban.com",
-        logo: "https://limban.com/limban-logo.png",
+        logo: "https://limban.com/limban-resort-tadoba-logo.png",
         description: "Luxury safari resort in Tadoba National Park",
         address: {
           "@type": "PostalAddress",
@@ -499,7 +500,7 @@ const heroImage =
       </section>
     </main>
   </div>
-
+  <GalleryModal />
   <script>
     // Enhanced lazy loading for hero mosaic
     const lazyImages = document.querySelectorAll(".lazy-image");

@@ -4,6 +4,7 @@ import { AstroSEO } from 'astro-seo-plugin';
 import { fetchRoomBySlug, fetchRoomsData, fetchSpecialDealData } from '../../api.js';
 import GalleryGrid from '../../components/GalleryGrid.astro';
 import LoadMoreGallery from '../../components/LoadMoreGallery.astro';
+import GalleryModal from '../../components/GalleryModal.astro';
 import ReservationForm from '../../components/ReservationForm.astro';
 
 // Ultra-reliable API fetching with retry logic
@@ -117,7 +118,7 @@ const safePrice = Number(room.basePrice) || 0;
       "@id": `https://limban.com/rooms/${room.url}#resort`,
       "name": "Limban Resort",
       "url": "https://limban.com",
-      "logo": "https://limban.com/limban-logo.jpg",
+      "logo": "https://limban.com/limban-resort-tadoba-logo.png",
       "image": [heroImage, ...allRoomImages.slice(0, 6).map(img => img.large)].filter(Boolean),
       "description": "Luxury safari resort in Tadoba National Park offering premium eco-friendly accommodation and tiger safari experiences in Maharashtra, India.",
       "location": {
@@ -305,7 +306,7 @@ const safePrice = Number(room.basePrice) || 0;
                 Every detail carefully curated for your comfort and luxury
               </p>
               
-              <div class="grid grid-cols-2 md:grid-cols-3 gap-6">
+              <div class="grid grid-cols-3 gap-6">
                 {room.roomFeature?.map((feature, index) => (
                   <article 
                     key={feature.id}
@@ -420,6 +421,7 @@ const safePrice = Number(room.basePrice) || 0;
       </div>
     </section>
   </div>
+  <GalleryModal />
 </Layout>
 
 <style>

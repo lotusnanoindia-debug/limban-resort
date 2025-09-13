@@ -9,6 +9,10 @@ const { itemName, itemSlug } = Astro.props;
 const pageUrl = Astro.url.href;
 ---
 
+<!-- External script for turnstile captcha validation -->
+<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer
+></script>
+
 <section aria-labelledby="dining-reservation-form-heading">
   <h2
     id="dining-reservation-form-heading"
@@ -46,25 +50,18 @@ const pageUrl = Astro.url.href;
     name="dining"
     class="bg-gradient-to-br from-gray-800/50 to-gray-900/50 backdrop-blur-xl border border-gray-700 rounded-2xl p-8"
   >
-    <!-- Hidden dummy input to prevent autocomplete -->
-    <input autocomplete="off" name="fake" style="display:none;" />
+    <!-- Turnstile widget -->
+    <div
+      class="cf-turnstile"
+      data-sitekey="0x4AAAAAAB08V5IJ7fONN28Y"
+      data-theme="dark"
+    >
+    </div>
 
     <input type="hidden" name="form-name" value="dining-reservation" />
     <input type="hidden" name="pageUrl" value={pageUrl} />
     <input type="hidden" name="outletName" value={itemName} />
     <input type="hidden" name="outletSlug" value={itemSlug} />
-
-    <!-- Honeypot -->
-    <div class="hidden" aria-hidden="true">
-      <label for="confirm_email">Do not fill this out if you are human:</label>
-      <input
-        type="email"
-        id="confirm_email"
-        name="confirm_email"
-        tabindex="-1"
-        autocomplete="off"
-      />
-    </div>
 
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
       <!-- First Name -->
@@ -241,75 +238,71 @@ const pageUrl = Astro.url.href;
 <script type="module" client:visible>
   import AirDatepicker from "https://cdn.jsdelivr.net/npm/air-datepicker@3.6.0/+esm";
 
-  document.addEventListener("DOMContentLoaded", () => {
+  document.addEventListener("DOMContentLoaded", async () => {
     const diningDateRef = document.getElementById("dining-date");
 
-    if (!diningDateRef) return;
+    if (diningDateRef) {
+      // Define English locale inline
+      const localeEn = {
+        days: [
+          "Sunday",
+          "Monday",
+          "Tuesday",
+          "Wednesday",
+          "Thursday",
+          "Friday",
+          "Saturday",
+        ],
+        daysShort: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
+        daysMin: ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"],
+        months: [
+          "January",
+          "February",
+          "March",
+          "April",
+          "May",
+          "June",
+          "July",
+          "August",
+          "September",
+          "October",
+          "November",
+          "December",
+        ],
+        monthsShort: [
+          "Jan",
+          "Feb",
+          "Mar",
+          "Apr",
+          "May",
+          "Jun",
+          "Jul",
+          "Aug",
+          "Sep",
+          "Oct",
+          "Nov",
+          "Dec",
+        ],
+        today: "Today",
+        clear: "Clear",
+        dateFormat: "MMM dd, yyyy",
+        timeFormat: "hh:mm aa",
+        firstDay: 0,
+      };
 
-    // Define English locale inline
-    const localeEn = {
-      days: [
-        "Sunday",
-        "Monday",
-        "Tuesday",
-        "Wednesday",
-        "Thursday",
-        "Friday",
-        "Saturday",
-      ],
-      daysShort: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
-      daysMin: ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"],
-      months: [
-        "January",
-        "February",
-        "March",
-        "April",
-        "May",
-        "June",
-        "July",
-        "August",
-        "September",
-        "October",
-        "November",
-        "December",
-      ],
-      monthsShort: [
-        "Jan",
-        "Feb",
-        "Mar",
-        "Apr",
-        "May",
-        "Jun",
-        "Jul",
-        "Aug",
-        "Sep",
-        "Oct",
-        "Nov",
-        "Dec",
-      ],
-      today: "Today",
-      clear: "Clear",
-      dateFormat: "MMM dd, yyyy",
-      timeFormat: "hh:mm aa",
-      firstDay: 0,
-    };
+      // Create today's date for default
+      const today = new Date();
 
-    // Create today's date for default
-    const today = new Date();
+      // Initialize Air Datepicker for dining date
+      const diningDatePicker = new AirDatepicker(diningDateRef, {
+        locale: localeEn,
+        autoClose: true,
+        minDate: today,
+        maxDate: new Date(Date.now() + 180 * 24 * 60 * 60 * 1000), // 6 months ahead
+      });
+    }
 
-    // Initialize Air Datepicker for dining date
-    const diningDatePicker = new AirDatepicker(diningDateRef, {
-      locale: localeEn, // English locale
-      autoClose: true,
-      minDate: today, // Can't book in the past
-      maxDate: new Date(Date.now() + 180 * 24 * 60 * 60 * 1000), // 6 months ahead
-    });
-  });
-</script>
-
-<script>
-  // Keep your existing form submission script here
-  document.addEventListener("DOMContentLoaded", async () => {
+    // Form submission handling
     try {
       const { supabase } = await import("../lib/supabase.js");
 
@@ -322,10 +315,19 @@ const pageUrl = Astro.url.href;
       form.addEventListener("submit", async (e) => {
         e.preventDefault();
 
-        // Check honeypot
-        const formData = new FormData(form);
-        if (formData.get("confirm_email")) {
-          showSuccessMessage(); // Show success to bots
+        // Check if Turnstile is loaded
+        if (typeof turnstile === "undefined") {
+          showMessage(
+            "Security validation not loaded. Please refresh the page.",
+            "error"
+          );
+          return;
+        }
+
+        // ADD TURNSTILE VALIDATION
+        const turnstileResponse = turnstile.getResponse();
+        if (!turnstileResponse) {
+          showMessage("Please complete the security check.", "error");
           return;
         }
 
@@ -335,7 +337,8 @@ const pageUrl = Astro.url.href;
         showMessage("Submitting your table request...", "loading");
 
         try {
-          // Get form data - matching your form-handler.js structure
+          // Get form data - matching your form structure
+          const formData = new FormData(form);
           const submission = {
             form_name: formData.get("form-name"),
             page_url: formData.get("pageUrl"),
@@ -350,6 +353,8 @@ const pageUrl = Astro.url.href;
             adults: parseInt(formData.get("adults")) || 0,
             children: parseInt(formData.get("children")) || 0,
             message: formData.get("message"),
+            submitted_at: new Date().toISOString(),
+            turnstile_response: turnstileResponse,
           };
 
           // Submit to Supabase - using dining_submissions table
@@ -369,6 +374,9 @@ const pageUrl = Astro.url.href;
           );
           submitBtn.disabled = false;
           submitBtn.textContent = "Request a Table";
+          if (typeof turnstile !== "undefined") {
+            turnstile.reset();
+          }
         }
       });
 
@@ -393,7 +401,7 @@ const pageUrl = Astro.url.href;
           <div class="text-center py-12">
             <div class="text-6xl mb-6">🍽️</div>
             <h3 class="text-2xl font-serif italic text-white mb-4">Request Received!</h3>
-            <p class="text-lg text-gray-300 mb-6">Your request has been submitted successfully.</p>
+            <p class="text-lg text-gray-300 mb-6">Your table request has been submitted successfully.</p>
             <p class="text-gray-400 mb-8">Our team will contact you shortly to confirm your dining experience.</p>
             <button 
               onclick="location.reload()" 
@@ -406,6 +414,11 @@ const pageUrl = Astro.url.href;
         messageDiv.className =
           "bg-gradient-to-br from-gray-800/50 to-gray-900/50 backdrop-blur-xl border border-amber-600 rounded-2xl p-8 text-center";
         messageDiv.classList.remove("hidden");
+
+        // RESET TURNSTILE ON SUCCESS
+        if (typeof turnstile !== "undefined") {
+          turnstile.reset();
+        }
       }
     } catch (error) {
       console.error("Failed to load Supabase:", error);

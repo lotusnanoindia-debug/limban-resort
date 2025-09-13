@@ -569,11 +569,138 @@ function generateAltText(experienceName, shortIntro) {
       </div>
     </section>
 
-    <!-- Rest of your content sections... -->
+    <!-- Dining Experience Details Section -->
+    <section class="py-16 bg-gray-900">
+      <div class="max-w-7xl mx-auto px-6">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-start">
+          <!-- Left Column - Experience Description -->
+          <div class="space-y-8">
+            <div>
+              <h2
+                class="font-serif italic text-3xl md:text-4xl text-white mb-6"
+              >
+                A Taste of the Wild
+              </h2>
+              <p class="text-lg text-gray-300 leading-relaxed mb-6">
+                {experience.shortIntro}
+              </p>
+              {
+                experience.longDescription && (
+                  <div class="text-gray-300 leading-relaxed prose prose-invert max-w-none">
+                    <p>{experience.longDescription}</p>
+                  </div>
+                )
+              }
+            </div>
+
+            <!-- Dining Philosophy -->
+            <div>
+              <h3 class="font-serif italic text-3xl text-white mb-6">
+                Our Philosophy
+              </h3>
+              <p class="text-gray-300 mb-8">
+                Fresh. Local. Authentic. Every dish tells the story of Tadoba's
+                wilderness.
+              </p>
+
+              <!-- Special Features Cards -->
+              <div class="grid grid-cols-2 md:grid-cols-3 gap-6">
+                <div
+                  class="group relative p-5 bg-gradient-to-br from-gray-800/50 to-gray-900/50 backdrop-blur-xl border border-gray-700 rounded-2xl hover:border-gray-500 transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl hover:shadow-black/20 flex flex-col items-center text-center"
+                >
+                  <div
+                    class="mb-4 w-12 h-12 flex items-center justify-center bg-gradient-to-br from-green-700/20 to-green-500/20 rounded-xl group-hover:from-amber-400/30 group-hover:to-orange-400/30 transition-all duration-300"
+                  >
+                    <svg
+                      class="w-6 h-6 text-amber-400"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z"
+                      ></path>
+                    </svg>
+                  </div>
+                  <h4
+                    class="text-xs font-light text-gray-300 group-hover:text-amber-100 transition-colors duration-300"
+                  >
+                    Local Ingredients
+                  </h4>
+                </div>
+
+                <div
+                  class="group relative p-5 bg-gradient-to-br from-gray-800/50 to-gray-900/50 backdrop-blur-xl border border-gray-700 rounded-2xl hover:border-gray-500 transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl hover:shadow-black/20 flex flex-col items-center text-center"
+                >
+                  <div
+                    class="mb-4 w-12 h-12 flex items-center justify-center bg-gradient-to-br from-orange-700/20 to-orange-500/20 rounded-xl group-hover:from-amber-400/30 group-hover:to-orange-400/30 transition-all duration-300"
+                  >
+                    <svg
+                      class="w-6 h-6 text-amber-400"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M17.657 18.657A8 8 0 016.343 7.343S7 9 9 10c0-2 .5-5 2.986-7C14 5 16.09 5.777 17.656 7.343A7.975 7.975 0 0120 13a7.975 7.975 0 01-2.343 5.657z"
+                      ></path>
+                    </svg>
+                  </div>
+                  <h4
+                    class="text-xs font-light text-gray-300 group-hover:text-amber-100 transition-colors duration-300"
+                  >
+                    Cooked to Order
+                  </h4>
+                </div>
+
+                <div
+                  class="group relative p-5 bg-gradient-to-br from-gray-800/50 to-gray-900/50 backdrop-blur-xl border border-gray-700 rounded-2xl hover:border-gray-500 transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl hover:shadow-black/20 flex flex-col items-center text-center"
+                >
+                  <div
+                    class="mb-4 w-12 h-12 flex items-center justify-center bg-gradient-to-br from-purple-700/20 to-purple-500/20 rounded-xl group-hover:from-amber-400/30 group-hover:to-orange-400/30 transition-all duration-300"
+                  >
+                    <svg
+                      class="w-6 h-6 text-amber-400"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
+                      ></path>
+                    </svg>
+                  </div>
+                  <h4
+                    class="text-xs font-light text-gray-300 group-hover:text-amber-100 transition-colors duration-300"
+                  >
+                    Personal Touch
+                  </h4>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right Column - Reservation Form -->
+          <div class="space-y-8">
+            <DiningReservationForm
+              itemName={experience.restaurantName}
+              itemSlug={slug}
+            />
+          </div>
+        </div>
+      </div>
+    </section>
   </div>
 </Layout>
-
-<!-- NO SCRIPT SECTIONS - Modal handled by GalleryGrid component just like rooms -->
 
 <style>
   /* Same styles as rooms */

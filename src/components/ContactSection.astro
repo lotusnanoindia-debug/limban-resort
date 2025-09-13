@@ -3,6 +3,10 @@
 const pageUrl = Astro.url.href;
 ---
 
+<!-- External script for turnstile captcha validation -->
+<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer
+></script>
+
 <section id="contact" class="py-32 bg-gray-900">
   <div class="max-w-7xl mx-auto px-6 pt-12">
     <div class="text-center mb-20">
@@ -117,8 +121,16 @@ const pageUrl = Astro.url.href;
         <form
           id="contact-form"
           name="contact"
-          class="space-y-7 bg-gray-800/50 backdrop-blur-xl border border-gray-700 p-8 rounded-2xl border border-white/20 rounded-2xl p-10 shadow-[0_8px_32px_rgba(0,0,0,0.12)]"
+          class="space-y-7 bg-gray-800/50 backdrop-blur-xl border border-white/20 rounded-2xl p-10 shadow-[0_8px_32px_rgba(0,0,0,0.12)]"
         >
+          <!-- Turnstile widget -->
+          <div
+            class="cf-turnstile"
+            data-sitekey="0x4AAAAAAB08V5IJ7fONN28Y"
+            data-theme="dark"
+          >
+          </div>
+
           <input type="hidden" name="form-name" value="contact-general" />
           <input type="hidden" name="pageUrl" value={pageUrl} />
           <h3 class="text-3xl text-white mb-8 font-serif italic">
@@ -230,7 +242,7 @@ const pageUrl = Astro.url.href;
 </section>
 
 <script>
-  // Add Supabase form submission - same pattern as your working form
+  // Add Supabase form submission with Turnstile validation
   document.addEventListener("DOMContentLoaded", async () => {
     try {
       const { supabase } = await import("../lib/supabase.js");
@@ -243,6 +255,13 @@ const pageUrl = Astro.url.href;
 
       form.addEventListener("submit", async (e) => {
         e.preventDefault();
+
+        // TURNSTILE VALIDATION
+        const turnstileResponse = turnstile.getResponse();
+        if (!turnstileResponse) {
+          showMessage("Please complete the security check.", "error");
+          return;
+        }
 
         // Show loading state
         submitBtn.disabled = true;
@@ -262,6 +281,7 @@ const pageUrl = Astro.url.href;
             phone: formData.get("phone"),
             message: formData.get("message"),
             submitted_at: new Date().toISOString(),
+            turnstile_response: turnstileResponse,
           };
 
           // Submit to Supabase - general_enquiries table
@@ -277,10 +297,11 @@ const pageUrl = Astro.url.href;
           console.error("Submission error:", error);
           showMessage(
             "Sorry, there was an error submitting your enquiry. Please try again or contact us directly.",
-            "error",
+            "error"
           );
           submitBtn.disabled = false;
           submitBtn.textContent = "Send Your Enquiry";
+          turnstile.reset();
         }
       });
 
@@ -318,6 +339,8 @@ const pageUrl = Astro.url.href;
         messageDiv.className =
           "bg-gradient-to-br from-white/8 to-gray-100/5 backdrop-blur-3xl border border-white/20 rounded-[2rem] p-8 text-center shadow-[0_8px_32px_rgba(0,0,0,0.12)]";
         messageDiv.classList.remove("hidden");
+
+        turnstile.reset();
       }
     } catch (error) {
       console.error("Failed to load Supabase:", error);

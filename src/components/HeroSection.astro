@@ -245,7 +245,6 @@ const { heroes } = Astro.props;
         img.classList.add("loaded");
         delete img.dataset.src;
         loadedImages.add(slideIndex);
-        console.log(`✅ Slide ${slideIndex} loaded (GraphCMS optimized)`);
         resolve();
       };
 
@@ -269,13 +268,11 @@ const { heroes } = Astro.props;
   }
 
   function initializeProgressiveLoading() {
-    console.log("🚀 Using GraphCMS optimized images...");
-
     // Load next slide after 1 second
     if (totalSlides > 1) {
       setTimeout(() => {
         lazyLoadImage(1, "high").then(() => {
-          console.log("📸 Next slide ready for auto-advance");
+          console.log("!");
         });
       }, 1000);
     }
@@ -297,9 +294,6 @@ const { heroes } = Astro.props;
     if (slideIndex === currentSlide) return;
 
     if (userInitiated && !loadedImages.has(slideIndex)) {
-      console.log(
-        `⏳ Loading GraphCMS optimized image for slide ${slideIndex}...`
-      );
       showLoadingOverlay(true);
 
       try {
@@ -376,7 +370,6 @@ const { heroes } = Astro.props;
   });
 
   window.addEventListener("load", () => {
-    console.log("🎬 Hero carousel initialized with GraphCMS optimization");
     initializeProgressiveLoading();
     startAutoAdvance();
   });

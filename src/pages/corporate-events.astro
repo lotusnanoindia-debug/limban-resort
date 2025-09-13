@@ -38,7 +38,7 @@ const validatedHeroImage =  validateImageUrl(heroImage);
 const testimonials = [
   {
     name: "Rajesh Sharma",
-    image: "rajeshs.jpg",
+    image: "/rajeshs.jpg",
     quote:
       "Our leadership team experienced breakthrough clarity we couldn't achieve in traditional settings.",
     review:
@@ -49,7 +49,7 @@ const testimonials = [
   },
   {
     name: "Priya Mehta",
-    image: "priya.jpg",
+    image: "/priya.jpg",
     quote:
       "After hosting client events globally, nothing compared to Limban's transformative impact.",
     review:
@@ -60,7 +60,7 @@ const testimonials = [
   },
   {
     name: "Arjun Patel",
-    image: "arjun.jpg",
+    image: "/arjun.jpg",
     quote:
       "The team development programme created authentic relationships that transformed our workplace culture.",
     review:
@@ -107,7 +107,7 @@ const testimonials = [
         "https://www.instagram.com/limbanresorts/",
         "https://www.facebook.com/limbanresortstadoba/"
       ],
-      "logo": "https://limban.com/img/limban-logo.jpg",
+      "logo": "https://limban.com/img/limban-resort-tadoba-logo.png",
       "image": [
         validatedHeroImage,
         ...corporateGallery?.slice(0, 6).map(item => item.image?.url).filter(Boolean) || []
@@ -441,7 +441,7 @@ const testimonials = [
         "@type": "Organization",
         "name": "Limban Resort",
         "url": "https://limban.com",
-        "logo": "https://limban.com/img/limban-logo.jpg"
+        "logo": "https://limban.com/img/limban-resort-tadoba-logo.png"
       },
       "publisher": {
         "@type": "Organization",
@@ -1417,282 +1417,274 @@ const testimonials = [
       </div>
     </section>
 
-    <!-- Sophisticated enquiry Form -->
-    <section
-      id="enquiry-form"
-      class="py-32 bg-gradient-to-b from-gray-900 to-gray-950"
-      aria-labelledby="enquiry-heading"
-    >
-      <div class="max-w-5xl mx-auto px-6">
-        <header class="text-center mb-16">
-          <h2
-            id="enquiry-heading"
-            class="font-serif italic text-4xl md:text-5xl text-white mb-8"
-          >
-            Craft Your <span class="text-amber-400"
-              >Extraordinary Experience</span
-            >
-          </h2>
-          <p class="text-xl text-gray-300 max-w-3xl mx-auto leading-relaxed">
-            Share your vision with us. We'll turn it into reality. We will design a bespoke proposal
-            that transforms your event into a legendary experience
-            your organisation will reference for years.
-          </p>
-        </header>
+<!-- External script for turnstile captcha validation -->
+<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
 
-        <!-- Success/Error Message Container -->
-        <div id="form-message" class="hidden mb-8 p-6 rounded-2xl text-center">
+<!-- Sophisticated enquiry Form -->
+<section
+  id="enquiry-form"
+  class="py-32 bg-gradient-to-b from-gray-900 to-gray-950"
+  aria-labelledby="enquiry-heading"
+>
+  <div class="max-w-5xl mx-auto px-6">
+    <header class="text-center mb-16">
+      <h2
+        id="enquiry-heading"
+        class="font-serif italic text-4xl md:text-5xl text-white mb-8"
+      >
+        Craft Your <span class="text-amber-400"
+          >Extraordinary Experience</span
+        >
+      </h2>
+      <p class="text-xl text-gray-300 max-w-3xl mx-auto leading-relaxed">
+        Share your vision with us. We'll turn it into reality. We will design a bespoke proposal
+        that transforms your event into a legendary experience
+        your organisation will reference for years.
+      </p>
+    </header>
+
+    <!-- Success/Error Message Container -->
+    <div id="form-message" class="hidden mb-8 p-6 rounded-2xl text-center">
+    </div>
+
+    <form
+      id="corporate-enquiry-form"
+      name="corporate-enquiry"
+      class="bg-gradient-to-br from-gray-800/60 to-gray-900/60 backdrop-blur-xl border border-gray-600/50 rounded-3xl p-12"
+    >
+      <!-- Turnstile widget -->
+      <div
+        class="cf-turnstile"
+        data-sitekey="0x4AAAAAAB08V5IJ7fONN28Y"
+        data-theme="dark"
+      >
+      </div>
+
+      <input type="hidden" name="form-name" value="corporate-enquiry" />
+      <input type="hidden" name="pageUrl" value={pageUrl} />
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <!-- Contact Information -->
+        <div>
+          <label
+            for="contactName"
+            class="block text-sm font-medium text-gray-300 mb-3"
+            >Your Name *</label
+          >
+          <input
+            id="contactName"
+            name="contactName"
+            type="text"
+            required
+            class="w-full rounded-2xl bg-gray-800/50 border border-gray-600 px-6 py-4 text-white focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all duration-300"
+          />
         </div>
 
-        <form
-          id="corporate-enquiry-form"
-          name="corporate-enquiry"
-          class="bg-gradient-to-br from-gray-800/60 to-gray-900/60 backdrop-blur-xl border border-gray-600/50 rounded-3xl p-12"
-        >
-          <!-- Hidden dummy input to prevent autocomplete -->
-          <input autocomplete="off" name="fake" style="display:none;" />
+        <div>
+          <label
+            for="companyName"
+            class="block text-sm font-medium text-gray-300 mb-3"
+            >Organisation *</label
+          >
+          <input
+            id="companyName"
+            name="companyName"
+            type="text"
+            required
+            class="w-full rounded-2xl bg-gray-800/50 border border-gray-600 px-6 py-4 text-white focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all duration-300"
+          />
+        </div>
 
-          <input type="hidden" name="form-name" value="corporate-enquiry" />
-          <input type="hidden" name="pageUrl" value={pageUrl} />
+        <div>
+          <label
+            for="email"
+            class="block text-sm font-medium text-gray-300 mb-3"
+            >Professional Email *</label
+          >
+          <input
+            id="email"
+            name="email"
+            type="email"
+            required
+            class="w-full rounded-2xl bg-gray-800/50 border border-gray-600 px-6 py-4 text-white focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all duration-300"
+          />
+        </div>
 
-          <!-- Honeypot -->
-          <div class="hidden" aria-hidden="true">
-            <label for="confirm_email"
-              >Do not fill this out if you are human:</label
+        <div>
+          <label
+            for="phone"
+            class="block text-sm font-medium text-gray-300 mb-3"
+            >Contact Number *</label
+          >
+          <input
+            id="phone"
+            name="phone"
+            type="tel"
+            required
+            class="w-full rounded-2xl bg-gray-800/50 border border-gray-600 px-6 py-4 text-white focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all duration-300"
+          />
+        </div>
+
+        <!-- Event Details -->
+        <div>
+          <label
+            for="eventType"
+            class="block text-sm font-medium text-gray-300 mb-3"
+            >Event Category *</label
+          >
+          <select
+            id="eventType"
+            name="eventType"
+            required
+            class="w-full rounded-2xl bg-gray-800/50 border border-gray-600 px-6 py-4 text-white focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all duration-300"
+          >
+            <option value=""></option>
+            <option value="Executive Retreat">Executive Retreat</option>
+            <option value="Strategic Planning Session"
+              >Strategic Planning Session</option
             >
+            <option value="Team Development">Team Development</option>
+            <option value="Board Meeting">Board Meeting</option>
+            <option value="Leadership Development"
+              >Leadership Development</option
+            >
+            <option value="Client Entertainment"
+              >Client Entertainment</option
+            >
+            <option value="Innovation Workshop">Innovation Workshop</option>
+            <option value="Achievement Celebration"
+              >Achievement Celebration</option
+            >
+            <option value="Product Launch">Product Launch</option>
+            <option value="Other">Other (specify in message)</option>
+          </select>
+        </div>
+
+        <div>
+          <label
+            for="attendeeCount"
+            class="block text-sm font-medium text-gray-300 mb-3"
+            >Group Size *</label
+          >
+          <select
+            id="attendeeCount"
+            name="attendeeCount"
+            required
+            class="w-full rounded-2xl bg-gray-800/50 border border-gray-600 px-6 py-4 text-white focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all duration-300"
+          >
+            <option value=""></option>
+            <option value="5-8"
+              >5-8 people (Intimate executive group)</option
+            >
+            <option value="9-15">9-15 people (Core leadership team)</option>
+            <option value="16-25"
+              >16-25 people (Department or division)</option
+            >
+            <option value="26-35">26-35 people (Large team event)</option>
+            <option value="36-40">36-40 people (Maximum capacity)</option>
+          </select>
+        </div>
+
+        <!-- Event Date with Air Datepicker -->
+        <div>
+          <label
+            for="preferred-date"
+            class="block text-sm font-medium text-gray-300 mb-3"
+            >Preferred Date</label
+          >
+          <div class="relative">
+            <div
+              class="absolute inset-y-0 left-0 flex items-center pl-6 pointer-events-none"
+            >
+              <svg
+                class="w-5 h-5 text-gray-400"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="1.5"
+                  d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                ></path>
+              </svg>
+            </div>
             <input
-              type="email"
-              id="confirm_email"
-              name="confirm_email"
-              tabindex="-1"
+              id="preferred-date"
+              name="preferredDate"
+              type="text"
               autocomplete="off"
+              readonly
+              class="w-full rounded-2xl bg-gray-800/50 border border-gray-600 pl-14 pr-6 py-4 text-white focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all duration-300 cursor-pointer"
             />
           </div>
+        </div>
 
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <!-- Contact Information -->
-            <div>
-              <label
-                for="contactName"
-                class="block text-sm font-medium text-gray-300 mb-3"
-                >Your Name *</label
-              >
-              <input
-                id="contactName"
-                name="contactName"
-                type="text"
-                required
-                class="w-full rounded-2xl bg-gray-800/50 border border-gray-600 px-6 py-4 text-white focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all duration-300"
-              />
-            </div>
-
-            <div>
-              <label
-                for="companyName"
-                class="block text-sm font-medium text-gray-300 mb-3"
-                >Organisation *</label
-              >
-              <input
-                id="companyName"
-                name="companyName"
-                type="text"
-                required
-                class="w-full rounded-2xl bg-gray-800/50 border border-gray-600 px-6 py-4 text-white focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all duration-300"
-              />
-            </div>
-
-            <div>
-              <label
-                for="email"
-                class="block text-sm font-medium text-gray-300 mb-3"
-                >Professional Email *</label
-              >
-              <input
-                id="email"
-                name="email"
-                type="email"
-                required
-                class="w-full rounded-2xl bg-gray-800/50 border border-gray-600 px-6 py-4 text-white focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all duration-300"
-              />
-            </div>
-
-            <div>
-              <label
-                for="phone"
-                class="block text-sm font-medium text-gray-300 mb-3"
-                >Contact Number *</label
-              >
-              <input
-                id="phone"
-                name="phone"
-                type="tel"
-                required
-                class="w-full rounded-2xl bg-gray-800/50 border border-gray-600 px-6 py-4 text-white focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all duration-300"
-              />
-            </div>
-
-            <!-- Event Details -->
-            <div>
-              <label
-                for="eventType"
-                class="block text-sm font-medium text-gray-300 mb-3"
-                >Event Category *</label
-              >
-              <select
-                id="eventType"
-                name="eventType"
-                required
-                class="w-full rounded-2xl bg-gray-800/50 border border-gray-600 px-6 py-4 text-white focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all duration-300"
-              >
-                <option value=""></option>
-                <option value="Executive Retreat">Executive Retreat</option>
-                <option value="Strategic Planning Session"
-                  >Strategic Planning Session</option
-                >
-                <option value="Team Development">Team Development</option>
-                <option value="Board Meeting">Board Meeting</option>
-                <option value="Leadership Development"
-                  >Leadership Development</option
-                >
-                <option value="Client Entertainment"
-                  >Client Entertainment</option
-                >
-                <option value="Innovation Workshop">Innovation Workshop</option>
-                <option value="Achievement Celebration"
-                  >Achievement Celebration</option
-                >
-                <option value="Product Launch">Product Launch</option>
-                <option value="Other">Other (specify in message)</option>
-              </select>
-            </div>
-
-            <div>
-              <label
-                for="attendeeCount"
-                class="block text-sm font-medium text-gray-300 mb-3"
-                >Group Size *</label
-              >
-              <select
-                id="attendeeCount"
-                name="attendeeCount"
-                required
-                class="w-full rounded-2xl bg-gray-800/50 border border-gray-600 px-6 py-4 text-white focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all duration-300"
-              >
-                <option value=""></option>
-                <option value="5-8"
-                  >5-8 people (Intimate executive group)</option
-                >
-                <option value="9-15">9-15 people (Core leadership team)</option>
-                <option value="16-25"
-                  >16-25 people (Department or division)</option
-                >
-                <option value="26-35">26-35 people (Large team event)</option>
-                <option value="36-40">36-40 people (Maximum capacity)</option>
-              </select>
-            </div>
-
-            <!-- Event Date with Air Datepicker -->
-            <div>
-              <label
-                for="preferred-date"
-                class="block text-sm font-medium text-gray-300 mb-3"
-                >Preferred Date</label
-              >
-              <div class="relative">
-                <div
-                  class="absolute inset-y-0 left-0 flex items-center pl-6 pointer-events-none"
-                >
-                  <svg
-                    class="w-5 h-5 text-gray-400"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="1.5"
-                      d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-                    ></path>
-                  </svg>
-                </div>
-                <input
-                  id="preferred-date"
-                  name="preferredDate"
-                  type="text"
-                  autocomplete="off"
-                  readonly
-                  class="w-full rounded-2xl bg-gray-800/50 border border-gray-600 pl-14 pr-6 py-4 text-white focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all duration-300 cursor-pointer"
-                />
-              </div>
-            </div>
-
-            <div>
-              <label
-                for="duration"
-                class="block text-sm font-medium text-gray-300 mb-3"
-                >Event Duration</label
-              >
-              <select
-                id="duration"
-                name="duration"
-                class="w-full rounded-2xl bg-gray-800/50 border border-gray-600 px-6 py-4 text-white focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all duration-300"
-              >
-                <option value=""></option>
-                <option value="Half day">Half day (4 hours)</option>
-                <option value="Full day">Full day (8 hours)</option>
-                <option value="2 days">2 days (overnight stay)</option>
-                <option value="3 days">3 days (comprehensive programme)</option>
-                <option value="4+ days"
-                  >4+ days (transformation intensive)</option
-                >
-              </select>
-            </div>
-          </div>
-
-          <!-- Message -->
-          <div class="mt-8">
-            <label
-              for="message"
-              class="block text-sm font-medium text-gray-300 mb-3"
-              >Your Vision & Objectives *</label
+        <div>
+          <label
+            for="duration"
+            class="block text-sm font-medium text-gray-300 mb-3"
+            >Event Duration</label
+          >
+          <select
+            id="duration"
+            name="duration"
+            class="w-full rounded-2xl bg-gray-800/50 border border-gray-600 px-6 py-4 text-white focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all duration-300"
+          >
+            <option value=""></option>
+            <option value="Half day">Half day (4 hours)</option>
+            <option value="Full day">Full day (8 hours)</option>
+            <option value="2 days">2 days (overnight stay)</option>
+            <option value="3 days">3 days (comprehensive programme)</option>
+            <option value="4+ days"
+              >4+ days (transformation intensive)</option
             >
-            <textarea
-              id="message"
-              name="message"
-              rows="6"
-              required
-              placeholder="Tell us about your objectives for this event. What would make it a transformational success for your organisation? What challenges are you hoping to address? What outcomes do you envision?"
-              class="w-full rounded-2xl bg-gray-800/50 border border-gray-600 px-6 py-4 text-white placeholder-gray-400 focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all duration-300 resize-none leading-relaxed"
-            ></textarea>
-          </div>
-
-          <div class="text-center mt-12">
-            <button
-              type="submit"
-              id="submit-btn"
-              class="group relative bg-amber-300 hover:from-amber-400 hover:to-orange-400 text-gray-900 px-16 py-5 rounded-2xl font-bold text-xl tracking-wide transition-all duration-300 hover:shadow-2xl hover:shadow-amber-400/30 hover:-translate-y-1 focus:outline-none focus:ring-4 focus:ring-amber-400/50 disabled:opacity-50 disabled:cursor-not-allowed overflow-hidden"
-            >
-              <span class="relative z-10">Request Bespoke Proposal</span>
-              <div
-                class="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0 transform translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000 ease-out"
-              >
-              </div>
-            </button>
-            <p
-              class="text-gray-400 text-sm mt-6 max-w-2xl mx-auto leading-relaxed"
-            >
-              Our events team will respond within 24 hours with a detailed
-              proposal tailored specifically to your organisation's vision and
-              requirements. All enquiries are treated with complete
-              confidentiality.
-            </p>
-          </div>
-        </form>
+          </select>
+        </div>
       </div>
-    </section>
+
+      <!-- Message -->
+      <div class="mt-8">
+        <label
+          for="message"
+          class="block text-sm font-medium text-gray-300 mb-3"
+          >Your Vision & Objectives *</label
+        >
+        <textarea
+          id="message"
+          name="message"
+          rows="6"
+          required
+          placeholder="Tell us about your objectives for this event. What would make it a transformational success for your organisation? What challenges are you hoping to address? What outcomes do you envision?"
+          class="w-full rounded-2xl bg-gray-800/50 border border-gray-600 px-6 py-4 text-white placeholder-gray-400 focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all duration-300 resize-none leading-relaxed"
+        ></textarea>
+      </div>
+
+      <div class="text-center mt-12">
+        <button
+          type="submit"
+          id="submit-btn"
+          class="group relative bg-amber-300 hover:from-amber-400 hover:to-orange-400 text-gray-900 px-16 py-5 rounded-2xl font-bold text-xl tracking-wide transition-all duration-300 hover:shadow-2xl hover:shadow-amber-400/30 hover:-translate-y-1 focus:outline-none focus:ring-4 focus:ring-amber-400/50 disabled:opacity-50 disabled:cursor-not-allowed overflow-hidden"
+        >
+          <span class="relative z-10">Request Bespoke Proposal</span>
+          <div
+            class="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0 transform translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000 ease-out"
+          >
+          </div>
+        </button>
+        <p
+          class="text-gray-400 text-sm mt-6 max-w-2xl mx-auto leading-relaxed"
+        >
+          Our events team will respond within 24 hours with a detailed
+          proposal tailored specifically to your organisation's vision and
+          requirements. All enquiries are treated with complete
+          confidentiality.
+        </p>
+      </div>
+    </form>
   </div>
-</Layout>
+</section>
 
 <!-- Air Datepicker CSS -->
 <link
@@ -1745,76 +1737,37 @@ const testimonials = [
   }
 </style>
 
-<!-- Air Datepicker Script -->
-<script type="module" client:visible>
+<script>
   import AirDatepicker from "https://cdn.jsdelivr.net/npm/air-datepicker@3.6.0/+esm";
 
-  document.addEventListener("DOMContentLoaded", () => {
+  document.addEventListener("DOMContentLoaded", async () => {
     const dateInput = document.getElementById("preferred-date");
 
-    if (!dateInput) return;
+    if (dateInput) {
+      // Define English locale inline
+      const localeEn = {
+        days: ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"],
+        daysShort: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
+        daysMin: ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"],
+        months: ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
+        monthsShort: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+        today: "Today",
+        clear: "Clear",
+        dateFormat: "MMM dd, yyyy",
+        timeFormat: "hh:mm aa",
+        firstDay: 0,
+      };
 
-    // Define English locale inline
-    const localeEn = {
-      days: [
-        "Sunday",
-        "Monday",
-        "Tuesday",
-        "Wednesday",
-        "Thursday",
-        "Friday",
-        "Saturday",
-      ],
-      daysShort: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
-      daysMin: ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"],
-      months: [
-        "January",
-        "February",
-        "March",
-        "April",
-        "May",
-        "June",
-        "July",
-        "August",
-        "September",
-        "October",
-        "November",
-        "December",
-      ],
-      monthsShort: [
-        "Jan",
-        "Feb",
-        "Mar",
-        "Apr",
-        "May",
-        "Jun",
-        "Jul",
-        "Aug",
-        "Sep",
-        "Oct",
-        "Nov",
-        "Dec",
-      ],
-      today: "Today",
-      clear: "Clear",
-      dateFormat: "MMM dd, yyyy",
-      timeFormat: "hh:mm aa",
-      firstDay: 0,
-    };
+      // Initialize Air Datepicker for event date
+      new AirDatepicker(dateInput, {
+        locale: localeEn,
+        autoClose: true,
+        minDate: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000), // 3 days ahead minimum
+        maxDate: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000), // 1 year ahead maximum
+      });
+    }
 
-    // Initialize Air Datepicker for event date (30 days minimum planning horizon)
-    new AirDatepicker(dateInput, {
-      locale: localeEn,
-      autoClose: true,
-      minDate: new Date(Date.now() + 1 * 24 * 60 * 60 * 1000), // 1 days ahead minimum
-      maxDate: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000), // 1 year ahead maximum
-    });
-  });
-</script>
-
-<!-- Form Submission Script -->
-<script>
-  document.addEventListener("DOMContentLoaded", async () => {
+    // FORM SUBMISSION WITH TURNSTILE 
     try {
       const { supabase } = await import("../lib/supabase.js");
 
@@ -1827,20 +1780,27 @@ const testimonials = [
       form.addEventListener("submit", async (e) => {
         e.preventDefault();
 
-        // Check honeypot
-        const formData = new FormData(form);
-        if (formData.get("confirm_email")) {
-          showSuccessMessage(); // Show success to bots
+        // Check if Turnstile is loaded
+        if (typeof turnstile === 'undefined') {
+          showMessage("Security validation not loaded. Please refresh the page.", "error");
+          return;
+        }
+
+        // ADD TURNSTILE VALIDATION
+        const turnstileResponse = turnstile.getResponse();
+        if (!turnstileResponse) {
+          showMessage("Please complete the security check.", "error");
           return;
         }
 
         // Show loading state
         submitBtn.disabled = true;
-        submitBtn.textContent = "Processing your enquriy...";
+        submitBtn.textContent = "Processing your enquiry...";
         showMessage("Just a moment please ...", "loading");
 
         try {
           // Get form data - matching corporate enquiry structure
+          const formData = new FormData(form);
           const submission = {
             form_name: formData.get("form-name"),
             page_url: formData.get("pageUrl"),
@@ -1854,6 +1814,7 @@ const testimonials = [
             duration: formData.get("duration"),
             message: formData.get("message"),
             submitted_at: new Date().toISOString(),
+            turnstile_response: turnstileResponse,
           };
 
           // Submit to Supabase - using corporate_enquiries table
@@ -1873,6 +1834,9 @@ const testimonials = [
           );
           submitBtn.disabled = false;
           submitBtn.textContent = "Request Bespoke Proposal";
+          if (typeof turnstile !== 'undefined') {
+            turnstile.reset();
+          }
         }
       });
 
@@ -1919,6 +1883,11 @@ const testimonials = [
         messageDiv.className =
           "bg-gradient-to-br from-gray-800/60 to-gray-900/60 backdrop-blur-xl border border-amber-600/50 rounded-3xl p-12 text-center";
         messageDiv.classList.remove("hidden");
+
+        // RESET TURNSTILE ON SUCCESS
+        if (typeof turnstile !== 'undefined') {
+          turnstile.reset();
+        }
 
         // Smooth scroll to success message
         messageDiv.scrollIntoView({ behavior: "smooth", block: "center" });

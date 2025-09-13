@@ -1,5 +1,5 @@
 ---
-// Reservation Form - Standalone (no BaseForm dependency)
+// Reservation Form - Standalone
 export interface Props {
   roomName: string;
   roomSlug: string;
@@ -9,6 +9,10 @@ export interface Props {
 const { roomName, roomSlug, basePrice } = Astro.props;
 const pageUrl = Astro.url.href;
 ---
+
+<!-- External script for turnstile captcha validation -->
+<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer
+></script>
 
 <section aria-labelledby="reservation-heading">
   <h2
@@ -51,6 +55,14 @@ const pageUrl = Astro.url.href;
     name="reservation"
     class="sm:bg-gradient-to-br sm:from-gray-800/50 sm:to-gray-900/50 sm:backdrop-blur-xl sm:border sm:border-gray-700 sm:rounded-2xl sm:p-8"
   >
+    <!-- Turnstile widget -->
+    <div
+      class="cf-turnstile"
+      data-sitekey="0x4AAAAAAB08V5IJ7fONN28Y"
+      data-theme="dark"
+    >
+    </div>
+
     <input type="hidden" name="form-name" value="reservation-room" />
     <input type="hidden" name="pageUrl" value={pageUrl} />
     <input type="hidden" name="roomName" value={roomName} />
@@ -60,17 +72,6 @@ const pageUrl = Astro.url.href;
         <input type="hidden" name="basePrice" value={String(basePrice)} />
       )
     }
-    <!-- Honeypot -->
-    <div class="hidden" aria-hidden="true">
-      <label for="confirm_email">Do not fill this out if you are human:</label>
-      <input
-        type="email"
-        id="confirm_email"
-        name="confirm_email"
-        tabindex="-1"
-        autocomplete="off"
-      />
-    </div>
 
     <div class="text-center pt-2">
       <div
@@ -281,15 +282,15 @@ const pageUrl = Astro.url.href;
   href="https://cdn.jsdelivr.net/npm/air-datepicker@3.6.0/air-datepicker.css"
 />
 
-<script type="module" client:visible>
+<script>
   import AirDatepicker from "https://cdn.jsdelivr.net/npm/air-datepicker@3.6.0/+esm";
 
-  document.addEventListener("DOMContentLoaded", () => {
+  document.addEventListener("DOMContentLoaded", async () => {
     const checkInRef = document.getElementById("check-in");
     const checkOutRef = document.getElementById("check-out");
     const nightsMessage = document.getElementById("nights-message");
 
-    // Define English locale inline (from the CDN file you attached)
+    // Define English locale inline
     const localeEn = {
       days: [
         "Sunday",
@@ -429,7 +430,7 @@ const pageUrl = Astro.url.href;
       },
     });
 
-    // YOUR EXACT RESET FUNCTION
+    // RESET FUNCTION
     window.resetDatePickers = () => {
       checkInPicker.clear();
       checkOutPicker.clear();
@@ -446,13 +447,7 @@ const pageUrl = Astro.url.href;
       if (nightsMessage) nightsMessage.textContent = "";
     };
 
-    console.log("✅ Air Datepicker initialized with English locale");
-  });
-</script>
-
-<script>
-  // Corrected Supabase form submission script for ReservationForm.astro
-  document.addEventListener("DOMContentLoaded", async () => {
+    // FORM SUBMISSION WITH TURNSTILE
     try {
       const { supabase } = await import("../lib/supabase.js");
 
@@ -465,10 +460,19 @@ const pageUrl = Astro.url.href;
       form.addEventListener("submit", async (e) => {
         e.preventDefault();
 
-        // Check honeypot (if you have one)
-        const formData = new FormData(form);
-        if (formData.get("confirm_email")) {
-          showSuccessMessage(); // Show success to bots
+        // Check if Turnstile is loaded
+        if (typeof turnstile === "undefined") {
+          showMessage(
+            "Security validation not loaded. Please refresh the page.",
+            "error"
+          );
+          return;
+        }
+
+        // ADD TURNSTILE VALIDATION
+        const turnstileResponse = turnstile.getResponse();
+        if (!turnstileResponse) {
+          showMessage("Please complete the security check.", "error");
           return;
         }
 
@@ -478,7 +482,8 @@ const pageUrl = Astro.url.href;
         showMessage("Submitting your reservation request...", "loading");
 
         try {
-          // Get form data - EXACT field names from your Supabase table
+          // Get form data
+          const formData = new FormData(form);
           const submission = {
             form_name: formData.get("form-name"),
             pageUrl: formData.get("pageUrl"),
@@ -496,16 +501,18 @@ const pageUrl = Astro.url.href;
             wantSafaris: formData.get("wantSafaris"),
             transfer: formData.get("transfer"),
             message: formData.get("message"),
+            submitted_at: new Date().toISOString(),
+            turnstile_response: turnstileResponse,
           };
 
-          // Submit to Supabase - using YOUR EXACT TABLE NAME
+          // Submit to Supabase
           const { data, error } = await supabase
             .from("contact_submissions")
             .insert([submission]);
 
           if (error) throw error;
 
-          // Success! Show elegant success message
+          // Success!
           showSuccessMessage();
         } catch (error) {
           console.error("Submission error:", error);
@@ -515,6 +522,9 @@ const pageUrl = Astro.url.href;
           );
           submitBtn.disabled = false;
           submitBtn.textContent = "Request Reservation";
+          if (typeof turnstile !== "undefined") {
+            turnstile.reset();
+          }
         }
       });
 
@@ -531,27 +541,29 @@ const pageUrl = Astro.url.href;
       }
 
       function showSuccessMessage() {
-        // Hide the form completely
         form.style.display = "none";
 
-        // Show elegant success message
         messageDiv.innerHTML = `
           <div class="text-center py-12">
             <div class="text-6xl mb-6">🏨</div>
             <h3 class="text-2xl font-serif italic text-white mb-4">Reservation Request Received!</h3>
             <p class="text-lg text-gray-300 mb-6">Your reservation request has been submitted successfully.</p>
             <p class="text-gray-400 mb-8">Our reservations team will contact you shortly to confirm availability and arrange your safari experience.</p>
-              <button 
-                onclick="location.reload()" 
-                class="bg-gradient-to-r from-amber-500 to-orange-600 text-white font-semibold px-6 py-3 rounded-xl transition-all duration-300 hover:shadow-xl hover:-translate-y-1 hover:from-amber-600 hover:to-orange-700"
-              >
-                Make Another Reservation
-              </button>
-        </div>
+            <button 
+              onclick="location.reload()" 
+              class="bg-gradient-to-r from-amber-500 to-orange-600 text-white font-semibold px-6 py-3 rounded-xl transition-all duration-300 hover:shadow-xl hover:-translate-y-1 hover:from-amber-600 hover:to-orange-700"
+            >
+              Make Another Reservation
+            </button>
+          </div>
         `;
         messageDiv.className =
           "bg-gradient-to-br from-gray-800/50 to-gray-900/50 backdrop-blur-xl border border-amber-600 rounded-2xl p-8 text-center";
         messageDiv.classList.remove("hidden");
+
+        if (typeof turnstile !== "undefined") {
+          turnstile.reset();
+        }
       }
     } catch (error) {
       console.error("Failed to load Supabase:", error);
