@@ -3,10 +3,6 @@
 const pageUrl = Astro.url.href;
 ---
 
-<!-- External script for turnstile captcha validation -->
-<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer
-></script>
-
 <section id="contact" class="py-32 bg-gray-900">
   <div class="max-w-7xl mx-auto px-6 pt-12">
     <div class="text-center mb-20">
@@ -347,3 +343,6 @@ const pageUrl = Astro.url.href;
     }
   });
 </script>
+<!-- External script for turnstile captcha validation -->
+<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer
+></script>
