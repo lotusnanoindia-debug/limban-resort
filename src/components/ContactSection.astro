@@ -3,6 +3,10 @@
 const pageUrl = Astro.url.href;
 ---
 
+<!-- External script for turnstile captcha validation -->
+<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer
+></script>
+
 <section id="contact" class="py-32 bg-gray-900">
   <div class="max-w-7xl mx-auto px-6 pt-12">
     <div class="text-center mb-20">
@@ -238,7 +242,7 @@ const pageUrl = Astro.url.href;
 </section>
 
 <script>
-  // Lazy load Turnstile and handle form submission
+  // Add Supabase form submission with Turnstile validation
   document.addEventListener("DOMContentLoaded", async () => {
     try {
       const { supabase } = await import("../lib/supabase.js");
@@ -249,74 +253,11 @@ const pageUrl = Astro.url.href;
 
       if (!form) return;
 
-      // Lazy load Turnstile function
-      async function loadTurnstile() {
-        if (window.turnstile) return;
-
-        return new Promise((resolve, reject) => {
-          const script = document.createElement("script");
-          script.src = "https://challenges.cloudflare.com/turnstile/v0/api.js";
-          script.async = true;
-          script.onload = () => {
-            // Wait a moment for Turnstile to initialize
-            setTimeout(() => resolve(), 100);
-          };
-          script.onerror = () => reject(new Error("Failed to load Turnstile"));
-          document.head.appendChild(script);
-        });
-      }
-
-      // Initialize Turnstile widget
-      async function initializeTurnstile() {
-        const turnstileDiv = form.querySelector(".cf-turnstile");
-        if (!turnstileDiv || turnstileDiv.hasAttribute("data-rendered")) return;
-
-        await loadTurnstile();
-
-        turnstile.render(turnstileDiv, {
-          sitekey: turnstileDiv.getAttribute("data-sitekey"),
-          theme: turnstileDiv.getAttribute("data-theme") || "auto",
-          size: turnstileDiv.getAttribute("data-size") || "normal",
-        });
-
-        turnstileDiv.setAttribute("data-rendered", "true");
-      }
-
-      // Load Turnstile when user first interacts with the form
-      let turnstileLoaded = false;
-
-      form.addEventListener(
-        "focusin",
-        async () => {
-          if (!turnstileLoaded) {
-            turnstileLoaded = true;
-            await initializeTurnstile();
-          }
-        },
-        { once: true }
-      );
-
       form.addEventListener("submit", async (e) => {
         e.preventDefault();
 
-        // Ensure Turnstile is loaded and initialized
-        if (!turnstileLoaded) {
-          await initializeTurnstile();
-          turnstileLoaded = true;
-        }
-
         // TURNSTILE VALIDATION
-        let turnstileResponse;
-        try {
-          turnstileResponse = turnstile.getResponse();
-        } catch (error) {
-          console.warn("Turnstile not ready, initializing...");
-          await initializeTurnstile();
-          // Wait a moment for widget to be ready
-          await new Promise((resolve) => setTimeout(resolve, 500));
-          turnstileResponse = turnstile.getResponse();
-        }
-
+        const turnstileResponse = turnstile.getResponse();
         if (!turnstileResponse) {
           showMessage("Please complete the security check.", "error");
           return;
@@ -360,13 +301,7 @@ const pageUrl = Astro.url.href;
           );
           submitBtn.disabled = false;
           submitBtn.textContent = "Send Your Enquiry";
-
-          // Reset Turnstile if available
-          try {
-            if (window.turnstile) turnstile.reset();
-          } catch (e) {
-            console.warn("Turnstile reset failed:", e);
-          }
+          turnstile.reset();
         }
       });
 
@@ -405,12 +340,7 @@ const pageUrl = Astro.url.href;
           "bg-gradient-to-br from-white/8 to-gray-100/5 backdrop-blur-3xl border border-white/20 rounded-[2rem] p-8 text-center shadow-[0_8px_32px_rgba(0,0,0,0.12)]";
         messageDiv.classList.remove("hidden");
 
-        // Reset Turnstile if available
-        try {
-          if (window.turnstile) turnstile.reset();
-        } catch (e) {
-          console.warn("Turnstile reset failed:", e);
-        }
+        turnstile.reset();
       }
     } catch (error) {
       console.error("Failed to load Supabase:", error);
