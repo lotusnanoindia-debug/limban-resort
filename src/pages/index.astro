@@ -360,8 +360,4 @@ const heroImage = validateImageUrl(data.heroes[0]?.backgroundImage?.url) || '/im
     document.body.appendChild(errorNotification);
   });
 
-  // Service Worker registration for offline support
-  if ('serviceWorker' in navigator && import.meta.env.PROD) {
-    navigator.serviceWorker.register('/sw.js').catch(console.error);
-  }
 </script>
