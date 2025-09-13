@@ -1,5 +1,4 @@
 /*
-  Content-Security-Policy: default-src 'self'; script-src 'self' https://challenges.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' https://*.graphassets.com https://assets.hygraph.com https://*.sirv.com https://challenges.cloudflare.com data:; font-src 'self' https://fonts.gstatic.com; frame-src https://challenges.cloudflare.com;
   Strict-Transport-Security: max-age=63072000; includeSubDomains; preload
   X-Content-Type-Options: nosniff
   X-Frame-Options: SAMEORIGIN
