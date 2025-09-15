@@ -1,5 +1,6 @@
 ---
-// Dining Reservation Form - Standalone (no BaseForm dependency)
+// Dining Reservation Form
+import { DatePicker } from "@/components/DatePicker";
 export interface Props {
   itemName: string;
   itemSlug: string;
@@ -9,19 +10,15 @@ const { itemName, itemSlug } = Astro.props;
 const pageUrl = Astro.url.href;
 ---
 
-<!-- External script for turnstile captcha validation -->
-<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer
-></script>
-
 <section aria-labelledby="dining-reservation-form-heading">
   <h2
     id="dining-reservation-form-heading"
-    class="font-serif italic text-3xl md:text-4xl text-white mb-6"
+    class="font-serif italic text-3xl md:text-4xl text-white mb-8"
   >
-    <span class="bg-gray-800 px-4 py-1 rounded-2xl">{itemName}</span> - Reserve Now:
+    {itemName} - Reserve Now:
   </h2>
   <p
-    class="border border-amber-300 p-2 rounded-xl text-center text-gray-400 my-12 flex items-center justify-center gap-2"
+    class="border border-amber-300 bg-amber-100/5 p-4 rounded-xl text-center text-gray-400 mb-10 flex items-center justify-center gap-2"
   >
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -33,7 +30,6 @@ const pageUrl = Astro.url.href;
         d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.518.76a11.034 11.034 0 006.364 6.364l.76-1.518a1 1 0 011.06-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z"
       ></path>
     </svg>
-    <span>Hotline:</span>
     <a
       href="tel:+919022680451"
       class="font-semibold text-amber-400 hover:text-amber-300 transition-colors duration-300 whitespace-nowrap"
@@ -101,6 +97,7 @@ const pageUrl = Astro.url.href;
           id="email"
           name="email"
           type="email"
+          pattern="[a-zA-Z0-9._%+\\-]+@[a-zA-Z0-9.\\-]+\\.[a-zA-Z]{2,}"
           required
           class="w-full rounded-md bg-gray-800 border border-gray-700 px-4 py-3 text-white focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-colors"
         />
@@ -120,34 +117,17 @@ const pageUrl = Astro.url.href;
         />
       </div>
 
-      <!-- Date with Air Datepicker -->
+      <!-- Date with Shadcn DatePicker -->
       <div>
-        <label for="dining-date" class="block text-sm text-gray-300 mb-2"
-          >Dining Date *</label
-        >
-        <div class="relative">
-          <div
-            class="absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none"
-          >
-            <svg
-              class="w-5 h-5 text-gray-400"
-              fill="currentColor"
-              viewBox="0 0 20 20"
-            >
-              <path
-                d="M6 2a1 1 0 00-2 0v1H3a2 2 0 00-2 2v1h18V5a2 2 0 00-2-2h-1V2a1 1 0 10-2 0v1H6V2zM2 8v8a2 2 0 002 2h12a2 2 0 002-2V8H2zm3 3a1 1 0 011-1h1a1 1 0 110 2H6a1 1 0 01-1-1zm5 0a1 1 0 011-1h1a1 1 0 110 2h-1a1 1 0 01-1-1z"
-              ></path>
-            </svg>
-          </div>
-          <input
-            id="dining-date"
-            name="diningDate"
-            type="text"
-            required
-            autocomplete="off"
-            class="w-full rounded-md bg-gray-800 border border-gray-700 pl-12 pr-4 py-3 text-white focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-colors cursor-pointer"
-          />
-        </div>
+        <label class="block text-sm text-gray-300 mb-2">Dining Date *</label>
+        <DatePicker
+          name="diningDate"
+          required={true}
+          minDate={new Date()}
+          maxDate={new Date(Date.now() + 180 * 24 * 60 * 60 * 1000)}
+          placeholder=""
+          client:idle
+        />
       </div>
 
       <!-- Time -->
@@ -218,113 +198,33 @@ const pageUrl = Astro.url.href;
     </div>
 
     <div class="text-center pt-8">
-      <button
-        type="submit"
-        id="submit-btn"
-        class="w-full md:w-auto bg-gradient-to-r from-amber-500 to-orange-600 text-white font-semibold px-8 py-4 rounded-xl transition-all duration-300 hover:shadow-xl hover:-translate-y-1 hover:from-amber-600 hover:to-orange-700 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-      >
-        Request a Table
+      <button type="submit" id="submit-btn" class="action-btn">
+        Request your Table
       </button>
     </div>
   </form>
 </section>
 
-<!-- Air Datepicker CSS -->
-<link
-  rel="stylesheet"
-  href="https://cdn.jsdelivr.net/npm/air-datepicker@3.6.0/air-datepicker.css"
-/>
+<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer
+></script>
 
-<script type="module" client:visible>
-  import AirDatepicker from "https://cdn.jsdelivr.net/npm/air-datepicker@3.6.0/+esm";
-
-  document.addEventListener("DOMContentLoaded", async () => {
-    const diningDateRef = document.getElementById("dining-date");
-
-    if (diningDateRef) {
-      // Define English locale inline
-      const localeEn = {
-        days: [
-          "Sunday",
-          "Monday",
-          "Tuesday",
-          "Wednesday",
-          "Thursday",
-          "Friday",
-          "Saturday",
-        ],
-        daysShort: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
-        daysMin: ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"],
-        months: [
-          "January",
-          "February",
-          "March",
-          "April",
-          "May",
-          "June",
-          "July",
-          "August",
-          "September",
-          "October",
-          "November",
-          "December",
-        ],
-        monthsShort: [
-          "Jan",
-          "Feb",
-          "Mar",
-          "Apr",
-          "May",
-          "Jun",
-          "Jul",
-          "Aug",
-          "Sep",
-          "Oct",
-          "Nov",
-          "Dec",
-        ],
-        today: "Today",
-        clear: "Clear",
-        dateFormat: "MMM dd, yyyy",
-        timeFormat: "hh:mm aa",
-        firstDay: 0,
-      };
-
-      // Create today's date for default
-      const today = new Date();
-
-      // Initialize Air Datepicker for dining date
-      const diningDatePicker = new AirDatepicker(diningDateRef, {
-        locale: localeEn,
-        autoClose: true,
-        minDate: today,
-        maxDate: new Date(Date.now() + 180 * 24 * 60 * 60 * 1000), // 6 months ahead
-      });
-    }
-
-    // Form submission handling
+<script type="module">
+  // Wrap everything in an async function to handle the await properly
+  (async function () {
     try {
-      const { supabase } = await import("../lib/supabase.js");
+      // Import Supabase with correct path for module script
+      const { supabase } = await import("/src/lib/supabase.js");
 
       const form = document.getElementById("dining-form");
       const submitBtn = document.getElementById("submit-btn");
       const messageDiv = document.getElementById("form-message");
 
-      if (!form) return;
+      if (!form) return; // This is now inside a function, so it's valid
 
       form.addEventListener("submit", async (e) => {
         e.preventDefault();
 
-        // Check if Turnstile is loaded
-        if (typeof turnstile === "undefined") {
-          showMessage(
-            "Security validation not loaded. Please refresh the page.",
-            "error"
-          );
-          return;
-        }
-
-        // ADD TURNSTILE VALIDATION
+        // TURNSTILE VALIDATION
         const turnstileResponse = turnstile.getResponse();
         if (!turnstileResponse) {
           showMessage("Please complete the security check.", "error");
@@ -337,7 +237,6 @@ const pageUrl = Astro.url.href;
         showMessage("Submitting your table request...", "loading");
 
         try {
-          // Get form data - matching your form structure
           const formData = new FormData(form);
           const submission = {
             form_name: formData.get("form-name"),
@@ -353,18 +252,15 @@ const pageUrl = Astro.url.href;
             adults: parseInt(formData.get("adults")) || 0,
             children: parseInt(formData.get("children")) || 0,
             message: formData.get("message"),
-            submitted_at: new Date().toISOString(),
             turnstile_response: turnstileResponse,
           };
 
-          // Submit to Supabase - using dining_submissions table
           const { data, error } = await supabase
             .from("dining_submissions")
             .insert([submission]);
 
           if (error) throw error;
 
-          // Success! Show elegant success message
           showSuccessMessage();
         } catch (error) {
           console.error("Submission error:", error);
@@ -374,9 +270,7 @@ const pageUrl = Astro.url.href;
           );
           submitBtn.disabled = false;
           submitBtn.textContent = "Request a Table";
-          if (typeof turnstile !== "undefined") {
-            turnstile.reset();
-          }
+          turnstile.reset();
         }
       });
 
@@ -393,10 +287,7 @@ const pageUrl = Astro.url.href;
       }
 
       function showSuccessMessage() {
-        // Hide the form completely
         form.style.display = "none";
-
-        // Show elegant success message
         messageDiv.innerHTML = `
           <div class="text-center py-12">
             <div class="text-6xl mb-6">🍽️</div>
@@ -414,14 +305,10 @@ const pageUrl = Astro.url.href;
         messageDiv.className =
           "bg-gradient-to-br from-gray-800/50 to-gray-900/50 backdrop-blur-xl border border-amber-600 rounded-2xl p-8 text-center";
         messageDiv.classList.remove("hidden");
-
-        // RESET TURNSTILE ON SUCCESS
-        if (typeof turnstile !== "undefined") {
-          turnstile.reset();
-        }
+        turnstile.reset();
       }
     } catch (error) {
       console.error("Failed to load Supabase:", error);
     }
-  });
+  })(); // Immediately invoke the async function
 </script>

@@ -59,8 +59,6 @@ const roomsHeroImage = validateImageUrl(data.rooms[0]?.validatedImage) || '/img/
 
 <!-- Performance optimization: preload critical resources -->
 <link rel="preload" as="image" href={roomsHeroImage} fetchpriority="high" />
-<link rel="dns-prefetch" href="https://ap-south-1.graphassets.com" />
-<link rel="preconnect" href="https://ap-south-1.graphassets.com" />
 
 <Layout title="Luxury Rooms & Suites - Limban Resort">
   <AstroSEO
@@ -498,7 +496,7 @@ const roomsHeroImage = validateImageUrl(data.rooms[0]?.validatedImage) || '/img/
               data.rooms.map((room, index) => (
                 <article 
                   key={room.id}
-                  class="group bg-gradient-to-br from-gray-800/60 to-gray-900/60 backdrop-blur-xl border border-gray-600/50 rounded-3xl overflow-hidden shadow-2xl hover:shadow-amber-400/20 hover:border-amber-400/50 transition-all duration-700 hover:-translate-y-2 flex flex-col"
+                  class="group bg-gradient-to-br from-gray-800/60 to-gray-900/60 backdrop-blur-xl border border-gray-600/50 rounded-3xl overflow-hidden shadow-2xl hover:shadow-amber-400/20 hover:border-amber-400/50 transition-all duration-700 flex flex-col"
                   role="listitem"
                   aria-labelledby={`room-${room.id}-name`}
                 >
@@ -577,13 +575,13 @@ const roomsHeroImage = validateImageUrl(data.rooms[0]?.validatedImage) || '/img/
                       
                       <a 
                         href={room.safeUrl}
-                        class="group/cta relative block w-full text-center bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-gray-900 px-8 py-4 rounded-2xl font-bold text-lg tracking-wide transition-all duration-300 hover:shadow-2xl hover:shadow-amber-400/30 hover:-translate-y-1 focus:outline-none focus:ring-4 focus:ring-amber-400/50 overflow-hidden"
+                        class="action-btn"
                         aria-label={`Explore ${room.roomName} details and booking`}
                       >
                         <span class="relative z-10 flex items-center justify-center">
                           Explore {room.roomName}
-                          <svg class="w-5 h-5 ml-2 opacity-0 group-hover/cta:opacity-100 transform translate-x-[-10px] group-hover/cta:translate-x-0 transition-all duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                          <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path>
                           </svg>
                         </span>
                         
@@ -614,119 +612,3 @@ const roomsHeroImage = validateImageUrl(data.rooms[0]?.validatedImage) || '/img/
     </div>
   )}
 </Layout>
-
-<style>
-  /* Enhanced smooth transitions with GPU acceleration */
-  .group img,
-  .group/feature,
-  .group/cta {
-    transform-origin: center center;
-    backface-visibility: hidden;
-    will-change: transform;
-  }
-
-  /* Respect user motion preferences */
-  @media (prefers-reduced-motion: reduce) {
-    .transition-all,
-    .transition-transform,
-    .transition-colors,
-    .group-hover\:scale-110,
-    .hover\:-translate-y-2,
-    .hover\:-translate-y-1 {
-      transition: none !important;
-      transform: none !important;
-    }
-  }
-
-  /* Enhanced contrast for accessibility */
-  @media (prefers-contrast: high) {
-    .border-gray-600,
-    .border-gray-700 {
-      border-color: rgba(255, 255, 255, 0.4);
-    }
-  }
-
-  /* Accessible focus states */
-  .focus\:not-sr-only:focus {
-    position: absolute !important;
-    width: auto !important;
-    height: auto !important;
-    padding: 1rem !important;
-    margin: 0 !important;
-    overflow: visible !important;
-    clip: auto !important;
-    white-space: normal !important;
-  }
-
-  /* Enhanced loading animations */
-  @keyframes shimmer {
-    0% { transform: translateX(-100%); }
-    100% { transform: translateX(100%); }
-  }
-</style>
-
-<script>
-  // Enhanced error handling and image optimization
-  class RoomsPageEnhancer {
-    constructor() {
-      this.init();
-    }
-
-    init() {
-      this.handleImageErrors();
-      this.trackRoomInteractions();
-      this.optimizeScrollPerformance();
-    }
-
-    handleImageErrors() {
-      document.querySelectorAll('img').forEach(img => {
-        img.addEventListener('error', () => {
-          console.warn('Image failed to load:', img.src);
-          img.src = '/img/room-placeholder.jpg';
-          img.alt = 'Room image temporarily unavailable';
-        });
-      });
-    }
-
-    trackRoomInteractions() {
-      document.querySelectorAll('article a[href*="/rooms/"]').forEach(link => {
-        link.addEventListener('click', (e) => {
-          const roomName = e.target.closest('article')?.querySelector('h3')?.textContent;
-          if (roomName && typeof gtag !== 'undefined') {
-            gtag('event', 'room_view', {
-              'event_category': 'engagement',
-              'event_label': roomName,
-              'value': 1
-            });
-          }
-        });
-      });
-    }
-
-    optimizeScrollPerformance() {
-      let ticking = false;
-      
-      const handleScroll = () => {
-        if (!ticking) {
-          requestAnimationFrame(() => {
-            // Optimize scroll-based animations
-            ticking = false;
-          });
-          ticking = true;
-        }
-      };
-
-      window.addEventListener('scroll', handleScroll, { passive: true });
-    }
-  }
-
-  // Initialize enhancements
-  document.addEventListener('DOMContentLoaded', () => {
-    new RoomsPageEnhancer();
-  });
-
-  // Service worker registration for offline support
-  if ('serviceWorker' in navigator && import.meta.env.PROD) {
-    navigator.serviceWorker.register('/sw.js').catch(console.error);
-  }
-</script>

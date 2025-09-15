@@ -1,14 +1,17 @@
 import { defineConfig } from 'astro/config';
-import tailwindcss from '@tailwindcss/vite';
 import sitemap from '@astrojs/sitemap';
+import react from '@astrojs/react';
+import tailwindcss from 'tailwindcss';
+import autoprefixer from 'autoprefixer';
 
 export default defineConfig({
-  site: 'https://limban.com', // Required for sitemap
-  integrations: [
-    sitemap()
-  ],
+  site: 'https://limban.com',
+  integrations: [sitemap(), react()],
   vite: {
-    plugins: [tailwindcss()],
+    css: {
+      postcss: {
+        plugins: [tailwindcss, autoprefixer],
+      },
+    },
   },
 });
-

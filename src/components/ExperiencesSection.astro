@@ -12,6 +12,7 @@ export interface Props {
       imageAltText?: string;
       feature?: Array<{ text: string }>;
       link?: string;
+      buttonText?: string;
     }>;
   };
   gridClass?: string;
@@ -39,7 +40,7 @@ const { experiences, gridClass = "grid-cols-1 md:grid-cols-2" } = Astro.props;
           {experiences.experience?.map((experience, index) => (
             <div
               key={index}
-              class="bg-gray-800/50 backdrop-blur-xl border border-gray-700 rounded-2xl p-8 transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl hover:border-gray-600"
+              class="bg-gray-800/50 backdrop-blur-xl border border-gray-700 rounded-2xl p-8 transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:border-gray-600"
             >
               <img
                 src={experience.image?.url}
@@ -86,9 +87,17 @@ const { experiences, gridClass = "grid-cols-1 md:grid-cols-2" } = Astro.props;
                 <div class="mt-6 text-center">
                   <a
                     href={experience.link}
-                    class="inline-flex items-center justify-center rounded-lg bg-gradient-to-r from-gray-700 to-gray-800 px-6 py-3 text-sm font-medium tracking-wide text-white transition-all duration-300 hover:-translate-y-0.5 hover:from-gray-600 hover:to-gray-700 hover:shadow-lg"
+                    class="action-btn action-btn-primary"
                   >
-                    Learn More
+                    {experience.buttonText || "Learn More"}
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M9 5l7 7-7 7"
+                      />
+                    </svg>
                   </a>
                 </div>
               )}

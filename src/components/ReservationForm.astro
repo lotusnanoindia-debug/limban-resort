@@ -1,5 +1,7 @@
 ---
 // Reservation Form - Standalone
+import { RoomsDateRangePicker } from "@/components/RoomsDateRangePicker";
+
 export interface Props {
   roomName: string;
   roomSlug: string;
@@ -10,23 +12,19 @@ const { roomName, roomSlug, basePrice } = Astro.props;
 const pageUrl = Astro.url.href;
 ---
 
-<!-- External script for turnstile captcha validation -->
-<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer
-></script>
-
 <section aria-labelledby="reservation-heading">
   <h2
     id="reservation-heading"
-    class="font-serif italic text-3xl md:text-4xl text-white mb-6"
+    class="font-serif italic text-3xl md:text-5xl text-white mb-6"
   >
-    Reserve Now: {roomName}
+    <span class="text-amber-400">Reserve Now</span>
   </h2>
   <p class="text-gray-300 mb-6">
-    Complete the form and our team will confirm availability and safaris.
+    Complete below form and our team will confirm your {roomName} reservation.
   </p>
 
   <p
-    class="border border-amber-300 p-2 rounded-xl text-center text-gray-400 mb-6 flex items-center justify-center gap-2"
+    class="border border-amber-300 bg-amber-100/5 p-4 rounded-xl text-center text-gray-400 mb-8 flex items-center justify-center gap-2"
   >
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -38,7 +36,6 @@ const pageUrl = Astro.url.href;
         d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.518.76a11.034 11.034 0 006.364 6.364l.76-1.518a1 1 0 011.06-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z"
       ></path>
     </svg>
-    <span>Hotline:</span>
     <a
       href="tel:+919022680451"
       class="font-semibold text-amber-400 hover:text-amber-300 transition-colors duration-300 whitespace-nowrap"
@@ -74,69 +71,18 @@ const pageUrl = Astro.url.href;
     }
 
     <div class="text-center pt-2">
-      <div
-        id="nights-message"
-        class="bg-gray-950 p-2 rounded-sm text-center mb-6 text-sm transition-opacity duration-500 ease-in-out opacity-0"
-      >
-      </div>
+      <div id="nights-message"></div>
     </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 mb-8 min-w-0">
-      <div class="min-w-0">
-        <label for="check-in" class="block text-sm text-gray-300 mb-2"
-          >Check-in</label
-        >
-        <div class="relative">
-          <div
-            class="absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none"
-          >
-            <svg
-              class="w-5 h-5 text-gray-400"
-              fill="currentColor"
-              viewBox="0 0 20 20"
-            >
-              <path
-                d="M6 2a1 1 0 00-2 0v1H3a2 2 0 00-2 2v1h18V5a2 2 0 00-2-2h-1V2a1 1 0 10-2 0v1H6V2zM2 8v8a2 2 0 002 2h12a2 2 0 002-2V8H2zm3 3a1 1 0 011-1h1a1 1 0 110 2H6a1 1 0 01-1-1zm5 0a1 1 0 011-1h1a1 1 0 110 2h-1a1 1 0 01-1-1z"
-              ></path>
-            </svg>
-          </div>
-          <input
-            id="check-in"
-            name="checkin"
-            type="text"
-            autocomplete="off"
-            required
-            class="w-full min-w-0 rounded-md bg-gray-800 border border-gray-700 pl-12 pr-4 py-3 text-white focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-colors cursor-pointer"
-          />
-        </div>
-      </div>
-      <div class="min-w-0">
-        <label for="check-out" class="block text-sm text-gray-300 mb-2"
-          >Check-out</label
-        >
-        <div class="relative">
-          <div
-            class="absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none"
-          >
-            <svg
-              class="w-5 h-5 text-gray-400"
-              fill="currentColor"
-              viewBox="0 0 20 20"
-            >
-              <path
-                d="M6 2a1 1 0 00-2 0v1H3a2 2 0 00-2 2v1h18V5a2 2 0 00-2-2h-1V2a1 1 0 10-2 0v1H6V2zM2 8v8a2 2 0 002 2h12a2 2 0 002-2V8H2zm3 3a1 1 0 011-1h1a1 1 0 110 2H6a1 1 0 01-1-1zm5 0a1 1 0 011-1h1a1 1 0 110 2h-1a1 1 0 01-1-1z"
-              ></path>
-            </svg>
-          </div>
-          <input
-            id="check-out"
-            name="checkout"
-            type="text"
-            autocomplete="off"
-            required
-            class="w-full min-w-0 rounded-md bg-gray-800 border border-gray-700 pl-12 pr-4 py-3 text-white focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-colors cursor-pointer"
-          />
-        </div>
+    <div class="mb-4">
+      <label class="block text-sm text-gray-300 mb-2"
+        >Your Check-In / Out *</label
+      >
+      <RoomsDateRangePicker client:load />
+      <div
+        id="nights-message"
+        class="bg-gray-950 p-2 rounded-sm text-center mt-2 text-sm transition-opacity duration-500 ease-in-out opacity-0"
+      >
       </div>
     </div>
 
@@ -144,7 +90,7 @@ const pageUrl = Astro.url.href;
       <!-- Contact -->
       <div>
         <label for="firstName" class="block text-sm text-gray-300 mb-2"
-          >First Name</label
+          >First Name *</label
         >
         <input
           id="firstName"
@@ -156,7 +102,7 @@ const pageUrl = Astro.url.href;
       </div>
       <div>
         <label for="lastName" class="block text-sm text-gray-300 mb-2"
-          >Last Name</label
+          >Last Name *</label
         >
         <input
           id="lastName"
@@ -167,25 +113,28 @@ const pageUrl = Astro.url.href;
         />
       </div>
       <div>
-        <label for="email" class="block text-sm text-gray-300 mb-2">Email</label
+        <label for="email" class="block text-sm text-gray-300 mb-2"
+          >Email *</label
         >
         <input
           id="email"
           name="email"
           type="email"
+          pattern="[a-zA-Z0-9._%+\\-]+@[a-zA-Z0-9.\\-]+\\.[a-zA-Z]{2,}"
           required
           class="w-full rounded-md bg-gray-800 border border-gray-700 px-4 py-3 text-white focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-colors"
         />
       </div>
       <div>
         <label for="phone" class="block text-sm text-gray-300 mb-2"
-          >Phone/WhatsApp</label
+          >Phone/WhatsApp *</label
         >
         <input
           id="phone"
           name="phone"
           type="tel"
           class="w-full rounded-md bg-gray-800 border border-gray-700 px-4 py-3 text-white focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-colors"
+          required
         />
       </div>
 
@@ -265,184 +214,29 @@ const pageUrl = Astro.url.href;
     </div>
 
     <div class="text-center pt-8">
-      <button
-        type="submit"
-        id="submit-btn"
-        class="w-full md:w-auto bg-gradient-to-r from-amber-500 to-orange-600 text-white font-semibold px-8 py-4 rounded-xl transition-all duration-300 hover:shadow-xl hover:-translate-y-1 hover:from-amber-600 hover:to-orange-700 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-      >
+      <button type="submit" id="submit-btn" class="action-btn">
         Request Reservation
       </button>
     </div>
   </form>
 </section>
 
-<!-- Air Datepicker CSS - Simple English default theme -->
-<link
-  rel="stylesheet"
-  href="https://cdn.jsdelivr.net/npm/air-datepicker@3.6.0/air-datepicker.css"
-/>
+<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer
+></script>
 
 <script>
-  import AirDatepicker from "https://cdn.jsdelivr.net/npm/air-datepicker@3.6.0/+esm";
-
   document.addEventListener("DOMContentLoaded", async () => {
-    const checkInRef = document.getElementById("check-in");
-    const checkOutRef = document.getElementById("check-out");
-    const nightsMessage = document.getElementById("nights-message");
+    // Listen for date updates from the React component (only when both dates selected)
 
-    // Define English locale inline
-    const localeEn = {
-      days: [
-        "Sunday",
-        "Monday",
-        "Tuesday",
-        "Wednesday",
-        "Thursday",
-        "Friday",
-        "Saturday",
-      ],
-      daysShort: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
-      daysMin: ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"],
-      months: [
-        "January",
-        "February",
-        "March",
-        "April",
-        "May",
-        "June",
-        "July",
-        "August",
-        "September",
-        "October",
-        "November",
-        "December",
-      ],
-      monthsShort: [
-        "Jan",
-        "Feb",
-        "Mar",
-        "Apr",
-        "May",
-        "Jun",
-        "Jul",
-        "Aug",
-        "Sep",
-        "Oct",
-        "Nov",
-        "Dec",
-      ],
-      today: "Today",
-      clear: "Clear",
-      dateFormat: "MMM dd, yyyy",
-      timeFormat: "hh:mm aa",
-      firstDay: 0,
-    };
-
-    // YOUR EXACT CALCULATION LOGIC
-    const calculateNights = () => {
-      if (!nightsMessage || !checkInRef?.value || !checkOutRef?.value) {
-        nightsMessage?.classList.remove("opacity-100");
-        if (nightsMessage) nightsMessage.textContent = "";
-        return;
-      }
-
-      const checkIn = new Date(checkInRef.value);
-      const checkOut = new Date(checkOutRef.value);
-
-      if (checkOut <= checkIn) {
-        nightsMessage.textContent = "Check-out must be after check-in!";
-        nightsMessage.classList.remove("text-green-400");
-        nightsMessage.classList.add("text-red-400");
-      } else {
-        const diffTime = Math.abs(checkOut - checkIn);
-        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-        nightsMessage.textContent = `You are reserving for ${diffDays} Night${diffDays !== 1 ? "s" : ""}`;
-        nightsMessage.classList.remove("text-red-400");
-        nightsMessage.classList.add("text-green-400");
-      }
-      nightsMessage.classList.add("opacity-100");
-    };
-
-    const checkInPicker = new AirDatepicker(checkInRef, {
-      locale: localeEn,
-      autoClose: true,
-      minDate: new Date(),
-      maxDate: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000),
-      onSelect: ({ date }) => {
-        if (date) {
-          const selectedCheckIn = date;
-          const minCheckOut = new Date(selectedCheckIn);
-          minCheckOut.setDate(minCheckOut.getDate() + 1);
-
-          checkOutPicker.update({ minDate: minCheckOut });
-
-          if (
-            checkOutPicker.selectedDates[0] &&
-            checkOutPicker.selectedDates[0] <= selectedCheckIn
-          ) {
-            checkOutPicker.clear();
-            nightsMessage?.classList.remove("opacity-100");
-            if (nightsMessage) nightsMessage.textContent = "";
-          }
-
-          calculateNights();
-        } else {
-          const tomorrow = new Date();
-          tomorrow.setDate(tomorrow.getDate() + 1);
-          checkOutPicker.update({ minDate: tomorrow });
-          calculateNights();
-        }
-      },
-    });
-
-    const tomorrow = new Date();
-    tomorrow.setDate(tomorrow.getDate() + 1);
-
-    const checkOutPicker = new AirDatepicker(checkOutRef, {
-      locale: localeEn,
-      autoClose: true,
-      minDate: tomorrow,
-      maxDate: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000),
-      onSelect: ({ date }) => {
-        if (date) {
-          const selectedCheckOut = date;
-          const maxCheckIn = new Date(selectedCheckOut);
-          maxCheckIn.setDate(maxCheckIn.getDate() - 1);
-
-          checkInPicker.update({ maxDate: maxCheckIn });
-
-          if (
-            checkInPicker.selectedDates[0] &&
-            checkInPicker.selectedDates[0] >= selectedCheckOut
-          ) {
-            checkInPicker.clear();
-            nightsMessage?.classList.remove("opacity-100");
-            if (nightsMessage) nightsMessage.textContent = "";
-          }
-
-          calculateNights();
-        } else {
-          checkInPicker.update({
-            maxDate: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000),
-          });
-          calculateNights();
-        }
-      },
-    });
-
-    // RESET FUNCTION
+    // RESET FUNCTION (for success message button)
     window.resetDatePickers = () => {
-      checkInPicker.clear();
-      checkOutPicker.clear();
+      const checkinInput = document.querySelector('input[name="checkin"]');
+      const checkoutInput = document.querySelector('input[name="checkout"]');
 
-      checkInPicker.update({
-        maxDate: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000),
-      });
+      if (checkinInput) checkinInput.value = "";
+      if (checkoutInput) checkoutInput.value = "";
 
-      const tomorrow = new Date();
-      tomorrow.setDate(tomorrow.getDate() + 1);
-      checkOutPicker.update({ minDate: tomorrow });
-
+      const nightsMessage = document.getElementById("nights-message");
       nightsMessage?.classList.remove("opacity-100");
       if (nightsMessage) nightsMessage.textContent = "";
     };
@@ -459,6 +253,21 @@ const pageUrl = Astro.url.href;
 
       form.addEventListener("submit", async (e) => {
         e.preventDefault();
+
+        const nightsMessage = document.getElementById("nights-message");
+
+        // VALIDATE DATES FIRST
+        const formData = new FormData(form);
+        const checkinValue = formData.get("checkin");
+        const checkoutValue = formData.get("checkout");
+
+        if (!checkinValue || !checkoutValue) {
+          nightsMessage.textContent =
+            "Please review Check-In / Check-Out dates.";
+          nightsMessage.className =
+            "bg-red-900/30 border border-red-600/50 text-red-300 p-2 rounded-sm text-center mt-2 text-sm transition-opacity duration-500 ease-in-out opacity-100 mb-6";
+          return;
+        }
 
         // Check if Turnstile is loaded
         if (typeof turnstile === "undefined") {
@@ -482,16 +291,22 @@ const pageUrl = Astro.url.href;
         showMessage("Submitting your reservation request...", "loading");
 
         try {
-          // Get form data
-          const formData = new FormData(form);
+          // Calculate nights (diffDays) for submission
+          const checkin = new Date(formData.get("checkin"));
+          const checkout = new Date(formData.get("checkout"));
+          const diffTime = Math.abs(checkout - checkin);
+          const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
           const submission = {
             form_name: formData.get("form-name"),
             pageUrl: formData.get("pageUrl"),
             roomName: formData.get("roomName"),
+            nightsReserved: diffDays,
             roomSlug: formData.get("roomSlug"),
             basePrice: formData.get("basePrice"),
             checkin: formData.get("checkin"),
             checkout: formData.get("checkout"),
+            nightsReserved: diffDays,
             firstName: formData.get("firstName"),
             lastName: formData.get("lastName"),
             email: formData.get("email"),
@@ -501,7 +316,6 @@ const pageUrl = Astro.url.href;
             wantSafaris: formData.get("wantSafaris"),
             transfer: formData.get("transfer"),
             message: formData.get("message"),
-            submitted_at: new Date().toISOString(),
             turnstile_response: turnstileResponse,
           };
 

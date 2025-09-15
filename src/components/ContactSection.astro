@@ -196,6 +196,7 @@ const pageUrl = Astro.url.href;
               <input
                 name="email"
                 type="email"
+                pattern="[a-zA-Z0-9._%+\\-]+@[a-zA-Z0-9.\\-]+\\.[a-zA-Z]{2,}"
                 required
                 class="w-full px-4 py-4 bg-white/10 backdrop-blur-xl border border-white/20 rounded-xl text-white placeholder-white/50 focus:border-white/40 focus:ring-2 focus:ring-white/20 focus:bg-white/15 transition-all duration-300"
               />
@@ -224,11 +225,7 @@ const pageUrl = Astro.url.href;
             ></textarea>
           </div>
 
-          <button
-            type="submit"
-            id="submit-btn"
-            class="w-full bg-gradient-to-r from-orange-500/80 to-orange-500/60 backdrop-blur-xl border border-white/30 hover:from-orange-300/60 hover:to-orange-500/80 text-white font-semibold px-8 py-5 rounded-xl text-lg tracking-wide transition-all duration-300 hover:shadow-xl hover:-translate-y-1 hover:border-white/50 cursor-pointer"
-          >
+          <button type="submit" id="submit-btn" class="action-btn">
             Send Your Enquiry
           </button>
         </form>
@@ -241,7 +238,11 @@ const pageUrl = Astro.url.href;
   // Add Supabase form submission with Turnstile validation
   document.addEventListener("DOMContentLoaded", async () => {
     try {
-      const { supabase } = await import("../lib/supabase.js");
+      // Use absolute import path with alias for better maintainability
+      const { supabase } = await import("/src/lib/supabase.js");
+
+      // Alternatively, could use static import at component top level:
+      // import { supabase } from "@/lib/supabase.js";
 
       const form = document.getElementById("contact-form");
       const submitBtn = document.getElementById("submit-btn");
@@ -339,7 +340,21 @@ const pageUrl = Astro.url.href;
         turnstile.reset();
       }
     } catch (error) {
-      console.error("Failed to load Supabase:", error);
+      console.error("Failed to load Supabase client:", error);
+      // Show user-friendly error message
+      const messageDiv = document.getElementById("form-message");
+      if (messageDiv) {
+        messageDiv.innerHTML = `
+          <div class="text-red-300">
+            <p>We're experiencing technical difficulties.</p>
+            <p>Please try again later or contact us directly.</p>
+          </div>
+        `;
+        messageDiv.classList.remove("hidden");
+      }
+      // Disable form submission
+      const submitBtn = document.getElementById("submit-btn");
+      if (submitBtn) submitBtn.disabled = true;
     }
   });
 </script>

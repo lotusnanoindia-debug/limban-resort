@@ -2,6 +2,7 @@
 import Layout from "../layouts/Layout.astro";
 import { AstroSEO } from "astro-seo-plugin";
 import { fetchCorporateGallery } from "../api.js";
+import { CorporateDatePicker } from "@/components/CorporateDatePicker";
 
 let corporateGallery = [];
 try {
@@ -1505,6 +1506,7 @@ const testimonials = [
             id="email"
             name="email"
             type="email"
+            pattern="[a-zA-Z0-9._%+\\-]+@[a-zA-Z0-9.\\-]+\\.[a-zA-Z]{2,}"
             required
             class="w-full rounded-2xl bg-gray-800/50 border border-gray-600 px-6 py-4 text-white focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all duration-300"
           />
@@ -1585,40 +1587,14 @@ const testimonials = [
           </select>
         </div>
 
-        <!-- Event Date with Air Datepicker -->
         <div>
-          <label
-            for="preferred-date"
-            class="block text-sm font-medium text-gray-300 mb-3"
-            >Preferred Date</label
-          >
-          <div class="relative">
-            <div
-              class="absolute inset-y-0 left-0 flex items-center pl-6 pointer-events-none"
-            >
-              <svg
-                class="w-5 h-5 text-gray-400"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="1.5"
-                  d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-                ></path>
-              </svg>
-            </div>
-            <input
-              id="preferred-date"
-              name="preferredDate"
-              type="text"
-              autocomplete="off"
-              readonly
-              class="w-full rounded-2xl bg-gray-800/50 border border-gray-600 pl-14 pr-6 py-4 text-white focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all duration-300 cursor-pointer"
-            />
-          </div>
+          <label class="block text-sm font-medium text-gray-300 mb-3">Preferred Date</label>
+          <CorporateDatePicker 
+            name="preferredDate" 
+            required={true} 
+            placeholder="Pick your preferred date" 
+            client:load
+          />
         </div>
 
         <div>
@@ -1686,11 +1662,6 @@ const testimonials = [
   </div>
 </section>
 
-<!-- Air Datepicker CSS -->
-<link
-  rel="stylesheet"
-  href="https://cdn.jsdelivr.net/npm/air-datepicker@3.6.0/air-datepicker.css"
-/>
 
 <!-- Enhanced Styles -->
 <style>
@@ -1737,39 +1708,17 @@ const testimonials = [
   }
 </style>
 
-<script>
-  import AirDatepicker from "https://cdn.jsdelivr.net/npm/air-datepicker@3.6.0/+esm";
+<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
 
+<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+
+<script type="module">
   document.addEventListener("DOMContentLoaded", async () => {
-    const dateInput = document.getElementById("preferred-date");
-
-    if (dateInput) {
-      // Define English locale inline
-      const localeEn = {
-        days: ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"],
-        daysShort: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
-        daysMin: ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"],
-        months: ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
-        monthsShort: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
-        today: "Today",
-        clear: "Clear",
-        dateFormat: "MMM dd, yyyy",
-        timeFormat: "hh:mm aa",
-        firstDay: 0,
-      };
-
-      // Initialize Air Datepicker for event date
-      new AirDatepicker(dateInput, {
-        locale: localeEn,
-        autoClose: true,
-        minDate: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000), // 3 days ahead minimum
-        maxDate: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000), // 1 year ahead maximum
-      });
-    }
+    // REMOVED: Air Datepicker initialization since we're using React component now
 
     // FORM SUBMISSION WITH TURNSTILE 
     try {
-      const { supabase } = await import("../lib/supabase.js");
+      const { supabase } = await import("/src/lib/supabase.js");
 
       const form = document.getElementById("corporate-enquiry-form");
       const submitBtn = document.getElementById("submit-btn");
@@ -1801,6 +1750,10 @@ const testimonials = [
         try {
           // Get form data - matching corporate enquiry structure
           const formData = new FormData(form);
+          
+          // Debug: Check what we're getting
+          console.log("preferredDate value:", formData.get("preferredDate"));
+          
           const submission = {
             form_name: formData.get("form-name"),
             page_url: formData.get("pageUrl"),

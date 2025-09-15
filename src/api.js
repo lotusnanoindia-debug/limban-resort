@@ -121,6 +121,7 @@ const EXPERIENCE_QUERY = `
         title
         description
         link
+        buttonText
         feature { text }
       }
     }
