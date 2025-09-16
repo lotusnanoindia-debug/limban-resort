@@ -13,7 +13,6 @@ const {
   formSelector = 'form, [class*="reservation"], [class*="dining"], [id*="reservation"], [id*="dining"]',
   buttonText = "Reserve",
   position = "bottom-left",
-  showIcon = true,
   glowOnScroll = true,
   headerOffset = 300, // Default offset for sticky header (adjust as needed)
 } = Astro.props;
@@ -36,24 +35,7 @@ const positionClasses = {
     id="scroll-to-form"
     class="group relative bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-white px-4 py-2.5 rounded-full shadow-lg hover:shadow-xl transition-all duration-500 ease-out hover:scale-105 text-sm font-semibold flex items-center space-x-2"
   >
-    {
-      showIcon && (
-        <svg
-          class="w-4 h-4 transition-transform duration-300 group-hover:scale-110"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 002 2z"
-          />
-        </svg>
-      )
-    }
-    <span class="hidden sm:block">{buttonText}</span>
+    {buttonText}
     <div
       class="absolute inset-0 rounded-full bg-gradient-to-r from-amber-400/0 to-amber-400/0 group-hover:from-amber-400/20 group-hover:to-amber-500/20 transition-all duration-500 -z-10"
     >
