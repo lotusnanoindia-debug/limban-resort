@@ -1,0 +1,201 @@
+---
+// SmartReserveButton.astro
+interface Props {
+  formSelector?: string;
+  buttonText?: string;
+  position?: "bottom-left" | "bottom-right";
+  showIcon?: boolean;
+  glowOnScroll?: boolean;
+  headerOffset?: number;
+}
+
+const {
+  formSelector = 'form, [class*="reservation"], [class*="dining"], [id*="reservation"], [id*="dining"]',
+  buttonText = "Reserve",
+  position = "bottom-left",
+  showIcon = true,
+  glowOnScroll = true,
+  headerOffset = 300, // Default offset for sticky header (adjust as needed)
+} = Astro.props;
+
+const positionClasses = {
+  "bottom-left": "bottom-6 left-6",
+  "bottom-right": "bottom-6 right-6",
+};
+---
+
+<!-- Smart floating reserve button -->
+<div
+  id="smart-reserve-btn"
+  class={`fixed ${positionClasses[position]} z-50 transform translate-y-16 opacity-0 pointer-events-none transition-all duration-700 ease-out`}
+  data-form-selector={formSelector}
+  data-glow-on-scroll={glowOnScroll}
+  data-header-offset={headerOffset}
+>
+  <button
+    id="scroll-to-form"
+    class="group relative bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-white px-4 py-2.5 rounded-full shadow-lg hover:shadow-xl transition-all duration-500 ease-out hover:scale-105 text-sm font-semibold flex items-center space-x-2"
+  >
+    {
+      showIcon && (
+        <svg
+          class="w-4 h-4 transition-transform duration-300 group-hover:scale-110"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 002 2z"
+          />
+        </svg>
+      )
+    }
+    <span class="hidden sm:block">{buttonText}</span>
+    <div
+      class="absolute inset-0 rounded-full bg-gradient-to-r from-amber-400/0 to-amber-400/0 group-hover:from-amber-400/20 group-hover:to-amber-500/20 transition-all duration-500 -z-10"
+    >
+    </div>
+  </button>
+</div>
+
+<script>
+  function initElegantReserveButton() {
+    const floatingBtn = document.getElementById("smart-reserve-btn");
+    const scrollBtn = document.getElementById("scroll-to-form");
+
+    if (!floatingBtn || !scrollBtn) return;
+
+    const formSelector =
+      floatingBtn.getAttribute("data-form-selector") || "form";
+    const glowOnScroll =
+      floatingBtn.getAttribute("data-glow-on-scroll") === "true";
+    const headerOffset = parseInt(
+      floatingBtn.getAttribute("data-header-offset") || "120"
+    );
+
+    // Find the reservation form with fallback selectors
+    let reservationForm = document.querySelector(formSelector);
+
+    if (!reservationForm) {
+      const fallbackSelectors = [
+        "form",
+        '[class*="reservation"]',
+        '[class*="dining"]',
+        '[id*="reservation"]',
+        '[id*="dining"]',
+        ".form",
+      ];
+
+      for (const selector of fallbackSelectors) {
+        reservationForm = document.querySelector(selector);
+        if (reservationForm) break;
+      }
+    }
+
+    if (!reservationForm) return;
+
+    // Intersection Observer for form visibility
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting && entry.intersectionRatio > 0.1) {
+            // Form is visible - elegant fade out
+            floatingBtn.classList.remove(
+              "opacity-100",
+              "translate-y-0",
+              "pointer-events-auto"
+            );
+            floatingBtn.classList.add(
+              "opacity-0",
+              "translate-y-16",
+              "pointer-events-none"
+            );
+          } else {
+            // Form not visible - elegant fade in
+            floatingBtn.classList.remove(
+              "opacity-0",
+              "translate-y-16",
+              "pointer-events-none"
+            );
+            floatingBtn.classList.add(
+              "opacity-100",
+              "translate-y-0",
+              "pointer-events-auto"
+            );
+          }
+        });
+      },
+      {
+        threshold: [0, 0.1, 0.25],
+        rootMargin: "-80px 0px -80px 0px",
+      }
+    );
+
+    observer.observe(reservationForm);
+
+    // Enhanced smooth scrolling with sticky header offset
+    scrollBtn.addEventListener("click", function (e) {
+      e.preventDefault();
+
+      // Calculate scroll position accounting for sticky header
+      const formRect = reservationForm.getBoundingClientRect();
+      const currentScrollY = window.pageYOffset;
+      const targetPosition = currentScrollY + formRect.top - headerOffset;
+
+      window.scrollTo({
+        top: Math.max(0, targetPosition),
+        behavior: "smooth",
+      });
+
+      // Optional glow effect
+      if (glowOnScroll) {
+        setTimeout(() => {
+          reservationForm.style.boxShadow = "0 0 20px rgba(245, 158, 11, 0.3)";
+          setTimeout(() => {
+            reservationForm.style.boxShadow = "";
+          }, 2000);
+        }, 800);
+      }
+    });
+
+    // Handle window resize gracefully
+    let resizeTimeout;
+    window.addEventListener("resize", () => {
+      clearTimeout(resizeTimeout);
+      resizeTimeout = setTimeout(() => {
+        observer.unobserve(reservationForm);
+        observer.observe(reservationForm);
+      }, 150);
+    });
+  }
+
+  // Initialize when DOM is ready
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initElegantReserveButton);
+  } else {
+    setTimeout(initElegantReserveButton, 100);
+  }
+</script>
+
+<style>
+  /* This is literally all you need for 60fps performance */
+  #smart-reserve-btn {
+    transform: translateZ(0);
+    transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  #smart-reserve-btn button {
+    transform: translateZ(0);
+    transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  #smart-reserve-btn:not(:hover) {
+    will-change: auto;
+  }
+  #smart-reserve-btn button:not(:hover):not(:focus) {
+    will-change: auto;
+  }
+</style>

@@ -46,7 +46,7 @@ const SUB_HERO_QUERY = `
       imageAltText
       bodyText { html }
       image {
-        url(transformation: { image: { resize: { width: 500, height: 500, fit: crop }, quality: { value: 60 } }, document: { output: { format: webp } } })
+        url(transformation: { image: { resize: { width: 500, height: 600, fit: crop }, quality: { value: 60 } }, document: { output: { format: webp } } })
       }
       stats {
         number
@@ -115,7 +115,7 @@ const EXPERIENCE_QUERY = `
       description
       experience {
         image {
-          url(transformation: { image: { resize: { width: 400, height: 256, fit: crop } }, document: { output: { format: webp } } })
+          url(transformation: { image: { resize: { width: 350, height: 150, fit: crop }, quality: { value: 60 } }, document: { output: { format: webp } } })
         }
         imageAltText
         title

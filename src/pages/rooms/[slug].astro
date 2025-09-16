@@ -6,6 +6,8 @@ import GalleryGrid from '../../components/GalleryGrid.astro';
 import LoadMoreGallery from '../../components/LoadMoreGallery.astro';
 import GalleryModal from '../../components/GalleryModal.astro';
 import ReservationForm from '../../components/ReservationForm.astro';
+import SmartReserveButton from '../../components/SmartReserveButton.astro';
+
 
 // Ultra-reliable API fetching with retry logic
 async function fetchWithRetry(fetchFn, retries = 2) {
@@ -179,9 +181,6 @@ const safePrice = Number(room.basePrice) || 0;
           <h1 id="room-hero-heading" class="font-serif italic text-4xl md:text-6xl text-white mb-6 drop-shadow-lg">
             {room.roomName}
           </h1>
-          <p class="text-xl text-gray-200 max-w-3xl mx-auto leading-relaxed drop-shadow-sm">
-            {room.shortDescription}
-          </p>
           
           <!-- Enhanced pricing display -->
           <div class="mt-8 p-6 bg-black/30 backdrop-blur-lg rounded-2xl inline-block">
@@ -415,48 +414,11 @@ const safePrice = Number(room.basePrice) || 0;
       </div>
     </section>
   </div>
+  <SmartReserveButton
+    formSelector="#reservation-form"
+    buttonText={`Reserve ${room.roomName}`} 
+    position="bottom-right"
+    glowOnScroll={true}
+  />
   <GalleryModal />
 </Layout>
-
-<style>
-  /* Enhanced smooth transitions */
-  .group img {
-    transform-origin: center center;
-    backface-visibility: hidden;
-    will-change: transform;
-  }
-
-  /* Respect user motion preferences */
-  @media (prefers-reduced-motion: reduce) {
-    .transition-all,
-    .transition-transform,
-    .transition-colors,
-    .group-hover\:scale-105,
-    .group-hover\:scale-110,
-    .hover\:-translate-y-3 {
-      transition: none !important;
-      transform: none !important;
-    }
-  }
-
-  /* Enhanced contrast for accessibility */
-  @media (prefers-contrast: high) {
-    .border-gray-800,
-    .border-gray-700 {
-      border-color: rgba(255, 255, 255, 0.3);
-    }
-  }
-
-  /* Accessible focus states */
-  .focus\:not-sr-only:focus {
-    position: absolute !important;
-    width: auto !important;
-    height: auto !important;
-    padding: 1rem !important;
-    margin: 0 !important;
-    overflow: visible !important;
-    clip: auto !important;
-    white-space: normal !important;
-  }
-</style>
-

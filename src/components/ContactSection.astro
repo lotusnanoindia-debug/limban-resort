@@ -114,212 +114,212 @@ const pageUrl = Astro.url.href;
         </div>
 
         <!-- Luxury Glass Form Design -->
-        <form
-          id="contact-form"
-          name="contact"
-          class="space-y-7 bg-gray-800/50 backdrop-blur-xl border border-white/20 rounded-2xl p-10 shadow-[0_8px_32px_rgba(0,0,0,0.12)]"
+        <div
+          class="bg-gray-800/50 backdrop-blur-xl border border-white/20 rounded-2xl p-10 shadow-[0_8px_32px_rgba(0,0,0,0.12)]"
         >
-          <!-- Turnstile widget -->
-          <div
-            class="cf-turnstile"
-            data-sitekey="0x4AAAAAAB08V5IJ7fONN28Y"
-            data-theme="dark"
-          >
-          </div>
-
-          <input type="hidden" name="form-name" value="contact-general" />
-          <input type="hidden" name="pageUrl" value={pageUrl} />
           <h3 class="text-3xl text-white mb-8 font-serif italic">
             How Can We Assist You?
           </h3>
-          <!-- Enquiry Type Dropdown with Fixed Arrow -->
-          <div>
-            <select
-              name="enquiryType"
-              required
-              class="w-full px-4 py-4 bg-white/10 backdrop-blur-xl border border-white/20 rounded-xl text-white focus:border-white/40 focus:ring-2 focus:ring-white/20 focus:bg-white/15 transition-all duration-300 appearance-none bg-no-repeat bg-right pr-14"
-              style="background-image: url('data:image/svg+xml;charset=US-ASCII,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 4 5%22><path fill=%22%23ffffff%22 d=%22M2 0L0 2h4zm0 5L0 3h4z%22/></svg>'); background-position: right 20px center; background-size: 12px;"
+          <form id="contact-form" name="contact" class="space-y-7">
+            <!-- Turnstile widget -->
+            <div
+              class="cf-turnstile"
+              data-sitekey="0x4AAAAAAB08V5IJ7fONN28Y"
+              data-theme="dark"
             >
-              <option value="">Please select...</option>
-              <option value="Room Availability"
-                >Room Availability & Rates</option
-              >
-              <option value="Dining Reservation">Dining Reservation</option>
-              <option value="Safari Activities"
-                >Tiger Safaris & Activities</option
-              >
-              <option value="Group Booking">Group Bookings (5+ guests)</option>
-              <option value="Personal Events"
-                >Personal Events (Weddings, Celebrations)</option
-              >
-              <option value="Business Events"
-                >Business Events (Corporate, Seminars)</option
-              >
-              <option value="Travel Agent">Travel Agent Enquiry</option>
-              <option value="General Information">General Information</option>
-              <option value="Feedback/Suggestions"
-                >Feedback or Suggestions</option
-              >
-            </select>
-          </div>
+            </div>
 
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <input type="hidden" name="form-name" value="contact-general" />
+            <input type="hidden" name="pageUrl" value={pageUrl} />
+            <!-- Enquiry Type Dropdown with Fixed Arrow -->
+            <div>
+              <select
+                name="enquiryType"
+                required
+                class="w-full px-4 py-4 bg-white/10 backdrop-blur-xl border border-white/20 rounded-xl text-white focus:border-white/40 focus:ring-2 focus:ring-white/20 focus:bg-white/15 transition-all duration-300 appearance-none bg-no-repeat bg-right pr-14"
+                style="background-image: url('data:image/svg+xml;charset=US-ASCII,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 4 5%22><path fill=%22%23ffffff%22 d=%22M2 0L0 2h4zm0 5L0 3h4z%22/></svg>'); background-position: right 20px center; background-size: 12px;"
+              >
+                <option value="">Please select...</option>
+                <option value="Room Availability"
+                  >Room Availability & Rates</option
+                >
+                <option value="Dining Reservation">Dining Reservation</option>
+                <option value="Safari Activities"
+                  >Tiger Safaris & Activities</option
+                >
+                <option value="Group Booking">Group Bookings (5+ guests)</option
+                >
+                <option value="Personal Events"
+                  >Personal Events (Weddings, Celebrations)</option
+                >
+                <option value="Business Events"
+                  >Business Events (Corporate, Seminars)</option
+                >
+                <option value="Travel Agent">Travel Agent Enquiry</option>
+                <option value="General Information">General Information</option>
+                <option value="Feedback/Suggestions"
+                  >Feedback or Suggestions</option
+                >
+              </select>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label class="block text-sm font-medium text-white mb-3"
+                  >First Name *</label
+                >
+                <input
+                  name="firstName"
+                  type="text"
+                  required
+                  class="w-full px-4 py-4 bg-white/10 backdrop-blur-xl border border-white/20 rounded-xl text-white placeholder-white/50 focus:border-white/40 focus:ring-2 focus:ring-white/20 focus:bg-white/15 transition-all duration-300"
+                />
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-white mb-3"
+                  >Last Name *</label
+                >
+                <input
+                  name="lastName"
+                  type="text"
+                  required
+                  class="w-full px-4 py-4 bg-white/10 backdrop-blur-xl border border-white/20 rounded-xl text-white placeholder-white/50 focus:border-white/40 focus:ring-2 focus:ring-white/20 focus:bg-white/15 transition-all duration-300"
+                />
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label class="block text-sm font-medium text-white mb-3"
+                  >Email *</label
+                >
+                <input
+                  name="email"
+                  type="email"
+                  pattern="[a-zA-Z0-9._%+\\-]+@[a-zA-Z0-9.\\-]+\\.[a-zA-Z]{2,}"
+                  required
+                  class="w-full px-4 py-4 bg-white/10 backdrop-blur-xl border border-white/20 rounded-xl text-white placeholder-white/50 focus:border-white/40 focus:ring-2 focus:ring-white/20 focus:bg-white/15 transition-all duration-300"
+                />
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-white mb-3"
+                  >Phone *</label
+                >
+                <input
+                  name="phone"
+                  type="tel"
+                  required
+                  class="w-full px-4 py-4 bg-white/10 backdrop-blur-xl border border-white/20 rounded-xl text-white placeholder-white/50 focus:border-white/40 focus:ring-2 focus:ring-white/20 focus:bg-white/15 transition-all duration-300"
+                />
+              </div>
+            </div>
+
             <div>
               <label class="block text-sm font-medium text-white mb-3"
-                >First Name *</label
+                >Tell Us More</label
               >
-              <input
-                name="firstName"
-                type="text"
-                required
-                class="w-full px-4 py-4 bg-white/10 backdrop-blur-xl border border-white/20 rounded-xl text-white placeholder-white/50 focus:border-white/40 focus:ring-2 focus:ring-white/20 focus:bg-white/15 transition-all duration-300"
-              />
+              <textarea
+                name="message"
+                rows="2"
+                class="w-full px-4 py-4 bg-white/10 backdrop-blur-xl border border-white/20 rounded-xl text-white placeholder-white/50 focus:border-white/40 focus:ring-2 focus:ring-white/20 focus:bg-white/15 transition-all duration-300 resize-none"
+              ></textarea>
             </div>
-            <div>
-              <label class="block text-sm font-medium text-white mb-3"
-                >Last Name *</label
-              >
-              <input
-                name="lastName"
-                type="text"
-                required
-                class="w-full px-4 py-4 bg-white/10 backdrop-blur-xl border border-white/20 rounded-xl text-white placeholder-white/50 focus:border-white/40 focus:ring-2 focus:ring-white/20 focus:bg-white/15 transition-all duration-300"
-              />
-            </div>
-          </div>
 
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <label class="block text-sm font-medium text-white mb-3"
-                >Email *</label
-              >
-              <input
-                name="email"
-                type="email"
-                pattern="[a-zA-Z0-9._%+\\-]+@[a-zA-Z0-9.\\-]+\\.[a-zA-Z]{2,}"
-                required
-                class="w-full px-4 py-4 bg-white/10 backdrop-blur-xl border border-white/20 rounded-xl text-white placeholder-white/50 focus:border-white/40 focus:ring-2 focus:ring-white/20 focus:bg-white/15 transition-all duration-300"
-              />
-            </div>
-            <div>
-              <label class="block text-sm font-medium text-white mb-3"
-                >Phone *</label
-              >
-              <input
-                name="phone"
-                type="tel"
-                required
-                class="w-full px-4 py-4 bg-white/10 backdrop-blur-xl border border-white/20 rounded-xl text-white placeholder-white/50 focus:border-white/40 focus:ring-2 focus:ring-white/20 focus:bg-white/15 transition-all duration-300"
-              />
-            </div>
-          </div>
-
-          <div>
-            <label class="block text-sm font-medium text-white mb-3"
-              >Tell Us More</label
-            >
-            <textarea
-              name="message"
-              rows="3"
-              class="w-full px-4 py-4 bg-white/10 backdrop-blur-xl border border-white/20 rounded-xl text-white placeholder-white/50 focus:border-white/40 focus:ring-2 focus:ring-white/20 focus:bg-white/15 transition-all duration-300 resize-none"
-            ></textarea>
-          </div>
-
-          <button type="submit" id="submit-btn" class="action-btn">
-            Send Your Enquiry
-          </button>
-        </form>
+            <button type="submit" id="submit-btn" class="action-btn">
+              Send Your Enquiry
+            </button>
+          </form>
+        </div>
       </div>
     </div>
   </div>
-</section>
 
-<script>
-  // Add Supabase form submission with Turnstile validation
-  document.addEventListener("DOMContentLoaded", async () => {
-    try {
-      // Use absolute import path with alias for better maintainability
-      const { supabase } = await import("/src/lib/supabase.js");
+  <script>
+    // Add Supabase form submission with Turnstile validation
+    document.addEventListener("DOMContentLoaded", async () => {
+      try {
+        // Use absolute import path with alias for better maintainability
+        const { supabase } = await import("/src/lib/supabase.js");
 
-      // Alternatively, could use static import at component top level:
-      // import { supabase } from "@/lib/supabase.js";
+        // Alternatively, could use static import at component top level:
+        // import { supabase } from "@/lib/supabase.js";
 
-      const form = document.getElementById("contact-form");
-      const submitBtn = document.getElementById("submit-btn");
-      const messageDiv = document.getElementById("form-message");
+        const form = document.getElementById("contact-form");
+        const submitBtn = document.getElementById("submit-btn");
+        const messageDiv = document.getElementById("form-message");
 
-      if (!form) return;
+        if (!form) return;
 
-      form.addEventListener("submit", async (e) => {
-        e.preventDefault();
+        form.addEventListener("submit", async (e) => {
+          e.preventDefault();
 
-        // TURNSTILE VALIDATION
-        const turnstileResponse = turnstile.getResponse();
-        if (!turnstileResponse) {
-          showMessage("Please complete the security check.", "error");
-          return;
+          // TURNSTILE VALIDATION
+          const turnstileResponse = turnstile.getResponse();
+          if (!turnstileResponse) {
+            showMessage("Please complete the security check.", "error");
+            return;
+          }
+
+          // Show loading state
+          submitBtn.disabled = true;
+          submitBtn.textContent = "Submitting...";
+          showMessage("Submitting your enquiry...", "loading");
+
+          try {
+            // Get form data - clean structure for general enquiries
+            const formData = new FormData(form);
+            const submission = {
+              form_name: formData.get("form-name"),
+              page_url: formData.get("pageUrl"),
+              enquiry_type: formData.get("enquiryType"),
+              first_name: formData.get("firstName"),
+              last_name: formData.get("lastName"),
+              email: formData.get("email"),
+              phone: formData.get("phone"),
+              message: formData.get("message"),
+              submitted_at: new Date().toISOString(),
+              turnstile_response: turnstileResponse,
+            };
+
+            // Submit to Supabase - general_enquiries table
+            const { data, error } = await supabase
+              .from("general_enquiries")
+              .insert([submission]);
+
+            if (error) throw error;
+
+            // Success! Show elegant success message
+            showSuccessMessage();
+          } catch (error) {
+            console.error("Submission error:", error);
+            showMessage(
+              "Sorry, there was an error submitting your enquiry. Please try again or contact us directly.",
+              "error"
+            );
+            submitBtn.disabled = false;
+            submitBtn.textContent = "Send Your Enquiry";
+            turnstile.reset();
+          }
+        });
+
+        function showMessage(text, type) {
+          messageDiv.innerHTML = text;
+          messageDiv.className = `mb-6 p-4 rounded-xl text-center ${
+            type === "success"
+              ? "bg-green-900/50 text-green-300 border border-green-700"
+              : type === "error"
+                ? "bg-red-900/50 text-red-300 border border-red-700"
+                : "bg-blue-900/50 text-blue-300 border border-blue-700"
+          }`;
+          messageDiv.classList.remove("hidden");
         }
 
-        // Show loading state
-        submitBtn.disabled = true;
-        submitBtn.textContent = "Submitting...";
-        showMessage("Submitting your enquiry...", "loading");
+        function showSuccessMessage() {
+          // Hide the form completely
+          form.style.display = "none";
 
-        try {
-          // Get form data - clean structure for general enquiries
-          const formData = new FormData(form);
-          const submission = {
-            form_name: formData.get("form-name"),
-            page_url: formData.get("pageUrl"),
-            enquiry_type: formData.get("enquiryType"),
-            first_name: formData.get("firstName"),
-            last_name: formData.get("lastName"),
-            email: formData.get("email"),
-            phone: formData.get("phone"),
-            message: formData.get("message"),
-            submitted_at: new Date().toISOString(),
-            turnstile_response: turnstileResponse,
-          };
-
-          // Submit to Supabase - general_enquiries table
-          const { data, error } = await supabase
-            .from("general_enquiries")
-            .insert([submission]);
-
-          if (error) throw error;
-
-          // Success! Show elegant success message
-          showSuccessMessage();
-        } catch (error) {
-          console.error("Submission error:", error);
-          showMessage(
-            "Sorry, there was an error submitting your enquiry. Please try again or contact us directly.",
-            "error"
-          );
-          submitBtn.disabled = false;
-          submitBtn.textContent = "Send Your Enquiry";
-          turnstile.reset();
-        }
-      });
-
-      function showMessage(text, type) {
-        messageDiv.innerHTML = text;
-        messageDiv.className = `mb-6 p-4 rounded-xl text-center ${
-          type === "success"
-            ? "bg-green-900/50 text-green-300 border border-green-700"
-            : type === "error"
-              ? "bg-red-900/50 text-red-300 border border-red-700"
-              : "bg-blue-900/50 text-blue-300 border border-blue-700"
-        }`;
-        messageDiv.classList.remove("hidden");
-      }
-
-      function showSuccessMessage() {
-        // Hide the form completely
-        form.style.display = "none";
-
-        // Show elegant success message with glass styling
-        messageDiv.innerHTML = `
+          // Show elegant success message with glass styling
+          messageDiv.innerHTML = `
           <div class="text-center py-12">
             <div class="text-6xl mb-6">✨</div>
             <h3 class="text-2xl font-serif italic text-white mb-4">Thank You!</h3>
@@ -333,31 +333,34 @@ const pageUrl = Astro.url.href;
             </button>
           </div>
         `;
-        messageDiv.className =
-          "bg-gradient-to-br from-white/8 to-gray-100/5 backdrop-blur-3xl border border-white/20 rounded-[2rem] p-8 text-center shadow-[0_8px_32px_rgba(0,0,0,0.12)]";
-        messageDiv.classList.remove("hidden");
+          messageDiv.className =
+            "bg-gradient-to-br from-white/8 to-gray-100/5 backdrop-blur-3xl border border-white/20 rounded-[2rem] p-8 text-center shadow-[0_8px_32px_rgba(0,0,0,0.12)]";
+          messageDiv.classList.remove("hidden");
 
-        turnstile.reset();
-      }
-    } catch (error) {
-      console.error("Failed to load Supabase client:", error);
-      // Show user-friendly error message
-      const messageDiv = document.getElementById("form-message");
-      if (messageDiv) {
-        messageDiv.innerHTML = `
+          turnstile.reset();
+        }
+      } catch (error) {
+        console.error("Failed to load Supabase client:", error);
+        // Show user-friendly error message
+        const messageDiv = document.getElementById("form-message");
+        if (messageDiv) {
+          messageDiv.innerHTML = `
           <div class="text-red-300">
             <p>We're experiencing technical difficulties.</p>
             <p>Please try again later or contact us directly.</p>
           </div>
         `;
-        messageDiv.classList.remove("hidden");
+          messageDiv.classList.remove("hidden");
+        }
+        // Disable form submission
+        const submitBtn = document.getElementById("submit-btn");
+        if (submitBtn) submitBtn.disabled = true;
       }
-      // Disable form submission
-      const submitBtn = document.getElementById("submit-btn");
-      if (submitBtn) submitBtn.disabled = true;
-    }
-  });
-</script>
-<!-- External script for turnstile captcha validation -->
-<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer
-></script>
+    });
+  </script>
+  <!-- External script for turnstile captcha validation -->
+  <script
+    src="https://challenges.cloudflare.com/turnstile/v0/api.js"
+    async
+    defer></script>
+</section>

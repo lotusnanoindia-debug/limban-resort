@@ -18,46 +18,6 @@ const { heroes } = Astro.props;
     </div>
   </div>
 
-  <!-- Navigation Arrows -->
-  <div
-    class="carousel-nav absolute inset-y-0 left-0 right-0 z-30 flex items-center justify-between px-6 opacity-0 hover:opacity-100 transition-opacity duration-300 pointer-events-none"
-  >
-    <button
-      id="prev-btn"
-      class="bg-black/30 hover:bg-black/50 backdrop-blur-md rounded-full p-4 text-white hover:text-amber-300 transition-all duration-300 pointer-events-auto cursor-pointer"
-    >
-      <svg
-        class="w-6 h-6"
-        fill="none"
-        stroke="currentColor"
-        viewBox="0 0 24 24"
-      >
-        <path
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          stroke-width="2"
-          d="M15 19l-7-7 7-7"></path>
-      </svg>
-    </button>
-    <button
-      id="next-btn"
-      class="bg-black/30 hover:bg-black/50 backdrop-blur-md rounded-full p-4 text-white hover:text-amber-300 transition-all duration-300 pointer-events-auto cursor-pointer"
-    >
-      <svg
-        class="w-6 h-6"
-        fill="none"
-        stroke="currentColor"
-        viewBox="0 0 24 24"
-      >
-        <path
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          stroke-width="2"
-          d="M9 5l7 7-7 7"></path>
-      </svg>
-    </button>
-  </div>
-
   <div id="hero-carousel" class="h-full relative">
     {
       heroes.map((hero, index) => (
@@ -125,7 +85,7 @@ const { heroes } = Astro.props;
 
           <div class="relative h-full flex items-center justify-center text-center z-20">
             <div class="max-w-4xl mx-auto px-8">
-              <h1 class="font-serif italic text-4xl sm:text-6xl md:text-7xl lg:text-8xl text-white mb-6 sm:mb-8 leading-[0.95] tracking-tight">
+              <h1 class="font-serif italic text-6xl sm:text-6xl md:text-7xl lg:text-8xl text-white mb-6 sm:mb-8 leading-[0.95] tracking-tight">
                 {hero.slideTitle}
               </h1>
               {hero.subtitle && (
