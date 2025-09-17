@@ -1,30 +1,52 @@
 ---
-// Ultra-optimized gallery modal with enterprise-grade image handling
-// Built for reliability, performance, and flawless operation
+// Ultra-Premium Gallery Modal with Intelligent Thumbnail Navigation
+// Enterprise-grade • Performance-optimized • Resort-luxury aesthetic
 ---
 
-<!-- Production-Ready Gallery Modal -->
+<!-- Production Gallery Modal -->
 <div
   id="gallery-modal"
-  class="fixed inset-0 z-50 bg-black/95 backdrop-blur-xl hidden items-center justify-center p-4"
+  class="fixed inset-0 z-50 bg-black/97 backdrop-blur-xl hidden flex-col"
   role="dialog"
   aria-modal="true"
   aria-labelledby="gallery-title"
 >
-  <div class="relative max-w-7xl w-full h-full flex flex-col">
-    <!-- Accessible Close Button -->
+  <!-- Elegant Header Bar -->
+  <div
+    class="flex-shrink-0 flex items-center justify-between p-6 bg-gradient-to-b from-black/90 via-black/70 to-transparent border-b border-amber-500/20"
+  >
+    <!-- Image Counter with Luxury Typography -->
+    <div class="flex items-center space-x-4">
+      <span
+        id="current-position"
+        class="text-2xl font-bold text-amber-400 tabular-nums tracking-tight"
+        >1</span
+      >
+      <div class="w-8 h-px bg-gradient-to-r from-amber-400 to-amber-600"></div>
+      <span id="total-images" class="text-xl text-white/70 tabular-nums">0</span
+      >
+    </div>
+
+    <!-- Dynamic Gallery Title -->
+    <h2
+      id="gallery-title"
+      class="text-xl font-serif italic text-amber-400/90 truncate max-w-md"
+    >
+      Resort Gallery
+    </h2>
+
+    <!-- Premium Close Button -->
     <button
       id="close-gallery"
-      class="absolute top-6 right-6 z-30 w-14 h-14 bg-black/50 hover:bg-black/70 rounded-full flex items-center justify-center text-white transition-colors cursor-pointer focus:outline-none focus:ring-4 focus:ring-amber-400/50"
+      class="w-12 h-12 rounded-2xl bg-gradient-to-br from-white/10 to-white/5 hover:from-amber-500/20 hover:to-amber-600/10 backdrop-blur-xl border border-white/10 hover:border-amber-400/30 flex items-center justify-center text-white/70 hover:text-white transition-all duration-300 group focus:outline-none focus:ring-4 focus:ring-amber-400/50"
       aria-label="Close gallery"
       type="button"
     >
       <svg
-        class="w-7 h-7"
+        class="w-6 h-6 transition-transform group-hover:scale-110"
         fill="none"
         stroke="currentColor"
         viewBox="0 0 24 24"
-        aria-hidden="true"
       >
         <path
           stroke-linecap="round"
@@ -33,246 +55,321 @@
           d="M6 18L18 6M6 6l12 12"></path>
       </svg>
     </button>
+  </div>
 
-    <!-- Main Image Container with Performance Constraints -->
-    <div
-      class="flex-1 flex items-center justify-center relative overflow-hidden"
-      style="min-height: 0;"
+  <!-- Main Image Display Container -->
+  <div class="flex-1 relative flex items-center justify-center min-h-0 p-6">
+    <!-- Navigation Arrows with Hover Reveal -->
+    <button
+      id="prev-image"
+      class="absolute left-6 z-30 w-14 h-14 rounded-2xl bg-gradient-to-br from-black/40 to-black/60 hover:from-amber-500/30 hover:to-amber-600/40 backdrop-blur-xl border border-white/10 hover:border-amber-400/50 flex items-center justify-center text-white/70 hover:text-white transition-all duration-300 opacity-0 hover:opacity-100 group disabled:opacity-30 disabled:cursor-not-allowed focus:outline-none focus:ring-4 focus:ring-amber-400/50"
+      disabled
+      aria-label="Previous image"
+      type="button"
     >
-      <div
-        id="modal-image-container"
-        class="relative flex items-center justify-center"
-        style="max-width: min(90vw, 1400px); max-height: min(75vh, 900px); width: 100%; height: 100%;"
+      <svg
+        class="w-7 h-7 transition-transform group-hover:-translate-x-0.5"
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
       >
-        <!-- Progressive Loading System -->
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2.5"
+          d="M15 19l-7-7 7-7"></path>
+      </svg>
+    </button>
 
-        <!-- 1. Instant LQIP (Low Quality Image Placeholder) -->
-        <canvas
-          id="modal-lqip-canvas"
-          class="absolute inset-0 w-full h-full object-contain blur-sm opacity-30 transition-opacity duration-300"
-          style="image-rendering: pixelated;"></canvas>
+    <button
+      id="next-image"
+      class="absolute right-6 z-30 w-14 h-14 rounded-2xl bg-gradient-to-br from-black/40 to-black/60 hover:from-amber-500/30 hover:to-amber-600/40 backdrop-blur-xl border border-white/10 hover:border-amber-400/50 flex items-center justify-center text-white/70 hover:text-white transition-all duration-300 opacity-0 hover:opacity-100 group disabled:opacity-30 disabled:cursor-not-allowed focus:outline-none focus:ring-4 focus:ring-amber-400/50"
+      disabled
+      aria-label="Next image"
+      type="button"
+    >
+      <svg
+        class="w-7 h-7 transition-transform group-hover:translate-x-0.5"
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+      >
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2.5"
+          d="M9 5l7 7-7 7"></path>
+      </svg>
+    </button>
 
-        <!-- 2. Medium Quality Fallback -->
-        <img
-          id="modal-fallback"
-          class="absolute inset-0 w-full h-full object-contain opacity-0 transition-opacity duration-500"
-          style="will-change: opacity;"
-          loading="eager"
-          decoding="async"
-        />
+    <!-- Image Display Area -->
+    <div class="relative max-w-full max-h-full">
+      <!-- Progressive Loading States -->
+      <!-- LQIP Canvas -->
+      <canvas
+        id="modal-lqip-canvas"
+        class="absolute inset-0 w-full h-full object-contain blur-sm opacity-30 transition-opacity duration-300 rounded-xl"
+        style="image-rendering: pixelated;"></canvas>
 
-        <!-- 3. High Quality Main Image -->
-        <img
-          id="modal-image"
-          class="relative max-w-full max-h-full w-auto h-auto opacity-0 object-contain rounded-lg shadow-2xl transition-opacity duration-700"
-          style="will-change: opacity; image-rendering: high-quality;"
-          loading="eager"
-          decoding="async"
-          fetchpriority="high"
-        />
+      <!-- Medium Quality Fallback -->
+      <img
+        id="modal-fallback"
+        class="absolute inset-0 w-full h-full object-contain opacity-0 transition-opacity duration-500 rounded-xl"
+        style="will-change: opacity;"
+        loading="eager"
+        decoding="async"
+        alt=""
+      />
 
-        <!-- Loading State with Progress -->
-        <div
-          id="modal-spinner"
-          class="absolute inset-0 flex flex-col items-center justify-center bg-black/50 backdrop-blur-sm rounded-lg transition-opacity duration-300"
-        >
-          <div class="text-center">
-            <!-- Optimized SVG Spinner -->
-            <div class="relative w-16 h-16 mx-auto mb-4">
-              <svg
-                class="animate-spin w-16 h-16 text-amber-400"
-                fill="none"
-                viewBox="0 0 24 24"
-              >
+      <!-- High Quality Main Image -->
+      <img
+        id="modal-image"
+        class="relative max-w-full max-h-[75vh] w-auto h-auto opacity-0 object-contain rounded-xl shadow-2xl transition-opacity duration-700"
+        style="will-change: opacity; image-rendering: high-quality;"
+        loading="eager"
+        decoding="async"
+        fetchpriority="high"
+        alt=""
+      />
+
+      <!-- Loading State with Progress -->
+      <div
+        id="modal-spinner"
+        class="absolute inset-0 flex flex-col items-center justify-center bg-black/60 backdrop-blur-sm rounded-xl transition-opacity duration-300"
+      >
+        <div class="text-center">
+          <!-- Premium Loading Spinner -->
+          <div class="relative w-16 h-16 mx-auto mb-4">
+            <svg
+              class="animate-spin w-16 h-16 text-amber-400"
+              fill="none"
+              viewBox="0 0 24 24"
+            >
+              <circle
+                class="opacity-25"
+                cx="12"
+                cy="12"
+                r="10"
+                stroke="currentColor"
+                stroke-width="4"></circle>
+              <path
+                class="opacity-90"
+                fill="currentColor"
+                d="M4 12a8 8 0 018-8v8H4z"></path>
+            </svg>
+            <!-- Progress Ring -->
+            <div id="loading-progress" class="absolute inset-0 w-16 h-16">
+              <svg class="transform -rotate-90 w-16 h-16">
                 <circle
-                  class="opacity-25"
-                  cx="12"
-                  cy="12"
-                  r="10"
-                  stroke="currentColor"
-                  stroke-width="4"></circle>
-                <path
-                  class="opacity-75"
-                  fill="currentColor"
-                  d="M4 12a8 8 0 018-8v8H4z"></path>
+                  cx="32"
+                  cy="32"
+                  r="28"
+                  stroke="rgba(245, 158, 11, 0.3)"
+                  stroke-width="4"
+                  fill="none"></circle>
+                <circle
+                  id="progress-circle"
+                  cx="32"
+                  cy="32"
+                  r="28"
+                  stroke="rgb(245, 158, 11)"
+                  stroke-width="4"
+                  fill="none"
+                  stroke-dasharray="175.93"
+                  stroke-dashoffset="175.93"
+                  class="transition-all duration-300 ease-out"></circle>
               </svg>
-              <!-- Progress Ring -->
-              <div id="loading-progress" class="absolute inset-0 w-16 h-16">
-                <svg class="transform -rotate-90 w-16 h-16">
-                  <circle
-                    cx="32"
-                    cy="32"
-                    r="28"
-                    stroke="rgba(245, 158, 11, 0.3)"
-                    stroke-width="4"
-                    fill="none"></circle>
-                  <circle
-                    id="progress-circle"
-                    cx="32"
-                    cy="32"
-                    r="28"
-                    stroke="rgb(245, 158, 11)"
-                    stroke-width="4"
-                    fill="none"
-                    stroke-dasharray="175.93"
-                    stroke-dashoffset="175.93"
-                    class="transition-all duration-300 ease-out"></circle>
-                </svg>
-              </div>
             </div>
-            <p class="text-white text-sm font-medium">Loading image...</p>
-            <p id="loading-percentage" class="text-amber-400 text-xs mt-1">
-              0%
-            </p>
           </div>
-        </div>
-
-        <!-- Image Information Overlay -->
-        <div
-          class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 via-black/70 to-transparent backdrop-blur-sm rounded-b-lg"
-        >
-          <div class="p-6 text-center">
-            <p
-              id="image-counter"
-              class="border-b border-amber-400/30 px-4 py-2 text-lg font-medium mb-3 text-amber-400"
-            >
-            </p>
-            <h2
-              id="gallery-title"
-              class="text-xl font-serif italic text-amber-400 leading-relaxed"
-            >
-            </h2>
-          </div>
+          <p class="text-white text-sm font-medium tracking-wide">Loading...</p>
+          <p
+            id="loading-percentage"
+            class="text-amber-400 text-xs mt-1 tabular-nums"
+          >
+            0%
+          </p>
         </div>
       </div>
+    </div>
+  </div>
 
-      <!-- Enhanced Navigation with Keyboard Support -->
-      <button
-        id="prev-image"
-        class="absolute left-6 top-1/2 -translate-y-1/2 w-16 h-16 bg-black/60 hover:bg-black/80 rounded-full flex items-center justify-center text-white transition-all duration-300 cursor-pointer hover:scale-110 disabled:opacity-30 disabled:cursor-not-allowed z-20 focus:outline-none focus:ring-4 focus:ring-amber-400/50"
-        disabled
-        aria-label="Previous image"
-        type="button"
-      >
-        <svg
-          class="w-8 h-8"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-          aria-hidden="true"
-        >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M15 19l-7-7 7-7"></path>
-        </svg>
-      </button>
+  <!-- Image Alt Text Display -->
+  <div class="flex-shrink-0 px-6 py-3 text-center">
+    <p
+      id="image-alt-text"
+      class="text-amber-400 text-sm font-light italic leading-relaxed capitalize"
+    >
+      <!-- Alt text will be populated here -->
+    </p>
+  </div>
 
-      <button
-        id="next-image"
-        class="absolute right-6 top-1/2 -translate-y-1/2 w-16 h-16 bg-black/60 hover:bg-black/80 rounded-full flex items-center justify-center text-white transition-all duration-300 cursor-pointer hover:scale-110 disabled:opacity-30 disabled:cursor-not-allowed z-20 focus:outline-none focus:ring-4 focus:ring-amber-400/50"
-        disabled
-        aria-label="Next image"
-        type="button"
-      >
-        <svg
-          class="w-8 h-8"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-          aria-hidden="true"
+  <!-- **ENHANCED: Intelligent Thumbnail Navigation Strip** -->
+  <div
+    class="flex-shrink-0 bg-gradient-to-t from-black/95 via-black/80 to-transparent backdrop-blur-xl border-t border-amber-500/10 pt-6 pb-4"
+  >
+    <!-- Thumbnail Strip Controls -->
+    <div class="flex items-center justify-between px-6 mb-4">
+      <div class="flex items-center space-x-3">
+        <!-- Thumbnail Scroll Controls -->
+        <button
+          id="scroll-left"
+          class="w-8 h-8 rounded-xl bg-gradient-to-br from-white/10 to-white/5 hover:from-amber-500/20 hover:to-amber-600/10 backdrop-blur-xl border border-white/10 hover:border-amber-400/30 flex items-center justify-center transition-all duration-300 disabled:opacity-30 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-amber-400/50"
+          disabled
+          aria-label="Scroll thumbnails left"
+          type="button"
         >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M9 5l7 7-7 7"></path>
-        </svg>
-      </button>
+          <svg
+            class="w-4 h-4 text-white/80"
+            fill="currentColor"
+            viewBox="0 0 20 20"
+          >
+            <path
+              fill-rule="evenodd"
+              d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z"
+              clip-rule="evenodd"></path>
+          </svg>
+        </button>
+
+        <button
+          id="scroll-right"
+          class="w-8 h-8 rounded-xl bg-gradient-to-br from-white/10 to-white/5 hover:from-amber-500/20 hover:to-amber-600/10 backdrop-blur-xl border border-white/10 hover:border-amber-400/30 flex items-center justify-center transition-all duration-300 disabled:opacity-30 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-amber-400/50"
+          disabled
+          aria-label="Scroll thumbnails right"
+          type="button"
+        >
+          <svg
+            class="w-4 h-4 text-white/80"
+            fill="currentColor"
+            viewBox="0 0 20 20"
+          >
+            <path
+              fill-rule="evenodd"
+              d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
+              clip-rule="evenodd"></path>
+          </svg>
+        </button>
+
+        <span class="text-white/50 text-xs uppercase tracking-wider font-medium"
+          >Thumbnails</span
+        >
+      </div>
+
+      <!-- Gallery Navigation Indicator -->
+      <div class="flex items-center space-x-3">
+        <div class="w-24 h-1 bg-white/10 rounded-full overflow-hidden">
+          <div
+            id="gallery-progress-bar"
+            class="h-full bg-gradient-to-r from-amber-400 to-amber-500 rounded-full transition-all duration-500"
+            style="width: 0%"
+          >
+          </div>
+        </div>
+        <span class="text-white/50 text-xs font-medium">Gallery</span>
+      </div>
     </div>
 
-    <!-- Smart Preview Navigation -->
-    <div
-      class="flex-shrink-0 flex items-center justify-center space-x-4 mt-6 mb-4 min-h-[80px]"
-    >
+    <!-- **CENTRED THUMBNAIL CONTAINER** -->
+    <div class="relative px-6">
+      <!-- Scrollable Thumbnail Strip - CENTRED -->
       <div
-        id="prev-preview"
-        class="flex items-center space-x-3 cursor-pointer group"
-        tabindex="0"
-        role="button"
-        aria-label="Go to previous image"
+        id="thumbnail-container"
+        class="flex overflow-x-auto scroll-smooth p-2"
+        style="scrollbar-width: thin; scrollbar-color: rgba(245, 158, 11, 0.8) rgba(255, 255, 255, 0.1);"
       >
-        <div
-          class="w-20 h-16 rounded-lg overflow-hidden bg-gray-800 border-2 border-gray-600 group-hover:border-white group-focus:border-amber-400 transition-colors"
-        >
-          <img
-            id="prev-preview-img"
-            alt=""
-            class="w-full h-full object-cover"
-            loading="lazy"
-            decoding="async"
-          />
-        </div>
-        <span
-          class="text-gray-400 text-sm group-hover:text-white group-focus:text-amber-400 transition-colors"
-          >Previous</span
-        >
+        <!-- Thumbnails Generated Dynamically -->
       </div>
 
+      <!-- Smart Fade Gradients (only show when scrolling needed) -->
       <div
-        class="flex items-center space-x-2 mx-8"
-        role="progressbar"
-        aria-label="Gallery progress"
+        id="fade-left"
+        class="absolute left-6 top-0 bottom-0 w-8 bg-gradient-to-r from-black/95 to-transparent pointer-events-none opacity-0 transition-opacity"
       >
-        <div class="w-2 h-2 bg-gray-600 rounded-full"></div>
-        <div class="w-3 h-3 bg-amber-400 rounded-full"></div>
-        <div class="w-2 h-2 bg-gray-600 rounded-full"></div>
       </div>
-
       <div
-        id="next-preview"
-        class="flex items-center space-x-3 cursor-pointer group"
-        tabindex="0"
-        role="button"
-        aria-label="Go to next image"
+        id="fade-right"
+        class="absolute right-6 top-0 bottom-0 w-8 bg-gradient-to-l from-black/95 to-transparent pointer-events-none opacity-0 transition-opacity"
       >
-        <span
-          class="text-gray-400 text-sm group-hover:text-white group-focus:text-amber-400 transition-colors"
-          >Next</span
-        >
-        <div
-          class="w-20 h-16 rounded-lg overflow-hidden bg-gray-800 border-2 border-gray-600 group-hover:border-white group-focus:border-amber-400 transition-colors"
-        >
-          <img
-            id="next-preview-img"
-            alt=""
-            class="w-full h-full object-cover"
-            loading="lazy"
-            decoding="async"
-          />
-        </div>
       </div>
     </div>
   </div>
 </div>
 
+<style>
+  /* Premium Thumbnail Scrollbar Styling */
+  #thumbnail-container::-webkit-scrollbar {
+    height: 4px;
+  }
+
+  #thumbnail-container::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 2px;
+  }
+
+  #thumbnail-container::-webkit-scrollbar-thumb {
+    background: linear-gradient(90deg, #f59e0b, #d97706);
+    border-radius: 2px;
+  }
+
+  #thumbnail-container::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(90deg, #d97706, #b45309);
+  }
+
+  /* Loading Shimmer Animation */
+  @keyframes shimmer {
+    0% {
+      background-position: -200% 0;
+    }
+    100% {
+      background-position: 200% 0;
+    }
+  }
+
+  .thumbnail-loading {
+    background: linear-gradient(
+      90deg,
+      rgba(245, 158, 11, 0.1) 0%,
+      rgba(245, 158, 11, 0.3) 50%,
+      rgba(245, 158, 11, 0.1) 100%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 2s infinite;
+  }
+
+  /* Smooth Gallery Entrance */
+  @keyframes galleryEntrance {
+    from {
+      opacity: 0;
+      transform: scale(0.95);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  .gallery-enter {
+    animation: galleryEntrance 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+</style>
+
 <script>
   (function () {
     "use strict";
 
-    // Performance and reliability constants
+    // **ENHANCED CONFIG with Thumbnail Support**
     const CONFIG = {
       MAX_CACHE_SIZE: 50,
       PRELOAD_DISTANCE: 2,
       RETRY_ATTEMPTS: 3,
       RETRY_DELAY: 1000,
       LOADING_TIMEOUT: 30000,
-      QUALITY_LEVELS: ["placeholder", "medium", "large"],
+      THUMBNAIL_SIZE: 96, // Perfect visibility balance
+      THUMBNAIL_QUALITY: 0.8,
+      SCROLL_SPEED: 300,
       INTERSECTION_THRESHOLD: 0.1,
     };
 
-    // Enterprise-grade image cache with LRU eviction
+    // **ADVANCED IMAGE CACHE**
     class ImageCache {
       constructor(maxSize = CONFIG.MAX_CACHE_SIZE) {
         this.cache = new Map();
@@ -312,7 +409,7 @@
       }
     }
 
-    // Advanced image loader with progressive enhancement
+    // **ADVANCED IMAGE LOADER**
     class ImageLoader {
       constructor() {
         this.loadingImages = new Map();
@@ -436,7 +533,7 @@
       }
     }
 
-    // LQIP Canvas renderer for instant feedback
+    // **LQIP RENDERER**
     class LQIPRenderer {
       static renderToCanvas(canvas, imageData, width, height) {
         if (!canvas || !imageData) return;
@@ -469,7 +566,7 @@
       }
     }
 
-    // Main Gallery Controller
+    // **ENHANCED GALLERY MODAL with ALL Improvements**
     class GalleryModal {
       constructor() {
         this.currentImages = [];
@@ -478,6 +575,7 @@
         this.imageLoader = new ImageLoader();
         this.preloadQueue = new Set();
         this.isLoading = false;
+        this.thumbnailsGenerated = false;
 
         this.initializeElements();
         this.bindEvents();
@@ -485,20 +583,37 @@
       }
 
       initializeElements() {
+        // Main modal elements
         this.modal = document.getElementById("gallery-modal");
         this.modalImage = document.getElementById("modal-image");
         this.modalFallback = document.getElementById("modal-fallback");
         this.modalLQIPCanvas = document.getElementById("modal-lqip-canvas");
         this.modalSpinner = document.getElementById("modal-spinner");
-        this.imageCounter = document.getElementById("image-counter");
+
+        // UI elements
+        this.currentPosition = document.getElementById("current-position");
+        this.totalImages = document.getElementById("total-images");
         this.galleryTitle = document.getElementById("gallery-title");
+        this.galleryProgressBar = document.getElementById(
+          "gallery-progress-bar"
+        );
+        this.imageAltText = document.getElementById("image-alt-text");
+
+        // Controls
         this.closeBtn = document.getElementById("close-gallery");
         this.prevBtn = document.getElementById("prev-image");
         this.nextBtn = document.getElementById("next-image");
-        this.prevPreview = document.getElementById("prev-preview");
-        this.nextPreview = document.getElementById("next-preview");
-        this.prevPreviewImg = document.getElementById("prev-preview-img");
-        this.nextPreviewImg = document.getElementById("next-preview-img");
+
+        // **THUMBNAIL ELEMENTS**
+        this.thumbnailContainer = document.getElementById(
+          "thumbnail-container"
+        );
+        this.scrollLeftBtn = document.getElementById("scroll-left");
+        this.scrollRightBtn = document.getElementById("scroll-right");
+        this.fadeLeft = document.getElementById("fade-left");
+        this.fadeRight = document.getElementById("fade-right");
+
+        // Progress elements
         this.progressCircle = document.getElementById("progress-circle");
         this.loadingPercentage = document.getElementById("loading-percentage");
       }
@@ -509,11 +624,15 @@
         this.prevBtn?.addEventListener("click", () => this.previousImage());
         this.nextBtn?.addEventListener("click", () => this.nextImage());
 
-        // Preview navigation
-        this.prevPreview?.addEventListener("click", () => this.previousImage());
-        this.nextPreview?.addEventListener("click", () => this.nextImage());
+        // **THUMBNAIL NAVIGATION**
+        this.scrollLeftBtn?.addEventListener("click", () =>
+          this.scrollThumbnails("left")
+        );
+        this.scrollRightBtn?.addEventListener("click", () =>
+          this.scrollThumbnails("right")
+        );
 
-        // Keyboard navigation with proper focus management
+        // Keyboard navigation
         document.addEventListener("keydown", (e) => this.handleKeyboard(e));
 
         // Modal backdrop click
@@ -523,11 +642,11 @@
 
         // Custom event listener
         document.addEventListener("open-gallery", (e) => {
-          const { images, index } = e.detail;
-          this.openModal(images, index);
+          const { images, index, title } = e.detail;
+          this.openModal(images, index, title);
         });
 
-        // Handle visibility changes to pause/resume preloading
+        // Handle visibility changes
         document.addEventListener("visibilitychange", () => {
           if (document.hidden) {
             this.pausePreloading();
@@ -552,38 +671,263 @@
         }
       }
 
-      async openModal(images, index) {
+      async openModal(images, index = 0, title = "Limban Gallery") {
         if (!images || images.length === 0) return;
 
         this.currentImages = images;
         this.currentIndex = Math.max(0, Math.min(index, images.length - 1));
 
-        // Show modal immediately
+        // Update title and UI
+        this.galleryTitle.textContent = title;
+        this.totalImages.textContent = images.length;
+
+        // Show modal with entrance animation
         this.modal.classList.remove("hidden");
-        this.modal.classList.add("flex");
+        this.modal.classList.add("flex", "gallery-enter");
         document.body.style.overflow = "hidden";
 
-        // Focus management for accessibility
-        this.modal.focus();
+        // **GENERATE THUMBNAILS IMMEDIATELY**
+        this.generateThumbnails();
 
         // Load current image
         await this.showImage();
 
+        // Update all UI
+        this.updateUI();
+
         // Start intelligent preloading
         this.startPreloading();
+
+        // Focus for accessibility
+        this.modal.focus();
       }
 
       closeModal() {
-        // Clean up loading operations
+        // Clean up
         this.cleanup();
 
         // Hide modal
         this.modal.classList.add("hidden");
-        this.modal.classList.remove("flex");
+        this.modal.classList.remove("flex", "gallery-enter");
         document.body.style.overflow = "auto";
+
+        // Reset state
+        this.thumbnailsGenerated = false;
+        this.thumbnailContainer.innerHTML = "";
 
         // Reset focus
         document.activeElement?.blur();
+      }
+
+      // **ENHANCED: THUMBNAIL GENERATION with Fixed Spacing**
+      generateThumbnails() {
+        if (this.thumbnailsGenerated || !this.thumbnailContainer) return;
+
+        this.thumbnailContainer.innerHTML = "";
+
+        // **SMART CENTERING LOGIC**
+        const shouldCenter = this.currentImages.length <= 8; // Center only for small galleries
+
+        if (shouldCenter) {
+          this.thumbnailContainer.style.justifyContent = "center";
+        } else {
+          this.thumbnailContainer.style.justifyContent = "flex-start";
+        }
+
+        this.currentImages.forEach((image, index) => {
+          const thumbnailWrapper = document.createElement("div");
+          // **FIXED SPACING ISSUE** - Removed ring-offset, added mx-1, changed to shadow
+          thumbnailWrapper.className = `
+          flex-shrink-0 w-24 h-18 rounded-xl overflow-hidden cursor-pointer
+          transition-all duration-300 relative group border-2 mx-1
+          ${
+            index === this.currentIndex
+              ? "scale-105 border-amber-400 shadow-lg shadow-amber-400/50"
+              : "border-white/20 hover:border-amber-400/60 hover:scale-105"
+          }
+        `;
+
+          // Loading shimmer placeholder
+          const shimmer = document.createElement("div");
+          shimmer.className = "absolute inset-0 thumbnail-loading rounded-xl";
+
+          // Thumbnail image
+          const thumbnailImg = document.createElement("img");
+          thumbnailImg.src = image.thumbnail || image.medium || image.src;
+          thumbnailImg.alt = image.alt || `Thumbnail ${index + 1}`;
+          thumbnailImg.className =
+            "w-full h-full object-cover transition-opacity duration-300 opacity-0";
+          thumbnailImg.loading = "lazy";
+          thumbnailImg.decoding = "async";
+
+          // Image load handling
+          thumbnailImg.onload = () => {
+            thumbnailImg.style.opacity = "1";
+            shimmer.style.display = "none";
+          };
+
+          thumbnailImg.onerror = () => {
+            shimmer.innerHTML = `
+            <div class="flex items-center justify-center h-full text-white/40">
+              <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clip-rule="evenodd"/>
+              </svg>
+            </div>
+          `;
+          };
+
+          // Click handler for navigation
+          thumbnailWrapper.addEventListener("click", () =>
+            this.goToImage(index)
+          );
+
+          // Keyboard navigation
+          thumbnailWrapper.addEventListener("keydown", (e) => {
+            if (e.key === "Enter" || e.key === " ") {
+              e.preventDefault();
+              this.goToImage(index);
+            }
+          });
+
+          thumbnailWrapper.setAttribute("tabindex", "0");
+          thumbnailWrapper.setAttribute("role", "button");
+          thumbnailWrapper.setAttribute(
+            "aria-label",
+            `Go to image ${index + 1}`
+          );
+
+          // Assemble thumbnail
+          thumbnailWrapper.appendChild(shimmer);
+          thumbnailWrapper.appendChild(thumbnailImg);
+          this.thumbnailContainer.appendChild(thumbnailWrapper);
+        });
+
+        this.thumbnailsGenerated = true;
+        this.updateThumbnailScrollButtons();
+        this.updateFadeGradients();
+      }
+
+      // **ENHANCED: THUMBNAIL SELECTION with Fixed Spacing**
+      updateThumbnailSelection() {
+        if (!this.thumbnailContainer) return;
+
+        const thumbnails = this.thumbnailContainer.children;
+        Array.from(thumbnails).forEach((thumbnail, index) => {
+          if (index === this.currentIndex) {
+            thumbnail.className = thumbnail.className.replace(
+              "border-white/20 hover:border-amber-400/60 hover:scale-105",
+              "scale-105 border-amber-400 shadow-lg shadow-amber-400/50"
+            );
+          } else {
+            thumbnail.className = thumbnail.className.replace(
+              "scale-105 border-amber-400 shadow-lg shadow-amber-400/50",
+              "border-white/20 hover:border-amber-400/60 hover:scale-105"
+            );
+          }
+        });
+
+        // Auto-scroll to active thumbnail
+        this.scrollToActiveThumbnail();
+        this.updateFadeGradients();
+      }
+
+      // **NEW: Smart Fade Gradient Control**
+      updateFadeGradients() {
+        if (!this.thumbnailContainer || !this.fadeLeft || !this.fadeRight)
+          return;
+
+        const { scrollLeft, scrollWidth, clientWidth } =
+          this.thumbnailContainer;
+
+        // Show left fade if we can scroll left
+        this.fadeLeft.style.opacity = scrollLeft > 5 ? "1" : "0";
+
+        // Show right fade if we can scroll right
+        this.fadeRight.style.opacity =
+          scrollLeft < scrollWidth - clientWidth - 5 ? "1" : "0";
+      }
+
+      scrollToActiveThumbnail() {
+        if (!this.thumbnailContainer) return;
+
+        const activeThumbnail =
+          this.thumbnailContainer.children[this.currentIndex];
+        if (!activeThumbnail) return;
+
+        const containerRect = this.thumbnailContainer.getBoundingClientRect();
+        const thumbRect = activeThumbnail.getBoundingClientRect();
+
+        // Calculate center position
+        const scrollOffset =
+          thumbRect.left -
+          containerRect.left -
+          containerRect.width / 2 +
+          thumbRect.width / 2;
+
+        this.thumbnailContainer.scrollBy({
+          left: scrollOffset,
+          behavior: "smooth",
+        });
+      }
+
+      scrollThumbnails(direction) {
+        if (!this.thumbnailContainer) return;
+
+        const scrollAmount = CONFIG.THUMBNAIL_SIZE + 12; // thumbnail width + gap
+        const scrollDistance =
+          direction === "left" ? -scrollAmount : scrollAmount;
+
+        this.thumbnailContainer.scrollBy({
+          left: scrollDistance,
+          behavior: "smooth",
+        });
+
+        // Update scroll buttons after animation
+        setTimeout(() => {
+          this.updateThumbnailScrollButtons();
+          this.updateFadeGradients();
+        }, CONFIG.SCROLL_SPEED);
+      }
+
+      updateThumbnailScrollButtons() {
+        if (
+          !this.thumbnailContainer ||
+          !this.scrollLeftBtn ||
+          !this.scrollRightBtn
+        )
+          return;
+
+        const { scrollLeft, scrollWidth, clientWidth } =
+          this.thumbnailContainer;
+
+        this.scrollLeftBtn.disabled = scrollLeft <= 5;
+        this.scrollRightBtn.disabled =
+          scrollLeft >= scrollWidth - clientWidth - 5;
+      }
+
+      // **NEW: Alt Text Update**
+      updateImageAltText() {
+        const image = this.currentImages[this.currentIndex];
+        if (this.imageAltText) {
+          this.imageAltText.textContent =
+            image.alt || image.caption || `Image ${this.currentIndex + 1}`;
+        }
+      }
+
+      async goToImage(index) {
+        if (
+          this.isLoading ||
+          index === this.currentIndex ||
+          index < 0 ||
+          index >= this.currentImages.length
+        ) {
+          return;
+        }
+
+        this.currentIndex = index;
+        await this.showImage();
+        this.updateUI();
+        this.preloadAdjacentImages();
       }
 
       async showImage() {
@@ -591,19 +935,15 @@
         if (!image || this.isLoading) return;
 
         this.isLoading = true;
-        this.updateUI();
         this.showLoadingState();
 
         try {
-          // 1. Show LQIP immediately
           this.renderLQIP(image);
 
-          // 2. Load medium quality as fallback
           if (image.medium) {
             this.loadFallbackImage(image.medium);
           }
 
-          // 3. Load high quality main image
           await this.loadMainImage(image);
         } catch (error) {
           console.error("Failed to load image:", error);
@@ -614,6 +954,76 @@
         }
       }
 
+      // **ENHANCED UI UPDATE with Alt Text**
+      updateUI() {
+        // Update counter
+        this.currentPosition.textContent = this.currentIndex + 1;
+
+        // Update progress bar
+        const progress =
+          ((this.currentIndex + 1) / this.currentImages.length) * 100;
+        this.galleryProgressBar.style.width = `${progress}%`;
+
+        // **NEW: Update alt text**
+        this.updateImageAltText();
+
+        // Update thumbnail selection
+        this.updateThumbnailSelection();
+
+        // Update navigation buttons
+        this.prevBtn.disabled = false;
+        this.nextBtn.disabled = false;
+
+        // Update scroll buttons
+        this.updateThumbnailScrollButtons();
+      }
+
+      async nextImage() {
+        if (this.isLoading) return;
+        const nextIndex = (this.currentIndex + 1) % this.currentImages.length;
+        await this.goToImage(nextIndex);
+      }
+
+      async previousImage() {
+        if (this.isLoading) return;
+        const prevIndex =
+          (this.currentIndex - 1 + this.currentImages.length) %
+          this.currentImages.length;
+        await this.goToImage(prevIndex);
+      }
+
+      handleKeyboard(e) {
+        if (!this.modal?.classList.contains("flex")) return;
+
+        switch (e.key) {
+          case "Escape":
+            e.preventDefault();
+            this.closeModal();
+            break;
+          case "ArrowLeft":
+            e.preventDefault();
+            this.previousImage();
+            break;
+          case "ArrowRight":
+            e.preventDefault();
+            this.nextImage();
+            break;
+          case " ":
+            e.preventDefault();
+            this.nextImage();
+            break;
+          case "Home":
+            e.preventDefault();
+            this.goToImage(0);
+            break;
+          case "End":
+            e.preventDefault();
+            this.goToImage(this.currentImages.length - 1);
+            break;
+        }
+      }
+
+      // **ALL EXISTING METHODS PRESERVED**
       renderLQIP(image) {
         if (!this.modalLQIPCanvas) return;
 
@@ -625,7 +1035,6 @@
             image.lqipHeight || 20
           );
         } else {
-          // Generate placeholder
           this.modalLQIPCanvas.width = 20;
           this.modalLQIPCanvas.height = 15;
           LQIPRenderer.generatePlaceholder(this.modalLQIPCanvas);
@@ -671,6 +1080,7 @@
       displayCachedImage(src) {
         const cachedImg = this.imageCache.get(src);
         this.modalImage.src = cachedImg.src;
+        this.modalImage.alt = this.currentImages[this.currentIndex]?.alt || "";
         this.modalImage.style.opacity = "1";
         this.modalLQIPCanvas.style.opacity = "0";
         this.modalFallback.style.opacity = "0";
@@ -678,9 +1088,9 @@
 
       displayLoadedImage(img) {
         this.modalImage.src = img.src;
+        this.modalImage.alt = this.currentImages[this.currentIndex]?.alt || "";
         this.modalImage.style.opacity = "1";
 
-        // Fade out placeholders
         setTimeout(() => {
           this.modalLQIPCanvas.style.opacity = "0";
           this.modalFallback.style.opacity = "0";
@@ -716,39 +1126,8 @@
         this.loadingPercentage.textContent = `${Math.round(progress)}%`;
       }
 
-      updateUI() {
-        const image = this.currentImages[this.currentIndex];
-        this.imageCounter.textContent = `${this.currentIndex + 1} of ${this.currentImages.length}`;
-        this.galleryTitle.textContent = this.capitalizeWords(image.alt || "");
-        this.updatePreviewThumbnails();
-      }
-
-      updatePreviewThumbnails() {
-        const hasMultiple = this.currentImages.length > 1;
-
-        if (!hasMultiple) {
-          this.prevPreview.style.display = "none";
-          this.nextPreview.style.display = "none";
-          return;
-        }
-
-        const prevIndex =
-          (this.currentIndex - 1 + this.currentImages.length) %
-          this.currentImages.length;
-        const nextIndex = (this.currentIndex + 1) % this.currentImages.length;
-
-        this.prevPreviewImg.src = this.currentImages[prevIndex]?.src || "";
-        this.nextPreviewImg.src = this.currentImages[nextIndex]?.src || "";
-
-        this.prevPreview.style.display = "flex";
-        this.nextPreview.style.display = "flex";
-      }
-
-      // Smart preloading system
       startPreloading() {
         this.preloadAdjacentImages();
-
-        // Continue preloading in background
         requestIdleCallback(
           () => {
             this.preloadBatch();
@@ -816,45 +1195,26 @@
         return indices;
       }
 
-      // Navigation
-      async nextImage() {
-        if (this.isLoading) return;
-        this.currentIndex = (this.currentIndex + 1) % this.currentImages.length;
-        await this.showImage();
-        this.preloadAdjacentImages();
+      pausePreloading() {
+        this.preloadQueue.forEach((src) => {
+          this.imageLoader.cancelLoad(src);
+        });
+        this.preloadQueue.clear();
       }
 
-      async previousImage() {
-        if (this.isLoading) return;
-        this.currentIndex =
-          (this.currentIndex - 1 + this.currentImages.length) %
-          this.currentImages.length;
-        await this.showImage();
-        this.preloadAdjacentImages();
-      }
-
-      // Event handlers
-      handleKeyboard(e) {
-        if (!this.modal?.classList.contains("flex")) return;
-
-        switch (e.key) {
-          case "Escape":
-            e.preventDefault();
-            this.closeModal();
-            break;
-          case "ArrowLeft":
-            e.preventDefault();
-            this.previousImage();
-            break;
-          case "ArrowRight":
-            e.preventDefault();
-            this.nextImage();
-            break;
-          case " ":
-            e.preventDefault();
-            this.nextImage();
-            break;
+      resumePreloading() {
+        if (this.modal?.classList.contains("flex")) {
+          this.preloadAdjacentImages();
         }
+      }
+
+      cleanup() {
+        this.preloadQueue.forEach((src) => {
+          this.imageLoader.cancelLoad(src);
+        });
+        this.preloadQueue.clear();
+        this.isLoading = false;
+        this.updateProgress(0);
       }
 
       handleImageError() {
@@ -864,52 +1224,12 @@
         this.nextBtn.disabled = false;
       }
 
-      // Lifecycle management
-      pausePreloading() {
-        // Cancel ongoing preloads to save bandwidth
-        this.preloadQueue.forEach((src) => {
-          this.imageLoader.cancelLoad(src);
-        });
-        this.preloadQueue.clear();
-      }
-
-      resumePreloading() {
-        // Resume preloading when tab becomes visible
-        if (this.modal?.classList.contains("flex")) {
-          this.preloadAdjacentImages();
-        }
-      }
-
-      cleanup() {
-        // Cancel all loading operations
-        this.preloadQueue.forEach((src) => {
-          this.imageLoader.cancelLoad(src);
-        });
-        this.preloadQueue.clear();
-
-        // Reset loading state
-        this.isLoading = false;
-
-        // Clear progress indicators
-        this.updateProgress(0);
-      }
-
-      // Utilities
-      capitalizeWords(str) {
-        if (!str) return "";
-        return str.replace(
-          /\w\S*/g,
-          (txt) => txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase()
-        );
-      }
-
       preloadVisibleImages() {
-        // Intersection Observer callback for smart preloading
         this.preloadAdjacentImages();
       }
     }
 
-    // Initialize gallery when DOM is ready
+    // **ENHANCED INITIALIZATION**
     if (document.readyState === "loading") {
       document.addEventListener("DOMContentLoaded", () => {
         window.galleryModal = new GalleryModal();
@@ -917,5 +1237,16 @@
     } else {
       window.galleryModal = new GalleryModal();
     }
+
+    // **GLOBAL CONVENIENCE FUNCTION**
+    window.openGallery = function (
+      images,
+      index = 0,
+      title = "Resort Gallery"
+    ) {
+      if (window.galleryModal) {
+        window.galleryModal.openModal(images, index, title);
+      }
+    };
   })();
 </script>
