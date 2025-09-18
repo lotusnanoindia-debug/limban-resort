@@ -5,20 +5,29 @@ export interface Props {
   initialImages: Array<any>;
   galleryType: string;
   galleryGridId: string;
-  layout?: string;
 }
 
-const {
-  buttonId,
-  remainingImages,
-  initialImages,
-  galleryType,
-  galleryGridId,
-  layout = "grid",
-} = Astro.props;
+const { buttonId, remainingImages, initialImages, galleryType, galleryGridId } =
+  Astro.props;
 
 // Only show button if there are remaining images
 const hasMoreImages = remainingImages.length > 0;
+
+// 🎯 SIMPLIFIED: Create the button text once
+const getButtonText = (remaining: number, type: string) => {
+  const typeLabels = {
+    vibe: "Limban Moments",
+    room: "Room Photos",
+    guest: "Guest Photos",
+    dining: "Dining Photos",
+    wildlife: "Wildlife Snaps",
+  };
+
+  const label = typeLabels[type] || "Photos";
+  return `Show ${remaining} More ${label}`;
+};
+
+const initialButtonText = getButtonText(remainingImages.length, galleryType);
 ---
 
 <!-- ALWAYS render the div (for the script), conditionally render the button -->
@@ -35,17 +44,7 @@ const hasMoreImages = remainingImages.length > 0;
           class="load-more-btn inline-flex items-center px-8 py-4 border border-amber-400/50 text-amber-400 rounded-full hover:bg-amber-400/10 hover:scale-105 transition-all duration-300"
           type="button"
         >
-          Show {remainingImages.length} More{" "}
-          {galleryType === "vibe"
-            ? "Limban Moments"
-            : galleryType === "room"
-              ? "Room"
-              : galleryType === "guest"
-                ? "Guest"
-                : galleryType === "dining"
-                  ? "Dining"
-                  : ""}{" "}
-          Photos
+          {initialButtonText}
           <svg
             class="w-5 h-5 ml-3"
             fill="none"
@@ -72,20 +71,30 @@ const hasMoreImages = remainingImages.length > 0;
     initialImages,
     galleryType,
     galleryGridId,
-    layout,
   }}
 >
-  // This script ALWAYS runs now, ensuring modal integration works
+  // 🎯 SIMPLIFIED: Reusable button text function
+  function getButtonText(remaining, type) {
+    const typeLabels = {
+      vibe: "Limban Moments",
+      room: "Room Photos",
+      guest: "Guest Photos",
+      dining: "Dining Photos",
+    };
+
+    const label = typeLabels[type] || "Photos";
+    return `Show ${remaining} More ${label}`;
+  }
+
   window.addEventListener("load", () => {
-    // Set up global images array for modal (CRITICAL for modal to work)
+    // Set up global images array for modal
     window.galleryImages = window.galleryImages || {};
     window.galleryImages[galleryType] = [...initialImages, ...remainingImages];
 
-    // Only set up button functionality if button exists
     const button = document.getElementById(buttonId);
     if (button) {
       let loadedCount = 0;
-      const batchSize = 8;
+      const batchSize = 12;
 
       button.addEventListener("click", function (e) {
         e.preventDefault();
@@ -114,25 +123,17 @@ const hasMoreImages = remainingImages.length > 0;
           button.style.display = "none";
         } else {
           const remaining = remainingImages.length - loadedCount;
-          const newText =
-            galleryType === "vibe"
-              ? `Show ${remaining} More Limban Moments`
-              : galleryType === "room"
-                ? `Show ${remaining} More Room Photos`
-                : galleryType === "guest"
-                  ? `Show ${remaining} More Guest Photos`
-                  : galleryType === "dining"
-                    ? `Show ${remaining} More Dining Photos`
-                    : `Show ${remaining} More Photos`;
+          // 🎯 SIMPLIFIED: Use the reusable function
+          const newText = getButtonText(remaining, galleryType);
 
           button.innerHTML = `${newText}<svg class="w-5 h-5 ml-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>`;
         }
       });
 
+      // createGalleryItem function stays the same...
       function createGalleryItem(image, index) {
         const div = document.createElement("div");
-        const containerClass =
-          layout === "masonry" ? "break-inside-avoid mb-6" : "aspect-square";
+        const containerClass = "aspect-square";
         div.className = `group cursor-pointer ${containerClass}`;
         div.dataset.galleryIndex = index;
         div.dataset.galleryType = galleryType;
@@ -140,15 +141,14 @@ const hasMoreImages = remainingImages.length > 0;
         div.innerHTML = `
           <div class="relative w-full h-full overflow-hidden rounded-2xl bg-gray-800 hover:shadow-2xl hover:shadow-black/50 transition-all duration-1000 hover:scale-[1.01]">
             <div class="absolute inset-0">
-              <img src="${image.placeholder || image.src}" alt="" class="w-full h-full object-cover blur-sm scale-110" />
+              <img src="${image.placeholder || image.gallerythumbs}" alt="" class="w-full h-full object-cover blur-sm scale-110" />
             </div>
             <img
-              src="${image.placeholder || image.src}"
-              data-srcset="${image.srcset || ""}"
-              data-src="${image.src}"
-              sizes="(min-width: 1024px) 25vw, (min-width: 768px) 33vw, 50vw"
+              src="${image.gallerythumbs}"
+              data-medium="${image.medium}"
+              data-large="${image.src}"
               alt="${image.alt}"
-              class="relative w-full h-full object-cover lazy-image opacity-0 transition-opacity duration-700"
+              class="relative w-full h-full object-cover lazy-image opacity-0 transition-opacity duration-700 blur-sm"
               loading="lazy"
               width="${image.width || 300}"
               height="${image.height || 300}"
@@ -164,7 +164,7 @@ const hasMoreImages = remainingImages.length > 0;
       }
     }
 
-    // Set up modal handler ONCE per page (CRITICAL - this must always run)
+    // Modal handler setup stays the same...
     if (!window.modalSetup) {
       window.modalSetup = true;
       document.addEventListener("click", function (e) {

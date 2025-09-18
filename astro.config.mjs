@@ -7,6 +7,16 @@ import autoprefixer from 'autoprefixer';
 export default defineConfig({
   site: 'https://limban.com',
   integrations: [sitemap(), react()],
+  
+  image: {
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: '**.graphassets.com',
+      }
+    ]
+  },
+  
   vite: {
     css: {
       postcss: {

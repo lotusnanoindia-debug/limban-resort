@@ -753,7 +753,7 @@
 
           // Thumbnail image
           const thumbnailImg = document.createElement("img");
-          thumbnailImg.src = image.thumbnail || image.medium || image.src;
+          thumbnailImg.src = image.gallerythumbs || image.medium || image.src;
           thumbnailImg.alt = image.alt || `Thumbnail ${index + 1}`;
           thumbnailImg.className =
             "w-full h-full object-cover transition-opacity duration-300 opacity-0";
@@ -1061,7 +1061,7 @@
       }
 
       async loadMainImage(image) {
-        const src = image.large || image.src;
+        const src = image.src;
 
         if (this.imageCache.has(src)) {
           this.displayCachedImage(src);

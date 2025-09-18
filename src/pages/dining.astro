@@ -2,6 +2,62 @@
 import Layout from "../layouts/Layout.astro";
 import { AstroSEO } from "astro-seo-plugin";
 import { fetchDiningExperiencesData } from "../api.js";
+import { getImage } from 'astro:assets'; // 🎯 STEP 1: Import getImage
+
+// 🎯 STEP 2: Create image optimizers
+async function optimizeDiningHero(url) {
+  if (!url) return null;
+  try {
+    return await getImage({
+      src: url,
+      width: 400,
+      height: 400,
+      format: 'webp',
+      quality: 70,
+      fit: 'cover',
+      inferSize: true,
+    });
+  } catch (error) {
+    console.error('Failed to optimize dining hero:', error);
+    return null;
+  }
+}
+
+async function optimizeDiningCard(url) {
+  if (!url) return null;
+  try {
+    return await getImage({
+      src: url,
+      width: 400,
+      height: 300,
+      format: 'webp',
+      quality: 70,
+      fit: 'cover',
+      inferSize: true,
+    });
+  } catch (error) {
+    console.error('Failed to optimize dining card:', error);
+    return null;
+  }
+}
+
+async function optimizeLogo(url) {
+  if (!url) return null;
+  try {
+    return await getImage({
+      src: url,
+      width: 64,
+      height: 64,
+      format: 'webp',
+      quality: 80,
+      fit: 'inside',
+      inferSize: true,
+    });
+  } catch (error) {
+    console.error('Failed to optimize logo:', error);
+    return null;
+  }
+}
 
 // Fetch dining experiences data
 let diningExperiences = [];
@@ -14,19 +70,53 @@ try {
   error = "Failed to load dining experiences from Hygraph";
 }
 
-// Process dining experiences for display
-const experiences = diningExperiences?.map((experience, index) => ({
-  id: experience.id,
-  name: experience.restaurantName,
-  intro: experience.shortIntro,
-  description: experience.longDescription,
-  logo: experience.logo?.optimisedLogo || experience.logo?.url || "",
-  heroImage: experience.images?.[0]?.heroImage || experience.images?.[0]?.url || "",
-  thumbnail: experience.images?.[0]?.thumbnail || experience.images?.[0]?.url || "",
-  placeholder: experience.images?.[0]?.placeholder || experience.images?.[0]?.url || "",
-  slug: experience.url || `experience-${index + 1}`,
-  alt: `${experience.restaurantName} dining experience at Limban Resort`
-})) || [];
+// 🎯 STEP 3: Process and optimize all images in parallel
+const experiences = await Promise.all(
+  (diningExperiences || []).map(async (experience, index) => {
+    const sourceUrl = experience.images?.[0]?.large || experience.images?.[0]?.url;
+    const logoUrl = experience.logo?.optimisedLogo || experience.logo?.url;
+    
+    const [optimizedHero, optimizedCard, optimizedLogo] = await Promise.all([
+      optimizeDiningHero(sourceUrl),
+      optimizeDiningCard(sourceUrl),
+      optimizeLogo(logoUrl)
+    ]);
+
+    return {
+      id: experience.id,
+      name: experience.restaurantName,
+      intro: experience.shortIntro,
+      description: experience.longDescription,
+      optimizedLogo: optimizedLogo?.src || logoUrl || "",
+      optimizedHero: optimizedHero?.src || sourceUrl || "",
+      optimizedCard: optimizedCard?.src || sourceUrl || "",
+      placeholder: experience.images?.[0]?.placeholder || optimizedHero?.src || "",
+      slug: experience.url || `experience-${index + 1}`,
+      alt: `${experience.restaurantName} dining experience at Limban Resort`
+    };
+  })
+);
+
+// 🎯 STEP 4: Create randomized hero mosaic (like rooms page)
+function shuffleArray(array) {
+  const shuffled = [...array];
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+  }
+  return shuffled;
+}
+
+// Create randomized mosaic tiles (24 total)
+const mosaicTiles = [];
+const availableExperiences = [...experiences];
+
+for (let i = 0; i < 24; i++) {
+  if (availableExperiences.length === 0) {
+    availableExperiences.push(...shuffleArray(experiences));
+  }
+  mosaicTiles.push(availableExperiences.pop());
+}
 
 // Helper function for alt text generation
 function generateAltText(experienceName, shortIntro) {
@@ -322,7 +412,6 @@ function generateAltText(experienceName, shortIntro) {
   }}
 />
 
-  <div class="bg-gray-950 text-gray-100 selection:bg-gray-700">
     
   <!-- Enhanced Hero Section - Vibe Page Style with Dining Images -->
   <section class="relative pt-48 pb-32 overflow-hidden">
@@ -332,27 +421,28 @@ function generateAltText(experienceName, shortIntro) {
 
       <!-- Multi-layered Image Grid - Same as Vibe Page -->
       <div class="absolute inset-0 grid grid-cols-4 md:grid-cols-6 gap-0 opacity-50">
-        {experiences.concat(experiences).slice(0, 24).map((experience, index) => (
+        {mosaicTiles.map((experience, index) => (
           <div 
-            key={`bg-${index}`}
-            class="relative overflow-hidden h-full"
-            style={`animation-delay: ${index * 150}ms`}
+            key={`dining-mosaic-${index}`}
+            class="relative overflow-hidden h-full fade-in-up"
+            style={`animation-delay: ${index * 100}ms`}
           >
-            <!-- LQIP Background -->
+            <!-- 🎯 OPTIMIZED: Direct optimized image -->
             <img
-              src={experience.placeholder}
-              alt=""
-              class="absolute inset-0 w-full h-full object-cover blur-sm scale-110"
+              src={experience.optimizedHero}
+              alt={`${experience.name} dining at Limban Resort`}
+              class="relative w-full h-full object-cover hover:scale-105 transition-all duration-1000"
+              loading={index < 12 ? 'eager' : 'lazy'}
+              fetchpriority={index < 6 ? 'high' : 'auto'}
+              decoding="async"
             />
             
-            <!-- Main Image with Staggered Fade-in -->
-            <img
-              src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1' height='1'%3E%3C/svg%3E"
-              data-src={experience.heroImage}
-              alt=""
-              class="relative w-full h-full object-cover lazy-image opacity-0 hover:scale-105 transition-all duration-1000 fade-in-up"
-              loading="lazy"
-            />
+            <!-- Optional: Experience name overlay on hover -->
+            <div class="absolute inset-0 bg-gray-900/80 opacity-0 hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+              <span class="text-white text-xs font-medium text-center px-2">
+                {experience.name}
+              </span>
+            </div>
           </div>
         ))}
       </div>
@@ -433,33 +523,35 @@ function generateAltText(experienceName, shortIntro) {
                 key={experience.id}
                 class="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-gray-800/50 to-gray-900/50 backdrop-blur-xl border border-gray-700 hover:border-amber-400/50 transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl hover:shadow-black/20"
               >
-                <!-- Hero Image with LQIP -->
+                <!-- 🎯 OPTIMIZED: Hero Image with optimized card -->
                 <div class="relative aspect-[4/3] overflow-hidden">
                   <!-- LQIP Background -->
                   <div class="absolute inset-0">
                     <img
-                      src={experience.placeholder}
+                      src={experience.placeholder || experience.optimizedCard}
                       alt=""
                       class="w-full h-full object-cover blur-sm scale-110"
                     />
                   </div>
                   
-                  <!-- Main Image with Lazy Loading -->
+                  <!-- 🎯 OPTIMIZED: Main Image -->
                   <img
-                    src={experience.heroImage}
-                    data-src={experience.heroImage}
+                    src={experience.optimizedCard}
                     alt={generateAltText(experience.name, experience.intro)}
                     class="relative w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-in-out will-change-transform"
-                    loading="lazy"
-                  />                  
+                    loading={index < 6 ? 'eager' : 'lazy'}
+                    fetchpriority={index < 3 ? 'high' : 'auto'}
+                    decoding="async"
+                  />
+                  
                   <!-- Gradient Overlay -->
                   <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
                   
-                  <!-- Experience Logo -->
-                  {experience.logo && (
+                  <!-- 🎯 OPTIMIZED: Experience Logo -->
+                  {experience.optimizedLogo && (
                     <div class="absolute top-4 left-4">
                       <img
-                        src={experience.logo}
+                        src={experience.optimizedLogo}
                         alt={`${experience.name} logo`}
                         class="w-16 h-16 object-contain bg-white/10 backdrop-blur-sm rounded-full flex items-center justify-center border border-white/20"
                         loading="lazy"
@@ -544,32 +636,29 @@ function generateAltText(experienceName, shortIntro) {
       </div>
     </section>
     
-  </div>
+ 
 </Layout>
 
+<!-- Add CSS for staggered animations -->
+<style>
+  .fade-in-up {
+    opacity: 0;
+    animation: fadeInUp 0.8s ease-out forwards;
+  }
+  
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(20px) scale(0.95);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
+</style>
+
 <script>
-  // Advanced Lazy Loading with Intersection Observer
-  const lazyImages = document.querySelectorAll('.lazy-image');
-  const imageObserver = new IntersectionObserver((entries, observer) => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting) {
-        const img = entry.target;
-        const src = img.dataset.src;
-        if (src) {
-          img.src = src;
-          img.classList.add('opacity-100');
-          img.classList.remove('opacity-0');
-          observer.unobserve(img);
-        }
-      }
-    });
-  }, {
-    rootMargin: '100px 0px',
-    threshold: 0.1
-  });
-
-  lazyImages.forEach(img => imageObserver.observe(img));
-
   // Intersection Observer for fade-in animations
   const observerOptions = {
     threshold: 0.1,

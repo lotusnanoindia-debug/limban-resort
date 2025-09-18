@@ -10,6 +10,7 @@ const IMAGE_FIELDS_FRAGMENT = `
     width
     height
     placeholder: url(transformation: { image: { resize: { width: 20, height: 20, fit: crop }, quality: { value: 20 } }, document: { output: { format: webp } } })
+    gallerythumbs: url(transformation: { image: { resize: { width: 92, height: 92, fit: crop }, quality: { value: 60 } }, document: { output: { format: webp } } })
     grid: url(transformation: { image: { resize: { width: 300, height: 300, fit: crop }, quality: { value: 35 } }, document: { output: { format: webp } } })
     thumb400: url(transformation: { image: { resize: { width: 400, height: 400, fit: crop }, quality: { value: 35 } }, document: { output: { format: webp } } })
     large: url(transformation: { image: { resize: { width: 1200, fit: scale }, quality: { value: 70 } }, document: { output: { format: webp } } })
@@ -66,7 +67,7 @@ const ROOMS_QUERY = `
       shortDescription
       basePrice
       heroImage {
-        optimisedCard: url(transformation: { image: { resize: { width: 500, height: 350, fit: crop }, quality: { value: 60 } }, document: { output: { format: webp } } })
+        optimisedCard: url(transformation: { image: { resize: { width: 600, height: 400, fit: crop }, quality: { value: 60 } }, document: { output: { format: webp } } })
       }
       roomFeature(first: 100) {
         id
