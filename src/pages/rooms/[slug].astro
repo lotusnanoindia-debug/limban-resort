@@ -1,14 +1,15 @@
 ---
-import Layout from '../../layouts/Layout.astro';
-import { AstroSEO } from 'astro-seo-plugin';
-import { fetchRoomBySlug, fetchRoomsData, fetchSpecialDealData } from '../../api.js';
-import GalleryGrid from '../../components/GalleryGrid.astro';
-import LoadMoreGallery from '../../components/LoadMoreGallery.astro';
-import GalleryModal from '../../components/GalleryModal.astro';
-import ReservationForm from '../../components/ReservationForm.astro';
-import SmartReserveButton from '../../components/SmartReserveButton.astro';
-import { processGalleryImages } from '../../components/imageProcessor.js';
-import { getImage } from 'astro:assets';
+import { Icon } from 'astro-icon/components'
+import Layout from "../../layouts/Layout.astro";
+import { AstroSEO } from "astro-seo-plugin";
+import { fetchRoomBySlug, fetchRoomsData, fetchSpecialDealData,} from "../../api.js";
+import GalleryGrid from "../../components/GalleryGrid.astro";
+import LoadMoreGallery from "../../components/LoadMoreGallery.astro";
+import GalleryModal from "../../components/GalleryModal.astro";
+import ReservationForm from "../../components/ReservationForm.astro";
+import SmartReserveButton from "../../components/SmartReserveButton.astro";
+import { processGalleryImage } from "../../components/imageProcessor.js";
+import { getImage } from "astro:assets";
 
 // Ultra-reliable API fetching with retry logic
 async function fetchWithRetry(fetchFn, retries = 2) {
@@ -17,53 +18,43 @@ async function fetchWithRetry(fetchFn, retries = 2) {
       return await fetchFn();
     } catch (error) {
       if (i === retries - 1) throw error;
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      await new Promise((resolve) => setTimeout(resolve, 1000));
     }
   }
 }
 
-// Bulletproof URL validation
-function validateImageUrl(url) {
-  if (!url || typeof url !== 'string') return null;
-  try {
-    const parsed = new URL(url);
-    return parsed.protocol === 'https:' ? url : null;
-  } catch {
-    return null;
-  }
-}
-
-// 🎯 NEW: Single image optimizer
-async function optimiseSingle(url) {
+// 🎯 ENHANCED: Single image optimizer with better quality
+async function optimizeImage(url, width, height, quality = 80) {
   if (!url) return null;
   try {
-    return await getImage({
+    const optimized = await getImage({
       src: url,
-      width: 1920,
-      format: 'webp',
-      quality: 60,
-      fit: 'inside',
+      width: width,
+      height: height,
+      format: "webp",
+      quality: quality,
+      fit: "cover",
       inferSize: true,
     });
+    return optimized;
   } catch (error) {
-    console.error('Failed to optimize single image:', error);
-    return null;
+    return { src: url };
   }
 }
 
-// Server-side data fetching with enhanced error handling
+// Server-side data fetching
 let data = { rooms: [], specialDeal: null };
 let error = null;
 
 try {
   const [rooms, specialDeal] = await Promise.all([
     fetchWithRetry(() => fetchRoomsData()),
-    fetchWithRetry(() => fetchSpecialDealData())
+    fetchWithRetry(() => fetchSpecialDealData()),
   ]);
   data = { rooms, specialDeal };
 } catch (err) {
-  console.error('Failed to load rooms data:', err);
-  error = 'Failed to load content from CMS';
+  console.error("Failed to load rooms data:", err);
+  error = "Failed to load content from CMS";
 }
 
 export async function getStaticPaths() {
@@ -74,7 +65,7 @@ export async function getStaticPaths() {
       props: { roomData: room },
     }));
   } catch (err) {
-    console.error('Failed to generate static paths:', err);
+    console.error("Failed to generate static paths:", err);
     return [];
   }
 }
@@ -83,74 +74,74 @@ const { slug } = Astro.params;
 const room = await fetchWithRetry(() => fetchRoomBySlug(slug));
 
 if (!room) {
-  return Astro.redirect('/rooms');
+  return Astro.redirect("/rooms");
 }
 
-// 🎯 OPTIMIZE EVERYTHING IN PARALLEL
-const [allRoomImages, optimisedHero] = await Promise.all([
-  // Process gallery images
-  room.gallery ? processGalleryImages(room.gallery) : [],
-  
-  // Process hero image
-  optimiseSingle(room.heroImage?.optimisedCard || room.heroImage?.url),
-  
-  // Process other rooms cards
+// 🎯 ENHANCED: Process all images in parallel with better quality
+const [allRoomImages, optimisedHero, optimisedOtherRooms] = await Promise.all([
+  room.gallery && room.gallery.length > 0
+    ? Promise.all(
+        room.gallery.map((item, index) => processGalleryImage(item, index))
+      )
+    : Promise.resolve([]),
+
+  // 🎯 ENHANCED: Higher quality hero image
+  optimizeImage(
+    room.heroImage?.optimisedCard || room.heroImage?.url,
+    1920,
+    1080,
+    95 // Higher quality for hero
+  ),
+
+  // 🎯 ENHANCED: Better quality other rooms
   Promise.all(
     data.rooms
-      .filter(otherRoom => otherRoom.url !== room.url)
+      .filter((otherRoom) => otherRoom.url !== room.url)
       .map(async (otherRoom) => {
-        const cardImg = await optimiseSingle(otherRoom.heroImage?.optimisedCard || otherRoom.heroImage?.url);
-        return { ...otherRoom, optimizedCardImg: cardImg };
+        const optimized = await optimizeImage(
+          otherRoom.heroImage?.optimisedCard,
+          400,
+          300,
+          85 // Higher quality for other rooms
+        );
+        
+        // 🎯 NEW: Add room type detection
+        const roomType = otherRoom.roomName.toLowerCase().includes('tent') ? 'Safari Tent' :
+                        otherRoom.roomName.toLowerCase().includes('cottage') ? 'Cottage' :
+                        otherRoom.roomName.toLowerCase().includes('villa') ? 'Villa' :
+                        otherRoom.roomName.toLowerCase().includes('tree') ? 'Tree House' : 'Suite';
+        
+        return { 
+          ...otherRoom, 
+          optimizedCardImg: optimized,
+          roomType: roomType,
+          safePrice: Number(otherRoom.basePrice) || 0
+        };
       })
-  )
+  ),
 ]);
-
-// 🎯 SIMPLIFIED: Just resize the other room cards  
-const optimisedOtherRooms = await Promise.all(
-  data.rooms
-    .filter(otherRoom => otherRoom.url !== room.url)
-    .map(async (otherRoom) => {
-      try {
-        const sourceUrl = otherRoom.heroImage?.optimisedCard;
-        if (!sourceUrl) return { ...otherRoom, optimizedCardImg: null };
-        
-        const optimized = await getImage({
-          src: sourceUrl,
-          width: 400,
-          height: 400,
-          format: 'webp', 
-          quality: 60,
-          fit: 'cover'
-        });
-        
-        return { ...otherRoom, optimizedCardImg: optimized };
-      } catch (error) {
-        console.error('Failed to optimize other room:', error);
-        return { ...otherRoom, optimizedCardImg: null };
-      }
-    })
-);
-
 
 // Split for load more functionality
 const initialRoomImages = allRoomImages.slice(0, 12);
 const remainingRoomImages = allRoomImages.slice(12);
 
-// 🎯 USE OPTIMIZED HERO IMAGE OR FALLBACK
-const heroImage = optimisedHero?.src || 
-                  validateImageUrl(room.heroImage?.optimisedCard) || 
-                  validateImageUrl(room.heroImage?.url) || 
-                  '/img/room-placeholder.jpg';
+// Safe hero image
+const heroImage =
+  optimisedHero?.src ||
+  room.heroImage?.optimisedCard ||
+  room.heroImage?.url ||
+  "/img/room-placeholder.webp";
 
 // Safe price processing
 const safePrice = Number(room.basePrice) || 0;
+
 ---
 
-<!-- Performance optimization: preload critical resources -->
 <link rel="preload" as="image" href={heroImage} fetchpriority="high" />
 
 <Layout>
-  <AstroSEO slot="head"
+  <AstroSEO
+    slot="head"
     title={`${room.roomName} | Luxury Safari Accommodation - Limban Resort`}
     description={`Experience luxury in our ${room.roomName} at Limban Resort. ${room.shortDescription} Book your exclusive safari accommodation in Tadoba National Park, Maharashtra.`}
     canonical={`https://limban.com/rooms/${room.url}`}
@@ -158,142 +149,137 @@ const safePrice = Number(room.basePrice) || 0;
       title: `${room.roomName} - Luxury Safari Accommodation at Limban Resort`,
       description: `${room.shortDescription} Experience unparalleled luxury and eco-friendly comfort at Limban Resort in Tadoba National Park.`,
       image: heroImage,
-      type: 'article',
-      url: `https://limban.com/rooms/${room.url}`
+      type: "article",
+      url: `https://limban.com/rooms/${room.url}`,
     }}
     jsonLd={{
       "@context": "https://schema.org",
       "@type": "LodgingBusiness",
       "@id": `https://limban.com/rooms/${room.url}#resort`,
-      "name": "Limban Resort",
-      "url": "https://limban.com",
-      "logo": "https://limban.com/limban-resort-tadoba-logo.png",
-      "image": [heroImage, ...allRoomImages.slice(0, 6).map(img => img.src)].filter(Boolean),
-      "description": "Luxury safari resort in Tadoba National Park offering premium eco-friendly accommodation and tiger safari experiences in Maharashtra, India.",
-      "location": {
-        "@type": "Place",
-        "name": "Tadoba National Park",
-        "address": "Maharashtra, India"
-      },
-      "accommodationCategory": "Resort",
-      "amenityFeature": room.roomFeature?.map(feature => ({
-        "@type": "LocationFeatureSpecification",
-        "name": feature.featureName,
-        "value": true
-      })) || [],
-      "makesOffer": {
+      name: "Limban Resort",
+      url: "https://limban.com",
+      image: [heroImage, ...allRoomImages.slice(0, 4).map((img) => img.src)].filter(Boolean),
+      description: "Luxury safari resort in Tadoba National Park offering premium eco-friendly accommodation and tiger safari experiences in Maharashtra, India.",
+      makesOffer: {
         "@type": "Offer",
-        "itemOffered": {
+        itemOffered: {
           "@type": "Accommodation",
-          "name": room.roomName,
-          "description": room.shortDescription,
-          "image": [heroImage, ...allRoomImages.slice(0, 4).map(img => img.src)].filter(Boolean)
+          name: room.roomName,
+          description: room.shortDescription,
+          image: [heroImage, ...allRoomImages.slice(0, 4).map((img) => img.src)].filter(Boolean),
         },
-        "price": safePrice,
-        "priceCurrency": "INR",
-        "availability": "https://schema.org/InStock",
-        "url": `https://limban.com/rooms/${room.url}`,
-        "validFrom": new Date().toISOString().split('T')[0]
-      }
+        price: safePrice,
+        priceCurrency: "INR",
+        availability: "https://schema.org/InStock",
+        url: `https://limban.com/rooms/${room.url}`,
+      },
     }}
   />
-  
-  <!-- Skip to content for accessibility -->
+
   <a href="#main-content" class="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 bg-amber-400 text-gray-900 px-4 py-2 rounded z-50">
     Skip to main content
   </a>
 
   <div class="bg-gray-950 text-gray-100 font-sans antialiased selection:bg-gray-700">
-    <!-- Enhanced Hero Section -->
-    <section class="relative pt-44 pb-16 overflow-hidden bg-gray-900" role="banner" aria-labelledby="room-hero-heading">
-      <!-- 🎯 OPTIMIZED HERO IMAGE -->
+    <!-- 🎯 ENHANCED: Hero Section with Room Type Badge -->
+    <section class="relative pt-44 pb-16 overflow-hidden bg-gray-900" role="banner">
       <img
         src={heroImage}
         alt={`${room.roomName} hero - luxury safari accommodation`}
-        class="absolute inset-0 w-full h-full object-cover opacity-40"
+        class="absolute inset-0 w-full h-full object-cover opacity-50"
         loading="eager"
-        decoding="async"
         fetchpriority="high"
       />
+
+      <!-- 🎯 ENHANCED: Better gradient overlay -->
+      <div class="absolute inset-0 bg-gradient-to-b from-gray-900/95 via-gray-900/70 to-gray-900/95"></div>
       
-      <!-- Enhanced gradient overlay for better text contrast -->
-      <div class="absolute inset-0 bg-gradient-to-b from-gray-900/90 via-gray-900/60 to-gray-900/90"></div>
-      
-      <!-- Hero content with improved accessibility -->
+      <!-- 🎯 NEW: Subtle animated overlay -->
+      <div class="absolute inset-0 bg-gradient-to-r from-transparent via-amber-400/5 to-transparent animate-pulse"></div>
+
       <main id="main-content" class="relative z-10 max-w-7xl mx-auto px-6" role="main">
         <div class="text-center mb-12">
-          <div class="text-sm text-gray-300 tracking-[0.2em] uppercase mb-4" role="doc-subtitle">
+          
+          <div class="text-sm text-gray-300 tracking-[0.2em] uppercase mb-4">
             Your Luxury Safari Accommodation
           </div>
-          <h1 id="room-hero-heading" class="font-serif italic text-4xl md:text-6xl text-white drop-shadow-lg">
+          <h1 class="font-serif italic text-4xl md:text-6xl lg:text-7xl text-white drop-shadow-lg mb-6">
             {room.roomName}
           </h1>
-          
-          <!-- Enhanced pricing display -->
-          <div class="mt-8 p-6 bg-black/30 backdrop-blur-lg rounded-2xl inline-block">
-            <span class="text-3xl font-bold text-white drop-shadow-lg">
-              From ₹{safePrice.toLocaleString()}
-            </span>
-            <span class="text-gray-400 block mt-1 text-sm">Per Night • Breakfast Included</span>
+
+          <!-- 🎯 ENHANCED: Better pricing display -->
+          <div class="mt-8 p-8 bg-black/40 backdrop-blur-lg rounded-3xl inline-block border border-gray-700/50">
+            <div class="flex items-center justify-center space-x-2 mb-2">
+              <span class="text-lg text-gray-400">From</span>
+              <span class="text-4xl font-bold text-white drop-shadow-lg">₹{safePrice.toLocaleString()}</span>
+              <span class="text-lg text-gray-400">/ night</span>
+            </div>
+            
+            <!-- 🎯 NEW: Value indicators -->
+            <div class="flex items-center justify-center space-x-6 text-sm text-gray-300 mt-3">
+              <span class="flex items-center">
+                <svg class="w-4 h-4 mr-2 text-green-400" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/>
+                </svg>
+                Breakfast Included
+              </span>
+              <span class="flex items-center">
+                <svg class="w-4 h-4 mr-2 text-blue-400" fill="currentColor" viewBox="0 0 20 20">
+                  <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+                Free Cancellation
+              </span>
+            </div>
           </div>
         </div>
       </main>
     </section>
-    
-    <!-- Enhanced Breadcrumb Navigation -->
+
+    <!-- 🎯 ENHANCED: Breadcrumb Navigation -->
     <nav class="py-6 bg-gray-900/50 border-b border-gray-800" aria-label="Breadcrumb">
       <div class="max-w-7xl mx-auto px-6">
         <ol class="flex items-center justify-center space-x-2 text-sm">
           <li>
-            <a href="/" class="text-gray-400 hover:text-amber-400 transition-colors duration-300 flex items-center focus:outline-none focus:ring-2 focus:ring-amber-400/50 rounded">
-              <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
+            <a href="/" class="text-gray-400 hover:text-amber-400 transition-colors duration-300 flex items-center">
+              <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
                 <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"/>
               </svg>
               Home
             </a>
           </li>
-          <li aria-hidden="true">
-            <svg class="w-4 h-4 text-gray-600" fill="currentColor" viewBox="0 0 20 20">
-              <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/>
-            </svg>
-          </li>
+          <li><svg class="w-4 h-4 text-gray-600" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/></svg></li>
           <li>
-            <a href="/rooms" class="text-gray-400 hover:text-amber-400 transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-amber-400/50 rounded">
-              Rooms
-            </a>
+            <a href="/rooms" class="text-gray-400 hover:text-amber-400 transition-colors duration-300">Rooms</a>
           </li>
-          <li aria-hidden="true">
-            <svg class="w-4 h-4 text-gray-600" fill="currentColor" viewBox="0 0 20 20">
-              <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/>
-            </svg>
-          </li>
-          <li aria-current="page">
-            <span class="text-amber-400 font-medium">{room.roomName}</span>
-          </li>
+          <li><svg class="w-4 h-4 text-gray-600" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/></svg></li>
+          <li><span class="text-amber-400 font-medium">{room.roomName}</span></li>
         </ol>
       </div>
     </nav>
-    
-    <!-- Enhanced Gallery Section -->
-    <section class="py-32 bg-gray-800" aria-labelledby="gallery-heading">
+
+    <!-- 🎯 ENHANCED: Gallery Section -->
+    <section class="py-32 bg-gray-800">
       <div class="max-w-7xl mx-auto px-6">
-          <!-- Enhanced Special Deal Section -->
-          {data.specialDeal && data.specialDeal.html && (
-            <div class="max-w-3xl mx-auto px-6 mb-12" role="complementary" aria-label="Special offer">
-              <div class="bg-gradient-to-r from-purple-900/60 to-amber-900/60 border border-purple-300/50 rounded-2xl p-8 text-center shadow-2xl backdrop-blur-xl">
-                <div class="font-semibold text-lg text-white max-w-none prose prose-invert" set:html={data.specialDeal.html} />
-              </div>
+        {data.specialDeal?.html && (
+          <div class="max-w-3xl mx-auto mb-16">
+            <div class="bg-gradient-to-r from-purple-900/60 to-amber-900/60 border border-purple-300/50 rounded-2xl p-8 text-center shadow-2xl backdrop-blur-xl">
+              <div class="font-semibold text-lg text-white" set:html={data.specialDeal.html} />
             </div>
-          )}
+          </div>
+        )}
+
         <header class="text-center mb-16">
-          <h2 id="gallery-heading" class="font-serif italic text-4xl md:text-6xl text-white mb-6">
+          <div class="inline-block px-6 py-2 bg-amber-400/10 border border-amber-400/30 rounded-full mb-8">
+            <span class="text-amber-400 text-sm font-medium tracking-widest uppercase">Visual Journey</span>
+          </div>
+          <h2 class="font-serif italic text-4xl md:text-6xl text-white mb-6">
             {room.roomName} Gallery
           </h2>
           <p class="text-xl text-gray-300 max-w-2xl mx-auto">
-            Explore every detail of your luxury safari accommodation
+            Explore every detail of your luxury safari accommodation through our curated visual experience
           </p>
         </header>
-        
+
         <GalleryGrid
           images={initialRoomImages}
           layout="grid"
@@ -310,64 +296,69 @@ const safePrice = Number(room.basePrice) || 0;
           layout="grid"
         />
 
-        <div class="text-center mt-6">
+        <div class="text-center mt-8">
           <p class="text-gray-400 font-light italic">
-            Click any image to explore {room.roomName} in detail
+            Click any image to explore {room.roomName} in stunning detail
           </p>
         </div>
       </div>
     </section>
 
-    <!-- Enhanced Room Details Section -->
-    <section class="py-32 bg-gray-900" aria-labelledby="room-details-heading">
+    <!-- 🎯 ENHANCED: Room Details Section -->
+    <section class="py-32 bg-gray-900">
       <div class="max-w-7xl mx-auto px-6">
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-32 items-start">
           <!-- Left Column - Experience & Amenities -->
           <div class="space-y-16">
-            <!-- Room Description -->
+            <!-- 🎯 ENHANCED: Room description -->
             <div>
-              <h2 id="room-details-heading" class="font-serif italic text-3xl md:text-5xl text-white mb-8">
-                Experience {room.roomName}'s Comfy Luxury
+              <div class="inline-block px-4 py-2 bg-amber-400/10 border border-amber-400/30 rounded-full mb-6">
+                <span class="text-amber-400 text-sm font-medium tracking-widest uppercase">Experience</span>
+              </div>
+              <h2 class="font-serif italic text-3xl md:text-5xl text-white mb-8">
+                {room.roomName}'s Story
               </h2>
-              <div class="prose prose-lg prose-invert max-w-none">
-                <p class="text-xl text-gray-300 leading-relaxed mb-8">
-                  {room.shortDescription}
-                </p>
+              <p class="text-xl text-gray-300 leading-relaxed mb-8">
+                {room.shortDescription}
+              </p>
+              
+              <!-- 🎯 NEW: Room highlights -->
+              <div class="mt-8">
+                <div class="bg-gray-800/40 rounded-2xl p-6 border border-gray-700/50">
+                  <h4 class="text-amber-400 font-semibold mb-2">Max Occupancy</h4>
+                  <p class="text-gray-300">2 Guests (Extra Bed on Request)</p>
+                </div>
               </div>
             </div>
 
-            <!-- Enhanced Amenities Grid -->
+            <!-- 🎯 ENHANCED: Amenities section -->
             <div>
+              <div class="inline-block px-4 py-2 bg-amber-400/10 border border-amber-400/30 rounded-full mb-6">
+                <span class="text-amber-400 text-sm font-medium tracking-widest uppercase">Amenities</span>
+              </div>
               <h3 class="font-serif italic text-3xl md:text-4xl text-white mb-6">
-                {room.roomName} - Made for You
+                Crafted for Your Comfort
               </h3>
               <p class="text-xl text-gray-300 mb-12">
-                Every detail in {room.roomName} is carefully curated for your comfort, luxury and pleasure.
+                Every detail in {room.roomName} is carefully curated for your ultimate comfort and luxury.
               </p>
-              
-              <div class="grid grid-cols-3 gap-4">
-                {room.roomFeature?.map((feature, index) => (
-                  <article 
-                    key={feature.id}
-                    class="group relative p-6 bg-gradient-to-br from-gray-800/60 to-gray-900/60 backdrop-blur-xl border border-gray-700/50 rounded-3xl hover:border-amber-400/50 hover:from-gray-700/60 hover:to-gray-800/60 transition-all duration-700 hover:-translate-y-3 hover:shadow-2xl hover:shadow-amber-400/10 flex flex-col items-center text-center"
-                    tabindex="0"
-                    role="listitem"
-                  >
-                    <!-- Enhanced icon container -->
-                    <div class="mb-4 w-16 h-16 flex items-center justify-center bg-gradient-to-br from-gray-500/20 to-amber-500/20 rounded-2xl group-hover:from-amber-400/30 group-hover:to-orange-400/30 transition-all duration-500 group-hover:scale-110">
-                      <div 
-                        class="w-8 h-8 text-white group-hover:text-amber-300 transition-colors duration-300 flex items-center justify-center [&>svg]:w-full [&>svg]:h-full [&>svg]:object-contain" 
-                        set:html={feature.svgImage}
+
+              <!-- 🎯 ENHANCED: Interactive amenities grid -->
+              <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+                {room.roomFeature?.map((feature) => (
+                <div key={feature.id} class="group/tooltip relative">
+                  <div class="p-6 bg-gray-800/60 border border-gray-700/50 rounded-2xl hover:border-amber-400/50 hover:bg-gray-700/60 transition-all duration-500 hover:-translate-y-2 hover:shadow-xl hover:shadow-amber-400/10 flex flex-col items-center text-center">
+                    <div class="mb-4 w-16 h-16 flex items-center justify-center bg-gray-600/30 rounded-2xl group-hover:bg-amber-400/20 transition-all duration-500 group-hover:scale-110">
+                      <Icon 
+                        name={feature.svgImage}
+                        class="w-8 h-8 text-gray-400 group-hover:text-amber-300 transition-colors duration-300"
                       />
                     </div>
-                    
-                    <h4 class="text-sm font-medium text-gray-300 group-hover:text-amber-100 transition-colors duration-300 text-center leading-relaxed">
+                    <h4 class="text-sm font-medium text-gray-300 group-hover:text-amber-100 transition-colors duration-300 leading-tight">
                       {feature.featureName}
                     </h4>
-                    
-                    <!-- Enhanced hover glow effect -->
-                    <div class="absolute inset-0 rounded-3xl bg-gradient-to-br from-amber-500/0 to-orange-500/0 group-hover:from-amber-500/5 group-hover:to-orange-500/5 transition-all duration-700"></div>
-                  </article>
+                  </div>
+                </div>
                 )) || (
                   <div class="col-span-full text-center py-12">
                     <p class="text-gray-400 text-lg">Amenities information coming soon.</p>
@@ -376,95 +367,108 @@ const safePrice = Number(room.basePrice) || 0;
               </div>
             </div>
           </div>
-          
+
           <!-- Right Column - Enhanced Reservation Form -->
           <div class="lg:sticky lg:top-32">
-              <ReservationForm 
-                roomName={room.roomName} 
-                roomSlug={room.url} 
-                basePrice={safePrice} 
+            <div class="bg-gray-800/40 border border-gray-700/50 rounded-3xl p-8 backdrop-blur-sm">
+              <ReservationForm
+                roomName={room.roomName}
+                roomSlug={room.url}
+                basePrice={safePrice}
               />
+            </div>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- 🎯 FULLY OPTIMIZED OTHER ROOMS SECTION -->
-    <section class="py-32 bg-gradient-to-b from-gray-950 to-gray-900 border-t border-gray-800" aria-labelledby="other-rooms-heading">
+    <!-- 🎯 ENHANCED: Other Rooms Section -->
+    <section class="py-32 bg-gradient-to-b from-gray-950 to-gray-900 border-t border-gray-800">
       <div class="max-w-7xl mx-auto px-6">
         <header class="text-center mb-16">
-          <h2 id="other-rooms-heading" class="font-serif italic text-4xl md:text-5xl text-white mb-6">
+          <div class="inline-block px-6 py-2 bg-amber-400/10 border border-amber-400/30 rounded-full mb-8">
+            <span class="text-amber-400 text-sm font-medium tracking-widest uppercase">More Options</span>
+          </div>
+          <h2 class="font-serif italic text-4xl md:text-5xl text-white mb-6">
             Discover Other Experiences
           </h2>
           <p class="text-xl text-gray-300 max-w-3xl mx-auto">
-            Each room offers its own unique perspective on luxury safari living
+            Each room offers its own unique perspective on luxury safari living at Limban Resort
           </p>
         </header>
-        
+
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-8">
-          {optimisedOtherRooms.map((otherRoom, index) => {
-            // Use optimized image or fallback
-            const otherRoomImage = otherRoom.optimizedCardImg?.src || 
-                                   validateImageUrl(otherRoom.heroImage?.optimisedCard) || 
-                                   '/img/room-placeholder.jpg';
-            return (
-              <article 
-                class="group relative aspect-[4/5] overflow-hidden rounded-2xl border border-gray-800/50 hover:border-amber-400/50 transition-all duration-700 hover:scale-105 hover:shadow-2xl hover:shadow-amber-400/20"
-                role="listitem"
-              >
-                <a 
-                  href={`/rooms/${otherRoom.url}`}
-                  class="block w-full h-full focus:outline-none focus:ring-4 focus:ring-amber-400/50 rounded-2xl"
-                  aria-label={`View ${otherRoom.roomName} details`}
-                >
-                  <img
-                    src={otherRoomImage}
-                    alt={`${otherRoom.roomName} accommodation at Limban Resort in Tadoba`}
-                    class="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
-                    loading="lazy"
-                    decoding="async"
-                    width="400"
-                    height="500"
-                  />
-                  
-                  <!-- Enhanced gradient overlay -->
-                  <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent group-hover:from-black/70 group-hover:via-black/30 transition-all duration-500"></div>
-                  
-                  <!-- Enhanced content overlay -->
-                  <div class="absolute inset-0 flex flex-col justify-end p-5">
-                    <h3 class="font-serif italic text-xl md:text-lg text-white mb-2 group-hover:text-amber-300 transition-colors duration-300 line-clamp-2 group-hover:font-bold">
-                      {otherRoom.roomName}
-                    </h3>
-                    <p class="text-gray-300 text-sm md:text-sm group-hover:text-gray-100 transition-colors duration-300 line-clamp-3 mb-3">
-                      {otherRoom.shortDescription}
-                    </p>
-                    <div class="flex items-center justify-between">
-                      <div class="text-sm font-bold text-amber-400 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-y-2 group-hover:translate-y-0">
-                        From ₹{Number(otherRoom.basePrice || 0).toLocaleString()}
-                      </div>
-                      <div class="opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-x-2 group-hover:translate-x-0">
-                        <svg class="w-5 h-5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-                        </svg>
-                      </div>
+          {optimisedOtherRooms.map((otherRoom) => (
+            <article key={otherRoom.id} class="group relative aspect-[4/5] overflow-hidden rounded-2xl border border-gray-800/50 hover:border-amber-400/50 transition-all duration-700 hover:scale-105 hover:shadow-2xl hover:shadow-amber-400/20">
+              <a href={`/rooms/${otherRoom.url}`} class="block w-full h-full">
+                <img
+                  src={otherRoom.optimizedCardImg?.src || otherRoom.heroImage?.optimisedCard || "/img/room-placeholder.webp"}
+                  alt={`${otherRoom.roomName} accommodation at Limban Resort`}
+                  class="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                  loading="lazy"
+                />
+
+                <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent group-hover:from-black/70 group-hover:via-black/30 transition-all duration-500" />
+
+                <div class="absolute inset-0 flex flex-col justify-end p-5">
+                  <h3 class="font-serif italic text-xl text-white mb-2 group-hover:text-amber-300 transition-colors duration-300 line-clamp-2">
+                    {otherRoom.roomName}
+                  </h3>
+                  <p class="text-gray-300 text-sm mb-3 line-clamp-3 group-hover:text-gray-100 transition-colors">
+                    {otherRoom.shortDescription}
+                  </p>
+                  <div class="flex items-center justify-between">
+                    <div class="text-sm font-bold text-amber-400 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-y-2 group-hover:translate-y-0">
+                      From ₹{otherRoom.safePrice.toLocaleString()}
+                    </div>
+                    <div class="opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-x-2 group-hover:translate-x-0">
+                      <svg class="w-5 h-5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
+                      </svg>
                     </div>
                   </div>
-                  
-                  <!-- Enhanced glow effect -->
-                  <div class="absolute inset-0 rounded-2xl bg-gradient-to-br from-amber-500/0 to-orange-500/0 group-hover:from-amber-500/10 group-hover:to-orange-500/10 transition-all duration-700"></div>
-                </a>
-              </article>
-            );
-          })}
+                </div>
+                
+                <!-- 🎯 ENHANCED: Glow effect -->
+                <div class="absolute inset-0 rounded-2xl bg-gradient-to-br from-amber-500/0 to-orange-500/0 group-hover:from-amber-500/10 group-hover:to-orange-500/10 transition-all duration-700"></div>
+              </a>
+            </article>
+          ))}
         </div>
       </div>
     </section>
   </div>
+
   <SmartReserveButton
     formSelector="#reservation-form"
-    buttonText={`Reserve ${room.roomName}`} 
+    buttonText={`Reserve ${room.roomName}`}
     position="bottom-right"
     glowOnScroll={true}
   />
   <GalleryModal />
 </Layout>
+
+<style>
+  /* Performance optimizations */
+  .group {
+    will-change: transform;
+  }
+
+  .transition-transform {
+    will-change: transform;
+  }
+
+  /* Respect user motion preferences */
+  @media (prefers-reduced-motion: reduce) {
+    .transition-all,
+    .transition-transform,
+    .transition-colors,
+    .hover\:scale-105,
+    .hover\:scale-110,
+    .animate-pulse {
+      transition: none !important;
+      transform: none !important;
+      animation: none !important;
+    }
+  }
+</style>

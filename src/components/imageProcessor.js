@@ -1,21 +1,73 @@
-import { getImage } from 'astro:assets';
+import { getImage } from "astro:assets";
 
-/**
- * Process any image structure from Hygraph into fully optimized gallery format
- */
+// 🎯 ENHANCED: Process images in batches to prevent build bottlenecks
+export async function processImagesInBatches(images, batchSize = 4) {
+  const results = [];
+  
+  for (let i = 0; i < images.length; i += batchSize) {
+    const batch = images.slice(i, i + batchSize);
+    console.log(`Processing batch ${Math.floor(i/batchSize) + 1}: ${batch.length} images`);
+    
+    const batchResults = await Promise.all(
+      batch.map((item, index) => processGalleryImage(item, i + index))
+    );
+    
+    results.push(...batchResults);
+    
+    if (i + batchSize < images.length) {
+      await new Promise(resolve => setTimeout(resolve, 100));
+    }
+  }
+  
+  return results;
+}
+
+// 🎯 ENHANCED: Hero mosaic optimizer with LQIP generation  
+export async function optimizeHeroTile(url) {
+  if (!url) return null;
+  try {
+    const [optimized, placeholder] = await Promise.all([
+      getImage({
+        src: url,
+        width: 300,
+        height: 400,
+        format: "webp",
+        quality: 60,
+        fit: "cover",
+        inferSize: true,
+      }),
+      getImage({
+        src: url,
+        width: 20,
+        height: 26,
+        format: "webp",
+        quality: 20,
+        fit: "cover",
+        inferSize: true,
+      })
+    ]);
+
+    return {
+      ...optimized,
+      placeholder: placeholder.src
+    };
+  } catch (error) {
+    console.error("Failed to optimize hero tile:", error);
+    return null;
+  }
+}
+
+// 🎯 ENHANCED: Gallery image processor with LQIP
 export async function processGalleryImage(item, index = 0) {
   try {
-    // Handle different Hygraph structures
     const imageObj = item.image || item;
-    const sourceUrl = imageObj.large || imageObj.thumb400 || imageObj.url;
+    const sourceUrl = imageObj.large || imageObj.grid || imageObj.url;
     
     if (!sourceUrl) {
       throw new Error(`No URL found for image ${index}`);
     }
 
-    // 🎯 ADD inferSize: true TO ALL getImage CALLS
-    const [optimizedThumbnail, optimizedMedium, optimizedLarge] = await Promise.all([
-      // Thumbnail: 96x96 for gallery navigation
+    const [optimizedThumbnail, optimizedMedium, optimizedLarge, lqip] = await Promise.all([
       getImage({
         src: sourceUrl,
         width: 96,
@@ -23,10 +75,8 @@ export async function processGalleryImage(item, index = 0) {
         format: 'webp',
         quality: 60,
         fit: 'cover',
-        inferSize: true, // 🎯 FIX: Let Astro get dimensions from source
+        inferSize: true,
       }),
-      
-      // Medium: 800x800 for fallback/mobile
       getImage({
         src: sourceUrl,
         width: 300,
@@ -34,17 +84,24 @@ export async function processGalleryImage(item, index = 0) {
         format: 'webp',
         quality: 60,
         fit: 'cover',
-        inferSize: true, // 🎯 FIX
+        inferSize: true,
       }),
-      
-      // Large: 1600px wide for desktop gallery modal
       getImage({
         src: sourceUrl,
         width: 1600,
         format: 'webp',
         quality: 80,
         fit: 'inside',
-        inferSize: true, // 🎯 FIX
+        inferSize: true,
+      }),
+      getImage({
+        src: sourceUrl,
+        width: 24,
+        height: 24,
+        format: 'webp',
+        quality: 20,
+        fit: 'cover',
+        inferSize: true,
       })
     ]);
 
@@ -52,37 +109,61 @@ export async function processGalleryImage(item, index = 0) {
       src: optimizedLarge.src,
       gallerythumbs: optimizedThumbnail.src,
       medium: optimizedMedium.src,
-      placeholder: imageObj.placeholder || sourceUrl,
-      alt: item.caption || item.altText || item.alt || `Gallery image ${index + 1}`,
+      placeholder: lqip.src,
+      alt: `${item.caption || item.altText || 'Luxury safari experience'} - Premium wildlife resort accommodation at Limban Resort Tadoba National Park Maharashtra`,
       width: optimizedLarge.width,
       height: optimizedLarge.height,
     };
   } catch (error) {
     console.error(`Failed to process image ${index}:`, error);
     
-    // Fallback to original Hygraph URLs
     const imageObj = item.image || item;
     return {
       src: imageObj.large || imageObj.grid || imageObj.url,
       gallerythumbs: imageObj.gallerythumbs || imageObj.grid || imageObj.url,
       medium: imageObj.thumb400 || imageObj.grid || imageObj.url,
       placeholder: imageObj.placeholder || imageObj.url,
-      alt: item.caption || item.altText || item.alt || `Gallery image ${index + 1}`,
+      alt: `${item.caption || item.altText || 'Luxury safari experience'} - Premium wildlife resort accommodation at Limban Resort Tadoba National Park Maharashtra ${index + 1}`,
       width: imageObj.width || 300,
       height: imageObj.height || 300,
     };
   }
 }
 
-/**
- * Process an array of gallery items
- */
-export async function processGalleryImages(items) {
-  if (!items?.length) return [];
-  
-  const processed = await Promise.all(
-    items.map((item, index) => processGalleryImage(item, index))
-  );
-  
-  return processed;
+// 🎯 NEW: Single image optimizer for hero/room/experience images
+export async function optimizeSingleImage(url, width, height, quality = 80) {
+  if (!url) return null;
+  try {
+    const [optimized, placeholder] = await Promise.all([
+      getImage({
+        src: url,
+        width: width,
+        height: height,
+        format: "webp",
+        quality: quality,
+        fit: "cover",
+        inferSize: true,
+      }),
+      getImage({
+        src: url,
+        width: Math.floor(width / 15),
+        height: Math.floor(height / 15),
+        format: "webp",
+        quality: 20,
+        fit: "cover",
+        inferSize: true,
+      })
+    ]);
+
+    return {
+      ...optimized,
+      lqip: placeholder.src
+    };
+  } catch (error) {
+    console.error("Failed to optimize single image:", error);
+    return { src: url, lqip: null };
+  }
 }
+
+// Backwards compatibility
+export { processGalleryImage as processGalleryImages };

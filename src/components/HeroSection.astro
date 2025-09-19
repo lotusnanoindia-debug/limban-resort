@@ -1,336 +1,341 @@
 ---
 const { heroes } = Astro.props;
-// NO generateResponsiveSrc function needed - use API variants directly!
 ---
 
-<section class="h-screen relative overflow-hidden">
-  <!-- Loading Overlay -->
+<section class="h-screen relative overflow-hidden" role="banner" aria-label="Hero carousel">
+  <!-- 🎯 SIMPLIFIED: Single loading indicator -->
   <div
     id="loading-overlay"
-    class="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 opacity-0 invisible transition-all duration-300"
+    class="fixed inset-0 bg-black/90 backdrop-blur-sm flex items-center justify-center z-50 opacity-0 invisible transition-opacity duration-300"
+    role="status"
+    aria-label="Loading content"
   >
     <div class="text-center">
-      <div
-        class="w-12 h-12 border-4 border-amber-400 border-t-transparent rounded-full animate-spin mx-auto mb-4"
-      >
-      </div>
-      <p class="text-white text-lg font-light">Loading image...</p>
+      <div class="w-8 h-8 border-2 border-amber-400 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+      <p class="text-white font-light">Loading...</p>
     </div>
   </div>
 
   <div id="hero-carousel" class="h-full relative">
-    {
-      heroes.map((hero, index) => (
-        <div
-          class="hero-slide absolute inset-0 w-full h-full"
-          data-slide={index}
-          style={
-            index === 0 ? "opacity: 1; z-index: 2;" : "opacity: 0; z-index: 1;"
-          }
-        >
-          {/* Use GraphCMS optimized variants directly - NO fallbacks to original URL */}
-          {index === 0 ? (
+    {heroes.map((hero, index) => (
+      <div
+        class="hero-slide absolute inset-0 w-full h-full"
+        data-slide={index}
+        style={index === 0 ? "opacity: 1; z-index: 2;" : "opacity: 0; z-index: 1;"}
+      >
+        {/* 🎯 CRITICAL: Optimized image loading strategy */}
+        {index === 0 ? (
+          // First slide: Immediate load with LQIP
+          <div class="absolute inset-0 w-full h-full">
+            {/* LQIP background for instant render */}
+            {hero.optimizedImage?.lqip && (
+              <img
+                src={hero.optimizedImage.lqip}
+                alt=""
+                class="absolute inset-0 w-full h-full object-cover blur-sm scale-105"
+                aria-hidden="true"
+              />
+            )}
+            
+            {/* High-quality hero image */}
             <picture class="absolute inset-0 w-full h-full">
               <source
                 srcset={hero.backgroundImage?.hero4K}
-                type="image/webp"
                 media="(min-width: 1600px)"
+                type="image/webp"
               />
               <source
                 srcset={hero.backgroundImage?.heroDesktop}
-                type="image/webp"
                 media="(min-width: 1200px)"
+                type="image/webp"
               />
               <source
                 srcset={hero.backgroundImage?.heroTablet}
-                type="image/webp"
                 media="(min-width: 768px)"
+                type="image/webp"
               />
               <img
-                src={hero.backgroundImage?.heroMobile}
-                alt={hero.slideTitle}
-                class="w-full h-full object-cover"
+                src={hero.optimizedImage?.src || hero.backgroundImage?.heroMobile}
+                alt={`${hero.slideTitle} - Limban Resort luxury safari experience`}
+                class="w-full h-full object-cover transition-opacity duration-700"
                 loading="eager"
                 fetchpriority="high"
+                decoding="sync"
               />
             </picture>
-          ) : (
+          </div>
+        ) : (
+          // Other slides: Lazy load
+          <div class="absolute inset-0 w-full h-full">
             <picture class="absolute inset-0 w-full h-full">
               <source
                 data-srcset={hero.backgroundImage?.hero4K}
-                type="image/webp"
                 media="(min-width: 1600px)"
+                type="image/webp"
               />
               <source
                 data-srcset={hero.backgroundImage?.heroDesktop}
-                type="image/webp"
                 media="(min-width: 1200px)"
+                type="image/webp"
               />
               <source
                 data-srcset={hero.backgroundImage?.heroTablet}
-                type="image/webp"
                 media="(min-width: 768px)"
+                type="image/webp"
               />
               <img
-                src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='50'%3E%3Crect width='100%25' height='100%25' fill='%23000000'/%3E%3C/svg%3E"
+                src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='9'%3E%3Crect width='100%25' height='100%25' fill='%23111827'/%3E%3C/svg%3E"
                 data-src={hero.backgroundImage?.heroMobile}
-                alt={hero.slideTitle}
+                alt={`${hero.slideTitle} - Limban Resort luxury safari experience`}
                 class="w-full h-full object-cover lazy-image"
+                loading="lazy"
+                decoding="async"
               />
             </picture>
-          )}
+          </div>
+        )}
 
-          <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-black/20" />
-          <div class="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/60" />
+        <!-- 🎯 SIMPLIFIED: Gradient overlays -->
+        <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent"></div>
 
-          <div class="relative h-full flex items-center justify-center text-center z-20">
-            <div class="max-w-4xl mx-auto px-8">
-              <h1 class="font-serif italic text-6xl sm:text-6xl md:text-7xl lg:text-8xl text-white mb-6 sm:mb-8 leading-[0.95] tracking-tight">
-                {hero.slideTitle}
-              </h1>
-              {hero.subtitle && (
-                <h2 class="text-lg sm:text-xl md:text-2xl lg:text-3xl text-white/90 font-light mb-12 sm:mb-16 leading-relaxed max-w-3xl mx-auto tracking-wide">
-                  {hero.subtitle}
-                </h2>
-              )}
-              {hero.ctaText && (
-                <a
-                  href={hero.ctaLink || "#"}
-                  class="cta-button group relative inline-block rounded-2xl border border-amber-500/30 bg-amber-300/30 backdrop-blur-xl px-12 py-6 text-xl font-semibold tracking-wide text-amber-50 shadow-[0_8px_24px_rgba(217,119,6,0.25)] transition-all duration-700 ease-out overflow-hidden z-40 cursor-pointer"
-                >
-                  <span class="absolute inset-0 -top-[2px] -left-full h-[102%] w-1/2 bg-gradient-to-r from-transparent via-white/20 to-transparent skew-x-[-20deg] transition-all duration-1000 ease-out group-hover:left-full opacity-0 group-hover:opacity-100" />
-                  <span class="relative z-10">{hero.ctaText}</span>
-                </a>
-              )}
-            </div>
+        <!-- 🎯 OPTIMIZED: Content with better typography hierarchy -->
+        <div class="relative h-full flex items-center justify-center text-center z-20">
+          <div class="max-w-5xl mx-auto px-6">
+            <h1 class="font-serif italic text-4xl sm:text-6xl lg:text-8xl text-white mb-6 leading-tight tracking-tight">
+              {hero.slideTitle}
+            </h1>
+            {hero.subtitle && (
+              <p class="text-lg sm:text-xl lg:text-2xl text-gray-100 font-light mb-12 leading-relaxed max-w-4xl mx-auto">
+                {hero.subtitle}
+              </p>
+            )}
+            {hero.ctaText && (
+              <a
+                href={hero.ctaLink || "/rooms"}
+                class="inline-flex items-center px-8 py-4 bg-amber-400/90 hover:bg-amber-400 text-gray-900 font-semibold rounded-full transition-all duration-300 hover:scale-105 focus:outline-none focus:ring-4 focus:ring-amber-400/50 shadow-xl"
+              >
+                {hero.ctaText}
+                <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path>
+                </svg>
+              </a>
+            )}
           </div>
         </div>
-      ))
-    }
+      </div>
+    ))}
   </div>
 
-  <!-- Dot Navigation -->
-  <div class="absolute bottom-8 left-1/2 transform -translate-x-1/2 z-30">
-    <div class="flex space-x-3">
-      {
-        heroes.map((_, index) => (
+  <!-- 🎯 ACCESSIBLE: Navigation dots -->
+  {heroes.length > 1 && (
+    <div class="absolute bottom-8 left-1/2 transform -translate-x-1/2 z-30" role="tablist" aria-label="Slide navigation">
+      <div class="flex space-x-3">
+        {heroes.map((_, index) => (
           <button
-            class={`dot-indicator w-3 h-3 rounded-full transition-all duration-300 cursor-pointer ${index === 0 ? "bg-amber-400 scale-125" : "bg-white/40 hover:bg-white/70 hover:scale-110"}`}
+            class={`dot-indicator w-3 h-3 rounded-full transition-all duration-300 ${
+              index === 0 ? "bg-amber-400 scale-125" : "bg-white/40 hover:bg-white/70 hover:scale-110"
+            }`}
             data-slide={index}
+            role="tab"
+            aria-selected={index === 0}
+            aria-label={`Go to slide ${index + 1}`}
           />
-        ))
-      }
+        ))}
+      </div>
     </div>
-  </div>
+  )}
 </section>
 
 <style>
+  /* 🎯 PERFORMANCE: Optimized transitions */
   .hero-slide {
-    transition: opacity 2s ease-in-out;
+    transition: opacity 1.5s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
   .hero-slide img {
-    transform: scale(1.05);
-    transition: transform 15s ease-out;
+    transform: scale(1.02);
+    transition: transform 20s ease-out, opacity 0.7s ease-in-out;
   }
 
   .lazy-image {
-    filter: blur(5px);
-    transition: filter 0.5s ease-in-out;
+    filter: blur(8px);
+    transition: filter 0.5s ease-in-out, opacity 0.5s ease-in-out;
   }
 
   .lazy-image.loaded {
     filter: none;
   }
 
+  /* 🎯 ACCESSIBILITY: Focus states */
+  .dot-indicator:focus {
+    outline: 2px solid #fbbf24;
+    outline-offset: 2px;
+  }
+
+  /* 🎯 UX: Loading overlay animation */
   .loading-overlay-visible {
     opacity: 1 !important;
     visibility: visible !important;
   }
-
-  @media (max-width: 767px) {
-    .carousel-nav {
-      opacity: 1;
-    }
-  }
 </style>
 
 <script>
-  let currentSlide = 0;
-  let autoAdvanceInterval;
-  let loadedImages = new Set([0]);
-  const slides = document.querySelectorAll(".hero-slide");
-  const dots = document.querySelectorAll(".dot-indicator");
-  const totalSlides = slides.length;
-  const loadingOverlay = document.getElementById("loading-overlay");
+  class HeroCarousel {
+    constructor() {
+      this.currentSlide = 0;
+      this.autoAdvanceInterval = null;
+      this.loadedImages = new Set([0]);
+      this.slides = document.querySelectorAll(".hero-slide");
+      this.dots = document.querySelectorAll(".dot-indicator");
+      this.totalSlides = this.slides.length;
+      this.loadingOverlay = document.getElementById("loading-overlay");
+      
+      this.init();
+    }
 
-  function lazyLoadImage(slideIndex, priority = "low") {
-    return new Promise((resolve, reject) => {
-      if (loadedImages.has(slideIndex)) {
-        resolve();
-        return;
-      }
+    init() {
+      if (this.totalSlides <= 1) return;
+      
+      this.bindEvents();
+      this.startProgressiveLoading();
+      this.startAutoAdvance();
+    }
 
-      const slide = slides[slideIndex];
-      if (!slide) {
-        reject(new Error("Slide not found"));
-        return;
-      }
+    // 🎯 OPTIMIZED: Efficient image loading
+    async loadImage(slideIndex) {
+      if (this.loadedImages.has(slideIndex)) return true;
+
+      const slide = this.slides[slideIndex];
+      if (!slide) return false;
 
       const img = slide.querySelector(".lazy-image");
       const sources = slide.querySelectorAll("source[data-srcset]");
 
-      if (!img || !img.dataset.src) {
-        resolve();
-        return;
+      if (!img?.dataset.src) return true;
+
+      return new Promise((resolve) => {
+        // Load responsive sources
+        sources.forEach(source => {
+          if (source.dataset.srcset) {
+            source.srcset = source.dataset.srcset;
+            delete source.dataset.srcset;
+          }
+        });
+
+        img.onload = () => {
+          img.classList.add("loaded");
+          delete img.dataset.src;
+          this.loadedImages.add(slideIndex);
+          resolve(true);
+        };
+
+        img.onerror = () => resolve(false);
+        img.src = img.dataset.src;
+      });
+    }
+
+    showLoadingOverlay(show = true) {
+      if (!this.loadingOverlay) return;
+      this.loadingOverlay.classList.toggle("loading-overlay-visible", show);
+    }
+
+    startProgressiveLoading() {
+      // Load next slide after 2 seconds
+      if (this.totalSlides > 1) {
+        setTimeout(() => this.loadImage(1), 2000);
       }
 
-      // Load sources - these are already optimized by GraphCMS
-      sources.forEach((source) => {
-        if (source.dataset.srcset) {
-          source.srcset = source.dataset.srcset;
-          delete source.dataset.srcset;
-        }
+      // Load remaining slides conservatively
+      if (this.totalSlides > 2) {
+        setTimeout(() => {
+          for (let i = 2; i < this.totalSlides; i++) {
+            setTimeout(() => this.loadImage(i), (i - 2) * 3000);
+          }
+        }, 5000);
+      }
+    }
+
+    async goToSlide(slideIndex, userInitiated = false) {
+      if (slideIndex === this.currentSlide || slideIndex >= this.totalSlides) return;
+
+      // Handle user-initiated navigation
+      if (userInitiated && !this.loadedImages.has(slideIndex)) {
+        this.showLoadingOverlay(true);
+        await this.loadImage(slideIndex);
+        this.showLoadingOverlay(false);
+      }
+
+      // Smooth transition
+      this.slides[slideIndex].style.zIndex = "2";
+      this.slides[slideIndex].style.opacity = "1";
+      this.slides[this.currentSlide].style.opacity = "0";
+
+      // Update dots
+      this.dots[this.currentSlide]?.classList.remove("bg-amber-400", "scale-125");
+      this.dots[this.currentSlide]?.classList.add("bg-white/40");
+      this.dots[this.currentSlide]?.setAttribute("aria-selected", "false");
+      
+      this.dots[slideIndex]?.classList.remove("bg-white/40");
+      this.dots[slideIndex]?.classList.add("bg-amber-400", "scale-125");
+      this.dots[slideIndex]?.setAttribute("aria-selected", "true");
+
+      // Update z-index after transition
+      setTimeout(() => {
+        this.slides[this.currentSlide].style.zIndex = "1";
+        this.currentSlide = slideIndex;
+      }, 1500);
+    }
+
+    nextSlide() {
+      const nextIndex = (this.currentSlide + 1) % this.totalSlides;
+      this.goToSlide(nextIndex, false);
+    }
+
+    startAutoAdvance() {
+      if (this.totalSlides <= 1) return;
+      this.autoAdvanceInterval = setInterval(() => this.nextSlide(), 8000);
+    }
+
+    stopAutoAdvance() {
+      if (this.autoAdvanceInterval) {
+        clearInterval(this.autoAdvanceInterval);
+        this.autoAdvanceInterval = null;
+      }
+    }
+
+    bindEvents() {
+      // Dot navigation
+      this.dots.forEach((dot, index) => {
+        dot.addEventListener("click", () => {
+          if (index !== this.currentSlide) {
+            this.stopAutoAdvance();
+            this.goToSlide(index, true);
+            this.startAutoAdvance();
+          }
+        });
+
+        // Keyboard navigation
+        dot.addEventListener("keydown", (e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            dot.click();
+          }
+        });
       });
 
-      // Preload the mobile version (smallest)
-      const preloadImg = new Image();
-
-      if (priority === "high") {
-        preloadImg.fetchPriority = "high";
-      }
-
-      preloadImg.onload = () => {
-        img.src = img.dataset.src;
-        img.classList.add("loaded");
-        delete img.dataset.src;
-        loadedImages.add(slideIndex);
-        resolve();
-      };
-
-      preloadImg.onerror = (error) => {
-        console.error(`❌ Failed to load slide ${slideIndex}`);
-        reject(error);
-      };
-
-      preloadImg.src = img.dataset.src;
-    });
-  }
-
-  function showLoadingOverlay(show = true) {
-    if (!loadingOverlay) return;
-
-    if (show) {
-      loadingOverlay.classList.add("loading-overlay-visible");
-    } else {
-      loadingOverlay.classList.remove("loading-overlay-visible");
+      // Pause on hover/focus
+      const carousel = document.getElementById("hero-carousel");
+      carousel?.addEventListener("mouseenter", () => this.stopAutoAdvance());
+      carousel?.addEventListener("mouseleave", () => this.startAutoAdvance());
+      carousel?.addEventListener("focusin", () => this.stopAutoAdvance());
+      carousel?.addEventListener("focusout", () => this.startAutoAdvance());
     }
   }
 
-  function initializeProgressiveLoading() {
-    // Load next slide after 1 second
-    if (totalSlides > 1) {
-      setTimeout(() => {
-        lazyLoadImage(1, "high").then(() => {
-          console.log("!");
-        });
-      }, 1000);
-    }
-
-    // Load others very conservatively
-    setTimeout(() => {
-      for (let i = 2; i < totalSlides; i++) {
-        setTimeout(
-          () => {
-            lazyLoadImage(i, "low");
-          },
-          (i - 2) * 3000
-        ); // 3 second intervals
-      }
-    }, 5000);
+  // Initialize when DOM is ready
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", () => new HeroCarousel());
+  } else {
+    new HeroCarousel();
   }
-
-  async function goToSlide(slideIndex, userInitiated = false) {
-    if (slideIndex === currentSlide) return;
-
-    if (userInitiated && !loadedImages.has(slideIndex)) {
-      showLoadingOverlay(true);
-
-      try {
-        await lazyLoadImage(slideIndex, "high");
-      } catch (error) {
-        console.error("Failed to load image:", error);
-        showLoadingOverlay(false);
-        return;
-      }
-
-      showLoadingOverlay(false);
-    }
-
-    // Crossfade animation
-    slides[slideIndex].style.zIndex = "2";
-    slides[slideIndex].style.opacity = "0";
-    slides[slideIndex].offsetHeight;
-    slides[slideIndex].style.opacity = "1";
-    slides[currentSlide].style.opacity = "0";
-
-    // Update dots
-    dots[currentSlide].classList.remove("bg-amber-400", "scale-125");
-    dots[currentSlide].classList.add("bg-white/40");
-    dots[slideIndex].classList.remove("bg-white/40");
-    dots[slideIndex].classList.add("bg-amber-400", "scale-125");
-
-    setTimeout(() => {
-      slides[currentSlide].style.zIndex = "1";
-      currentSlide = slideIndex;
-    }, 2000);
-  }
-
-  function showNextSlide() {
-    const nextIndex = (currentSlide + 1) % totalSlides;
-    goToSlide(nextIndex, false);
-  }
-
-  function showPrevSlide() {
-    const prevIndex = (currentSlide - 1 + totalSlides) % totalSlides;
-    goToSlide(prevIndex, false);
-  }
-
-  function startAutoAdvance() {
-    if (autoAdvanceInterval) clearInterval(autoAdvanceInterval);
-    if (totalSlides > 1) {
-      autoAdvanceInterval = setInterval(showNextSlide, 8000);
-    }
-  }
-
-  // Event listeners
-  document.getElementById("prev-btn")?.addEventListener("click", (e) => {
-    e.stopPropagation();
-    showPrevSlide();
-    clearInterval(autoAdvanceInterval);
-    startAutoAdvance();
-  });
-
-  document.getElementById("next-btn")?.addEventListener("click", (e) => {
-    e.stopPropagation();
-    showNextSlide();
-    clearInterval(autoAdvanceInterval);
-    startAutoAdvance();
-  });
-
-  dots.forEach((dot, index) => {
-    dot.addEventListener("click", (e) => {
-      e.stopPropagation();
-      if (index !== currentSlide) {
-        goToSlide(index, true);
-        clearInterval(autoAdvanceInterval);
-        startAutoAdvance();
-      }
-    });
-  });
-
-  window.addEventListener("load", () => {
-    initializeProgressiveLoading();
-    startAutoAdvance();
-  });
 </script>

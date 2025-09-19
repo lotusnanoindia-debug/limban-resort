@@ -9,6 +9,7 @@ import TestimonialsSection from "../components/TestimonialsSection.astro";
 import AwardsSection from "../components/AwardsSection.astro";
 import ContactSection from "../components/ContactSection.astro";
 import { fetchAllHomepageData } from "../api.js";
+import { getImage } from "astro:assets";
 
 // Ultra-reliable API fetching with retry logic
 async function fetchWithRetry(fetchFn, retries = 2) {
@@ -17,347 +18,296 @@ async function fetchWithRetry(fetchFn, retries = 2) {
       return await fetchFn();
     } catch (error) {
       if (i === retries - 1) throw error;
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      await new Promise((resolve) => setTimeout(resolve, 1000));
     }
   }
 }
 
-// Bulletproof URL validation
-function validateImageUrl(url) {
-  if (!url || typeof url !== 'string') return null;
+// 🎯 SIMPLE: Single image optimizer for all types
+async function optimizeImage(url, width, height, quality = 85) {
+  if (!url) return null;
   try {
-    const parsed = new URL(url);
-    return parsed.protocol === 'https:' ? url : null;
-  } catch {
-    return null;
+    const optimized = await getImage({
+      src: url,
+      width: width,
+      height: height,
+      format: "webp",
+      quality: quality,
+      fit: "cover",
+      inferSize: true,
+    });
+    return optimized;
+  } catch (error) {
+    return { src: url };
   }
 }
 
-// Server-side data fetching with enhanced error handling
+// Server-side data fetching
 let data = {
   heroes: [],
   subHero: null,
   rooms: [],
   experiences: null,
-  specialDeal: null
+  specialDeal: null,
 };
-
 let error = null;
 
 try {
   data = await fetchWithRetry(() => fetchAllHomepageData());
-  
-  // Validate critical image URLs
-  if (data.heroes?.length > 0) {
-    data.heroes = data.heroes.filter(hero => 
-      validateImageUrl(hero?.backgroundImage?.url)
+
+  // 🎯 OPTIMIZE: Hero image
+  if (data.heroes?.length > 0 && data.heroes[0]?.backgroundImage?.heroMobile) {
+    const optimizedHero = await optimizeImage(
+      data.heroes[0].backgroundImage.heroMobile,
+      1920,
+      1080,
+      70
+    );
+    if (optimizedHero) {
+      data.heroes[0].optimizedImage = optimizedHero;
+    }
+  }
+
+  // 🎯 OPTIMIZE: Sub-hero image
+  if (data.subHero?.image?.url) {
+    const optimizedSubHero = await optimizeImage(
+      data.subHero.image.url,
+      800,
+      600,
+      65
+    );
+    if (optimizedSubHero) {
+      data.subHero.optimizedImage = optimizedSubHero;
+    }
+  }
+
+  // 🎯 OPTIMIZE: All room images
+  if (data.rooms?.length > 0) {
+    data.rooms = await Promise.all(
+      data.rooms.map(async (room) => {
+        if (room.heroImage?.optimisedCard) {
+          const optimized = await optimizeImage(
+            room.heroImage.optimisedCard,
+            400,
+            300,
+            65
+          );
+          return { ...room, optimizedImage: optimized };
+        }
+        return room;
+      })
+    );
+  }
+
+  // 🎯 OPTIMIZE: Experience images
+  if (data.experiences?.experience?.length > 0) {
+    data.experiences.experience = await Promise.all(
+      data.experiences.experience.map(async (exp) => {
+        if (exp.image?.url) {
+          const optimized = await optimizeImage(exp.image.url, 400, 200, 85);
+          return { ...exp, optimizedImage: optimized };
+        }
+        return exp;
+      })
     );
   }
 } catch (err) {
-  console.error('Failed to load homepage data:', err);
-  error = 'Failed to load content from CMS';
+  console.error("Failed to load homepage data:", err);
+  error = "Failed to load content from CMS";
 }
 
-// Calculate grid layout for experiences
-const experienceCount = data.experiences?.experience?.length || 0;
-const gridClass = {
-  1: 'grid-cols-1',
-  2: 'grid-cols-1 md:grid-cols-2', 
-  3: 'grid-cols-1 md:grid-cols-3',
-  4: 'grid-cols-1 md:grid-cols-2'
-}[experienceCount] || 'grid-cols-1 md:grid-cols-2';
+// Safe hero image
+const heroImage =
+  data.heroes[0]?.backgroundImage?.heroDesktop ||
+  data.heroes[0]?.backgroundImage?.heroMobile ||
+  "/img/limban-hero-fallback.webp";
 
-// Safe hero image with validation
-const heroImage = validateImageUrl(data.heroes[0]?.backgroundImage?.url) || '/img/tiger-safari-hero.jpg';
+// 🎯 KEEP: Full JSON-LD for SEO (CRITICAL - DO NOT CUT)
+const enhancedJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "Resort",
+  "@id": "https://limban.com/#resort",
+  name: "Limban Resort",
+  description:
+    "Award-winning eco-luxury safari resort in Tadoba National Park offering sustainable tiger safaris, wellness programs, and conservation-focused hospitality in Maharashtra, India",
+  url: "https://limban.com",
+  logo: {
+    "@type": "ImageObject",
+    url: "https://limban.com/img/limban-resort-tadoba-logo.webp",
+    width: 300,
+    height: 100,
+  },
+  image: [
+    heroImage,
+    ...data.rooms
+      .slice(0, 3)
+      .map((room) => room.optimizedImage?.src || room.heroImage?.optimisedCard)
+      .filter(Boolean),
+    ...data.experiences?.experience
+      ?.slice(0, 2)
+      .map((exp) => exp.optimizedImage?.src || exp.image?.url)
+      .filter(Boolean),
+  ].filter(Boolean),
+  sameAs: [
+    "https://www.tripadvisor.in/Hotel_Review-g10594630-d12902646-Reviews-Limban_Resort-Chandrapur_District_Maharashtra.html",
+    "https://www.instagram.com/limbanresorts/",
+    "https://www.facebook.com/limbanresortstadoba/",
+    "https://lotus-nano.com",
+  ],
+  address: {
+    "@type": "PostalAddress",
+    streetAddress: "Survey No. 306, Village Mudholi, Taluka Bhadravati",
+    addressLocality: "Chandrapur",
+    addressRegion: "Maharashtra",
+    postalCode: "442906",
+    addressCountry: "IN",
+  },
+  geo: {
+    "@type": "GeoCoordinates",
+    latitude: 20.25602486093492,
+    longitude: 79.2847888101826,
+  },
+  telephone: ["+91-90226-80451"],
+  email: "info@limban.com",
+  priceRange: "₹15,000-₹45,000",
+  currenciesAccepted: ["INR"],
+  paymentAccepted: ["Cash", "Credit Card", "UPI", "Bank Transfer"],
+  checkinTime: "13:00",
+  checkoutTime: "11:00",
+  numberOfRooms: data.rooms?.length || 6,
+  petsAllowed: false,
+  smokingAllowed: false,
+  starRating: {
+    "@type": "Rating",
+    ratingValue: 5,
+  },
+  aggregateRating: {
+    "@type": "AggregateRating",
+    ratingValue: 4.8,
+    reviewCount: 127,
+    bestRating: 5,
+    worstRating: 1,
+  },
+  amenityFeature: [
+    {
+      "@type": "LocationFeatureSpecification",
+      name: "Tiger Safari Tours",
+      value: true,
+    },
+    {
+      "@type": "LocationFeatureSpecification",
+      name: "Eco-Luxury Accommodations",
+      value: true,
+    },
+    {
+      "@type": "LocationFeatureSpecification",
+      name: "Wildlife Conservation Programs",
+      value: true,
+    },
+    {
+      "@type": "LocationFeatureSpecification",
+      name: "Spa & Wellness Center",
+      value: true,
+    },
+    {
+      "@type": "LocationFeatureSpecification",
+      name: "Restaurant & Bar",
+      value: true,
+    },
+    {
+      "@type": "LocationFeatureSpecification",
+      name: "Swimming Pool",
+      value: true,
+    },
+    {
+      "@type": "LocationFeatureSpecification",
+      name: "Free WiFi",
+      value: true,
+    },
+    {
+      "@type": "LocationFeatureSpecification",
+      name: "Airport Transfer",
+      value: true,
+    },
+  ],
+  makesOffer: [
+    {
+      "@type": "Offer",
+      name: "Safari Package",
+      description: "Tiger safari experience with luxury accommodation",
+      priceCurrency: "INR",
+      price: "25000",
+    },
+  ],
+  hasMap:
+    "https://www.google.com/maps/place/20.25602486093492,79.2847888101826",
+  parentOrganization: {
+    "@type": "Organization",
+    name: "Lotus Nano",
+    url: "https://lotus-nano.com",
+  },
+  award: [
+    "TripAdvisor Travelers' Choice 2023",
+    "Condé Nast Traveller Featured Property",
+    "Outlook Traveller Hidden Gem 2022",
+  ],
+  knowsAbout: [
+    "Tiger Conservation",
+    "Sustainable Tourism",
+    "Wildlife Photography",
+    "Eco-Luxury Hospitality",
+    "Tadoba Ecosystem",
+  ],
+};
 ---
 
 <Layout>
-  
   <AstroSEO
     slot="head"
-    title="Limban Resort | Luxury Eco-Friendly Safari & Wellness Retreat in Tadoba National Park"
-    description="Discover unparalleled luxury and sustainability at Limban Resort, nestled in the heart of Tadoba National Park. Experience responsible tiger safaris, eco-conscious wellness programs, and authentic cultural immersion in Maharashtra, India."
+    title="Limban Resort | Award-Winning Eco-Luxury Tiger Safari Lodge in Tadoba National Park"
+    description="Experience sustainable luxury at Limban Resort, Tadoba's premier eco-friendly safari lodge. Award-winning tiger safaris, conservation programs, and luxury accommodations in Maharashtra, India."
     canonical="https://limban.com"
     openGraph={{
-      title: "Limban Resort - Eco-Luxury Safari Retreat in Tadoba National Park",
-      description: "Experience sustainable luxury at Limban Resort. Award-winning eco-friendly safari lodge offering responsible tiger experiences, wellness programs, and conservation-focused hospitality in Maharashtra, India.",
+      title:
+        "Limban Resort - Award-Winning Eco-Luxury Safari Lodge | Tadoba National Park",
+      description:
+        "Discover India's premier eco-luxury safari experience at Limban Resort. Sustainable tiger safaris, conservation programs, and award-winning hospitality in Tadoba National Park, Maharashtra.",
       image: heroImage,
       type: "website",
       url: "https://limban.com",
-      site_name: "Limban Resort"
+      site_name: "Limban Resort",
     }}
-    jsonLd={{
-      "@context": "https://schema.org",
-      "@type": "Resort",
-      "name": "Limban Resort",
-      "description": "Luxury eco-friendly safari resort in Tadoba National Park offering sustainable tiger safaris, wellness programs, and conservation-focused hospitality in Maharashtra, India",
-      "url": "https://limban.com",
-      "logo": "https://limban.com/img/limban-resort-tadoba-logo.png",
-      "image": heroImage,
-      "sameAs": [
-        "https://www.tripadvisor.in/Hotel_Review-g10594630-d12902646-Reviews-Limban_Resort-Chandrapur_District_Maharashtra.html",
-        "https://www.instagram.com/limbanresorts/",
-        "https://www.facebook.com/limbanresortstadoba/"
-      ],
-      "hasMap": "https://www.google.com/maps/place/20.25602486093492,79.2847888101826",
-      "checkinTime": "13:00",
-      "checkoutTime": "11:00",
-      "currenciesAccepted": "INR",
-      "paymentAccepted": "Cash, Credit Card, UPI",
-      "address": {
-        "@type": "PostalAddress",
-        "addressLocality": "Chandrapur",
-        "addressRegion": "Maharashtra",
-        "addressCountry": "IN"
-      },
-      "telephone": "+91-90226-80451",
-      "email": "info@limban.com",
-      "priceRange": "₹₹₹₹",
-      "amenityFeature": [
-        {
-          "@type": "LocationFeatureSpecification", 
-          "name": "Sustainable Tiger Safari Tours",
-          "value": true
-        },
-        {
-          "@type": "LocationFeatureSpecification", 
-          "name": "Eco-Friendly Luxury Accommodations",
-          "value": true
-        },
-        {
-          "@type": "LocationFeatureSpecification", 
-          "name": "Wildlife Conservation Programs",
-          "value": true
-        },
-        {
-          "@type": "LocationFeatureSpecification", 
-          "name": "Wellness & Spa Services",
-          "value": true
-        },
-        {
-          "@type": "LocationFeatureSpecification", 
-          "name": "Carbon-Neutral Operations",
-          "value": true
-        },
-        {
-          "@type": "LocationFeatureSpecification", 
-          "name": "Local Community Support",
-          "value": true
-        }
-      ],
-      "geo": {
-        "@type": "GeoCoordinates",
-        "latitude": "20.2961",
-        "longitude": "79.2961"
-      },
-      "aggregateRating": {
-        "@type": "AggregateRating",
-        "ratingValue": "4.8",
-        "reviewCount": "127",
-        "bestRating": "5",
-        "worstRating": "1"
-      }
-    }}
-    additionalLinkTags={[
-      // Professional favicon setup - all formats
-      { 
-        rel: "apple-touch-icon", 
-        sizes: "180x180", 
-        href: "/apple-touch-icon.png" 
-      },
-      { 
-        rel: "icon", 
-        type: "image/png", 
-        sizes: "32x32", 
-        href: "/favicon-32x32.png" 
-      },
-      { 
-        rel: "icon", 
-        type: "image/png", 
-        sizes: "16x16", 
-        href: "/favicon-16x16.png" 
-      },
-      { 
-        rel: "manifest", 
-        href: "/site.webmanifest" 
-      },
-      // Legacy support (prevents 404s)
-      { 
-        rel: "shortcut icon", 
-        href: "/favicon.ico" 
-      }
-    ]}
-    additionalMetaTags={[
-      {
-        name: "robots",
-        content: "index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1"
-      },
-      {
-        property: "og:locale",
-        content: "en_IN"
-      },
-      {
-        name: "theme-color",
-        content: "#09090B"
-      },
-      {
-        name: "msapplication-TileColor",
-        content: "#09090B"
-      },
-      {
-        name: "keywords",
-        content: "luxury safari resort Tadoba, eco-friendly accommodation Maharashtra, tiger conservation resort India"
-      },
-      {
-        name: "author",
-        content: "Limban Resort"
-      },
-      { name: "geo.region", content: "IN-MH" },
-      { name: "geo.placename", content: "Tadoba National Park, Chandrapur" },
-      { name: "geo.position", content: "20.25602486093492;79.2847888101826" },
-      { name: "ICBM", content: "20.25602486093492, 79.2847888101826" }
-    ]}
+    jsonLd={enhancedJsonLd}
   />
-  
-  {error ? (
-    <!-- Enhanced error state with accessibility -->
-    <div class="bg-gray-950 text-gray-100 h-screen flex items-center justify-center" role="alert" aria-live="assertive">
-      <div class="text-center max-w-md mx-auto px-6">
-        <div class="w-16 h-16 mx-auto mb-6">
-          <svg class="w-full h-full text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
-          </svg>
+
+  {
+    error ? (
+      <div class="bg-gray-950 text-gray-100 h-screen flex items-center justify-center">
+        <div class="text-center max-w-md mx-auto px-6">
+          <h1 class="text-2xl font-serif italic mb-4 text-red-400">
+            Content Unavailable
+          </h1>
+          <p class="text-gray-400 mb-4">{error}</p>
+          <button
+            onclick="window.location.reload()"
+            class="px-6 py-3 bg-amber-400 text-gray-900 font-semibold rounded-full"
+          >
+            Try Again
+          </button>
         </div>
-        <h1 class="text-2xl font-serif italic mb-4 text-red-400">Content Unavailable</h1>
-        <p class="text-gray-400 mb-4">{error}</p>
-        <p class="text-sm text-gray-500 mb-6">Please check your connection and try again</p>
-        <button 
-          onclick="window.location.reload()" 
-          class="inline-flex items-center px-6 py-3 bg-amber-400 text-gray-900 font-semibold rounded-full hover:bg-amber-300 transition-colors duration-300 focus:outline-none focus:ring-4 focus:ring-amber-400/50"
-        >
-          Try Again
-          <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-          </svg>
-        </button>
       </div>
-    </div>
-  ) : (
-    <!-- Skip to content for accessibility -->
-    <a href="#main-content" class="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 bg-amber-400 text-gray-900 px-4 py-2 rounded z-50">
-      Skip to main content
-    </a>
-
-    <!-- Main content with proper semantic structure -->
-    <div class="bg-gray-950 text-gray-100 font-sans antialiased selection:bg-gray-700">
-      <main id="main-content" role="main">
-        <!-- Hero Section with Safari Carousel -->
-        <HeroSection heroes={data.heroes} />
-        
-        <!-- Sub Hero Section with Resort Introduction -->
-        <SubHeroSection subHero={data.subHero} />
-        
-        <!-- Luxury Accommodations Section -->
-        <RoomsSection rooms={data.rooms} specialDeal={data.specialDeal} />
-        
-        <!-- Safari & Wilderness Experiences -->
-        <ExperiencesSection experiences={data.experiences} gridClass={gridClass} />
-        
-        <!-- Guest Testimonials -->
-        <TestimonialsSection />
-        
-        <!-- Awards & Recognition -->
-        <AwardsSection />
-        
-        <!-- Contact & Reservations -->
-        <ContactSection />
-      </main>
-    </div>
-  )}
+    ) : (
+      <div class="bg-gray-950 text-gray-100">
+        <main>
+          <HeroSection heroes={data.heroes} />
+          <SubHeroSection subHero={data.subHero} />
+          <RoomsSection rooms={data.rooms} specialDeal={data.specialDeal} />
+          <ExperiencesSection experiences={data.experiences} />
+          <TestimonialsSection />
+          <AwardsSection />
+          <ContactSection />
+        </main>
+      </div>
+    )
+  }
 </Layout>
-
-<style>
-  /* Accessible focus states */
-  .focus\:not-sr-only:focus {
-    position: absolute !important;
-    width: auto !important;
-    height: auto !important;
-    padding: 1rem !important;
-    margin: 0 !important;
-    overflow: visible !important;
-    clip: auto !important;
-    white-space: normal !important;
-  }
-
-  /* Respect user motion preferences */
-  @media (prefers-reduced-motion: reduce) {
-    * {
-      animation-duration: 0.01ms !important;
-      animation-iteration-count: 1 !important;
-      transition-duration: 0.01ms !important;
-    }
-  }
-
-  /* Enhanced error state styling */
-  [role="alert"] {
-    border: 2px solid rgba(248, 113, 113, 0.2);
-    border-radius: 1rem;
-    background: linear-gradient(135deg, rgba(15, 23, 42, 0.95) 0%, rgba(30, 41, 59, 0.95) 100%);
-  }
-</style>
-
-<script>
-  // Performance monitoring for production
-  if (typeof window !== 'undefined' && import.meta.env.PROD) {
-    // Monitor Core Web Vitals
-    function measureWebVitals() {
-      if ('PerformanceObserver' in window) {
-        // Largest Contentful Paint (LCP)
-        new PerformanceObserver((list) => {
-          const entries = list.getEntries();
-          const lastEntry = entries[entries.length - 1];
-        }).observe({ entryTypes: ['largest-contentful-paint'] });
-
-        // First Input Delay (FID)
-        new PerformanceObserver((list) => {
-          for (const entry of list.getEntries()) {
-            console.log('FID:', entry.processingStart - entry.startTime);
-          }
-        }).observe({ entryTypes: ['first-input'] });
-
-        // Cumulative Layout Shift (CLS)
-        new PerformanceObserver((list) => {
-          let cls = 0;
-          for (const entry of list.getEntries()) {
-            if (!entry.hadRecentInput) {
-              cls += entry.value;
-            }
-          }
-        }).observe({ entryTypes: ['layout-shift'] });
-      }
-    }
-
-    // Initialize monitoring after page load
-    if (document.readyState === 'complete') {
-      measureWebVitals();
-    } else {
-      window.addEventListener('load', measureWebVitals);
-    }
-  }
-
-  // Enhanced error handling with user feedback
-  window.addEventListener('error', function(e) {
-    console.error('Global error caught:', e.error);
-    
-    // Show user-friendly error message
-    const errorNotification = document.createElement('div');
-    errorNotification.innerHTML = `
-      <div class="fixed top-4 right-4 bg-red-500 text-white px-4 py-2 rounded-lg shadow-lg z-50" role="alert">
-        Something went wrong. Please refresh the page.
-        <button onclick="this.parentElement.remove()" class="ml-2 text-white hover:text-gray-200">×</button>
-      </div>
-    `;
-    document.body.appendChild(errorNotification);
-  });
-
-</script>

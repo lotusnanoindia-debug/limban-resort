@@ -77,7 +77,12 @@
     .cta-outlined {
       @apply inline-flex items-center px-10 py-5 text-lg border-2 border-amber-400 text-amber-400 rounded-full hover:bg-amber-400/10 transition-colors;
     }
-    .action-btn svg {
+    .home-cta {
+      @apply inline-flex justify-center items-center px-4 py-3 bg-amber-400/90 hover:bg-amber-400 text-gray-900 font-semibold rounded-2xl transition-colors duration-300 text-sm;
+    }
+
+    .action-btn svg,
+    .home-cta svg {
       @apply w-5 h-5 opacity-70 group-hover/cta:opacity-100 group-hover/cta:translate-x-1 transition-all;
     }
   }

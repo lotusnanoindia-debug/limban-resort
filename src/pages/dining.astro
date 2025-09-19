@@ -1,86 +1,68 @@
 ---
 import Layout from "../layouts/Layout.astro";
 import { AstroSEO } from "astro-seo-plugin";
-import { fetchDiningExperiencesData } from "../api.js";
-import { getImage } from 'astro:assets'; // 🎯 STEP 1: Import getImage
+import { fetchDiningExperiencesData, fetchSpecialDealData } from "../api.js";
+import { getImage } from 'astro:assets';
 
-// 🎯 STEP 2: Create image optimizers
-async function optimizeDiningHero(url) {
+// Ultra-reliable API fetching with retry logic
+async function fetchWithRetry(fetchFn, retries = 2) {
+  for (let i = 0; i < retries; i++) {
+    try {
+      return await fetchFn();
+    } catch (error) {
+      if (i === retries - 1) throw error;
+      await new Promise(resolve => setTimeout(resolve, 1000));
+    }
+  }
+}
+
+// 🎯 ENHANCED: Single image optimizer for all dining images
+async function optimizeImage(url, width, height, quality = 80) {
   if (!url) return null;
   try {
-    return await getImage({
+    const optimized = await getImage({
       src: url,
-      width: 400,
-      height: 400,
+      width: width,
+      height: height,
       format: 'webp',
-      quality: 70,
+      quality: quality,
       fit: 'cover',
       inferSize: true,
     });
+    return optimized;
   } catch (error) {
-    console.error('Failed to optimize dining hero:', error);
-    return null;
+    return { src: url };
   }
 }
 
-async function optimizeDiningCard(url) {
-  if (!url) return null;
-  try {
-    return await getImage({
-      src: url,
-      width: 400,
-      height: 300,
-      format: 'webp',
-      quality: 70,
-      fit: 'cover',
-      inferSize: true,
-    });
-  } catch (error) {
-    console.error('Failed to optimize dining card:', error);
-    return null;
-  }
-}
-
-async function optimizeLogo(url) {
-  if (!url) return null;
-  try {
-    return await getImage({
-      src: url,
-      width: 64,
-      height: 64,
-      format: 'webp',
-      quality: 80,
-      fit: 'inside',
-      inferSize: true,
-    });
-  } catch (error) {
-    console.error('Failed to optimize logo:', error);
-    return null;
-  }
-}
-
-// Fetch dining experiences data
-let diningExperiences = [];
+// Server-side data fetching
+let data = { experiences: [], specialDeal: null };
 let error = null;
 
 try {
-  diningExperiences = await fetchDiningExperiencesData();
+  const [diningExperiences, specialDeal] = await Promise.all([
+    fetchWithRetry(() => fetchDiningExperiencesData()),
+    fetchWithRetry(() => fetchSpecialDealData())
+  ]);
+  data = { experiences: diningExperiences || [], specialDeal };
 } catch (err) {
   console.error("Failed to load dining experiences:", err);
   error = "Failed to load dining experiences from Hygraph";
 }
 
-// 🎯 STEP 3: Process and optimize all images in parallel
+// 🎯 ENHANCED: Process and optimize all images with better quality
 const experiences = await Promise.all(
-  (diningExperiences || []).map(async (experience, index) => {
+  data.experiences.map(async (experience, index) => {
     const sourceUrl = experience.images?.[0]?.large || experience.images?.[0]?.url;
     const logoUrl = experience.logo?.optimisedLogo || experience.logo?.url;
     
-    const [optimizedHero, optimizedCard, optimizedLogo] = await Promise.all([
-      optimizeDiningHero(sourceUrl),
-      optimizeDiningCard(sourceUrl),
-      optimizeLogo(logoUrl)
+    const [optimizedHero, optimizedCard, optimizedLogo, lqip] = await Promise.all([
+      optimizeImage(sourceUrl, 600, 400, 85), // Higher quality for hero
+      optimizeImage(sourceUrl, 400, 300, 80), // Cards
+      optimizeImage(logoUrl, 64, 64, 90), // High quality logos
+      optimizeImage(sourceUrl, 24, 18, 20) // LQIP
     ]);
+
 
     return {
       id: experience.id,
@@ -90,14 +72,15 @@ const experiences = await Promise.all(
       optimizedLogo: optimizedLogo?.src || logoUrl || "",
       optimizedHero: optimizedHero?.src || sourceUrl || "",
       optimizedCard: optimizedCard?.src || sourceUrl || "",
-      placeholder: experience.images?.[0]?.placeholder || optimizedHero?.src || "",
+      lqip: lqip?.src || sourceUrl || "",
       slug: experience.url || `experience-${index + 1}`,
-      alt: `${experience.restaurantName} dining experience at Limban Resort`
+      alt: `${experience.restaurantName} dining experience at Limban Resort`,
+      priority: index < 3 // First 3 get priority loading
     };
   })
 );
 
-// 🎯 STEP 4: Create randomized hero mosaic (like rooms page)
+// 🎯 ENHANCED: Create randomized hero mosaic
 function shuffleArray(array) {
   const shuffled = [...array];
   for (let i = shuffled.length - 1; i > 0; i--) {
@@ -118,316 +101,68 @@ for (let i = 0; i < 24; i++) {
   mosaicTiles.push(availableExperiences.pop());
 }
 
-// Helper function for alt text generation
-function generateAltText(experienceName, shortIntro) {
-  if (!experienceName) return "Dining experience at Limban Resort";
-  const baseDescription = shortIntro?.split('.')[0] || "dining experience";
-  return `${experienceName} - ${baseDescription} at Limban Resort, Tadoba`;
-}
+// Safe hero image for meta
+const heroImageSrc = experiences[0]?.optimizedHero || "/img/dining-hero.webp";
 ---
 
 <Layout>
   <AstroSEO
-  slot="head"
-  title="Dining Experiences | Limban Resort - Tadoba Safari Lodge"
-  description="Discover authentic dining experiences at Limban Resort - from jungle-fresh ingredients to intimate bush dinners under starlit skies in the heart of Tadoba."
-  canonical="https://limban.com/dining"
-  openGraph={{
-    title: "Dining Experiences at Limban Resort - Tadoba Safari Lodge",
-    description: "Authentic Indian cuisine, locally sourced ingredients, and unforgettable dining settings in the wilderness of Tadoba National Park.",
-    image: experiences[0]?.heroImage || "/default-dining-hero.jpg",
-    type: "website",
-    url: "https://limban.com/dining",
-  }}
-  jsonLd={{
-    "@context": "https://schema.org",
-    "@type": ["Restaurant", "TouristDestination"],
-    "@id": "https://limban.com/dining#restaurant",
-    "name": "Limban Resort Dining Experiences",
-    "alternateName": [
-      "Limban Restaurant",
-      "Tadoba Safari Lodge Dining",
-      "Limban Culinary Experiences"
-    ],
-    "description": "Authentic dining experiences in the heart of Tadoba National Park. From dawn coffee with morning chorus to candlelit dinners under ancient trees, discover flavors crafted from the freshest local ingredients.",
-    "url": "https://limban.com/dining",
-    "sameAs": [
-      "https://www.tripadvisor.in/Hotel_Review-g10594630-d12902646-Reviews-Limban_Resort-Chandrapur_District_Maharashtra.html",
-      "https://www.instagram.com/limbanresorts/",
-      "https://www.facebook.com/limbanresortstadoba/"
-    ],
-    "logo": "https://limban.com/img/limban-resort-tadoba-logo.png",
-    "image": [
-      experiences[0]?.heroImage || "/default-dining-hero.jpg",
-      ...experiences.slice(1, 6).map(exp => exp.heroImage).filter(Boolean)
-    ].filter(Boolean),
-    "address": {
-      "@type": "PostalAddress",
-      "streetAddress": "Survey No. 306, Village Mudholi, Taluka Bhadravati",
-      "addressLocality": "Chandrapur",
-      "addressRegion": "Maharashtra",
-      "postalCode": "442906",
-      "addressCountry": "IN"
-    },
-    "geo": {
-      "@type": "GeoCoordinates",
-      "latitude": 20.25602486093492,
-      "longitude": 79.2847888101826
-    },
-    "contactPoint": [
-      {
-        "@type": "ContactPoint",
-        "telephone": "+91-90226-80451",
-        "contactType": "reservations",
-        "availableLanguage": ["English", "Hindi"]
-      },
-      {
-        "@type": "ContactPoint",
-        "email": "info@limban.com",
-        "contactType": "customer service"
+    slot="head"
+    title="Dining Experiences | Limban Resort - Tadoba Safari Lodge"
+    description="Discover authentic dining experiences at Limban Resort - from jungle-fresh ingredients to intimate bush dinners under starlit skies in the heart of Tadoba National Park, Maharashtra."
+    canonical="https://limban.com/dining"
+    openGraph={{
+      title: "Dining Experiences at Limban Resort - Tadoba Safari Lodge",
+      description: "Authentic Indian cuisine, locally sourced ingredients, and unforgettable dining settings in the wilderness of Tadoba National Park.",
+      image: heroImageSrc,
+      type: "website",
+      url: "https://limban.com/dining",
+      site_name: "Limban Resort"
+    }}
+    jsonLd={{
+      "@context": "https://schema.org",
+      "@type": ["Restaurant", "TouristDestination"],
+      "@id": "https://limban.com/dining#restaurant",
+      "name": "Limban Resort Dining Experiences",
+      "description": "Authentic dining experiences in the heart of Tadoba National Park. From dawn coffee with morning chorus to candlelit dinners under ancient trees, discover flavors crafted from the freshest local ingredients.",
+      "url": "https://limban.com/dining",
+      "image": [heroImageSrc, ...experiences.slice(0, 5).map(exp => exp.optimizedHero)].filter(Boolean),
+      "servesCuisine": ["Indian Cuisine", "Local Maharashtrian", "Farm-to-Table"],
+      "priceRange": "₹₹₹",
+      "acceptsReservations": true,
+      "hasOfferCatalog": {
+        "@type": "OfferCatalog",
+        "name": "Dining Experience Collection",
+        "itemListElement": experiences.map((exp, index) => ({
+          "@type": "Offer",
+          "position": index + 1,
+          "itemOffered": {
+            "@type": "FoodEvent",
+            "name": exp.name,
+            "description": exp.intro,
+            "url": `https://limban.com/dining/${exp.slug}`,
+            "image": exp.optimizedHero
+          }
+        }))
       }
-    ],
-    "servesCuisine": [
-      "Indian Cuisine",
-      "Local Maharashtrian",
-      "Farm-to-Table",
-      "Authentic Regional",
-      "Fresh Local Ingredients",
-      "Bush Dining",
-      "Safari Lodge Cuisine"
-    ],
-    "priceRange": "₹₹₹",
-    "currenciesAccepted": "INR",
-    "paymentAccepted": ["Cash", "Credit Card", "Debit Card", "Room Charge"],
-    "acceptsReservations": true,
-    "reservationPolicy": "Advance booking recommended for special dining experiences",
-    "hasMenu": true,
-    "menu": {
-      "@type": "Menu",
-      "name": "Limban Dining Experiences",
-      "description": "Fresh, locally-sourced ingredients crafted into memorable wilderness dining experiences",
-      "hasMenuSection": experiences.map(exp => ({
-        "@type": "MenuSection",
-        "name": exp.name,
-        "description": exp.intro,
-        "url": `https://limban.com/dining/${exp.slug}`,
-        "image": exp.heroImage
-      }))
-    },
-    "hasOfferCatalog": {
-      "@type": "OfferCatalog",
-      "name": "Dining Experience Collection",
-      "itemListElement": experiences.map((exp, index) => ({
-        "@type": "Offer",
-        "position": index + 1,
-        "itemOffered": {
-          "@type": "FoodEvent",
-          "name": exp.name,
-          "description": exp.intro,
-          "url": `https://limban.com/dining/${exp.slug}`,
-          "image": exp.heroImage
-        },
-        "availability": "https://schema.org/InStock",
-        "availableAtOrFrom": {
-          "@type": "Place",
-          "name": "Limban Resort"
-        }
-      }))
-    },
-    "openingHours": [
-      "Mo-Su 06:30-10:30",  // Breakfast
-      "Mo-Su 12:30-15:00",  // Lunch
-      "Mo-Su 19:30-22:30"   // Dinner
-    ],
-    "openingHoursSpecification": [
-      {
-        "@type": "OpeningHoursSpecification",
-        "dayOfWeek": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
-        "opens": "06:30",
-        "closes": "10:30",
-        "description": "Breakfast with morning safari sounds"
-      },
-      {
-        "@type": "OpeningHoursSpecification",
-        "dayOfWeek": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
-        "opens": "19:30",
-        "closes": "22:30",
-        "description": "Dinner under the starlit sky"
-      }
-    ],
-    "amenityFeature": [
-      {
-        "@type": "LocationFeatureSpecification",
-        "name": "Bush Dining Experiences",
-        "value": true
-      },
-      {
-        "@type": "LocationFeatureSpecification",
-        "name": "Outdoor Dining Areas",
-        "value": true
-      },
-      {
-        "@type": "LocationFeatureSpecification",
-        "name": "Locally Sourced Ingredients",
-        "value": true
-      },
-      {
-        "@type": "LocationFeatureSpecification",
-        "name": "Farm-to-Table Cuisine",
-        "value": true
-      },
-      {
-        "@type": "LocationFeatureSpecification",
-        "name": "Wildlife Viewing During Meals",
-        "value": true
-      },
-      {
-        "@type": "LocationFeatureSpecification",
-        "name": "Private Dining Options",
-        "value": true
-      },
-      {
-        "@type": "LocationFeatureSpecification",
-        "name": "Vegetarian Options",
-        "value": true
-      },
-      {
-        "@type": "LocationFeatureSpecification",
-        "name": "Dietary Accommodations",
-        "value": true
-      }
-    ],
-    "isPartOf": {
-      "@type": "LodgingBusiness",
-      "name": "Limban Resort",
-      "url": "https://limban.com",
-      "@id": "https://limban.com/#resort"
-    },
-    "containedInPlace": {
-      "@type": "TouristDestination",
-      "name": "Tadoba Andhari Tiger Reserve",
-      "address": {
-        "@type": "PostalAddress",
-        "addressLocality": "Tadoba",
-        "addressRegion": "Maharashtra",
-        "addressCountry": "IN"
-      }
-    },
-    "audience": {
-      "@type": "Audience",
-      "audienceType": [
-        "Safari Enthusiasts",
-        "Nature Lovers",
-        "Food Connoisseurs",
-        "Eco-Conscious Travelers",
-        "Wildlife Tourists",
-        "Luxury Travelers"
-      ]
-    },
-    "knowsAbout": [
-      "Local Maharashtrian Cuisine",
-      "Farm-to-Table Cooking",
-      "Bush Dining Experiences",
-      "Safari Lodge Hospitality",
-      "Regional Ingredients",
-      "Sustainable Dining Practices",
-      "Wildlife Sanctuary Dining"
-    ],
-    "specialFeature": [
-      {
-        "@type": "Thing",
-        "name": "Wilderness Dining",
-        "description": "Unique dining experiences set in the heart of Tadoba's wilderness"
-      },
-      {
-        "@type": "Thing",
-        "name": "Farm-to-Table Philosophy",
-        "description": "Fresh, locally-sourced ingredients prepared with authentic regional techniques"
-      },
-      {
-        "@type": "Thing",
-        "name": "Safari Integration",
-        "description": "Dining experiences perfectly timed with safari schedules and wildlife viewing"
-      }
-    ],
-    "additionalProperty": [
-      {
-        "@type": "PropertyValue",
-        "name": "Dining Style",
-        "value": "Safari Lodge Fine Casual"
-      },
-      {
-        "@type": "PropertyValue",
-        "name": "Culinary Philosophy",
-        "value": "Fresh, Local, Authentic"
-      },
-      {
-        "@type": "PropertyValue",
-        "name": "Setting",
-        "value": "Wilderness Safari Lodge"
-      },
-      {
-        "@type": "PropertyValue",
-        "name": "Specialty",
-        "value": "Bush Dining & Wildlife Viewing"
-      }
-    ],
-    "potentialAction": [
-      {
-        "@type": "ReserveAction",
-        "target": {
-          "@type": "EntryPoint",
-          "urlTemplate": "https://limban.com/rooms",
-          "actionPlatform": [
-            "https://schema.org/DesktopWebPlatform",
-            "https://schema.org/MobileWebPlatform"
-          ]
-        },
-        "name": "Book Dining Experience"
-      },
-      {
-        "@type": "ViewAction",
-        "target": "https://limban.com/dining",
-        "name": "Explore Dining Options"
-      }
-    ],
-    "aggregateRating": {
-      "@type": "AggregateRating",
-      "ratingValue": 4.9,
-      "reviewCount": 171,
-      "bestRating": 5,
-      "worstRating": 1
-    },
-    "provider": {
-      "@type": "Organization",
-      "name": "Limban Resort",
-      "url": "https://limban.com",
-      "logo": "https://limban.com/img/limban-resort-tadoba-logo.png"
-    },
-    "publisher": {
-      "@type": "Organization",
-      "name": "Limban Resort",
-      "url": "https://limban.com"
-    }
-  }}
-/>
+    }}
+  />
 
-    
-  <!-- Enhanced Hero Section - Vibe Page Style with Dining Images -->
-  <section class="relative pt-48 pb-32 overflow-hidden">
-    
-    <!-- Dynamic Image Gallery Background (Vibe Style) -->
-    <div class="absolute inset-0 grid grid-cols-4 md:grid-cols-6 gap-2 h-full opacity-50">
+  {/* Preload critical images */}
+  <link rel="preload" as="image" href={heroImageSrc} fetchpriority="high" />
+  {experiences[0]?.optimizedCard && <link rel="preload" as="image" href={experiences[0].optimizedCard} />}
 
-      <!-- Multi-layered Image Grid - Same as Vibe Page -->
-      <div class="absolute inset-0 grid grid-cols-4 md:grid-cols-6 gap-0 opacity-50">
+  <div class="bg-gray-950 text-gray-100">
+    <!-- 🎯 ENHANCED: Hero Section with Dynamic Mosaic -->
+    <section class="relative pt-48 pb-32 overflow-hidden bg-gray-950">
+      <!-- Dynamic mosaic background -->
+      <div class="absolute inset-0 grid grid-cols-4 md:grid-cols-6 gap-0 opacity-60">
         {mosaicTiles.map((experience, index) => (
           <div 
             key={`dining-mosaic-${index}`}
             class="relative overflow-hidden h-full fade-in-up"
-            style={`animation-delay: ${index * 100}ms`}
+            style={`animation-delay: ${index * 50}ms`}
           >
-            <!-- 🎯 OPTIMIZED: Direct optimized image -->
             <img
               src={experience.optimizedHero}
               alt={`${experience.name} dining at Limban Resort`}
@@ -437,7 +172,7 @@ function generateAltText(experienceName, shortIntro) {
               decoding="async"
             />
             
-            <!-- Optional: Experience name overlay on hover -->
+            <!-- Experience name overlay on hover -->
             <div class="absolute inset-0 bg-gray-900/80 opacity-0 hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
               <span class="text-white text-xs font-medium text-center px-2">
                 {experience.name}
@@ -447,145 +182,178 @@ function generateAltText(experienceName, shortIntro) {
         ))}
       </div>
 
-      <!-- Layered Gradients for Perfect Text Readability -->
+      <!-- Enhanced gradients -->
       <div class="absolute inset-0 bg-gradient-to-br from-black/80 via-black/50 to-black/70"></div>
       <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-black/40"></div>
-      
-      <!-- Subtle Animated Overlay -->
       <div class="absolute inset-0 bg-gradient-to-r from-transparent via-amber-400/5 to-transparent animate-pulse"></div>
-    </div>
 
-    <!-- Hero Content - Centered & Elegant -->
-    <div class="relative z-20 max-w-7xl mx-auto px-6">
-      <div class="text-center space-y-8">
-        
-        <!-- Badge -->
-        <div class="inline-block px-8 py-3 bg-amber-400/10 border border-amber-400/30 rounded-full mb-8 backdrop-blur-xl">
-          <span class="text-amber-400 text-sm font-medium tracking-widest uppercase">Savour the Wild</span>
-        </div>
-        
-        <!-- Main Heading -->
-        <h1 class="font-serif italic text-5xl md:text-6xl lg:text-8xl text-white leading-tight">
-          Dining <span class="text-amber-400">Experiences</span>
-        </h1>
-        
-        <!-- Subheading -->
-        <p class="text-xl md:text-2xl text-gray-200 font-light leading-relaxed max-w-4xl mx-auto">
-          In the heart of Tadoba, every meal tells a story. From dawn coffee with the morning chorus 
-          to candlelit dinners under ancient trees, discover authentic flavours crafted from the 
-          freshest local ingredients. This is dining as nature intended.
-        </p>
-        
-        <!-- Scroll Indicator -->
-        <div class="flex justify-center pt-8">
-          <div class="animate-bounce">
-            <svg class="w-6 h-6 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path>
-            </svg>
+      <!-- Hero Content -->
+      <div class="relative z-20 max-w-7xl mx-auto px-6">
+        <div class="text-center space-y-8">
+          <!-- Badge -->
+          <div class="inline-block px-6 py-2 bg-amber-400/10 border border-amber-400/30 rounded-full mb-8">
+            <span class="text-amber-400 text-sm font-medium tracking-widest uppercase">
+              Savour the Wild
+            </span>
           </div>
+          
+          <!-- Main Heading -->
+          <h1 class="font-serif italic text-5xl md:text-7xl lg:text-8xl text-white leading-tight drop-shadow-2xl">
+            Dining <span class="text-amber-400">Experiences</span>
+          </h1>
+          
+          <!-- Subheading -->
+          <p class="text-xl md:text-2xl text-gray-200 font-light leading-relaxed max-w-4xl mx-auto drop-shadow-lg">
+            In the heart of Tadoba, every meal tells a story. From dawn coffee with the morning chorus 
+            to candlelit dinners under ancient trees, discover authentic flavours crafted from the 
+            freshest local ingredients.
+          </p>
         </div>
       </div>
-    </div>
-  </section>
+    </section>
+
     <!-- Breadcrumb Navigation -->
-    <nav class="py-6 border-b border-gray-800/50">
+    <nav class="py-6 bg-gray-900/50 border-b border-gray-800" aria-label="Breadcrumb">
       <div class="max-w-7xl mx-auto px-6">
-        <div
-          class="flex items-center justify-center space-x-2 text-sm text-gray-400"
-        >
-          <a
-            href="/"
-            class="hover:text-amber-400 transition-colors duration-300">Home</a
-          >
-          <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-            <path
-              fill-rule="evenodd"
-              d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
-              clip-rule="evenodd"></path>
-          </svg>
-          <span class="text-amber-400 font-medium">Dining</span>
-        </div>
+        <ol class="flex items-center justify-center space-x-2 text-sm">
+          <li>
+            <a href="/" class="text-gray-400 hover:text-amber-400 transition-colors duration-300 flex items-center">
+              <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"/>
+              </svg>
+              Home
+            </a>
+          </li>
+          <li><svg class="w-4 h-4 text-gray-600" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/></svg></li>
+          <li><span class="text-amber-400 font-medium">Dining</span></li>
+        </ol>
       </div>
     </nav>
 
-    <!-- Dining Experiences Grid - 3x2 Layout -->
-    <section class="py-32 bg-gray-950">
+    <!-- 🎯 ENHANCED: Dining Experiences Grid -->
+    <section class="py-32 bg-gradient-to-b from-gray-950 to-gray-800">
       <div class="max-w-7xl mx-auto px-6">
         
+        <!-- Special Deal Section -->
+        {data.specialDeal?.html && (
+          <div class="max-w-4xl mx-auto mb-20">
+            <div class="bg-gradient-to-r from-purple-900/40 to-orange-900/40 border border-amber-400/30 rounded-2xl p-6 text-center shadow-2xl backdrop-blur-xl">
+              <div class="font-bold text-lg text-white" set:html={data.specialDeal.html} />
+            </div>
+          </div>
+        )}
+
+        <header class="text-center mb-20">
+          <div class="inline-block px-6 py-2 bg-amber-400/10 border border-amber-400/30 rounded-full mb-8">
+            <span class="text-amber-400 text-sm font-medium tracking-widest uppercase">
+              Culinary Journey
+            </span>
+          </div>
+          <h2 class="font-serif italic text-4xl md:text-6xl text-white mb-6">
+            Taste the Wilderness
+          </h2>
+          <p class="text-xl text-gray-300 max-w-3xl mx-auto">
+            Each dining experience is crafted to connect you with the flavors and spirit of Tadoba
+          </p>
+        </header>
+        
         {error ? (
-          <div class="text-center">
-            <p class="text-red-400">{error}</p>
+          <div class="text-center py-16">
+            <div class="w-16 h-16 mx-auto mb-6 text-red-400">
+              <svg class="w-full h-full" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z"/>
+              </svg>
+            </div>
+            <h3 class="text-xl text-red-400 mb-2">Content Unavailable</h3>
+            <p class="text-gray-400">{error}</p>
           </div>
         ) : (
-          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8" role="list">
             {experiences.map((experience, index) => (
-              <div
+              <article
                 key={experience.id}
-                class="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-gray-800/50 to-gray-900/50 backdrop-blur-xl border border-gray-700 hover:border-amber-400/50 transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl hover:shadow-black/20"
+                class="group relative overflow-hidden rounded-3xl bg-gray-800/40 border border-gray-700/50 hover:border-amber-400/50 transition-all duration-700 hover:-translate-y-2 hover:shadow-2xl hover:shadow-amber-400/10"
+                role="listitem"
               >
-                <!-- 🎯 OPTIMIZED: Hero Image with optimized card -->
+                <!-- 🎯 ENHANCED: Image with LQIP and dining type badge -->
                 <div class="relative aspect-[4/3] overflow-hidden">
                   <!-- LQIP Background -->
-                  <div class="absolute inset-0">
+                  {experience.lqip && (
                     <img
-                      src={experience.placeholder || experience.optimizedCard}
+                      src={experience.lqip}
                       alt=""
-                      class="w-full h-full object-cover blur-sm scale-110"
+                      class="absolute inset-0 w-full h-full object-cover blur-sm scale-105"
+                      aria-hidden="true"
                     />
-                  </div>
+                  )}
                   
-                  <!-- 🎯 OPTIMIZED: Main Image -->
+                  <!-- Main optimized image -->
                   <img
                     src={experience.optimizedCard}
-                    alt={generateAltText(experience.name, experience.intro)}
-                    class="relative w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-in-out will-change-transform"
-                    loading={index < 6 ? 'eager' : 'lazy'}
-                    fetchpriority={index < 3 ? 'high' : 'auto'}
+                    alt={experience.alt}
+                    class="relative w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                    loading={experience.priority ? 'eager' : 'lazy'}
+                    fetchpriority={experience.priority ? 'high' : 'auto'}
                     decoding="async"
                   />
+                                    
+                  <!-- Gradient overlay -->
+                  <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent group-hover:from-black/60 transition-colors duration-500"></div>
                   
-                  <!-- Gradient Overlay -->
-                  <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
-                  
-                  <!-- 🎯 OPTIMIZED: Experience Logo -->
+                  <!-- 🎯 ENHANCED: Experience logo with better positioning -->
                   {experience.optimizedLogo && (
-                    <div class="absolute top-4 left-4">
+                    <div class="absolute top-4 right-4 w-12 h-12 bg-white/10 backdrop-blur-sm rounded-full p-2 border border-white/20 opacity-80 group-hover:opacity-100 transition-opacity duration-300">
                       <img
                         src={experience.optimizedLogo}
                         alt={`${experience.name} logo`}
-                        class="w-16 h-16 object-contain bg-white/10 backdrop-blur-sm rounded-full flex items-center justify-center border border-white/20"
+                        class="w-full h-full object-contain"
                         loading="lazy"
                       />
                     </div>
                   )}
                 </div>
 
-                <!-- Content -->
-                <div class="p-8">
-                  <h3 class="font-serif italic text-2xl text-white mb-4 group-hover:text-amber-400 transition-colors duration-300">
-                    {experience.name}
-                  </h3>
+                <!-- Enhanced content -->
+                <div class="p-8 space-y-6">
+                  <header>
+                    <h3 class="font-serif italic text-2xl md:text-3xl text-white mb-4 group-hover:text-amber-300 transition-colors duration-300">
+                      {experience.name}
+                    </h3>
+                    <p class="text-gray-300 font-light leading-relaxed line-clamp-3">
+                      {experience.intro}
+                    </p>
+                  </header>
                   
-                  <p class="text-gray-300 font-light leading-relaxed mb-6 line-clamp-3">
-                    {experience.intro}
-                  </p>
-                  
-                  <!-- CTA Button -->
-                  <a
-                    href={`/dining/${experience.slug}`}
-                    class="action-btn"
-                  >
-                    More: {experience.name}
-                  </a>
+                  <!-- 🎯 ENHANCED: CTA Button with better styling -->
+                  <footer>
+                    <a
+                      href={`/dining/${experience.slug}`}
+                      class="action-btn group/cta relative overflow-hidden"
+                      aria-label={`Explore ${experience.name} dining experience`}
+                    >
+                      <span class="relative z-10 flex items-center justify-center">
+                        Explore {experience.name}
+                        <svg class="w-5 h-5 ml-2 group-hover/cta:translate-x-1 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
+                        </svg>
+                      </span>
+                      
+                      <!-- Animated background effect -->
+                      <div class="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0 transform translate-x-[-100%] group-hover/cta:translate-x-[100%] transition-transform duration-1000 ease-out"></div>
+                    </a>
+                  </footer>
                 </div>
-              </div>
+                
+                <!-- 🎯 ENHANCED: Glow effect -->
+                <div class="absolute inset-0 rounded-3xl bg-gradient-to-br from-amber-500/0 to-orange-500/0 group-hover:from-amber-500/5 group-hover:to-orange-500/5 transition-all duration-700"></div>
+              </article>
             ))}
           </div>
         )}
       </div>
     </section>
 
-    <!-- Philosophy Section -->
+    <!-- 🎯 ENHANCED: Philosophy Section -->
     <section class="py-32 bg-gray-900">
       <div class="max-w-6xl mx-auto px-6 text-center">
         <div class="inline-block px-6 py-2 bg-amber-400/10 border border-amber-400/30 rounded-full mb-8">
@@ -594,12 +362,44 @@ function generateAltText(experienceName, shortIntro) {
         <h2 class="font-serif italic text-4xl md:text-5xl text-white mb-8">
           Fresh. Local. Authentic.
         </h2>
-        <p class="text-xl text-gray-300 font-light leading-relaxed max-w-4xl mx-auto">
+        <p class="text-xl text-gray-300 font-light leading-relaxed max-w-4xl mx-auto mb-12">
           In the heart of Tadoba's wilderness, we believe great food comes from great ingredients. 
           Every dish is crafted from locally sourced produce, prepared with love, and served with 
-          the kind of personal attention that makes each meal memorable. Not everything is available 
-          always here. And it's good that way.
+          the kind of personal attention that makes each meal memorable.
         </p>
+        
+        <!-- 🎯 NEW: Philosophy highlights -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl mx-auto">
+          <div class="p-6 bg-gray-800/40 rounded-2xl border border-gray-700/50">
+            <div class="w-12 h-12 mx-auto mb-4 text-green-400">
+              <svg fill="currentColor" viewBox="0 0 20 20">
+                <path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z"/>
+              </svg>
+            </div>
+            <h3 class="text-white font-semibold mb-2">Farm to Table</h3>
+            <p class="text-gray-400 text-sm">Fresh ingredients sourced locally from Tadoba region</p>
+          </div>
+          
+          <div class="p-6 bg-gray-800/40 rounded-2xl border border-gray-700/50">
+            <div class="w-12 h-12 mx-auto mb-4 text-amber-400">
+              <svg fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd"/>
+              </svg>
+            </div>
+            <h3 class="text-white font-semibold mb-2">Authentic Recipes</h3>
+            <p class="text-gray-400 text-sm">Traditional Maharashtrian flavors with modern presentation</p>
+          </div>
+          
+          <div class="p-6 bg-gray-800/40 rounded-2xl border border-gray-700/50">
+            <div class="w-12 h-12 mx-auto mb-4 text-blue-400">
+              <svg fill="currentColor" viewBox="0 0 20 20">
+                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+              </svg>
+            </div>
+            <h3 class="text-white font-semibold mb-2">Wilderness Setting</h3>
+            <p class="text-gray-400 text-sm">Dining experiences in nature's embrace</p>
+          </div>
+        </div>
       </div>
     </section>
 
@@ -614,32 +414,24 @@ function generateAltText(experienceName, shortIntro) {
           Book your stay and discover flavors that connect you to the heart of Tadoba.
         </p>
         <div class="flex flex-col sm:flex-row gap-6 justify-center">
-          <a
-            href="/rooms"
-            class="cta-filled"
-          >
+          <a href="/rooms" class="cta-filled">
             Reserve Your Stay
             <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
             </svg>
           </a>
-          <a
-            href="/vibe"
-            class="cta-outlined"
-          >
+          <a href="/vibe" class="cta-outlined">
             The Limban Vibe
             <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
             </svg>
           </a>
         </div>
       </div>
     </section>
-    
- 
+  </div>
 </Layout>
 
-<!-- Add CSS for staggered animations -->
 <style>
   .fade-in-up {
     opacity: 0;
@@ -656,29 +448,23 @@ function generateAltText(experienceName, shortIntro) {
       transform: translateY(0) scale(1);
     }
   }
+
+  /* Performance optimizations */
+  .group {
+    will-change: transform;
+  }
+
+  /* Respect user motion preferences */
+  @media (prefers-reduced-motion: reduce) {
+    .transition-all,
+    .transition-transform,
+    .transition-colors,
+    .hover\:scale-105,
+    .animate-pulse,
+    .fade-in-up {
+      transition: none !important;
+      transform: none !important;
+      animation: none !important;
+    }
+  }
 </style>
-
-<script>
-  // Intersection Observer for fade-in animations
-  const observerOptions = {
-    threshold: 0.1,
-    rootMargin: "0px 0px -50px 0px",
-  };
-
-  const observer = new IntersectionObserver((entries) => {
-    entries.forEach((entry) => {
-      if (entry.isIntersecting) {
-        entry.target.style.opacity = "1";
-        entry.target.style.transform = "translateY(0)";
-      }
-    });
-  }, observerOptions);
-
-  // Observe elements for animation
-  document.querySelectorAll("section > div").forEach((el) => {
-    el.style.opacity = "0";
-    el.style.transform = "translateY(30px)";
-    el.style.transition = "opacity 0.8s ease, transform 0.8s ease";
-    observer.observe(el);
-  });
-</script>

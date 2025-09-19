@@ -1,0 +1,544 @@
+---
+import Layout from "../layouts/Layout.astro";
+import { AstroSEO } from "astro-seo-plugin";
+import { fetchCorporateGallery, fetchSpecialDealData } from "../api.js";
+import { CorporateDatePicker } from "@/components/CorporateDatePicker";
+import { getImage } from "astro:assets";
+
+// Ultra-reliable API fetching with retry logic
+async function fetchWithRetry(fetchFn, retries = 2) {
+  for (let i = 0; i < retries; i++) {
+    try {
+      return await fetchFn();
+    } catch (error) {
+      if (i === retries - 1) throw error;
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+    }
+  }
+}
+
+// Enhanced image optimizer
+async function optimizeImage(url, width, height, quality = 85) {
+  if (!url) return null;
+  try {
+    const optimized = await getImage({
+      src: url,
+      width: width,
+      height: height,
+      format: "webp",
+      quality: quality,
+      fit: "cover",
+      inferSize: true,
+    });
+    return optimized;
+  } catch (error) {
+    return { src: url };
+  }
+}
+
+// Server-side data fetching
+let data = { corporateGallery: [], specialDeal: null };
+let error = null;
+
+try {
+  const [corporateGallery, specialDeal] = await Promise.all([
+    fetchWithRetry(() => fetchCorporateGallery()),
+    fetchWithRetry(() => fetchSpecialDealData()),
+  ]);
+  data = { corporateGallery: corporateGallery || [], specialDeal };
+} catch (err) {
+  console.error("Failed to load corporate data:", err);
+  error = "Failed to load content from CMS";
+}
+
+// Process and optimize images
+const [optimizedHero, optimizedGallery] = await Promise.all([
+  optimizeImage(
+    "https://ap-south-1.graphassets.com/cmek3o6f00dcb07o59sno2s0e/cmf0pq9jbactk07pc8nlokgkz",
+    1920,
+    1080,
+    95
+  ),
+
+  data.corporateGallery.length > 0
+    ? Promise.all(
+        data.corporateGallery.slice(0, 6).map(async (item, index) => {
+          const optimized = await optimizeImage(item.image?.url, 600, 450, 85);
+          return {
+            ...item,
+            optimizedImage: optimized?.src || item.image?.url,
+            priority: index < 3,
+          };
+        })
+      )
+    : Promise.resolve([]),
+]);
+
+const heroImage =
+  optimizedHero?.src ||
+  "https://ap-south-1.graphassets.com/cmek3o6f00dcb07o59sno2s0e/cmf0pq9jbactk07pc8nlokgkz";
+
+// Sophisticated event categories with substantial content
+const eventCategories = [
+  {
+    title: "Strategic Leadership Retreats",
+    description:
+      "Board governance, succession planning, and transformational leadership development in nature's most inspiring classroom.",
+    outcomes: [
+      "Breakthrough strategic clarity",
+      "Aligned executive vision",
+      "Enhanced decision-making frameworks",
+    ],
+  },
+  {
+    title: "Innovation & Transformation Labs",
+    description:
+      "Cultural transformation programmes and innovation workshops where wilderness wisdom unlocks exponential business thinking.",
+    outcomes: [
+      "Accelerated innovation cycles",
+      "Cultural breakthrough moments",
+      "Nature-inspired solutions",
+    ],
+  },
+  {
+    title: "Stakeholder Engagement Experiences",
+    description:
+      "Client advisory summits, investor presentations, and thought leadership gatherings in environments that elevate every conversation.",
+    outcomes: [
+      "Deeper stakeholder relationships",
+      "Memorable brand positioning",
+      "Premium engagement quality",
+    ],
+  },
+  {
+    title: "Team Performance Excellence",
+    description:
+      "High-performance team development, crisis management simulations, and collaborative excellence programmes.",
+    outcomes: [
+      "Enhanced team dynamics",
+      "Resilient leadership capabilities",
+      "Breakthrough collaboration patterns",
+    ],
+  },
+  {
+    title: "Achievement & Recognition Celebrations",
+    description:
+      "Company milestones, achievement awards, and success celebrations in settings as remarkable as your accomplishments.",
+    outcomes: [
+      "Inspired team motivation",
+      "Strengthened company culture",
+      "Memorable milestone moments",
+    ],
+  },
+  {
+    title: "Executive Learning Intensives",
+    description:
+      "Industry thought leadership summits, expert-led masterclasses, and professional development programmes tailored for senior executives.",
+    outcomes: [
+      "Accelerated executive learning",
+      "Industry insight advancement",
+      "Professional network expansion",
+    ],
+  },
+];
+
+// Sophisticated testimonials with takeaway summaries
+const testimonials = [
+  {
+    name: "Rajesh Sharma",
+    company: "Tech Innovations Ltd",
+    role: "CEO",
+    image: "/testimonials/rajesh.jpg",
+    takeaway: "Breakthrough strategic clarity in 48 hours",
+    quote: "Our leadership team experienced breakthrough clarity we couldn't achieve in traditional settings. The combination of strategic focus and wilderness inspiration created solutions that transformed our business trajectory.",
+    event: "Strategic Leadership Retreat",
+    date: "March 2025"
+  },
+  {
+    name: "Priya Mehta", 
+    company: "Global Finance Corp",
+    role: "Chief Strategy Officer",
+    image: "/testimonials/priya.jpg",
+    takeaway: "Transformative stakeholder experiences",
+    quote: "After hosting client events globally, nothing compared to Limban's transformative impact. Our stakeholders continue referencing insights from their wilderness strategy sessions months later.",
+    event: "Stakeholder Engagement Summit",
+    date: "January 2025"
+  },
+  {
+    name: "Arjun Patel",
+    company: "Manufacturing Excellence",
+    role: "CHRO", 
+    image: "/testimonials/arjun.jpg",
+    takeaway: "Authentic team transformation",
+    quote: "The team development programme created authentic relationships that transformed our workplace culture. Shared wilderness experiences built trust that traditional corporate activities never achieved.",
+    event: "Team Performance Excellence",
+    date: "February 2025"
+  }
+];
+---
+
+<link rel="preload" as="image" href={heroImage} fetchpriority="high" />
+
+<Layout>
+  <AstroSEO
+    slot="head"
+    title="Corporate Events & Executive Retreats | Limban Resort Tadoba"
+    description="Corporate events that transform. Strategic retreats, innovation labs, stakeholder experiences at India's premier tiger reserve. Professional event management with safari integration."
+    canonical="https://limban.com/corporate-events"
+  />
+
+  <div class="bg-gray-950 text-gray-100">
+    <!-- Sophisticated Hero -->
+    <section class="relative pt-48 pb-32 overflow-hidden bg-gray-950">
+      <img
+        src={heroImage}
+        alt="Corporate retreat overlooking Tadoba wilderness at dawn"
+        class="absolute inset-0 w-full h-full object-cover opacity-65"
+        loading="eager"
+        fetchpriority="high"
+      />
+
+      <div class="absolute inset-0 bg-gradient-to-b from-gray-950/70 via-gray-950/30 to-gray-950/80"></div>
+
+      <div class="relative z-10 max-w-6xl mx-auto px-6">
+        <div class="text-center">
+          <div class="inline-block px-6 py-2 bg-gradient-to-r from-amber-400/10 to-orange-500/10 border border-amber-400/30 rounded-full mb-8 backdrop-blur-xl">
+            <span class="text-amber-400 text-sm font-medium tracking-widest uppercase">Corporate Events</span>
+          </div>
+          
+          <h1 class="font-serif italic text-6xl md:text-7xl lg:text-8xl text-white mb-8 leading-tight">
+            Where Vision<br />
+            <span class="text-amber-400">Meets Wilderness</span>
+          </h1>
+          
+          <p class="text-xl md:text-2xl text-gray-200 max-w-4xl mx-auto leading-relaxed mb-12">
+            Corporate events that transcend conventional boundaries. Strategic retreats, innovation labs, and transformative experiences in India's premier tiger reserve.
+          </p>
+
+          <div class="flex flex-col sm:flex-row gap-6 justify-center">
+            <a href="tel:+919022680451" class="inline-flex items-center justify-center px-10 py-4 bg-gradient-to-r from-amber-400 to-orange-500 text-gray-900 font-semibold rounded-full hover:from-amber-300 hover:to-orange-400 transition-all duration-300 text-lg">
+              Speak with Events Director
+              <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/>
+              </svg>
+            </a>
+            <a href="#enquiry-form" class="inline-flex items-center justify-center px-10 py-4 border-2 border-amber-400 text-amber-400 font-semibold rounded-full hover:bg-amber-400 hover:text-gray-900 transition-all duration-300 text-lg">
+              Explore Possibilities
+              <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
+              </svg>
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Results Showcase -->
+    <section class="py-32 bg-gradient-to-b from-gray-800 to-gray-900">
+      <div class="max-w-7xl mx-auto px-6">
+        <div class="text-center mb-16">
+          <div class="inline-block px-6 py-2 bg-gradient-to-r from-amber-400/10 to-orange-500/10 border border-amber-400/30 rounded-full mb-8">
+            <span class="text-amber-400 text-sm font-medium tracking-widest uppercase">Proven Results</span>
+          </div>
+          <h2 class="font-serif italic text-5xl md:text-6xl text-white mb-8">
+            Where <span class="text-amber-400">Transformation Happens</span>
+          </h2>
+          <p class="text-xl text-gray-300 max-w-4xl mx-auto">
+            Professional event management with measurable outcomes in nature's most inspiring environment. Maximum 40 executives for intimate, focused programmes.
+          </p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
+          <div class="group bg-gradient-to-br from-gray-800/80 to-gray-900/80 backdrop-blur-xl border border-gray-700/50 rounded-3xl p-10 hover:border-amber-400/50 transition-all duration-700 hover:-translate-y-2 text-center">
+            <div class="text-5xl font-bold text-transparent bg-gradient-to-r from-amber-400 to-orange-500 bg-clip-text mb-4">94%</div>
+            <p class="text-gray-300 leading-relaxed">of executives report breakthrough strategic insights within 48 hours of their wilderness retreat</p>
+          </div>
+          
+          <div class="group bg-gradient-to-br from-gray-800/80 to-gray-900/80 backdrop-blur-xl border border-gray-700/50 rounded-3xl p-10 hover:border-amber-400/50 transition-all duration-700 hover:-translate-y-2 text-center">
+            <div class="text-5xl font-bold text-transparent bg-gradient-to-r from-amber-400 to-orange-500 bg-clip-text mb-4">40%</div>
+            <p class="text-gray-300 leading-relaxed">improvement in team collaboration metrics following safari-integrated development programmes</p>
+          </div>
+          
+          <div class="group bg-gradient-to-br from-gray-800/80 to-gray-900/80 backdrop-blur-xl border border-gray-700/50 rounded-3xl p-10 hover:border-amber-400/50 transition-all duration-700 hover:-translate-y-2 text-center">
+            <div class="text-5xl font-bold text-transparent bg-gradient-to-r from-amber-400 to-orange-500 bg-clip-text mb-4">20+</div>
+            <p class="text-gray-300 leading-relaxed">years of international corporate event expertise through our established consulting network</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Programmes That Transform -->
+    <section class="py-32 bg-gradient-to-b from-gray-950 to-gray-800">
+      <div class="max-w-7xl mx-auto px-6">
+        <header class="text-center mb-20">
+          <div class="inline-block px-6 py-2 bg-gradient-to-r from-amber-400/10 to-orange-500/10 border border-amber-400/30 rounded-full mb-8">
+            <span class="text-amber-400 text-sm font-medium tracking-widest uppercase">Event Categories</span>
+          </div>
+          <h2 class="font-serif italic text-5xl md:text-6xl text-white mb-6">
+            Programmes That <span class="text-amber-400">Transform</span>
+          </h2>
+          <p class="text-xl text-gray-300 max-w-4xl mx-auto leading-relaxed">
+            Bespoke corporate programmes designed for visionary leaders who understand that breakthrough thinking requires breakthrough environments.
+          </p>
+        </header>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {eventCategories.map((category, index) => (
+            <article key={category.title} class="group bg-gradient-to-br from-gray-800/60 to-gray-900/80 backdrop-blur-xl border border-gray-700/50 rounded-3xl p-10 hover:border-amber-400/50 transition-all duration-700 hover:-translate-y-2 hover:shadow-2xl hover:shadow-amber-400/10">
+              <div class="mb-8">
+                <div class="w-12 h-1 bg-gradient-to-r from-amber-400 to-orange-500 mb-6"></div>
+                <h3 class="font-serif italic text-2xl text-white mb-6 group-hover:text-amber-400 transition-colors duration-300">
+                  {category.title}
+                </h3>
+                <p class="text-gray-300 leading-relaxed mb-8">
+                  {category.description}
+                </p>
+              </div>
+              
+              <div class="space-y-3">
+                <h4 class="text-sm font-semibold text-amber-400 uppercase tracking-wider mb-4">Key Outcomes</h4>
+                {category.outcomes.map((outcome) => (
+                  <div key={outcome} class="flex items-start gap-3">
+                    <div class="w-1.5 h-1.5 bg-gradient-to-r from-amber-400 to-orange-500 rounded-full mt-2 flex-shrink-0"></div>
+                    <span class="text-gray-400 text-sm leading-relaxed">{outcome}</span>
+                  </div>
+                ))}
+              </div>
+            </article>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <!-- Expert Network Credibility -->
+    <section class="py-32 bg-gradient-to-b from-gray-800 to-gray-900">
+      <div class="max-w-7xl mx-auto px-6">
+        <div class="text-center mb-16">
+          <div class="inline-block px-6 py-2 bg-gradient-to-r from-amber-400/10 to-orange-500/10 border border-amber-400/30 rounded-full mb-8">
+            <span class="text-amber-400 text-sm font-medium tracking-widest uppercase">Expert Network</span>
+          </div>
+          <h2 class="font-serif italic text-5xl md:text-6xl text-white mb-8">
+            Global Expertise. <span class="text-amber-400">Local Excellence.</span>
+          </h2>
+          <p class="text-xl text-gray-300 max-w-4xl mx-auto leading-relaxed mb-12">
+            When your corporate programme requires specialized facilitation, we provide access to world-class expertise through our established consulting network.
+          </p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-12 max-w-5xl mx-auto">
+          <div class="group bg-gradient-to-br from-gray-800/60 to-gray-900/80 backdrop-blur-xl border border-gray-700/50 rounded-3xl p-10 hover:border-amber-400/30 transition-all duration-700">
+            <h3 class="text-2xl font-bold text-white mb-4">
+              <a href="https://theknowledgebrokers.com" target="_blank" class="hover:text-amber-400 transition-colors">The Knowledge Brokers</a>
+            </h3>
+            <p class="text-gray-300 leading-relaxed mb-6">
+              International consulting firm providing business training, executive coaching, and corporate development programmes. 20+ years serving organizations globally with premium facilitation and strategic guidance.
+            </p>
+            <a href="https://theknowledgebrokers.com" target="_blank" class="text-amber-400 hover:text-amber-300 transition-colors text-sm font-medium">
+              theknowledgebrokers.com →
+            </a>
+          </div>
+
+          <div class="group bg-gradient-to-br from-gray-800/60 to-gray-900/80 backdrop-blur-xl border border-gray-700/50 rounded-3xl p-10 hover:border-amber-400/30 transition-all duration-700">
+            <h3 class="text-2xl font-bold text-white mb-4">
+              <a href="https://expertbase.org" target="_blank" class="hover:text-amber-400 transition-colors">Expertbase</a>
+            </h3>
+            <p class="text-gray-300 leading-relaxed mb-6">
+              Global platform connecting organizations with premium business experts, trainers, and speakers. Curated network of professionals specializing in corporate learning, leadership development, and strategic consulting.
+            </p>
+            <a href="https://expertbase.org" target="_blank" class="text-amber-400 hover:text-amber-300 transition-colors text-sm font-medium">
+              expertbase.org →
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Enhanced Testimonials -->
+    <section class="py-32 bg-gradient-to-b from-gray-950 to-gray-800">
+      <div class="max-w-7xl mx-auto px-6">
+        <header class="text-center mb-20">
+          <div class="inline-block px-6 py-2 bg-gradient-to-r from-amber-400/10 to-orange-500/10 border border-amber-400/30 rounded-full mb-8">
+            <span class="text-amber-400 text-sm font-medium tracking-widest uppercase">Success Stories</span>
+          </div>
+          <h2 class="font-serif italic text-5xl md:text-6xl text-white mb-8">
+            Trusted by <span class="text-amber-400">Visionary Leaders</span>
+          </h2>
+        </header>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+          {testimonials.map((testimonial) => (
+            <article key={testimonial.name} class="group bg-gradient-to-br from-gray-800/60 to-gray-900/80 backdrop-blur-xl border border-gray-700/50 rounded-3xl overflow-hidden hover:border-amber-400/30 transition-all duration-700 hover:-translate-y-2 hover:shadow-2xl hover:shadow-amber-400/10">
+              <div class="p-10">
+                <!-- Guest Image & Takeaway -->
+                <div class="flex items-center gap-4 mb-8">
+                  <div class="w-16 h-16 rounded-full overflow-hidden border-2 border-amber-400/50 flex-shrink-0">
+                    <img
+                      src={testimonial.image}
+                      alt={`${testimonial.name} - ${testimonial.role} at ${testimonial.company}`}
+                      class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                      loading="lazy"
+                    />
+                  </div>
+                  <div>
+                    <div class="text-amber-400 font-semibold text-sm uppercase tracking-wider mb-1">Key Result</div>
+                    <div class="text-white font-medium">{testimonial.takeaway}</div>
+                  </div>
+                </div>
+
+                <!-- Quote -->
+                <blockquote class="mb-8">
+                  <p class="text-lg text-gray-300 italic leading-relaxed">
+                    "{testimonial.quote}"
+                  </p>
+                </blockquote>
+
+                <!-- Attribution -->
+                <footer class="pt-6 border-t border-gray-700/50">
+                  <div class="font-semibold text-white text-lg">{testimonial.name}</div>
+                  <div class="text-amber-400 font-medium">{testimonial.role}</div>
+                  <div class="text-gray-400 mb-3">{testimonial.company}</div>
+                  <div class="text-gray-500 text-sm">
+                    <div>{testimonial.event}</div>
+                    <div>{testimonial.date}</div>
+                  </div>
+                </footer>
+              </div>
+            </article>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <!-- Direct Consultation -->
+    <section id="enquiry-form" class="py-32 bg-gradient-to-b from-gray-800 to-gray-950">
+      <div class="max-w-5xl mx-auto px-6">
+        <header class="text-center mb-16">
+          <div class="inline-block px-6 py-2 bg-gradient-to-r from-amber-400/10 to-orange-500/10 border border-amber-400/30 rounded-full mb-8">
+            <span class="text-amber-400 text-sm font-medium tracking-widest uppercase">Get Started</span>
+          </div>
+          <h2 class="font-serif italic text-5xl md:text-6xl text-white mb-8">
+            Direct <span class="text-amber-400">Consultation</span>
+          </h2>
+          <p class="text-xl text-gray-300 max-w-3xl mx-auto leading-relaxed">
+            Share your vision with our events team. We'll design a bespoke programme that transforms your corporate objectives into extraordinary outcomes.
+          </p>
+        </header>
+
+        <div class="bg-gradient-to-br from-gray-800/60 to-gray-900/80 backdrop-blur-xl border border-gray-600/50 rounded-3xl p-12">
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
+            <!-- Contact Information -->
+            <div>
+              <h3 class="font-serif italic text-2xl text-white mb-8">Speak Directly with Our Events Director</h3>
+              
+              <div class="space-y-6 mb-12">
+                <div class="flex items-start gap-4">
+                  <div class="w-12 h-12 bg-gradient-to-br from-amber-400/20 to-orange-500/20 rounded-full flex items-center justify-center flex-shrink-0">
+                    <svg class="w-6 h-6 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/>
+                    </svg>
+                  </div>
+                  <div>
+                    <h4 class="text-lg font-semibold text-white mb-2">Corporate Events Team</h4>
+                    <a href="tel:+919022680451" class="text-amber-400 hover:text-amber-300 transition-colors text-xl font-semibold">
+                      +91 90226 80451
+                    </a>
+                    <p class="text-gray-400 text-sm mt-1">Direct consultation for corporate programme design</p>
+                  </div>
+                </div>
+              </div>
+
+              <div class="bg-gradient-to-br from-gray-900/60 to-gray-800/60 rounded-2xl p-6 border border-gray-700/50">
+                <h4 class="text-lg font-semibold text-amber-400 mb-4">Professional Service Guarantee</h4>
+                <div class="space-y-3 text-sm">
+                  <div class="flex justify-between items-center">
+                    <span class="text-gray-300">Initial consultation response</span>
+                    <span class="text-amber-400 font-medium">24 hours</span>
+                  </div>
+                  <div class="flex justify-between items-center">
+                    <span class="text-gray-300">Detailed programme proposal</span>
+                    <span class="text-amber-400 font-medium">48 hours</span>
+                  </div>
+                  <div class="flex justify-between items-center">
+                    <span class="text-gray-300">Optimal booking timeline</span>
+                    <span class="text-amber-400 font-medium">90 days advance</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Enhanced Contact Form -->
+            <div>
+              <h3 class="font-serif italic text-2xl text-white mb-8">Share Your Vision</h3>
+              
+              <form class="space-y-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <input 
+                    type="text" 
+                    placeholder="Your Name" 
+                    required 
+                    class="w-full rounded-2xl bg-gray-800/50 border border-gray-600 px-6 py-4 text-white placeholder-gray-400 focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all duration-300"
+                  />
+                  <input 
+                    type="text" 
+                    placeholder="Organisation" 
+                    required 
+                    class="w-full rounded-2xl bg-gray-800/50 border border-gray-600 px-6 py-4 text-white placeholder-gray-400 focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all duration-300"
+                  />
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <input 
+                    type="email" 
+                    placeholder="Email Address" 
+                    required 
+                    class="w-full rounded-2xl bg-gray-800/50 border border-gray-600 px-6 py-4 text-white placeholder-gray-400 focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all duration-300"
+                  />
+                  <input 
+                    type="tel" 
+                    placeholder="Contact Number" 
+                    required 
+                    class="w-full rounded-2xl bg-gray-800/50 border border-gray-600 px-6 py-4 text-white placeholder-gray-400 focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all duration-300"
+                  />
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <select required class="w-full rounded-2xl bg-gray-800/50 border border-gray-600 px-6 py-4 text-white focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all duration-300">
+                    <option value="">Programme Type</option>
+                    <option value="strategic-retreat">Strategic Leadership Retreat</option>
+                    <option value="innovation-lab">Innovation & Transformation Lab</option>
+                    <option value="stakeholder-experience">Stakeholder Engagement Experience</option>
+                    <option value="team-performance">Team Performance Excellence</option>
+                    <option value="executive-learning">Executive Learning Intensive</option>
+                    <option value="achievement-celebration">Achievement Celebration</option>
+                    <option value="custom">Custom Programme</option>
+                  </select>
+                  
+                  <select class="w-full rounded-2xl bg-gray-800/50 border border-gray-600 px-6 py-4 text-white focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all duration-300">
+                    <option value="">Group Size</option>
+                    <option value="5-15">5-15 executives (Intimate)</option>
+                    <option value="16-25">16-25 executives (Core team)</option>
+                    <option value="26-40">26-40 executives (Maximum)</option>
+                  </select>
+                </div>
+
+                <textarea 
+                  placeholder="Share your objectives, vision, and any specific requirements. What transformation are you seeking to achieve through this corporate programme?"
+                  rows="5"
+                  required
+                  class="w-full rounded-2xl bg-gray-800/50 border border-gray-600 px-6 py-4 text-white placeholder-gray-400 focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all duration-300 resize-none leading-relaxed"
+                ></textarea>
+
+                <button type="submit" class="w-full py-4 bg-gradient-to-r from-amber-400 to-orange-500 text-gray-900 font-semibold rounded-2xl hover:from-amber-300 hover:to-orange-400 transition-all duration-300 text-lg flex items-center justify-center">
+                  Request Bespoke Programme Proposal
+                  <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
+                  </svg>
+                </button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+</Layout>

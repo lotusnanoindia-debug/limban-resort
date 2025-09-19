@@ -1,5 +1,6 @@
 ---
-// Sub Hero Section Component
+import { Icon } from 'astro-icon/components'
+
 export interface Props {
   subHero?: {
     aboveHeader?: string;
@@ -12,63 +13,175 @@ export interface Props {
     }>;
     image?: { url: string };
     imageAltText?: string;
+    optimizedImage?: {
+      src: string;
+      lqip: string;
+      width: number;
+      height: number;
+    };
   };
 }
 
 const { subHero } = Astro.props;
+
+// 🎯 OPTIMIZED: Safe image URL with fallback
+const imageUrl = subHero?.optimizedImage?.src || subHero?.image?.url;
+const imageLqip = subHero?.optimizedImage?.lqip;
+const imageAlt = subHero?.imageAltText || "Limban Resort luxury safari experience - award-winning eco-tourism destination in Tadoba National Park Maharashtra";
 ---
 
-{
-  subHero && (
-    <section class="py-32 bg-gray-900">
-      <div class="max-w-7xl mx-auto px-6">
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
-          <div>
-            <div class="text-sm text-gray-400 tracking-[0.2em] uppercase mb-4">
-              {subHero.aboveHeader}
+{subHero && (
+  <section class="py-24 md:py-32 bg-gray-900" id="about" role="region" aria-labelledby="subhero-title">
+    <div class="max-w-7xl mx-auto px-6">
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-20 items-center">
+        
+        <!-- 🎯 ENHANCED: Content with better typography and accessibility -->
+        <div class="order-2 lg:order-1">
+          {subHero.aboveHeader && (
+            <div class="inline-block px-4 py-2 bg-amber-400/10 border border-amber-400/30 rounded-full mb-6">
+              <span class="text-amber-400 text-xs font-medium tracking-widest uppercase">
+                {subHero.aboveHeader}
+              </span>
             </div>
-            <h2 class="font-serif italic text-4xl md:text-6xl text-white mb-8 leading-tight">
-              {subHero.title}
-            </h2>
+          )}
+          
+          <h2 
+            id="subhero-title"
+            class="font-serif italic text-3xl md:text-5xl lg:text-6xl text-white mb-8 leading-tight"
+          >
+            {subHero.title}
+          </h2>
+          
+          {subHero.bodyText?.html && (
             <div
-              class="text-base text-gray-300 mb-8 leading-relaxed [&>p]:mb-4 [&>p:last-child]:mb-0"
-              set:html={subHero.bodyText?.html}
+              class="max-w-none mb-8 [&>p]:text-gray-300 [&>p]:leading-relaxed [&>p]:mb-4 [&>p:last-child]:mb-0 [&>strong]:text-white [&>em]:text-amber-400"
+              set:html={subHero.bodyText.html}
             />
-            {subHero.stats && (
-              <div class="grid grid-cols-3 gap-8">
-                {subHero.stats.map((stat, index) => (
-                  <div
-                    key={index}
-                    class="group bg-gray-900/50 backdrop-blur-sm border border-gray-700/50 rounded-xl p-6 text-center transition-all duration-300 hover:bg-gray-800/60 hover:border-gray-700/60 hover:transform hover:-translate-y-2 hover:shadow-2xl"
-                  >
-                    <div
-                      class="w-10 h-10 mx-auto mb-4 text-gray-400 group-hover:text-white transition-colors duration-300"
-                      set:html={stat.svg}
-                    />
-                    <div class="text-3xl font-bold text-white mb-2 group-hover:text-gray-100">
-                      {stat.number}
-                    </div>
-                    <div class="text-sm text-gray-400 tracking-wide group-hover:text-gray-300 transition-colors duration-300">
-                      {stat.label}
-                    </div>
+          )}
+          
+          <!-- 🎯 ENHANCED: Stats with improved animations and accessibility -->
+          {subHero.stats && subHero.stats.length > 0 && (
+            <div class="grid grid-cols-3 gap-6 mt-12" role="list" aria-label="Resort statistics">
+              {subHero.stats.map((stat, index) => (
+                <div
+                  key={index}
+                  class="group bg-gradient-to-br from-gray-800/40 to-gray-900/60 backdrop-blur-sm border border-gray-700/50 rounded-xl p-6 text-center transition-all duration-500 hover:bg-gray-800/60 hover:border-amber-400/30 hover:-translate-y-2 hover:shadow-xl hover:shadow-black/20"
+                  role="listitem"
+                >
+                  {/* 🎯 OPTIMIZED: SVG icon with proper sizing */}
+                  <div class="w-8 h-8 mx-auto mb-4 text-amber-400">
+                    <Icon name={stat.svg} class="w-full h-full" />
                   </div>
-                ))}
-              </div>
+                  
+                  <div class="text-2xl md:text-3xl font-bold text-white mb-2">
+                    {stat.number}
+                  </div>                  
+                  <div class="text-xs md:text-sm text-gray-400 tracking-wide group-hover:text-gray-300 transition-colors duration-300 leading-tight">
+                    {stat.label}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+        
+        <!-- Optimized image with LQIP and responsive sizing -->
+        <div class="order-1 lg:order-2 hidden sm:block">
+          <div class="relative aspect-[4/5] bg-gray-800 rounded-2xl overflow-hidden shadow-2xl">
+            
+            {/* 🎯 LQIP background for instant render */}
+            {imageLqip && (
+              <img
+                src={imageLqip}
+                alt=""
+                class="absolute inset-0 w-full h-full object-cover blur-sm scale-105"
+                aria-hidden="true"
+              />
             )}
-          </div>
-          <div>
-            <img
-              src={subHero.image?.url}
-              alt={subHero.imageAltText}
-              class="w-full h-[600px] object-cover rounded-lg shadow-2xl"
-              width="800"
-              height="600"
-              loading="lazy"
-              decoding="async"
-            />
+            
+            {/* Main image with responsive loading */}
+            {imageUrl && (
+              <img
+                src={imageUrl}
+                alt={imageAlt}
+                class="relative w-full h-full object-cover transition-all duration-700 hover:scale-105"
+                width={subHero?.optimizedImage?.width || 800}
+                height={subHero?.optimizedImage?.height || 600}
+                loading="lazy"
+                decoding="async"
+                sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 40vw"
+              />
+            )}
+            
+            {/* 🎯 ENHANCED: Subtle overlay for better contrast */}
+            <div class="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent pointer-events-none"></div>
           </div>
         </div>
+        
       </div>
-    </section>
-  )
-}
+    </div>
+  </section>
+)}
+
+<script>
+  // 🎯 PERFORMANCE: Intersection Observer for stat animations
+  if ('IntersectionObserver' in window) {
+    const statsObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          const statElement = entry.target;
+          // FIX: Look for the actual number element in your HTML
+          const numberElement = statElement.querySelector('.text-2xl'); // Changed from [data-number]
+          
+          if (numberElement && !numberElement.classList.contains('animated')) {
+            // Set the data-number attribute
+            numberElement.dataset.number = numberElement.textContent;
+            animateNumber(numberElement);
+            numberElement.classList.add('animated');
+          }
+          
+          statsObserver.unobserve(entry.target);
+        }
+      });
+    }, {
+      threshold: 0.5,
+      rootMargin: '0px 0px -50px 0px'
+    });
+
+    // Observe all stat cards
+    document.querySelectorAll('[role="listitem"]').forEach(stat => {
+      statsObserver.observe(stat);
+    });
+  }
+
+  // 🎯 UX: Smooth number animation (this part is fine)
+  function animateNumber(element) {
+    const finalValue = element.dataset.number;
+    const isNumber = /^\d+$/.test(finalValue);
+    
+    if (!isNumber) return;
+    
+    const duration = 2000;
+    const startTime = performance.now();
+    const targetNumber = parseInt(finalValue);
+    
+    function updateNumber(currentTime) {
+      const elapsed = currentTime - startTime;
+      const progress = Math.min(elapsed / duration, 1);
+      
+      // Easing function for smooth animation
+      const easeOutQuart = 1 - Math.pow(1 - progress, 4);
+      const currentNumber = Math.floor(targetNumber * easeOutQuart);
+      
+      element.textContent = currentNumber.toLocaleString();
+      
+      if (progress < 1) {
+        requestAnimationFrame(updateNumber);
+      } else {
+        element.textContent = finalValue;
+      }
+    }
+    
+    requestAnimationFrame(updateNumber);
+  }
+</script>

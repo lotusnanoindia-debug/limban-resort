@@ -29,5 +29,43 @@ const { title = "Limban Resort" } = Astro.props;
       <slot />
     </main>
     <Footer />
+    <script>
+      // Luxury page loader
+      function showLoader() {
+        const loader = document.createElement("div");
+        loader.id = "page-loader";
+        loader.className =
+          "fixed inset-0 bg-gray-950/80 backdrop-blur-sm z-50 flex items-center justify-center";
+        loader.innerHTML = `
+        <div class="text-center">
+          <div class="w-16 h-16 border-2 border-amber-400/30 border-t-amber-400 rounded-full animate-spin mx-auto mb-4"></div>
+        </div>
+      `;
+        document.body.appendChild(loader);
+      }
+
+      function hideLoader() {
+        const loader = document.getElementById("page-loader");
+        if (loader) {
+          loader.style.opacity = "0";
+          loader.style.transition = "opacity 0.3s ease";
+          setTimeout(() => loader.remove(), 300);
+        }
+      }
+
+      // Show on any link click
+      document.addEventListener("click", (e) => {
+        if (
+          e.target.tagName === "A" &&
+          e.target.href &&
+          !e.target.href.includes("#")
+        ) {
+          showLoader();
+        }
+      });
+
+      // Hide when page loads
+      window.addEventListener("load", hideLoader);
+    </script>
   </body>
 </html>
