@@ -3,6 +3,75 @@ import { request } from 'graphql-request';
 // Configuration
 const HYGRAPH_URL = 'https://ap-south-1.cdn.hygraph.com/content/cmek3o66w01vb07w64qwgkybp/master';
 
+// 🎯 NEW: Image mapping system
+let imageMapping = null;
+
+// 🎯 FIXED: Simplified file loading
+async function loadImageMapping() {
+  if (!imageMapping) {
+    try {
+      // Always try to import fs for server-side loading
+      const fs = await import('fs');
+      const mapping = fs.readFileSync('./public/image-mapping.json', 'utf8');
+      imageMapping = JSON.parse(mapping);
+      console.log(`📸 Loaded image mapping for ${Object.keys(imageMapping).length} images`);
+    } catch (error) {
+      console.warn('⚠️ Image mapping not found, using original URLs:', error.message);
+      imageMapping = {};
+    }
+  }
+  return imageMapping;
+}
+
+// 🎯 DEBUG: Add console logs to see what's happening
+function replaceImageUrls(obj) {
+  if (!obj || !imageMapping) return obj;
+  
+  if (typeof obj === 'string' && obj.includes('graphassets.com')) {
+    console.log('🔍 Processing URL:', obj);
+    
+    // Extract the asset ID from the URL (the part after the last slash)
+    const urlParts = obj.split('/');
+    const assetId = urlParts[urlParts.length - 1];
+    console.log('🔍 Extracted asset ID:', assetId);
+    
+    // Find matching original URL in mapping
+    const matchingOriginalUrl = Object.keys(imageMapping).find(originalUrl => 
+      originalUrl.endsWith('/' + assetId)
+    );
+    console.log('🔍 Found matching URL:', matchingOriginalUrl);
+    
+    if (matchingOriginalUrl) {
+      const mapping = imageMapping[matchingOriginalUrl];
+      console.log('🔍 Available sizes:', Object.keys(mapping));
+      
+      // For SubHero specifically
+      if (obj.includes('resize=fit:crop,height:600,width:500')) {
+        console.log('🔍 Matched SubHero pattern, returning:', mapping.optimisedCard);
+        return mapping.optimisedCard || obj;
+      }
+      
+      return mapping.large || obj;
+    } else {
+      console.log('❌ No matching URL found');
+    }
+  }
+  
+  if (Array.isArray(obj)) {
+    return obj.map(item => replaceImageUrls(item));
+  }
+  
+  if (typeof obj === 'object' && obj !== null) {
+    const result = {};
+    for (const [key, value] of Object.entries(obj)) {
+      result[key] = replaceImageUrls(value);
+    }
+    return result;
+  }
+  
+  return obj;
+}
+
 // Reusable Fragments
 const IMAGE_FIELDS_FRAGMENT = `
   fragment ImageFields on Asset {
@@ -241,7 +310,6 @@ const DINING_BY_SLUG_QUERY = `
   ${IMAGE_FIELDS_FRAGMENT}
 `;
 
-
 const CORPORATE_GALLERY_QUERY = `
   query CorporateGalleryQuery {
     corporateGalleries(orderBy: displayOrder_ASC) {
@@ -262,13 +330,11 @@ const CORPORATE_GALLERY_QUERY = `
 
 // ============ UTILITIES ============
 
-// Enhanced error handler with context
 const handleApiError = (error, operation) => {
   console.error(`Hygraph API error in ${operation}:`, error);
   throw error;
 };
 
-// Date validation for special deals
 const isDateInRange = (now, validFrom, validTo) => {
   const from = validFrom ? new Date(validFrom) : null;
   const to = validTo ? new Date(validTo) : null;
@@ -276,17 +342,19 @@ const isDateInRange = (now, validFrom, validTo) => {
   if (from && to) return now >= from && now <= to;
   if (from && !to) return now >= from;
   if (!from && to) return now <= to;
-  return true; // No dates set = always active
+  return true;
 };
 
 // ============ API FUNCTIONS ============
 
 export const fetchHeroData = async () => {
   try {
+    await loadImageMapping();
     const data = await request(HYGRAPH_URL, HERO_QUERY);
-    return data.heroSlides
+    const result = data.heroSlides
       .filter(slide => slide.active)
       .sort((a, b) => (a.displayOrder || 0) - (b.displayOrder || 0));
+    return replaceImageUrls(result);
   } catch (error) {
     handleApiError(error, 'fetchHeroData');
   }
@@ -294,8 +362,10 @@ export const fetchHeroData = async () => {
 
 export const fetchSubHeroData = async () => {
   try {
+    await loadImageMapping();
     const data = await request(HYGRAPH_URL, SUB_HERO_QUERY);
-    return data.subHeroSections[0] || null;
+    const result = data.subHeroSections[0] || null;
+    return replaceImageUrls(result);
   } catch (error) {
     handleApiError(error, 'fetchSubHeroData');
   }
@@ -303,8 +373,9 @@ export const fetchSubHeroData = async () => {
 
 export const fetchRoomsData = async () => {
   try {
+    await loadImageMapping();
     const data = await request(HYGRAPH_URL, ROOMS_QUERY);
-    return data.rooms;
+    return replaceImageUrls(data.rooms);
   } catch (error) {
     handleApiError(error, 'fetchRoomsData');
   }
@@ -312,8 +383,10 @@ export const fetchRoomsData = async () => {
 
 export const fetchRoomBySlug = async (slug) => {
   try {
+    await loadImageMapping();
     const data = await request(HYGRAPH_URL, ROOM_BY_SLUG_QUERY, { slug });
-    return data.rooms.length > 0 ? data.rooms[0] : null;
+    const result = data.rooms.length > 0 ? data.rooms[0] : null;
+    return replaceImageUrls(result);
   } catch (error) {
     handleApiError(error, 'fetchRoomBySlug');
   }
@@ -321,8 +394,10 @@ export const fetchRoomBySlug = async (slug) => {
 
 export const fetchExperienceData = async () => {
   try {
+    await loadImageMapping();
     const data = await request(HYGRAPH_URL, EXPERIENCE_QUERY);
-    return data.experienceSections[0] || null;
+    const result = data.experienceSections[0] || null;
+    return replaceImageUrls(result);
   } catch (error) {
     handleApiError(error, 'fetchExperienceData');
   }
@@ -330,6 +405,7 @@ export const fetchExperienceData = async () => {
 
 export const fetchSpecialDealData = async () => {
   try {
+    await loadImageMapping();
     const data = await request(HYGRAPH_URL, SPECIAL_DEAL_QUERY);
     const latestDeal = data.specialRoomsDeals[0];
     
@@ -346,12 +422,14 @@ export const fetchSpecialDealData = async () => {
 
 export const fetchAboutData = async () => {
   try {
+    await loadImageMapping();
     const data = await request(HYGRAPH_URL, ABOUT_PAGE_QUERY);
-    return {
+    const result = {
       aboutPage: data.aboutPage,
       vibeGallery: data.vibeGallery,
       guestGallery: data.guestGallery?.[0] || null
     };
+    return replaceImageUrls(result);
   } catch (error) {
     handleApiError(error, 'fetchAboutData');
   }
@@ -359,11 +437,13 @@ export const fetchAboutData = async () => {
 
 export const fetchVibePageData = async () => {
   try {
+    await loadImageMapping();
     const data = await request(HYGRAPH_URL, VIBE_PAGE_QUERY);
-    return {
+    const result = {
       vibeImages: data.vibeGallery?.images || [],
       wildlifeImages: data.wildlifeGallery?.image || []
     };
+    return replaceImageUrls(result);
   } catch (error) {
     handleApiError(error, 'fetchVibePageData');
   }
@@ -371,8 +451,9 @@ export const fetchVibePageData = async () => {
 
 export const fetchDiningExperiencesData = async () => {
   try {
+    await loadImageMapping();
     const data = await request(HYGRAPH_URL, DINING_EXPERIENCES_QUERY);
-    return data.restaurants;
+    return replaceImageUrls(data.restaurants);
   } catch (error) {
     handleApiError(error, 'fetchDiningExperiencesData');
   }
@@ -380,8 +461,10 @@ export const fetchDiningExperiencesData = async () => {
 
 export const fetchDiningExperienceBySlug = async (slug) => {
   try {
+    await loadImageMapping();
     const data = await request(HYGRAPH_URL, DINING_BY_SLUG_QUERY, { url: slug });
-    return data.restaurants?.[0];
+    const result = data.restaurants?.[0];
+    return replaceImageUrls(result);
   } catch (error) {
     handleApiError(error, 'fetchDiningExperienceBySlug');
   }
@@ -389,16 +472,19 @@ export const fetchDiningExperienceBySlug = async (slug) => {
 
 export const fetchCorporateGallery = async () => {
   try {
+    await loadImageMapping();
     const data = await request(HYGRAPH_URL, CORPORATE_GALLERY_QUERY);
-    return data.corporateGalleries || [];
+    const result = data.corporateGalleries || [];
+    return replaceImageUrls(result);
   } catch (error) {
     handleApiError(error, 'fetchCorporateGallery');
   }
 };
 
-// Combined data fetchers
+// 🎯 UPDATED: Combined data fetchers with image replacement
 export const fetchAllHomepageData = async () => {
   try {
+    await loadImageMapping();
     const [heroes, subHero, rooms, experiences, specialDeal] = await Promise.all([
       fetchHeroData(),
       fetchSubHeroData(),

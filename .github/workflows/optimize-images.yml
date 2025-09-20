@@ -1,0 +1,46 @@
+name: Optimize Images on Content Change
+
+on:
+  repository_dispatch:
+    types: [hygraph-content-changed]
+  workflow_dispatch: # Keep manual trigger as backup
+  schedule:
+    - cron: "0 2 * * 0" # Weekly backup (Sunday 2AM)
+
+jobs:
+  optimize:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install dependencies
+        run: npm install sharp
+
+      - name: Optimize all images
+        run: node scripts/optimize-all-images.js
+
+      - name: Commit and push optimized images
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add public/optimized/ public/image-mapping.json
+          if git diff --staged --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "Auto-update optimized images from Hygraph"
+            git push
+          fi
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Trigger Netlify rebuild
+        run: |
+          curl -X POST -d {} ${{ secrets.NETLIFY_BUILD_HOOK }}
+        if: success()
