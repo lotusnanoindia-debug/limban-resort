@@ -38,10 +38,10 @@ async function optimizeRoomCard(url) {
   try {
     return await getImage({
       src: url,
-      width: 600,
-      height: 400,
-      format: 'webp',
-      quality: 85, // Higher quality for main rooms page
+      width: 590,
+      height: 320,
+      format: 'avif',
+      quality: 60,
       fit: 'cover',
       inferSize: true,
     });
@@ -58,10 +58,10 @@ async function optimizeHero(url) {
   try {
     return await getImage({
       src: url,
-      width: 1920,
-      height: 1080,
-      format: 'webp',
-      quality: 90, // High quality for hero
+      width: 200,
+      height: 150,
+      format: 'avif',
+      quality: 20, // High quality for hero
       fit: 'cover',
       inferSize: true,
     });
@@ -93,7 +93,7 @@ try {
                 
         return {
           ...room,
-          optimizedImage: optimizedCard?.src || validateImageUrl(sourceUrl) || '/img/room-placeholder.webp',
+          optimizedImage: optimizedCard?.src || validateImageUrl(sourceUrl) || '/img/room-placeholder.avif',
           safePrice: Number(room.basePrice) || 0,
           priority: index < 4, // First 4 rooms get priority loading
           safeUrl: room.url?.startsWith('/') ? room.url : `/rooms/${room.url || room.id}`,
@@ -112,7 +112,7 @@ try {
 // 🎯 ENHANCED: Optimize hero image
 const heroSourceUrl = data.rooms[0]?.heroImage?.optimisedCard || data.rooms[0]?.heroImage?.url;
 const optimizedHero = await optimizeHero(heroSourceUrl);
-const roomsHeroImage = optimizedHero?.src || validateImageUrl(heroSourceUrl) || '/img/rooms-hero.webp';
+const roomsHeroImage = optimizedHero?.src || validateImageUrl(heroSourceUrl) || '/img/rooms-hero.avif';
 
 
 // 🎯 ENHANCED: Create randomized hero mosaic (after data processing)

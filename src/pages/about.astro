@@ -58,7 +58,7 @@ async function processTeamImage(item, index = 0) {
           src: sourceUrl,
           width: 96,
           height: 96,
-          format: "webp",
+          format: "avif",
           quality: 60,
           fit: "cover",
           inferSize: true,
@@ -68,7 +68,7 @@ async function processTeamImage(item, index = 0) {
           src: sourceUrl,
           width: 300,
           height: 300,
-          format: "webp",
+          format: "avif",
           quality: 50,
           fit: "cover",
           inferSize: true,
@@ -78,7 +78,7 @@ async function processTeamImage(item, index = 0) {
           src: sourceUrl,
           width: 800,
           height: 800,
-          format: "webp",
+          format: "avif",
           quality: 85,
           fit: "cover",
           inferSize: true,
@@ -89,7 +89,7 @@ async function processTeamImage(item, index = 0) {
           src: sourceUrl,
           width: 20,
           height: 20,
-          format: "webp",
+          format: "avif",
           quality: 20,
           fit: "cover",
           inferSize: true,
@@ -131,7 +131,7 @@ async function optimizeSingleImage(url, width, height, quality = 80) {
         src: url,
         width: width,
         height: height,
-        format: "webp",
+        format: "avif",
         quality: quality,
         fit: "cover",
         inferSize: true,
@@ -141,7 +141,7 @@ async function optimizeSingleImage(url, width, height, quality = 80) {
         src: url,
         width: Math.floor(width / 15), // 1/15th size for LQIP
         height: Math.floor(height / 15),
-        format: "webp",
+        format: "avif",
         quality: 20,
         fit: "cover",
         inferSize: true,
@@ -174,7 +174,7 @@ async function processGalleryImage(item, index = 0) {
           src: sourceUrl,
           width: 96,
           height: 96,
-          format: "webp",
+          format: "avif",
           quality: 60,
           fit: "cover",
           inferSize: true,
@@ -184,7 +184,7 @@ async function processGalleryImage(item, index = 0) {
           src: sourceUrl,
           width: 300,
           height: 300,
-          format: "webp",
+          format: "avif",
           quality: 60,
           fit: "cover",
           inferSize: true,
@@ -193,7 +193,7 @@ async function processGalleryImage(item, index = 0) {
         getImage({
           src: sourceUrl,
           width: 1600,
-          format: "webp",
+          format: "avif",
           quality: 80,
           fit: "inside",
           inferSize: true,
@@ -327,7 +327,7 @@ const initialGuestImages = initialGuestOptimized;
 const initialTeamImages = initialTeamOptimized;
 
 // Extract optimized URLs for meta tags
-const heroImageSrc = heroImage?.src || "/limban-about-hero.webp";
+const heroImageSrc = heroImage?.src || "/limban-about-hero.avif";
 const philosophyImageSrc = philosophyImage?.src || "";
 const foundersImageSrc = foundersImage?.src || "";
 ---

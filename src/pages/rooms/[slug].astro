@@ -31,7 +31,7 @@ async function optimizeImage(url, width, height, quality = 80) {
       src: url,
       width: width,
       height: height,
-      format: "webp",
+      format: "avif",
       quality: quality,
       fit: "cover",
       inferSize: true,
@@ -130,7 +130,7 @@ const heroImage =
   optimisedHero?.src ||
   room.heroImage?.optimisedCard ||
   room.heroImage?.url ||
-  "/img/room-placeholder.webp";
+  "/img/room-placeholder.avif";
 
 // Safe price processing
 const safePrice = Number(room.basePrice) || 0;
@@ -402,7 +402,7 @@ const safePrice = Number(room.basePrice) || 0;
             <article key={otherRoom.id} class="group relative aspect-[4/5] overflow-hidden rounded-2xl border border-gray-800/50 hover:border-amber-400/50 transition-all duration-700 hover:scale-105 hover:shadow-2xl hover:shadow-amber-400/20">
               <a href={`/rooms/${otherRoom.url}`} class="block w-full h-full">
                 <img
-                  src={otherRoom.optimizedCardImg?.src || otherRoom.heroImage?.optimisedCard || "/img/room-placeholder.webp"}
+                  src={otherRoom.optimizedCardImg?.src || otherRoom.heroImage?.optimisedCard || "/img/room-placeholder.avif"}
                   alt={`${otherRoom.roomName} accommodation at Limban Resort`}
                   class="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                   loading="lazy"

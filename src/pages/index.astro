@@ -24,14 +24,14 @@ async function fetchWithRetry(fetchFn, retries = 2) {
 }
 
 // 🎯 SIMPLE: Single image optimizer for all types
-async function optimizeImage(url, width, height, quality = 85) {
+async function optimizeImage(url, width, height, quality = 60) {
   if (!url) return null;
   try {
     const optimized = await getImage({
       src: url,
       width: width,
       height: height,
-      format: "webp",
+      format: "avif",
       quality: quality,
       fit: "cover",
       inferSize: true,
@@ -55,20 +55,60 @@ let error = null;
 try {
   data = await fetchWithRetry(() => fetchAllHomepageData());
 
-  // 🎯 OPTIMIZE: Hero image
-  if (data.heroes?.length > 0 && data.heroes[0]?.backgroundImage?.heroMobile) {
-    const optimizedHero = await optimizeImage(
-      data.heroes[0].backgroundImage.heroMobile,
-      1920,
-      1080,
-      70
+  // 🎯 OPTIMIZE: ALL hero images with individual quality settings
+  if (data.heroes?.length > 0) {
+    data.heroes = await Promise.all(
+      data.heroes.map(async (hero, index) => {
+        const optimizedImages = {};
+
+        // 🎯 QUALITY CONTROL: First hero gets highest quality, others lower
+        const qualitySettings = {
+          hero4K: index === 0 ? 75 : 65, // Ultra-high res
+          desktop: index === 0 ? 80 : 70, // Primary desktop
+          tablet: index === 0 ? 85 : 75, // Tablet viewing
+          mobile: index === 0 ? 85 : 80, // Mobile (smallest, highest quality)
+        };
+
+        // Optimize each responsive breakpoint with individual quality
+        if (hero.backgroundImage?.hero4K) {
+          optimizedImages.hero4K = await optimizeImage(
+            hero.backgroundImage.hero4K,
+            2560,
+            1440,
+            qualitySettings.hero4K
+          );
+        }
+        if (hero.backgroundImage?.heroDesktop) {
+          optimizedImages.desktop = await optimizeImage(
+            hero.backgroundImage.heroDesktop,
+            1920,
+            1080,
+            qualitySettings.desktop
+          );
+        }
+        if (hero.backgroundImage?.heroTablet) {
+          optimizedImages.tablet = await optimizeImage(
+            hero.backgroundImage.heroTablet,
+            1024,
+            576,
+            qualitySettings.tablet
+          );
+        }
+        if (hero.backgroundImage?.heroMobile) {
+          optimizedImages.mobile = await optimizeImage(
+            hero.backgroundImage.heroMobile,
+            768,
+            432,
+            qualitySettings.mobile
+          );
+        }
+
+        return { ...hero, optimizedImages };
+      })
     );
-    if (optimizedHero) {
-      data.heroes[0].optimizedImage = optimizedHero;
-    }
   }
 
-  // 🎯 OPTIMIZE: Sub-hero image
+  //  Sub-hero image
   if (data.subHero?.image?.url) {
     const optimizedSubHero = await optimizeImage(
       data.subHero.image.url,
@@ -81,11 +121,12 @@ try {
     }
   }
 
-  // 🎯 OPTIMIZE: All room images
+  // 🎯 OPTIMIZE: Only first 3 room images (above fold)
   if (data.rooms?.length > 0) {
     data.rooms = await Promise.all(
-      data.rooms.map(async (room) => {
-        if (room.heroImage?.optimisedCard) {
+      data.rooms.map(async (room, index) => {
+        // Only optimize first 3 images that load eagerly
+        if (index < 3 && room.heroImage?.optimisedCard) {
           const optimized = await optimizeImage(
             room.heroImage.optimisedCard,
             400,
@@ -94,12 +135,13 @@ try {
           );
           return { ...room, optimizedImage: optimized };
         }
+        // Keep other rooms unprocessed - they'll load original images lazily
         return room;
       })
     );
   }
 
-  // 🎯 OPTIMIZE: Experience images
+  //  Experience images
   if (data.experiences?.experience?.length > 0) {
     data.experiences.experience = await Promise.all(
       data.experiences.experience.map(async (exp) => {
@@ -116,13 +158,15 @@ try {
   error = "Failed to load content from CMS";
 }
 
-// Safe hero image
+// Safe hero image fallback
 const heroImage =
+  data.heroes[0]?.optimizedImages?.desktop?.src ||
+  data.heroes[0]?.optimizedImages?.mobile?.src ||
   data.heroes[0]?.backgroundImage?.heroDesktop ||
   data.heroes[0]?.backgroundImage?.heroMobile ||
-  "/img/limban-hero-fallback.webp";
+  "/img/limban-hero-fallback.avif";
 
-// 🎯 KEEP: Full JSON-LD for SEO (CRITICAL - DO NOT CUT)
+// Full JSON-LD for SEO (CRITICAL - DO NOT CUT)
 const enhancedJsonLd = {
   "@context": "https://schema.org",
   "@type": "Resort",
@@ -133,7 +177,7 @@ const enhancedJsonLd = {
   url: "https://limban.com",
   logo: {
     "@type": "ImageObject",
-    url: "https://limban.com/img/limban-resort-tadoba-logo.webp",
+    url: "https://limban.com/img/limban-resort-tadoba-logo.avif",
     width: 300,
     height: 100,
   },

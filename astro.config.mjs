@@ -10,6 +10,8 @@ export default defineConfig({
   integrations: [sitemap(), react(), icon()],
   
   image: {
+    format: 'avif',
+    quality: 80,
     remotePatterns: [
       {
         protocol: 'https',

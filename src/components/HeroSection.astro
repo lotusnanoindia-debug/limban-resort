@@ -3,7 +3,7 @@ const { heroes } = Astro.props;
 ---
 
 <section class="h-screen relative overflow-hidden" role="banner" aria-label="Hero carousel">
-  <!-- 🎯 SIMPLIFIED: Single loading indicator -->
+  <!-- Single loading indicator -->
   <div
     id="loading-overlay"
     class="fixed inset-0 bg-black/90 backdrop-blur-sm flex items-center justify-center z-50 opacity-0 invisible transition-opacity duration-300"
@@ -23,39 +23,31 @@ const { heroes } = Astro.props;
         data-slide={index}
         style={index === 0 ? "opacity: 1; z-index: 2;" : "opacity: 0; z-index: 1;"}
       >
-        {/* 🎯 CRITICAL: Optimized image loading strategy */}
+        {/* 🎯 CRITICAL: Using Astro-optimized AVIF images */}
         {index === 0 ? (
-          // First slide: Immediate load with LQIP
+          // First slide: Immediate load with optimized images
           <div class="absolute inset-0 w-full h-full">
-            {/* LQIP background for instant render */}
-            {hero.optimizedImage?.lqip && (
-              <img
-                src={hero.optimizedImage.lqip}
-                alt=""
-                class="absolute inset-0 w-full h-full object-cover blur-sm scale-105"
-                aria-hidden="true"
-              />
-            )}
-            
-            {/* High-quality hero image */}
             <picture class="absolute inset-0 w-full h-full">
+              {/* Astro-optimized AVIF sources */}
               <source
-                srcset={hero.backgroundImage?.hero4K}
+                srcset={hero.optimizedImages?.hero4K?.src}
                 media="(min-width: 1600px)"
-                type="image/webp"
+                type="image/avif"
               />
               <source
-                srcset={hero.backgroundImage?.heroDesktop}
+                srcset={hero.optimizedImages?.desktop?.src}
                 media="(min-width: 1200px)"
-                type="image/webp"
+                type="image/avif"
               />
               <source
-                srcset={hero.backgroundImage?.heroTablet}
+                srcset={hero.optimizedImages?.tablet?.src}
                 media="(min-width: 768px)"
-                type="image/webp"
+                type="image/avif"
               />
+              
+              {/* Final fallback - use optimized mobile or original */}
               <img
-                src={hero.optimizedImage?.src || hero.backgroundImage?.heroMobile}
+                src={hero.optimizedImages?.mobile?.src || hero.backgroundImage?.heroMobile}
                 alt={`${hero.slideTitle} - Limban Resort luxury safari experience`}
                 class="w-full h-full object-cover transition-opacity duration-700"
                 loading="eager"
@@ -65,27 +57,29 @@ const { heroes } = Astro.props;
             </picture>
           </div>
         ) : (
-          // Other slides: Lazy load
+          // Other slides: Lazy load with optimized images
           <div class="absolute inset-0 w-full h-full">
             <picture class="absolute inset-0 w-full h-full">
+              {/* Lazy-loaded Astro-optimized AVIF sources */}
               <source
-                data-srcset={hero.backgroundImage?.hero4K}
+                data-srcset={hero.optimizedImages?.hero4K?.src}
                 media="(min-width: 1600px)"
-                type="image/webp"
+                type="image/avif"
               />
               <source
-                data-srcset={hero.backgroundImage?.heroDesktop}
+                data-srcset={hero.optimizedImages?.desktop?.src}
                 media="(min-width: 1200px)"
-                type="image/webp"
+                type="image/avif"
               />
               <source
-                data-srcset={hero.backgroundImage?.heroTablet}
+                data-srcset={hero.optimizedImages?.tablet?.src}
                 media="(min-width: 768px)"
-                type="image/webp"
+                type="image/avif"
               />
+              
               <img
                 src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='9'%3E%3Crect width='100%25' height='100%25' fill='%23111827'/%3E%3C/svg%3E"
-                data-src={hero.backgroundImage?.heroMobile}
+                data-src={hero.optimizedImages?.mobile?.src || hero.backgroundImage?.heroMobile}
                 alt={`${hero.slideTitle} - Limban Resort luxury safari experience`}
                 class="w-full h-full object-cover lazy-image"
                 loading="lazy"
@@ -201,7 +195,7 @@ const { heroes } = Astro.props;
       this.startAutoAdvance();
     }
 
-    // 🎯 OPTIMIZED: Efficient image loading
+    // 🎯 OPTIMIZED: Load Astro-optimized images
     async loadImage(slideIndex) {
       if (this.loadedImages.has(slideIndex)) return true;
 
@@ -214,7 +208,7 @@ const { heroes } = Astro.props;
       if (!img?.dataset.src) return true;
 
       return new Promise((resolve) => {
-        // Load responsive sources
+        // Load Astro-optimized responsive sources
         sources.forEach(source => {
           if (source.dataset.srcset) {
             source.srcset = source.dataset.srcset;

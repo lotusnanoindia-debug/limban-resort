@@ -56,7 +56,7 @@ async function optimizeHeroTile(url) {
         src: url,
         width: 300,
         height: 400,
-        format: "webp",
+        format: "avif",
         quality: 60,
         fit: "cover",
         inferSize: true,
@@ -66,7 +66,7 @@ async function optimizeHeroTile(url) {
         src: url,
         width: 20,
         height: 26, // Maintain 300:400 aspect ratio
-        format: "webp",
+        format: "avif",
         quality: 20,
         fit: "cover",
         inferSize: true,
@@ -99,7 +99,7 @@ async function processGalleryImage(item, index = 0) {
         src: sourceUrl,
         width: 96,
         height: 96,
-        format: 'webp',
+        format: 'avif',
         quality: 60,
         fit: 'cover',
         inferSize: true,
@@ -109,7 +109,7 @@ async function processGalleryImage(item, index = 0) {
         src: sourceUrl,
         width: 300,
         height: 300,
-        format: 'webp',
+        format: 'avif',
         quality: 60,
         fit: 'cover',
         inferSize: true,
@@ -118,7 +118,7 @@ async function processGalleryImage(item, index = 0) {
       getImage({
         src: sourceUrl,
         width: 1600,
-        format: 'webp',
+        format: 'avif',
         quality: 80,
         fit: 'inside',
         inferSize: true,
@@ -235,7 +235,7 @@ const initialVibeImages = initialVibeOptimized;
 const initialWildlifeImages = initialWildlifeOptimized;
 
 // Hero image for OpenGraph
-const heroImage = heroTiles[0]?.src || initialVibeOptimized[0]?.src || "/limban-vibe-hero.webp";
+const heroImage = heroTiles[0]?.src || initialVibeOptimized[0]?.src || "/limban-vibe-hero.avif";
 ---
 
 
@@ -255,7 +255,7 @@ const heroImage = heroTiles[0]?.src || initialVibeOptimized[0]?.src || "/limban-
     }}
     jsonLd={{
       "@context": "https://schema.org",
-      "@type": "WebPage",
+      "@type": "avifage",
       name: "The Limban Vibe - Feel What Calls You Wild",
       description:
         "Immerse yourself in the Limban experience. Feel the luxury, taste the wild, live the moment. This is what calls you to Tadoba.",

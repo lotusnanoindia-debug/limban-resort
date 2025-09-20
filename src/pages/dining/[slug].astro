@@ -34,7 +34,7 @@ async function optimizeImage(url, width, height, quality = 80) {
       src: url,
       width: width,
       height: height,
-      format: "webp",
+      format: "avif",
       quality: quality,
       fit: "cover",
       inferSize: true,
@@ -117,7 +117,7 @@ const remainingDiningImages = allDiningImages.slice(12);
 const heroImage = optimizedHero?.src || 
                   experience.images?.[0]?.large || 
                   experience.images?.[0]?.url || 
-                  "/img/default-dining.webp";
+                  "/img/default-dining.avif";
 
 ---
 
@@ -372,7 +372,7 @@ const heroImage = optimizedHero?.src ||
               <article key={otherExperience.id} class="group relative aspect-[4/5] overflow-hidden rounded-2xl border border-gray-800/50 hover:border-amber-400/50 transition-all duration-700 hover:scale-105 hover:shadow-2xl hover:shadow-amber-400/20">
                 <a href={`/dining/${otherExperience.url}`} class="block w-full h-full">
                   <img
-                    src={otherExperience.optimizedCardImg?.src || otherExperience.images?.[0]?.large || "/img/dining-placeholder.webp"}
+                    src={otherExperience.optimizedCardImg?.src || otherExperience.images?.[0]?.large || "/img/dining-placeholder.avif"}
                     alt={`${otherExperience.restaurantName} dining experience at Limban Resort`}
                     class="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                     loading="lazy"
