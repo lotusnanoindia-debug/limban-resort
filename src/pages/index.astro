@@ -8,165 +8,48 @@ import ExperiencesSection from "../components/ExperiencesSection.astro";
 import TestimonialsSection from "../components/TestimonialsSection.astro";
 import AwardsSection from "../components/AwardsSection.astro";
 import ContactSection from "../components/ContactSection.astro";
-import { fetchAllHomepageData } from "../api.js";
-import { getImage } from "astro:assets";
 
-// Ultra-reliable API fetching with retry logic
-async function fetchWithRetry(fetchFn, retries = 2) {
-  for (let i = 0; i < retries; i++) {
-    try {
-      return await fetchFn();
-    } catch (error) {
-      if (i === retries - 1) throw error;
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-    }
-  }
-}
+// ✅ CHANGE: Use optimized API for AVIF images
+import { fetchAllHomepageDataOptimized } from "../api-optimized.js";
 
-// 🎯 SIMPLE: Single image optimizer for all types
-async function optimizeImage(url, width, height, quality = 60) {
-  if (!url) return null;
-  try {
-    const optimized = await getImage({
-      src: url,
-      width: width,
-      height: height,
-      format: "avif",
-      quality: quality,
-      fit: "cover",
-      inferSize: true,
-    });
-    return optimized;
-  } catch (error) {
-    return { src: url };
-  }
-}
+// Fetch data using optimized function
+const data = await fetchAllHomepageDataOptimized();
 
-// Server-side data fetching
-let data = {
-  heroes: [],
-  subHero: null,
-  rooms: [],
-  experiences: null,
-  specialDeal: null,
-};
-let error = null;
+const heroes =
+  data.heroes?.map((hero) => ({
+    ...hero,
+    heroImage: {
+      url: hero.backgroundImage?.url, // ✅ Use backgroundImage not heroImage
+      alt:
+        hero.backgroundImage?.altText ||
+        `${hero.slideTitle} - Limban Resort luxury safari experience`,
+    },
+  })) || [];
 
-try {
-  data = await fetchWithRetry(() => fetchAllHomepageData());
+const rooms =
+  data.rooms?.map((room) => ({
+    ...room,
+    heroImage: {
+      url: room.heroImage?.url,
+      alt: room.heroImage?.altText || room.roomName,
+    },
+  })) || [];
 
-  // 🎯 OPTIMIZE: ALL hero images with individual quality settings
-  if (data.heroes?.length > 0) {
-    data.heroes = await Promise.all(
-      data.heroes.map(async (hero, index) => {
-        const optimizedImages = {};
+const services =
+  data.experiences?.experience?.map((exp) => ({
+    ...exp,
+    serviceImage: {
+      url: exp.image?.url,
+      alt: exp.image?.altText || exp.title,
+    },
+  })) || [];
 
-        // 🎯 QUALITY CONTROL: First hero gets highest quality, others lower
-        const qualitySettings = {
-          hero4K: index === 0 ? 75 : 65, // Ultra-high res
-          desktop: index === 0 ? 80 : 70, // Primary desktop
-          tablet: index === 0 ? 85 : 75, // Tablet viewing
-          mobile: index === 0 ? 85 : 80, // Mobile (smallest, highest quality)
-        };
-
-        // Optimize each responsive breakpoint with individual quality
-        if (hero.backgroundImage?.hero4K) {
-          optimizedImages.hero4K = await optimizeImage(
-            hero.backgroundImage.hero4K,
-            2560,
-            1440,
-            qualitySettings.hero4K
-          );
-        }
-        if (hero.backgroundImage?.heroDesktop) {
-          optimizedImages.desktop = await optimizeImage(
-            hero.backgroundImage.heroDesktop,
-            1920,
-            1080,
-            qualitySettings.desktop
-          );
-        }
-        if (hero.backgroundImage?.heroTablet) {
-          optimizedImages.tablet = await optimizeImage(
-            hero.backgroundImage.heroTablet,
-            1024,
-            576,
-            qualitySettings.tablet
-          );
-        }
-        if (hero.backgroundImage?.heroMobile) {
-          optimizedImages.mobile = await optimizeImage(
-            hero.backgroundImage.heroMobile,
-            768,
-            432,
-            qualitySettings.mobile
-          );
-        }
-
-        return { ...hero, optimizedImages };
-      })
-    );
-  }
-
-  //  Sub-hero image
-  if (data.subHero?.image?.url) {
-    const optimizedSubHero = await optimizeImage(
-      data.subHero.image.url,
-      800,
-      600,
-      65
-    );
-    if (optimizedSubHero) {
-      data.subHero.optimizedImage = optimizedSubHero;
-    }
-  }
-
-  // 🎯 OPTIMIZE: Only first 3 room images (above fold)
-  if (data.rooms?.length > 0) {
-    data.rooms = await Promise.all(
-      data.rooms.map(async (room, index) => {
-        // Only optimize first 3 images that load eagerly
-        if (index < 3 && room.heroImage?.optimisedCard) {
-          const optimized = await optimizeImage(
-            room.heroImage.optimisedCard,
-            400,
-            300,
-            65
-          );
-          return { ...room, optimizedImage: optimized };
-        }
-        // Keep other rooms unprocessed - they'll load original images lazily
-        return room;
-      })
-    );
-  }
-
-  //  Experience images
-  if (data.experiences?.experience?.length > 0) {
-    data.experiences.experience = await Promise.all(
-      data.experiences.experience.map(async (exp) => {
-        if (exp.image?.url) {
-          const optimized = await optimizeImage(exp.image.url, 400, 200, 85);
-          return { ...exp, optimizedImage: optimized };
-        }
-        return exp;
-      })
-    );
-  }
-} catch (err) {
-  console.error("Failed to load homepage data:", err);
-  error = "Failed to load content from CMS";
-}
-
-// Safe hero image fallback
+// Safe hero image for SEO
 const heroImage =
-  data.heroes[0]?.optimizedImages?.desktop?.src ||
-  data.heroes[0]?.optimizedImages?.mobile?.src ||
-  data.heroes[0]?.backgroundImage?.heroDesktop ||
-  data.heroes[0]?.backgroundImage?.heroMobile ||
-  "/img/limban-hero-fallback.avif";
+  heroes[0]?.heroImage?.url ||
+  "https://limban.com/img/limban-hero-fallback.avif";
 
-// Full JSON-LD for SEO (CRITICAL - DO NOT CUT)
+// JSON-LD schema (keep exactly the same)
 const enhancedJsonLd = {
   "@context": "https://schema.org",
   "@type": "Resort",
@@ -183,13 +66,13 @@ const enhancedJsonLd = {
   },
   image: [
     heroImage,
-    ...data.rooms
+    ...rooms
       .slice(0, 3)
-      .map((room) => room.optimizedImage?.src || room.heroImage?.optimisedCard)
+      .map((room) => room.heroImage?.url)
       .filter(Boolean),
-    ...data.experiences?.experience
-      ?.slice(0, 2)
-      .map((exp) => exp.optimizedImage?.src || exp.image?.url)
+    ...services
+      .slice(0, 2)
+      .map((exp) => exp.serviceImage?.url)
       .filter(Boolean),
   ].filter(Boolean),
   sameAs: [
@@ -218,7 +101,7 @@ const enhancedJsonLd = {
   paymentAccepted: ["Cash", "Credit Card", "UPI", "Bank Transfer"],
   checkinTime: "13:00",
   checkoutTime: "11:00",
-  numberOfRooms: data.rooms?.length || 6,
+  numberOfRooms: rooms.length || 6,
   petsAllowed: false,
   smokingAllowed: false,
   starRating: {
@@ -263,11 +146,7 @@ const enhancedJsonLd = {
       name: "Swimming Pool",
       value: true,
     },
-    {
-      "@type": "LocationFeatureSpecification",
-      name: "Free WiFi",
-      value: true,
-    },
+    { "@type": "LocationFeatureSpecification", name: "Free WiFi", value: true },
     {
       "@type": "LocationFeatureSpecification",
       name: "Airport Transfer",
@@ -305,7 +184,9 @@ const enhancedJsonLd = {
 };
 ---
 
-<Layout>
+<Layout
+  title="Limban Resort | Award-Winning Eco-Luxury Tiger Safari Lodge in Tadoba National Park"
+>
   <AstroSEO
     slot="head"
     title="Limban Resort | Award-Winning Eco-Luxury Tiger Safari Lodge in Tadoba National Park"
@@ -324,34 +205,19 @@ const enhancedJsonLd = {
     jsonLd={enhancedJsonLd}
   />
 
-  {
-    error ? (
-      <div class="bg-gray-950 text-gray-100 h-screen flex items-center justify-center">
-        <div class="text-center max-w-md mx-auto px-6">
-          <h1 class="text-2xl font-serif italic mb-4 text-red-400">
-            Content Unavailable
-          </h1>
-          <p class="text-gray-400 mb-4">{error}</p>
-          <button
-            onclick="window.location.reload()"
-            class="px-6 py-3 bg-amber-400 text-gray-900 font-semibold rounded-full"
-          >
-            Try Again
-          </button>
-        </div>
-      </div>
-    ) : (
-      <div class="bg-gray-950 text-gray-100">
-        <main>
-          <HeroSection heroes={data.heroes} />
-          <SubHeroSection subHero={data.subHero} />
-          <RoomsSection rooms={data.rooms} specialDeal={data.specialDeal} />
-          <ExperiencesSection experiences={data.experiences} />
-          <TestimonialsSection />
-          <AwardsSection />
-          <ContactSection />
-        </main>
-      </div>
-    )
-  }
+  <HeroSection heroes={heroes} />
+  <SubHeroSection subHero={data.subHero} />
+  <RoomsSection rooms={rooms} specialDeal={data.specialDeal} />
+  <ExperiencesSection
+    experiences={{
+      aboveHeader: "Unique Experiences",
+      title: "Beyond Accommodation",
+      description:
+        "Discover activities that connect you with nature and local culture",
+      experience: services,
+    }}
+  />
+  <TestimonialsSection />
+  <AwardsSection />
+  <ContactSection />
 </Layout>

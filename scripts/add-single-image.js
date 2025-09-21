@@ -7,22 +7,22 @@ const MISSING_URL = 'https://ap-south-1.graphassets.com/cmek3o6f00dcb07o59sno2s0
 
 // All transformations
 const TRANSFORMATIONS = {
-  'placeholder': { width: 20, height: 20, quality: 20 },
-  'gallerythumbs': { width: 92, height: 92, quality: 60 },
-  'grid': { width: 300, height: 300, quality: 35 },
-  'thumb400': { width: 400, height: 400, quality: 35 },
-  'large': { width: 1200, height: null, quality: 70 },
-  'heroMobile': { width: 768, height: 432, quality: 85 },
-  'heroTablet': { width: 1024, height: 576, quality: 80 },
-  'heroDesktop': { width: 1600, height: 900, quality: 75 },
-  'hero4K': { width: 2560, height: 1440, quality: 70 },
-  'optimisedCard': { width: 600, height: 400, quality: 60 },
-  'optimisedWide': { width: 1200, height: 800, quality: 60 },
-  'optimisedPortrait': { width: 1000, height: 1000, quality: 60 },
-  'optimisedSquare': { width: 400, height: 400, quality: 60 },
-  'micro': { width: 40, height: 40, quality: 25 },
-  'optimised': { width: 120, height: 120, quality: 35 },
-  'optimisedLogo': { width: 80, height: 80, quality: 70 }
+  'placeholder': { width: 20, height: 20, quality: 15 },        // Tiny blur - very low quality
+  'gallerythumbs': { width: 92, height: 92, quality: 45 },     // Small thumbs - medium quality
+  'grid': { width: 300, height: 300, quality: 35 },            // Grid items - lower quality
+  'thumb400': { width: 400, height: 400, quality: 40 },        // Medium thumbs
+  'large': { width: 1200, height: null, quality: 55 },         // Large images - balanced
+  'heroMobile': { width: 768, height: 432, quality: 50 },      // Mobile hero - lower quality
+  'heroTablet': { width: 1024, height: 576, quality: 55 },     // Tablet hero
+  'heroDesktop': { width: 1600, height: 900, quality: 60 },    // Desktop hero - higher quality
+  'hero4K': { width: 2560, height: 1440, quality: 55 },        // 4K but lower quality
+  'optimisedCard': { width: 600, height: 400, quality: 45 },   // Cards - medium quality
+  'optimisedWide': { width: 1200, height: 800, quality: 50 },  // Wide format
+  'optimisedPortrait': { width: 1000, height: 1000, quality: 45 }, // Portrait
+  'optimisedSquare': { width: 400, height: 400, quality: 40 }, // Square thumbnails
+  'micro': { width: 40, height: 40, quality: 20 },             // Tiny icons
+  'optimised': { width: 120, height: 120, quality: 30 },       // Small optimized
+  'optimisedLogo': { width: 80, height: 80, quality: 60 }      // Logos need crisp quality
 };
 
 function urlToHash(url) {

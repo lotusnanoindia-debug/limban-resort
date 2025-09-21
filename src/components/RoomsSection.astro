@@ -1,15 +1,23 @@
 ---
+import OptimizedImage from './OptimizedImage.astro';
+
 const { rooms = [], specialDeal } = Astro.props;
 
-// 🎯 SIMPLIFIED: Clean data validation
+// 🎯 SIMPLIFIED: Clean data validation with OptimizedImage support
 const validatedRooms = rooms
   .filter(room => room?.roomName && room?.id)
   .map(room => ({
     ...room,
+    // Keep original fallback system for compatibility
     imageUrl: room.optimizedImage?.src || room.heroImage?.optimisedCard || '/img/room-placeholder.webp',
     imageLqip: room.optimizedImage?.lqip,
     safePrice: Number(room.basePrice) || 0,
-    safeUrl: room.url?.startsWith('/') ? room.url : `/rooms/${room.url || room.id}`
+    safeUrl: room.url?.startsWith('/') ? room.url : `/rooms/${room.url || room.id}`,
+    // Add optimized image structure
+    roomImageOptimized: {
+      url: room.roomImage?.url || room.heroImage?.url,
+      alt: room.roomImage?.altText || `${room.roomName} - luxury accommodation at Limban Resort Tadoba`
+    }
   }));
 ---
 
@@ -54,9 +62,9 @@ const validatedRooms = rooms
             class="group bg-gray-900/50 border border-gray-700 rounded-2xl overflow-hidden hover:border-gray-600 transition-all duration-500 hover:-translate-y-1 hover:shadow-xl"
           >
             
-            <!-- 🎯 OPTIMIZED: Image with LQIP -->
+            <!-- 🎯 FIXED: OptimizedImage with original styling preserved -->
             <div class="relative aspect-[4/3] overflow-hidden bg-gray-800">
-              {/* LQIP background */}
+              {/* LQIP background - keep original */}
               {room.imageLqip && (
                 <img
                   src={room.imageLqip}
@@ -66,18 +74,27 @@ const validatedRooms = rooms
                 />
               )}
               
-              {/* Main image */}
-              <img
-                src={room.imageUrl}
-                alt={`${room.roomName} - luxury accommodation at Limban Resort Tadoba`}
-                class="relative w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                loading={index < 3 ? "eager" : "lazy"}
-                decoding="async"
-                sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
-              />
+              {/* OptimizedImage with fallback */}
+              {room.roomImageOptimized.url ? (
+                <OptimizedImage 
+                  image={room.roomImageOptimized}
+                  variant="roomCard"
+                  loading={index < 3 ? "eager" : "lazy"}
+                  class="relative w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                />
+              ) : (
+                <img
+                  src={room.imageUrl}
+                  alt={room.roomImageOptimized.alt}
+                  class="relative w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                  loading={index < 3 ? "eager" : "lazy"}
+                  decoding="async"
+                  sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                />
+              )}
             </div>
             
-            <!-- Content -->
+            <!-- Content - kept exactly the same -->
             <div class="p-6">
               <h3 class="font-serif italic text-2xl text-white mb-3">
                 {room.roomName}

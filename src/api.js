@@ -3,76 +3,7 @@ import { request } from 'graphql-request';
 // Configuration
 const HYGRAPH_URL = 'https://ap-south-1.cdn.hygraph.com/content/cmek3o66w01vb07w64qwgkybp/master';
 
-// 🎯 NEW: Image mapping system
-let imageMapping = null;
-
-// 🎯 FIXED: Simplified file loading
-async function loadImageMapping() {
-  if (!imageMapping) {
-    try {
-      // Always try to import fs for server-side loading
-      const fs = await import('fs');
-      const mapping = fs.readFileSync('./public/image-mapping.json', 'utf8');
-      imageMapping = JSON.parse(mapping);
-      console.log(`📸 Loaded image mapping for ${Object.keys(imageMapping).length} images`);
-    } catch (error) {
-      console.warn('⚠️ Image mapping not found, using original URLs:', error.message);
-      imageMapping = {};
-    }
-  }
-  return imageMapping;
-}
-
-// 🎯 DEBUG: Add console logs to see what's happening
-function replaceImageUrls(obj) {
-  if (!obj || !imageMapping) return obj;
-  
-  if (typeof obj === 'string' && obj.includes('graphassets.com')) {
-    console.log('🔍 Processing URL:', obj);
-    
-    // Extract the asset ID from the URL (the part after the last slash)
-    const urlParts = obj.split('/');
-    const assetId = urlParts[urlParts.length - 1];
-    console.log('🔍 Extracted asset ID:', assetId);
-    
-    // Find matching original URL in mapping
-    const matchingOriginalUrl = Object.keys(imageMapping).find(originalUrl => 
-      originalUrl.endsWith('/' + assetId)
-    );
-    console.log('🔍 Found matching URL:', matchingOriginalUrl);
-    
-    if (matchingOriginalUrl) {
-      const mapping = imageMapping[matchingOriginalUrl];
-      console.log('🔍 Available sizes:', Object.keys(mapping));
-      
-      // For SubHero specifically
-      if (obj.includes('resize=fit:crop,height:600,width:500')) {
-        console.log('🔍 Matched SubHero pattern, returning:', mapping.optimisedCard);
-        return mapping.optimisedCard || obj;
-      }
-      
-      return mapping.large || obj;
-    } else {
-      console.log('❌ No matching URL found');
-    }
-  }
-  
-  if (Array.isArray(obj)) {
-    return obj.map(item => replaceImageUrls(item));
-  }
-  
-  if (typeof obj === 'object' && obj !== null) {
-    const result = {};
-    for (const [key, value] of Object.entries(obj)) {
-      result[key] = replaceImageUrls(value);
-    }
-    return result;
-  }
-  
-  return obj;
-}
-
-// Reusable Fragments
+// 🔥 EXISTING: Reusable Fragments (keep unchanged)
 const IMAGE_FIELDS_FRAGMENT = `
   fragment ImageFields on Asset {
     url
@@ -86,8 +17,7 @@ const IMAGE_FIELDS_FRAGMENT = `
   }
 `;
 
-// ============ QUERIES ============
-
+// 🔥 EXISTING: All your original queries (keep unchanged for fallback)
 const HERO_QUERY = `
   query GetHeroSlides {
     heroSlides(where: { active: true }, orderBy: displayOrder_ASC) {
@@ -328,8 +258,354 @@ const CORPORATE_GALLERY_QUERY = `
   }
 `;
 
-// ============ UTILITIES ============
+// 🎯 PRODUCTION READY: Complete optimized queries with ALL required fields for ALL pages
+const HERO_OPTIMIZED_QUERY = `
+  query GetHeroOptimized {
+    heroSlides(where: { active: true }, orderBy: displayOrder_ASC) {
+      id
+      slideTitle
+      subtitle
+      ctaText
+      ctaLink
+      displayOrder
+      active
+      heroImage: backgroundImage {
+        id
+        fileName
+        url
+      }
+      backgroundImage { 
+        url
+        hero4K: url(transformation: { image: { resize: { width: 2560, height: 1440, fit: crop }, quality: { value: 40 } }, document: { output: { format: webp } } })
+        heroDesktop: url(transformation: { image: { resize: { width: 1600, height: 900, fit: crop }, quality: { value: 40 } }, document: { output: { format: webp } } })
+        heroTablet: url(transformation: { image: { resize: { width: 1024, height: 576, fit: crop }, quality: { value: 40 } }, document: { output: { format: webp } } })
+        heroMobile: url(transformation: { image: { resize: { width: 768, height: 432, fit: crop }, quality: { value: 40 } }, document: { output: { format: webp } } })
+      }
+    }
+  }
+`;
 
+const SUB_HERO_OPTIMIZED_QUERY = `
+  query GetSubHeroOptimized {
+    subHeroSections {
+      id
+      aboveHeader
+      title
+      imageAltText
+      bodyText { html }
+      subHeroImage: image {
+        id
+        fileName
+        url
+        altText
+      }
+      image {
+        url(transformation: { image: { resize: { width: 500, height: 600, fit: crop }, quality: { value: 60 } }, document: { output: { format: webp } } })
+      }
+      stats {
+        number
+        label
+        svg
+      }
+    }
+  }
+`;
+
+const ROOMS_OPTIMIZED_QUERY = `
+  query GetRoomsOptimized {
+    rooms {
+      id
+      roomName
+      url
+      shortDescription
+      basePrice
+      roomImage: heroImage {
+        id
+        fileName
+        url
+        altText
+      }
+      heroImage {
+        optimisedCard: url(transformation: { image: { resize: { width: 600, height: 400, fit: crop }, quality: { value: 60 } }, document: { output: { format: webp } } })
+      }
+      roomFeature(first: 100) {
+        id
+        featureName
+        svgImage
+      }
+    }
+  }
+`;
+
+const ROOM_BY_SLUG_OPTIMIZED_QUERY = `
+  query GetRoomBySlugOptimized($slug: String!) {
+    rooms(where: { url: $slug }, first: 1) {
+      id
+      roomName
+      url
+      shortDescription
+      description { html }
+      basePrice
+      roomImage: heroImage {
+        id
+        fileName
+        url
+        altText
+      }
+      heroImage {
+        optimisedCard: url(transformation: { image: { resize: { width: 600, fit: crop }, quality: { value: 60 } }, document: { output: { format: webp } } })
+      }
+      gallery(first: 100) {
+        __typename
+        ... on RoomGalleryItem {
+          id
+          galleryImage: image {
+            id
+            fileName
+            url
+            altText
+          }
+          image { ...ImageFields }
+          caption
+        }
+      }
+      roomFeature(first: 100) {
+        id
+        featureName
+        svgImage
+      }
+    }
+  }
+  ${IMAGE_FIELDS_FRAGMENT}
+`;
+
+const SERVICES_OPTIMIZED_QUERY = `
+  query GetServicesOptimized {
+    experienceSections {
+      aboveHeader
+      title
+      description
+      experience {
+        title
+        description
+        link
+        buttonText
+        imageAltText
+        serviceImage: image {
+          id
+          fileName
+          url
+          altText
+        }
+        image {
+          url(transformation: { image: { resize: { width: 350, height: 150, fit: crop }, quality: { value: 60 } }, document: { output: { format: webp } } })
+        }
+        feature { text }
+      }
+    }
+  }
+`;
+
+const ABOUT_PAGE_OPTIMIZED_QUERY = `
+  query AboutDataOptimized {
+    aboutPage(where: {id: "cmeyayyex8xsc07pc8u9cgfxq"}) {
+      aboutHeroImage: heroImage {
+        id
+        fileName
+        url
+        altText
+      }
+      aboutPhilosophyImage: philosophyImage {
+        id
+        fileName
+        url
+        altText
+      }
+      aboutFoundersImage: foundersImage {
+        id
+        fileName
+        url
+        altText
+      }
+      aboutTeamImages: teamImages(first: 100) {
+        id
+        fileName
+        url
+        altText
+      }
+      heroImage {
+        url
+        optimisedCard: url(transformation: { image: { resize: { width: 2000, height: 1200, fit: crop }, quality: { value: 60 } }, document: { output: { format: webp } } })
+      }
+      philosophyImage {
+        url
+        optimisedWide: url(transformation: { image: { resize: { width: 1200, height: 800, fit: crop }, quality: { value: 60 } }, document: { output: { format: webp } } })
+      }
+      foundersImage {
+        url
+        optimisedPortrait: url(transformation: { image: { resize: { width: 1000, height: 1000, fit: crop }, quality: { value: 60 } }, document: { output: { format: webp } } })
+      }
+      teamImages(first: 100) {
+        url
+        optimisedSquare: url(transformation: { image: { resize: { width: 400, height: 400, fit: crop }, quality: { value: 60 } }, document: { output: { format: webp } } })
+      }
+    }
+    vibeGallery(where: {id: "cmf0lo9eja9wk07pcwlzw8zdh"}) {
+      title
+      vibeImages: images(first: 100) {
+        vibeImage: image {
+          id
+          fileName
+          url
+          altText
+        }
+        image { ...ImageFields }
+        altText
+      }
+    }
+    guestGallery: guestGalleries(first: 1) {
+      guestImages: images(first: 500) {
+        id
+        fileName
+        url
+        altText
+        ...ImageFields
+      }
+    }
+  }
+  ${IMAGE_FIELDS_FRAGMENT}
+`;
+
+const VIBE_PAGE_OPTIMIZED_QUERY = `
+  query VibePageDataOptimized {
+    vibeGallery(where: {id: "cmf0lo9eja9wk07pcwlzw8zdh"}) {
+      title
+      vibeImages: images(first: 100) {
+        vibeImage: image {
+          id
+          fileName
+          url
+          altText
+        }
+        image { ...ImageFields }
+        altText
+      }
+    }
+    wildlifeGallery(where: {id: "cmf0ovxesabzv07pcvijule37"}) {
+      title
+      wildlifeImages: image(first: 100) {
+        ... on WildlifePic {
+          wildlifeImage: image {
+            id
+            fileName
+            url
+            altText
+          }
+          image { ...ImageFields }
+          alt
+        }
+      }
+    }
+  }
+  ${IMAGE_FIELDS_FRAGMENT}
+`;
+
+const DINING_EXPERIENCES_OPTIMIZED_QUERY = `
+  query DiningExperiencesOptimized {
+    restaurants(first: 100) {
+      id
+      restaurantName
+      url
+      shortIntro
+      longDescription
+      restaurantLogo: logo {
+        id
+        fileName
+        url
+        altText
+      }
+      restaurantImages: images(first: 100) {
+        id
+        fileName
+        url
+        altText
+      }
+      logo {
+        url
+        width
+        height
+        optimisedLogo: url(transformation: { image: { resize: { width: 80, height: 80, fit: crop }, quality: { value: 70 } }, document: { output: { format: webp } } })
+      }
+      images(first: 100) {
+        url
+        width
+        height
+        grid: url(transformation: { image: { resize: { width: 300, height: 300, fit: crop }, quality: { value: 35 } }, document: { output: { format: webp } } })
+        thumb400: url(transformation: { image: { resize: { width: 400, height: 400, fit: crop }, quality: { value: 35 } }, document: { output: { format: webp } } })
+        large: url(transformation: { image: { resize: { width: 1200, fit: scale }, quality: { value: 70 } }, document: { output: { format: webp } } })
+        placeholder: url(transformation: { image: { resize: { width: 20, height: 20, fit: crop }, quality: { value: 20 } }, document: { output: { format: webp } } })
+      }
+    }
+  }
+`;
+
+const DINING_BY_SLUG_OPTIMIZED_QUERY = `
+  query DiningExperienceBySlugOptimized($url: String!) {
+    restaurants(where: { url: $url }, first: 1) {
+      id
+      restaurantName
+      url
+      shortIntro
+      longDescription
+      restaurantLogo: logo {
+        id
+        fileName
+        url
+        altText
+      }
+      restaurantImages: images(first: 20) {
+        id
+        fileName
+        url
+        altText
+        ...ImageFields
+      }
+      logo {
+        url
+        micro: url(transformation: { image: { resize: { width: 40, height: 40, fit: crop }, quality: { value: 25 } }, document: { output: { format: webp } } })
+        optimised: url(transformation: { image: { resize: { width: 120, height: 120, fit: crop }, quality: { value: 35 } }, document: { output: { format: webp } } })
+      }
+      images(first: 20) { ...ImageFields }
+    }
+  }
+  ${IMAGE_FIELDS_FRAGMENT}
+`;
+
+const CORPORATE_GALLERY_OPTIMIZED_QUERY = `
+  query CorporateGalleryOptimized {
+    corporateGalleries(orderBy: displayOrder_ASC) {
+      id
+      title
+      caption
+      altText
+      displayOrder
+      corporateImage: image {
+        id
+        fileName
+        url
+        altText
+      }
+      image {
+        url(transformation: { image: { resize: { width: 400, height: 400, fit: crop }, quality: { value: 40 } }, document: { output: { format: webp } } })
+        id
+        width
+        height
+      }
+    }
+  }
+`;
+
+// 🔥 EXISTING: Utilities (unchanged)
 const handleApiError = (error, operation) => {
   console.error(`Hygraph API error in ${operation}:`, error);
   throw error;
@@ -345,16 +621,13 @@ const isDateInRange = (now, validFrom, validTo) => {
   return true;
 };
 
-// ============ API FUNCTIONS ============
-
+// 🔥 EXISTING: All your original API functions (unchanged for fallback)
 export const fetchHeroData = async () => {
   try {
-    await loadImageMapping();
     const data = await request(HYGRAPH_URL, HERO_QUERY);
-    const result = data.heroSlides
+    return data.heroSlides
       .filter(slide => slide.active)
       .sort((a, b) => (a.displayOrder || 0) - (b.displayOrder || 0));
-    return replaceImageUrls(result);
   } catch (error) {
     handleApiError(error, 'fetchHeroData');
   }
@@ -362,10 +635,8 @@ export const fetchHeroData = async () => {
 
 export const fetchSubHeroData = async () => {
   try {
-    await loadImageMapping();
     const data = await request(HYGRAPH_URL, SUB_HERO_QUERY);
-    const result = data.subHeroSections[0] || null;
-    return replaceImageUrls(result);
+    return data.subHeroSections[0] || null;
   } catch (error) {
     handleApiError(error, 'fetchSubHeroData');
   }
@@ -373,9 +644,8 @@ export const fetchSubHeroData = async () => {
 
 export const fetchRoomsData = async () => {
   try {
-    await loadImageMapping();
     const data = await request(HYGRAPH_URL, ROOMS_QUERY);
-    return replaceImageUrls(data.rooms);
+    return data.rooms;
   } catch (error) {
     handleApiError(error, 'fetchRoomsData');
   }
@@ -383,10 +653,8 @@ export const fetchRoomsData = async () => {
 
 export const fetchRoomBySlug = async (slug) => {
   try {
-    await loadImageMapping();
     const data = await request(HYGRAPH_URL, ROOM_BY_SLUG_QUERY, { slug });
-    const result = data.rooms.length > 0 ? data.rooms[0] : null;
-    return replaceImageUrls(result);
+    return data.rooms.length > 0 ? data.rooms[0] : null;
   } catch (error) {
     handleApiError(error, 'fetchRoomBySlug');
   }
@@ -394,10 +662,8 @@ export const fetchRoomBySlug = async (slug) => {
 
 export const fetchExperienceData = async () => {
   try {
-    await loadImageMapping();
     const data = await request(HYGRAPH_URL, EXPERIENCE_QUERY);
-    const result = data.experienceSections[0] || null;
-    return replaceImageUrls(result);
+    return data.experienceSections[0] || null;
   } catch (error) {
     handleApiError(error, 'fetchExperienceData');
   }
@@ -405,7 +671,6 @@ export const fetchExperienceData = async () => {
 
 export const fetchSpecialDealData = async () => {
   try {
-    await loadImageMapping();
     const data = await request(HYGRAPH_URL, SPECIAL_DEAL_QUERY);
     const latestDeal = data.specialRoomsDeals[0];
     
@@ -422,14 +687,12 @@ export const fetchSpecialDealData = async () => {
 
 export const fetchAboutData = async () => {
   try {
-    await loadImageMapping();
     const data = await request(HYGRAPH_URL, ABOUT_PAGE_QUERY);
-    const result = {
+    return {
       aboutPage: data.aboutPage,
       vibeGallery: data.vibeGallery,
       guestGallery: data.guestGallery?.[0] || null
     };
-    return replaceImageUrls(result);
   } catch (error) {
     handleApiError(error, 'fetchAboutData');
   }
@@ -437,13 +700,11 @@ export const fetchAboutData = async () => {
 
 export const fetchVibePageData = async () => {
   try {
-    await loadImageMapping();
     const data = await request(HYGRAPH_URL, VIBE_PAGE_QUERY);
-    const result = {
+    return {
       vibeImages: data.vibeGallery?.images || [],
       wildlifeImages: data.wildlifeGallery?.image || []
     };
-    return replaceImageUrls(result);
   } catch (error) {
     handleApiError(error, 'fetchVibePageData');
   }
@@ -451,9 +712,8 @@ export const fetchVibePageData = async () => {
 
 export const fetchDiningExperiencesData = async () => {
   try {
-    await loadImageMapping();
     const data = await request(HYGRAPH_URL, DINING_EXPERIENCES_QUERY);
-    return replaceImageUrls(data.restaurants);
+    return data.restaurants;
   } catch (error) {
     handleApiError(error, 'fetchDiningExperiencesData');
   }
@@ -461,10 +721,8 @@ export const fetchDiningExperiencesData = async () => {
 
 export const fetchDiningExperienceBySlug = async (slug) => {
   try {
-    await loadImageMapping();
     const data = await request(HYGRAPH_URL, DINING_BY_SLUG_QUERY, { url: slug });
-    const result = data.restaurants?.[0];
-    return replaceImageUrls(result);
+    return data.restaurants?.[0];
   } catch (error) {
     handleApiError(error, 'fetchDiningExperienceBySlug');
   }
@@ -472,19 +730,15 @@ export const fetchDiningExperienceBySlug = async (slug) => {
 
 export const fetchCorporateGallery = async () => {
   try {
-    await loadImageMapping();
     const data = await request(HYGRAPH_URL, CORPORATE_GALLERY_QUERY);
-    const result = data.corporateGalleries || [];
-    return replaceImageUrls(result);
+    return data.corporateGalleries || [];
   } catch (error) {
     handleApiError(error, 'fetchCorporateGallery');
   }
 };
 
-// 🎯 UPDATED: Combined data fetchers with image replacement
 export const fetchAllHomepageData = async () => {
   try {
-    await loadImageMapping();
     const [heroes, subHero, rooms, experiences, specialDeal] = await Promise.all([
       fetchHeroData(),
       fetchSubHeroData(),
@@ -497,3 +751,131 @@ export const fetchAllHomepageData = async () => {
     handleApiError(error, 'fetchAllHomepageData');
   }
 };
+
+// 🎯 PRODUCTION READY: Complete optimized functions for ALL pages
+export const fetchAllHomepageDataOptimized = async () => {
+  try {
+    const [heroesOptimized, subHeroOptimized, roomsOptimized, experiencesOptimized, specialDeal] = await Promise.all([
+      request(HYGRAPH_URL, HERO_OPTIMIZED_QUERY),
+      request(HYGRAPH_URL, SUB_HERO_OPTIMIZED_QUERY),
+      request(HYGRAPH_URL, ROOMS_OPTIMIZED_QUERY),
+      request(HYGRAPH_URL, SERVICES_OPTIMIZED_QUERY),
+      fetchSpecialDealData()
+    ]);
+
+    return {
+      heroes: heroesOptimized.heroSlides || [],
+      subHero: subHeroOptimized.subHeroSections?.[0] || null,
+      rooms: roomsOptimized.rooms || [],
+      experiences: experiencesOptimized.experienceSections?.[0] || null,
+      specialDeal
+    };
+  } catch (error) {
+    handleApiError(error, 'fetchAllHomepageDataOptimized');
+  }
+};
+
+export const fetchHeroDataOptimized = async () => {
+  try {
+    const data = await request(HYGRAPH_URL, HERO_OPTIMIZED_QUERY);
+    return data.heroSlides
+      .filter(slide => slide.active)
+      .sort((a, b) => (a.displayOrder || 0) - (b.displayOrder || 0));
+  } catch (error) {
+    handleApiError(error, 'fetchHeroDataOptimized');
+  }
+};
+
+export const fetchSubHeroDataOptimized = async () => {
+  try {
+    const data = await request(HYGRAPH_URL, SUB_HERO_OPTIMIZED_QUERY);
+    return data.subHeroSections[0] || null;
+  } catch (error) {
+    handleApiError(error, 'fetchSubHeroDataOptimized');
+  }
+};
+
+export const fetchRoomsDataOptimized = async () => {
+  try {
+    const data = await request(HYGRAPH_URL, ROOMS_OPTIMIZED_QUERY);
+    return data.rooms;
+  } catch (error) {
+    handleApiError(error, 'fetchRoomsDataOptimized');
+  }
+};
+
+export const fetchRoomBySlugOptimized = async (slug) => {
+  try {
+    const data = await request(HYGRAPH_URL, ROOM_BY_SLUG_OPTIMIZED_QUERY, { slug });
+    return data.rooms.length > 0 ? data.rooms[0] : null;
+  } catch (error) {
+    handleApiError(error, 'fetchRoomBySlugOptimized');
+  }
+};
+
+export const fetchExperienceDataOptimized = async () => {
+  try {
+    const data = await request(HYGRAPH_URL, SERVICES_OPTIMIZED_QUERY);
+    return data.experienceSections[0] || null;
+  } catch (error) {
+    handleApiError(error, 'fetchExperienceDataOptimized');
+  }
+};
+
+export const fetchAboutDataOptimized = async () => {
+  try {
+    const data = await request(HYGRAPH_URL, ABOUT_PAGE_OPTIMIZED_QUERY);
+    return {
+      aboutPage: data.aboutPage,
+      vibeGallery: data.vibeGallery,
+      guestGallery: data.guestGallery?.[0] || null
+    };
+  } catch (error) {
+    handleApiError(error, 'fetchAboutDataOptimized');
+  }
+};
+
+export const fetchVibePageDataOptimized = async () => {
+  try {
+    const data = await request(HYGRAPH_URL, VIBE_PAGE_OPTIMIZED_QUERY);
+    return {
+      vibeImages: data.vibeGallery?.vibeImages || [],
+      wildlifeImages: data.wildlifeGallery?.wildlifeImages || []
+    };
+  } catch (error) {
+    handleApiError(error, 'fetchVibePageDataOptimized');
+  }
+};
+
+export const fetchDiningExperiencesDataOptimized = async () => {
+  try {
+    const data = await request(HYGRAPH_URL, DINING_EXPERIENCES_OPTIMIZED_QUERY);
+    return data.restaurants;
+  } catch (error) {
+    handleApiError(error, 'fetchDiningExperiencesDataOptimized');
+  }
+};
+
+export const fetchDiningExperienceBySlugOptimized = async (slug) => {
+  try {
+    const data = await request(HYGRAPH_URL, DINING_BY_SLUG_OPTIMIZED_QUERY, { url: slug });
+    return data.restaurants?.[0];
+  } catch (error) {
+    handleApiError(error, 'fetchDiningExperienceBySlugOptimized');
+  }
+};
+
+export const fetchCorporateGalleryOptimized = async () => {
+  try {
+    const data = await request(HYGRAPH_URL, CORPORATE_GALLERY_OPTIMIZED_QUERY);
+    return data.corporateGalleries || [];
+  } catch (error) {
+    handleApiError(error, 'fetchCorporateGalleryOptimized');
+  }
+};
+
+// Legacy aliases for backward compatibility
+export const getHeroOptimized = fetchHeroDataOptimized;
+export const getSubHeroOptimized = fetchSubHeroDataOptimized;
+export const getRoomsOptimized = fetchRoomsDataOptimized;
+export const getServicesOptimized = fetchExperienceDataOptimized;

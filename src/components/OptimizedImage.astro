@@ -1,0 +1,104 @@
+---
+interface Props {
+  image: {
+    id?: string;
+    fileName?: string;
+    alt?: string;
+    url?: string;
+    optimisedCard?: string;
+  };
+  variant: string;
+  loading?: "lazy" | "eager";
+  class?: string;
+  sizes?: string;
+}
+
+const {
+  image,
+  variant,
+  loading = "lazy",
+  class: className,
+  sizes,
+} = Astro.props;
+
+// 🎯 CACHED MAPPING: Only load once per build
+let imageMapping = {};
+let mappingLoaded = false;
+
+if (!mappingLoaded) {
+  try {
+    const fs = await import("fs");
+    const path = await import("path");
+    const mappingPath = path.resolve("./public/image-mapping.json");
+    const mappingContent = fs.readFileSync(mappingPath, "utf8");
+    imageMapping = JSON.parse(mappingContent);
+    mappingLoaded = true;
+  } catch (err) {
+    console.warn("Image mapping not found");
+  }
+}
+
+// 🎯 FIXED: Extract original URL from transformed Hygraph URL
+function getOriginalUrl(url) {
+  if (!url) return null;
+
+  // If it's already a clean URL, return it
+  if (!url.includes("/resize=") && !url.includes("/quality=")) {
+    return url;
+  }
+
+  // Extract the original URL from transformed URL
+  const parts = url.split("/");
+  const baseUrl = parts.slice(0, 4).join("/"); // https://domain/base
+  const fileId = parts[parts.length - 1]; // fileId
+
+  return `${baseUrl}/${fileId}`;
+}
+
+// 🎯 MAP: Variants to file types
+const VARIANT_MAP = {
+  roomCard: "optimisedCard",
+  serviceCard: "grid",
+  heroDesktop: "heroDesktop",
+  heroMobile: "heroMobile",
+  heroTablet: "heroTablet",
+  hero4K: "hero4K",
+  subhero: "optimisedCard",
+  thumbnail: "gallerythumbs",
+  gallery: "grid",
+  logo: "micro",
+};
+
+// 🎯 FIND: Optimized image
+function findOptimizedImage(image, variant) {
+  if (!image?.url) return "/img/placeholder.webp";
+
+  // Get original URL for mapping lookup
+  const originalUrl = getOriginalUrl(image.url);
+
+  // Look for this URL in the mapping
+  const mapping = imageMapping[originalUrl];
+  if (mapping) {
+    const fileType = VARIANT_MAP[variant] || "optimisedCard";
+    if (mapping[fileType]) {
+      return mapping[fileType];
+    }
+  }
+
+  // Fallback to original URL
+  return image.url;
+}
+
+const imageSrc = findOptimizedImage(image, variant);
+const altText =
+  image?.alt || image?.roomName || image?.title || `${variant} image`;
+---
+
+<img
+  src={imageSrc}
+  alt={altText}
+  loading={loading}
+  decoding="async"
+  sizes={sizes}
+  class={`w-full h-full object-cover ${className || ""}`}
+/>

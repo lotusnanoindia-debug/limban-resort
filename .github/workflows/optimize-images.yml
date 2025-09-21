@@ -3,9 +3,7 @@ name: Optimize Images on Content Change
 on:
   repository_dispatch:
     types: [hygraph-content-changed]
-  workflow_dispatch: # Keep manual trigger as backup
-  schedule:
-    - cron: "0 2 * * 0" # Weekly backup (Sunday 2AM)
+  workflow_dispatch:
 
 jobs:
   optimize:
@@ -39,8 +37,3 @@ jobs:
           fi
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Trigger Netlify rebuild
-        run: |
-          curl -X POST -d {} ${{ secrets.NETLIFY_BUILD_HOOK }}
-        if: success()

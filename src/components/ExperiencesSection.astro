@@ -1,4 +1,6 @@
 ---
+import OptimizedImage from '../components/OptimizedImage.astro';
+
 export interface Props {
   experiences?: {
     aboveHeader?: string;
@@ -7,17 +9,16 @@ export interface Props {
     experience?: Array<{
       title: string;
       description: string;
-      image?: { url: string };
+      serviceImage?: {
+        id: string;
+        fileName?: string;
+        alt?: string;
+        url?: string;
+      };
       imageAltText?: string;
       feature?: Array<{ text: string }>;
       link?: string;
       buttonText?: string;
-      optimizedImage?: {
-        src: string;
-        lqip: string;
-        width: number;
-        height: number;
-      };
     }>;
   };
   gridClass?: string;
@@ -45,7 +46,7 @@ const { experiences, gridClass = "grid-cols-1 md:grid-cols-3" } = Astro.props;
         </p>
       </header>
       
-      <!-- 🎯 OPTIMIZED: Dynamic grid with clean cards -->
+      <!-- 🚀 ULTRA-CLEAN: Dynamic grid with OptimizedImage -->
       <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
         {experiences.experience?.map((experience, index) => (
           <article 
@@ -53,25 +54,13 @@ const { experiences, gridClass = "grid-cols-1 md:grid-cols-3" } = Astro.props;
             class="group bg-gray-800/50 border border-gray-700 rounded-2xl overflow-hidden transition-all duration-500 hover:border-gray-600 hover:-translate-y-1 hover:shadow-xl"
           >
             
-            <!-- 🎯 OPTIMIZED: Image with LQIP -->
-            <div class="relative aspect-[2/1] overflow-hidden bg-gray-800">
-              {/* LQIP background */}
-              {experience.optimizedImage?.lqip && (
-                <img
-                  src={experience.optimizedImage.lqip}
-                  alt=""
-                  class="absolute inset-0 w-full h-full object-cover blur-sm"
-                  aria-hidden="true"
-                />
-              )}
-              
-              {/* Main image */}
-              <img
-                src={experience.optimizedImage?.src || experience.image?.url}
-                alt={`${experience.imageAltText || experience.title} - unique experience at Limban Resort`}
-                class="relative w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+            <!-- 🚀 PERFECT: OptimizedImage with aspect ratio -->
+            <div class="relative aspect-[2/1] overflow-hidden">
+              <OptimizedImage 
+                image={experience.serviceImage}
+                variant="serviceCard"
                 loading={index < 2 ? "eager" : "lazy"}
-                decoding="async"
+                class="transition-transform duration-700 group-hover:scale-105"
                 sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
               />
             </div>
@@ -85,7 +74,6 @@ const { experiences, gridClass = "grid-cols-1 md:grid-cols-3" } = Astro.props;
               <p class="text-gray-300 text-sm leading-relaxed mb-6 line-clamp-4">
                 {experience.description}
               </p>
-              
               
               {/* CTA Button */}
               {experience.link && (
@@ -108,7 +96,6 @@ const { experiences, gridClass = "grid-cols-1 md:grid-cols-3" } = Astro.props;
 )}
 
 <style>
-  /* 🎯 UTILITY: Line clamp for consistent text height */
   .line-clamp-4 {
     display: -webkit-box;
     -webkit-line-clamp: 4;
@@ -116,7 +103,6 @@ const { experiences, gridClass = "grid-cols-1 md:grid-cols-3" } = Astro.props;
     overflow: hidden;
   }
 
-  /* 🎯 PERFORMANCE: Smooth transforms */
   .group {
     will-change: transform;
   }
