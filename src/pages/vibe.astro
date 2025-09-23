@@ -1,243 +1,87 @@
 ---
 import Layout from "../layouts/Layout.astro";
 import { AstroSEO } from "astro-seo-plugin";
-import { fetchVibePageData } from "../api.js";
 import GalleryGrid from "../components/GalleryGrid.astro";
 import LoadMoreGallery from "../components/LoadMoreGallery.astro";
 import GalleryModal from "../components/GalleryModal.astro";
-import { processGalleryImages } from "../components/imageProcessor.js";
-import { getImage } from "astro:assets";
+import imageService, { processGalleryImages } from "../utils/ImageService.js";
+import { fetchVibePage } from "../api-clean.js";
 
-
-// Ultra-reliable API fetching with retry logic
-async function fetchWithRetry(fetchFn, retries = 2) {
-  for (let i = 0; i < retries; i++) {
-    try {
-      return await fetchFn();
-    } catch (error) {
-      if (i === retries - 1) throw error;
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-    }
-  }
-}
-
-
-// 🎯 NEW: Process images in batches to prevent build bottlenecks
-async function processImagesInBatches(images, batchSize = 4) {
-  const results = [];
-  
-  for (let i = 0; i < images.length; i += batchSize) {
-    const batch = images.slice(i, i + batchSize);
-    console.log(`Processing batch ${Math.floor(i/batchSize) + 1}: ${batch.length} images`);
-    
-    const batchResults = await Promise.all(
-      batch.map((item, index) => processGalleryImage(item, i + index))
-    );
-    
-    results.push(...batchResults);
-    
-    // Small delay between batches to be gentle on resources
-    if (i + batchSize < images.length) {
-      await new Promise(resolve => setTimeout(resolve, 100));
-    }
-  }
-  
-  return results;
-}
-
-
-// 🎯 ENHANCED: Hero mosaic optimizer with LQIP generation
-async function optimizeHeroTile(url) {
-  if (!url) return null;
-  try {
-    // Process both main image and tiny placeholder
-    const [optimized, placeholder] = await Promise.all([
-      getImage({
-        src: url,
-        width: 300,
-        height: 400,
-        format: "avif",
-        quality: 60,
-        fit: "cover",
-        inferSize: true,
-      }),
-      // 🎯 NEW: Generate tiny LQIP
-      getImage({
-        src: url,
-        width: 20,
-        height: 26, // Maintain 300:400 aspect ratio
-        format: "avif",
-        quality: 20,
-        fit: "cover",
-        inferSize: true,
-      })
-    ]);
-
-    return {
-      ...optimized,
-      placeholder: placeholder.src
-    };
-  } catch (error) {
-    console.error("Failed to optimize hero tile:", error);
-    return null;
-  }
-}
-
-
-// Enhanced processGalleryImage with AI-optimised alt text
-async function processGalleryImage(item, index = 0) {
-  try {
-    const imageObj = item.image || item;
-    const sourceUrl = imageObj.large || imageObj.thumb400 || imageObj.url;
-    
-    if (!sourceUrl) {
-      throw new Error(`No URL found for image ${index}`);
-    }
-
-    const [optimizedThumbnail, optimizedMedium, optimizedLarge] = await Promise.all([
-      getImage({
-        src: sourceUrl,
-        width: 96,
-        height: 96,
-        format: 'avif',
-        quality: 60,
-        fit: 'cover',
-        inferSize: true,
-      }),
-      
-      getImage({
-        src: sourceUrl,
-        width: 300,
-        height: 300,
-        format: 'avif',
-        quality: 60,
-        fit: 'cover',
-        inferSize: true,
-      }),
-      
-      getImage({
-        src: sourceUrl,
-        width: 1600,
-        format: 'avif',
-        quality: 80,
-        fit: 'inside',
-        inferSize: true,
-      })
-    ]);
-
-    return {
-      src: optimizedLarge.src,
-      gallerythumbs: optimizedThumbnail.src,
-      medium: optimizedMedium.src,
-      placeholder: imageObj.placeholder || sourceUrl,
-      // 🎯 ENHANCED: AI-optimised alt text
-      alt: `${item.caption || item.altText || 'Luxury safari experience'} - Premium wildlife resort accommodation at Limban Resort Tadoba National Park Maharashtra`,
-      width: optimizedLarge.width,
-      height: optimizedLarge.height,
-    };
-  } catch (error) {
-    console.error(`Failed to process image ${index}:`, error);
-    
-    const imageObj = item.image || item;
-    return {
-      src: imageObj.large || imageObj.grid || imageObj.url,
-      gallerythumbs: imageObj.gallerythumbs || imageObj.grid || imageObj.url,
-      medium: imageObj.thumb400 || imageObj.grid || imageObj.url,
-      placeholder: imageObj.placeholder || imageObj.url,
-      alt: `${item.caption || item.altText || 'Luxury safari experience'} - Premium wildlife resort accommodation at Limban Resort Tadoba National Park Maharashtra ${index + 1}`,
-      width: imageObj.width || 300,
-      height: imageObj.height || 300,
-    };
-  }
-}
-
-
-// Fetch data with retry protection
+// Server-side data fetching with error handling
 let vibeData = null;
-let error = null;
-
 try {
-  vibeData = await fetchWithRetry(() => fetchVibePageData());
+  vibeData = await fetchVibePage();
 } catch (err) {
   console.error("Failed to load vibe data:", err);
-  error = "Failed to load content";
-}
-
-if (!vibeData) {
   vibeData = {
     vibeImages: [],
     wildlifeImages: [],
   };
 }
 
+// Process all gallery images through ImageService
+const processedVibeImages = vibeData?.vibeImages && vibeData.vibeImages.length > 0
+  ? processGalleryImages(vibeData.vibeImages.map((galleryItem, index) => ({
+      ...galleryItem,
+      caption: galleryItem.caption || galleryItem.altText || `Limban vibe ${index + 1}`,
+      context: {
+        pageType: 'vibe',
+        contentName: 'Limban Experience',
+        imageType: 'gallery',
+        caption: galleryItem.caption || galleryItem.altText,
+        index
+      }
+    })), 'vibe', {
+      contentName: 'Limban Experience',
+      pageContext: 'vibe-page'
+    })
+  : [];
 
-// OPTIMISED: Process images in batches to prevent build bottlenecks
-const [initialVibeOptimized, initialWildlifeOptimized] = await Promise.all([
-  processImagesInBatches(vibeData.vibeImages?.slice(0, 12) || []),
-  processImagesInBatches(vibeData.wildlifeImages?.slice(0, 12) || []),
-]);
+const processedWildlifeImages = vibeData?.wildlifeImages && vibeData.wildlifeImages.length > 0
+  ? processGalleryImages(vibeData.wildlifeImages.map((galleryItem, index) => ({
+      ...galleryItem,
+      caption: galleryItem.caption || galleryItem.alt || `Wildlife ${index + 1}`,
+      context: {
+        pageType: 'wildlife',
+        contentName: 'Tadoba Wildlife',
+        imageType: 'gallery',
+        caption: galleryItem.caption || galleryItem.alt,
+        index
+      }
+    })), 'wildlife', {
+      contentName: 'Tadoba Wildlife',
+      pageContext: 'vibe-wildlife'
+    })
+  : [];
 
+// Split for load more functionality
+const initialVibeImages = processedVibeImages.slice(0, 12);
+const remainingVibeImages = processedVibeImages.slice(12);
 
-// 🎯 ENHANCED: Process hero tiles with LQIP support
-const heroTilesRaw = vibeData.vibeImages?.slice(0, 12) || [];
-const heroTiles = await Promise.all(
-  heroTilesRaw.map(async (item, index) => {
-    const imageObj = item.image || item;
-    const sourceUrl = imageObj.large || imageObj.thumb400 || imageObj.url;
-    const optimized = await optimizeHeroTile(sourceUrl);
-    
-    return {
-      src: optimized?.src || sourceUrl,
-      placeholder: optimized?.placeholder || sourceUrl, // 🎯 NEW: LQIP support
-      // ENHANCED: alt text for hero images
-      alt: `${item.altText || item.caption || 'Limban Resort experience'} - Luxury wilderness resort Tadoba National Park tiger safari accommodation`,
-      width: optimized?.width || 300,
-      height: optimized?.height || 400,
-      caption: item.caption || item.altText || null,
-    };
-  })
-);
+const initialWildlifeImages = processedWildlifeImages.slice(0, 12);
+const remainingWildlifeImages = processedWildlifeImages.slice(12);
 
+// Process hero tiles for mosaic
+const heroTiles = processedVibeImages.slice(0, 12).map((img, index) => ({
+  src: imageService.processImage(img, 'heroTile', { quality: 60 }),
+  alt: img.alt,
+  width: 300,
+  height: 400,
+  caption: img.caption || img.altText || null,
+}));
 
-// 🎯 ENHANCED: Remaining images with optimised alt text
-const remainingVibeImages = (vibeData.vibeImages || [])
-  .slice(12)
-  .map((item, index) => ({
-    src: item?.image?.large || item?.image?.url || "",
-    gallerythumbs: item?.image?.gallerythumbs || item?.image?.grid || "",
-    medium: item?.image?.thumb400 || item?.image?.url || "",
-    placeholder: item?.image?.placeholder || item?.image?.url || "",
-    alt: `${item?.altText || 'Luxury resort experience'} - Premium safari accommodation Limban Resort Tadoba National Park Maharashtra India ${index + 13}`,
-    width: parseInt(item?.image?.width) || 300,
-    height: parseInt(item?.image?.height) || 300,
-  }));
+// Generate SEO-optimized URLs for schema
+const heroImageUrl = heroTiles[0]?.src || 
+  (processedVibeImages[0] ? processedVibeImages[0].processedUrls.large : 'https://limban.com/img/vibe-hero.avif');
 
-
-const remainingWildlifeImages = (vibeData.wildlifeImages || [])
-  .slice(12)
-  .map((item, index) => ({
-    src: item?.image?.large || item?.image?.url || "",
-    gallerythumbs: item?.image?.gallerythumbs || item?.image?.grid || "",
-    medium: item?.image?.thumb400 || item?.image?.url || "",
-    placeholder: item?.image?.placeholder || item?.image?.url || "",
-    alt: `${item?.alt || 'Tadoba wildlife encounter'} - Tiger safari wildlife photography Tadoba National Park Maharashtra India ${index + 13}`,
-    width: parseInt(item?.image?.width) || 300,
-    height: parseInt(item?.image?.height) || 300,
-  }));
-
-
-// Combine optimized initial + remaining images
-const allVibeImages = [...initialVibeOptimized, ...remainingVibeImages];
-const allWildlifeImages = [...initialWildlifeOptimized, ...remainingWildlifeImages];
-
-// Split for display
-const initialVibeImages = initialVibeOptimized;
-const initialWildlifeImages = initialWildlifeOptimized;
-
-// Hero image for OpenGraph
-const heroImage = heroTiles[0]?.src || initialVibeOptimized[0]?.src || "/limban-vibe-hero.avif";
+const schemaImages = [
+  heroImageUrl,
+  ...processedVibeImages.slice(0, 3).map(img => img.processedUrls.large),
+  ...processedWildlifeImages.slice(0, 2).map(img => img.processedUrls.large)
+].filter(Boolean);
 ---
 
+<link rel="preload" as="image" href={heroImageUrl} fetchpriority="high" />
 
 <Layout>
   <AstroSEO
@@ -249,27 +93,24 @@ const heroImage = heroTiles[0]?.src || initialVibeOptimized[0]?.src || "/limban-
       title: "The Limban Vibe - Feel What Calls You Wild",
       description:
         "Experience luxury safari living at its finest in Tadoba National Park. Feel the vibe that makes Limban unforgettable.",
-      image: heroImage,
+      image: heroImageUrl,
       type: "website",
       url: "https://limban.com/vibe",
     }}
     jsonLd={{
       "@context": "https://schema.org",
-      "@type": "avifage",
+      "@type": "WebPage",
       name: "The Limban Vibe - Feel What Calls You Wild",
       description:
         "Immerse yourself in the Limban experience. Feel the luxury, taste the wild, live the moment. This is what calls you to Tadoba.",
       url: "https://limban.com/vibe",
+      image: schemaImages,
       mainEntity: {
         "@type": "TouristDestination",
         name: "Limban Resort & Tadoba Experience",
         description:
           "Luxury safari resort experience in Tadoba National Park offering premium eco-friendly accommodation and tiger safari experiences in Maharashtra.",
-        image: [
-          heroImage,
-          ...initialVibeImages.slice(0, 3).map((img) => img.src),
-          ...initialWildlifeImages.slice(0, 2).map((img) => img.src),
-        ].filter(Boolean),
+        image: schemaImages,
         geo: {
           "@type": "GeoCoordinates",
           latitude: "20.1",
@@ -316,39 +157,8 @@ const heroImage = heroTiles[0]?.src || initialVibeOptimized[0]?.src || "/limban-
           addressCountry: "IN",
         },
       },
-      about: [
-        {
-          "@type": "Thing",
-          name: "Luxury Safari Experience",
-          description:
-            "Premium eco-friendly accommodation with tiger safari experiences",
-        },
-        {
-          "@type": "Thing",
-          name: "Wildlife Photography",
-          description: "Capture magnificent wildlife in Tadoba National Park",
-        },
-        {
-          "@type": "Thing",
-          name: "Eco-Tourism",
-          description: "Sustainable luxury tourism in Maharashtra",
-        },
-      ],
-      potentialAction: {
-        "@type": "ViewAction",
-        target: "https://limban.com/rooms",
-        name: "Book Your Stay",
-      },
     }}
   />
-
-  <!-- 🎯 NEW: Critical resource hints for LCP optimization -->
-  {heroTiles[0] && (
-    <link rel="preload" as="image" href={heroTiles[0].src} fetchpriority="high" />
-  )}
-  {heroTiles[1] && (
-    <link rel="preload" as="image" href={heroTiles[1].src} fetchpriority="high" />
-  )}
 
   <div class="bg-gray-950 text-gray-100 selection:bg-amber-400/20">
     <!-- Skip to content for accessibility -->
@@ -359,13 +169,13 @@ const heroImage = heroTiles[0]?.src || initialVibeOptimized[0]?.src || "/limban-
       Skip to main content
     </a>
 
-    <!-- 🎯 ENHANCED: Hero Section with LQIP backgrounds -->
+    <!-- Hero Section with Image Mosaic -->
     <section
       class="relative pt-48 pb-32 overflow-hidden bg-gray-950"
       role="banner"
       aria-labelledby="hero-heading"
     >
-      <!-- Background Mosaic with LQIP support -->
+      <!-- Background Mosaic -->
       <div class="absolute inset-0 grid grid-cols-4 md:grid-cols-6 gap-0 opacity-60">
         {heroTiles.map((image, index) => (
           <div 
@@ -382,10 +192,9 @@ const heroImage = heroTiles[0]?.src || initialVibeOptimized[0]?.src || "/limban-
               decoding="async"
               width={image.width}
               height={image.height}
-              style={image.placeholder ? `background-image: url(${image.placeholder}); background-size: cover; background-position: center;` : ''}
             />
             
-            <!-- Optional: Image overlay on hover -->
+            <!-- Image overlay on hover -->
             <div class="absolute inset-0 bg-gray-900/80 opacity-0 hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
               <span class="text-white text-xs font-medium text-center px-2">
                 {image.caption || 'Limban Experience'}
@@ -411,35 +220,27 @@ const heroImage = heroTiles[0]?.src || initialVibeOptimized[0]?.src || "/limban-
         <p class="text-xl md:text-2xl text-gray-200 max-w-4xl mx-auto leading-relaxed drop-shadow-lg">
           Sustainable luxury 20mins from Moharli Gate. Where passionate hosts, exceptional naturalists, and Tadoba's tigers create your perfect safari base.
         </p>
-        
       </div>
     </section>
-  </div>
 
-  <!-- Main content wrapper -->
-  <main id="main-content" role="main">
     <!-- Breadcrumb Navigation -->
-    <nav class="py-6 border-b border-gray-800/50" aria-label="Breadcrumb">
+    <nav class="py-6 bg-gray-900/50 border-b border-gray-800" aria-label="Breadcrumb">
       <div class="max-w-7xl mx-auto px-6">
-        <ol
-          class="flex items-center justify-center space-x-2 text-sm text-gray-400"
-        >
+        <ol class="flex items-center justify-center space-x-2 text-sm">
           <li>
-            <a
-              href="/"
-              class="hover:text-amber-400 transition-colors duration-300"
-              >Home</a
-            >
+            <a href="/" class="text-gray-400 hover:text-amber-400 transition-colors duration-300 flex items-center">
+              <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"></path>
+              </svg>
+              Home
+            </a>
           </li>
-          <li aria-hidden="true">
-            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-              <path
-                fill-rule="evenodd"
-                d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
-                clip-rule="evenodd"></path>
+          <li>
+            <svg class="w-4 h-4 text-gray-600" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
             </svg>
           </li>
-          <li aria-current="page">
+          <li>
             <span class="text-amber-400 font-medium">The Vibe</span>
           </li>
         </ol>
@@ -447,56 +248,67 @@ const heroImage = heroTiles[0]?.src || initialVibeOptimized[0]?.src || "/limban-
     </nav>
 
     <!-- Resort Vibe Section -->
-    <section class="py-32 bg-gray-900" aria-labelledby="resort-heading">
+    <section class="py-32 bg-gray-800" aria-labelledby="resort-heading">
       <div class="max-w-7xl mx-auto px-6">
-        <div class="text-center mb-20">
-          <div
-            class="inline-block px-6 py-2 bg-amber-400/10 border border-amber-400/30 rounded-full mb-8"
-          >
-            <span
-              class="text-amber-400 text-sm font-medium tracking-widest uppercase"
-              >Resort Experience</span
-            >
+        <header class="text-center mb-16">
+          <div class="inline-block px-6 py-2 bg-amber-400/10 border border-amber-400/30 rounded-full mb-8">
+            <span class="text-amber-400 text-sm font-medium tracking-widest uppercase">Visual Journey</span>
           </div>
-          <h2
-            id="resort-heading"
-            class="font-serif italic text-5xl md:text-7xl text-white mb-8"
-          >
-            Live the Luxury.
-            <span class="block text-amber-400">Feel the Soul.</span>
+          <h2 id="resort-heading" class="font-serif italic text-4xl md:text-6xl text-white mb-6">
+            Live the Luxury.<br />
+            <span class="text-amber-400">Feel the Soul.</span>
           </h2>
-          <p
-            class="text-xl text-gray-300 font-light leading-relaxed max-w-4xl mx-auto"
-          >
-            Every corner whispers stories. Every moment breathes life. This is
-            how luxury feels when it's crafted with soul.
+          <p class="text-xl text-gray-300 max-w-2xl mx-auto">
+            Every corner whispers stories. Every moment breathes life. This is how luxury feels when it's crafted with soul.
           </p>
-        </div>
+        </header>
 
-        <GalleryGrid
-          images={initialVibeImages}
-          galleryType="vibe"
-          gridId="vibe-gallery-grid"
-        />
+        {processedVibeImages.length > 0 ? (
+          <>
+            <GalleryGrid
+              images={initialVibeImages}
+              galleryType="vibe"
+              gridId="vibe-gallery-grid"
+              layout="grid"
+              columns={{
+                mobile: 2,
+                tablet: 4,
+                desktop: 6,
+                xl: 6
+              }}
+              aspectRatio="square"
+              showOverlay={true}
+              loadingStrategy="intersection"
+            />
 
-        <LoadMoreGallery
-          buttonId="load-more-vibe"
-          remainingImages={remainingVibeImages}
-          initialImages={initialVibeImages}
-          galleryType="vibe"
-          galleryGridId="vibe-gallery-grid"
-        />
+            {remainingVibeImages.length > 0 && (
+              <LoadMoreGallery
+                buttonId="load-more-vibe-gallery"
+                remainingImages={remainingVibeImages}
+                galleryType="vibe"
+                galleryGridId="vibe-gallery-grid"
+                initialCount={initialVibeImages.length}
+                batchSize={12}
+                customLabels={{ vibe: "Vibe Images" }}
+              />
+            )}
 
-        <div class="text-center mt-6">
-          <p class="text-gray-400 font-light italic">
-            Click any image to explore the Limban experience in detail
-          </p>
-        </div>
+            <div class="text-center mt-8">
+              <p class="text-gray-400 font-light italic">
+                Click any image to explore the Limban experience in detail
+              </p>
+            </div>
+          </>
+        ) : (
+          <div class="text-center py-16">
+            <p class="text-gray-400 text-lg">Gallery images coming soon...</p>
+          </div>
+        )}
       </div>
     </section>
 
     <!-- Transition Section -->
-    <section class="py-20 bg-gradient-to-b from-gray-900 to-green-950/30">
+    <section class="py-20 bg-gradient-to-b from-gray-800 to-green-950/30">
       <div class="max-w-4xl mx-auto text-center px-6">
         <h3 class="font-serif italic text-4xl md:text-5xl text-white mb-6">
           And then...
@@ -510,56 +322,67 @@ const heroImage = heroTiles[0]?.src || initialVibeOptimized[0]?.src || "/limban-
     </section>
 
     <!-- Wildlife Gallery Section -->
-    <section class="py-32 bg-gray-950" aria-labelledby="wildlife-heading">
+    <section class="py-32 bg-gray-900" aria-labelledby="wildlife-heading">
       <div class="max-w-7xl mx-auto px-6">
-        <div class="text-center mb-20">
-          <div
-            class="inline-block px-6 py-2 bg-green-400/10 border border-green-400/30 rounded-full mb-8"
-          >
-            <span
-              class="text-green-400 text-sm font-medium tracking-widest uppercase"
-              >Wild Encounters</span
-            >
+        <header class="text-center mb-16">
+          <div class="inline-block px-6 py-2 bg-green-400/10 border border-green-400/30 rounded-full mb-8">
+            <span class="text-green-400 text-sm font-medium tracking-widest uppercase">Visual Journey</span>
           </div>
-          <h2
-            id="wildlife-heading"
-            class="font-serif italic text-5xl md:text-7xl text-white mb-8"
-          >
-            Meet Your
-            <span class="block text-green-400">Wild Neighbours</span>
+          <h2 id="wildlife-heading" class="font-serif italic text-4xl md:text-6xl text-white mb-6">
+            Meet Your<br />
+            <span class="text-green-400">Wild Neighbours</span>
           </h2>
-          <p
-            class="text-xl text-gray-300 font-light leading-relaxed max-w-4xl mx-auto"
-          >
-            In Tadoba, you're not just a visitor—you're a guest in their ancient
-            kingdom. These are the moments that change you forever.
+          <p class="text-xl text-gray-300 max-w-2xl mx-auto">
+            In Tadoba, you're not just a visitor—you're a guest in their ancient kingdom. These are the moments that change you forever.
           </p>
-        </div>
+        </header>
 
-        <GalleryGrid
-          images={initialWildlifeImages}
-          galleryType="wildlife"
-          gridId="wildlife-gallery-grid"
-        />
+        {processedWildlifeImages.length > 0 ? (
+          <>
+            <GalleryGrid
+              images={initialWildlifeImages}
+              galleryType="wildlife"
+              gridId="wildlife-gallery-grid"
+              layout="grid"
+              columns={{
+                mobile: 2,
+                tablet: 4,
+                desktop: 6,
+                xl: 6
+              }}
+              aspectRatio="square"
+              showOverlay={true}
+              loadingStrategy="intersection"
+            />
 
-        <LoadMoreGallery
-          buttonId="load-more-wildlife"
-          remainingImages={remainingWildlifeImages}
-          initialImages={initialWildlifeImages}
-          galleryType="wildlife"
-          galleryGridId="wildlife-gallery-grid"
-        />
+            {remainingWildlifeImages.length > 0 && (
+              <LoadMoreGallery
+                buttonId="load-more-wildlife-gallery"
+                remainingImages={remainingWildlifeImages}
+                galleryType="wildlife"
+                galleryGridId="wildlife-gallery-grid"
+                initialCount={initialWildlifeImages.length}
+                batchSize={12}
+                customLabels={{ wildlife: "Wildlife Images" }}
+              />
+            )}
 
-        <div class="text-center mt-6">
-          <p class="text-gray-400 font-light italic">
-            Click any image to explore Tadoba's magnificent wildlife
-          </p>
-        </div>
+            <div class="text-center mt-8">
+              <p class="text-gray-400 font-light italic">
+                Click any image to explore Tadoba's magnificent wildlife in detail
+              </p>
+            </div>
+          </>
+        ) : (
+          <div class="text-center py-16">
+            <p class="text-gray-400 text-lg">Wildlife gallery coming soon...</p>
+          </div>
+        )}
       </div>
     </section>
 
     <!-- Call to Action -->
-    <section class="py-32 bg-gray-900">
+    <section class="py-32 bg-gray-950">
       <div class="max-w-5xl mx-auto px-6 text-center">
         <h2 class="font-serif italic text-5xl md:text-7xl text-white mb-8">
           Ready to Experience
@@ -607,11 +430,11 @@ const heroImage = heroTiles[0]?.src || initialVibeOptimized[0]?.src || "/limban-
         </div>
       </div>
     </section>
-  </main>
-</Layout>
-<GalleryModal />
+  </div>
 
-<!-- Add CSS for staggered animations -->
+  <GalleryModal />
+</Layout>
+
 <style>
   .fade-in-up {
     opacity: 0;
@@ -629,21 +452,13 @@ const heroImage = heroTiles[0]?.src || initialVibeOptimized[0]?.src || "/limban-
     }
   }
 
-  /* Performance-optimized transitions */
-  .transition-opacity {
-    will-change: opacity;
+  /* Performance optimizations */
+  .group {
+    will-change: transform;
   }
 
-  /* Accessible focus states */
-  .focus\:not-sr-only:focus {
-    position: absolute !important;
-    width: auto !important;
-    height: auto !important;
-    padding: 1rem !important;
-    margin: 0 !important;
-    overflow: visible !important;
-    clip: auto !important;
-    white-space: normal !important;
+  .transition-transform {
+    will-change: transform;
   }
 
   /* Respect user motion preferences */
@@ -652,7 +467,8 @@ const heroImage = heroTiles[0]?.src || initialVibeOptimized[0]?.src || "/limban-
     .transition-transform,
     .transition-colors,
     .hover\:scale-105,
-    .animate-bounce {
+    .hover\:scale-110,
+    .animate-pulse {
       transition: none !important;
       transform: none !important;
       animation: none !important;

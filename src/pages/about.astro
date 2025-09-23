@@ -1,234 +1,19 @@
 ---
 import Layout from "../layouts/Layout.astro";
+import { Icon } from "astro-icon/components";
 import { AstroSEO } from "astro-seo-plugin";
 import GalleryGrid from "../components/GalleryGrid.astro";
 import LoadMoreGallery from "../components/LoadMoreGallery.astro";
 import GalleryModal from "../components/GalleryModal.astro";
 import TestimonialsSection from "../components/TestimonialsSection.astro";
 import AwardsSection from "../components/AwardsSection.astro";
-import { fetchAboutData } from "../api.js";
-import { getImage } from "astro:assets";
+import imageService, { processGalleryImages } from "../utils/ImageService.js";
+import { fetchAboutPage } from "../api-clean.js";
 
-// Ultra-reliable API fetching with retry logic
-async function fetchWithRetry(fetchFn, retries = 2) {
-  for (let i = 0; i < retries; i++) {
-    try {
-      return await fetchFn();
-    } catch (error) {
-      if (i === retries - 1) throw error;
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-    }
-  }
-}
-
-// 🎯 ONLY CHANGE: Removed 100ms delay between batches
-async function processImagesInBatches(images, batchSize = 4) {
-  const results = [];
-
-  for (let i = 0; i < images.length; i += batchSize) {
-    const batch = images.slice(i, i + batchSize);
-
-    const batchResults = await Promise.all(
-      batch.map((item, index) => processGalleryImage(item, i + index))
-    );
-
-    results.push(...batchResults);
-
-    // 🎯 REMOVED: This was causing slow builds
-    // if (i + batchSize < images.length) {
-    //   await new Promise((resolve) => setTimeout(resolve, 100));
-    // }
-  }
-
-  return results;
-}
-
-// 🎯 EXACT: Team image processor (unchanged)
-async function processTeamImage(item, index = 0) {
-  try {
-    const sourceUrl = item.optimisedSquare || item.url;
-
-    if (!sourceUrl) {
-      throw new Error(`No URL found for team image ${index}`);
-    }
-
-    const [optimizedThumbnail, optimizedMedium, optimizedLarge, placeholder] =
-      await Promise.all([
-        getImage({
-          src: sourceUrl,
-          width: 96,
-          height: 96,
-          format: "avif",
-          quality: 60,
-          fit: "cover",
-          inferSize: true,
-        }),
-
-        getImage({
-          src: sourceUrl,
-          width: 300,
-          height: 300,
-          format: "avif",
-          quality: 50,
-          fit: "cover",
-          inferSize: true,
-        }),
-
-        getImage({
-          src: sourceUrl,
-          width: 800,
-          height: 800,
-          format: "avif",
-          quality: 85,
-          fit: "cover",
-          inferSize: true,
-        }),
-
-        // Generate tiny LQIP
-        getImage({
-          src: sourceUrl,
-          width: 20,
-          height: 20,
-          format: "avif",
-          quality: 20,
-          fit: "cover",
-          inferSize: true,
-        }),
-      ]);
-
-    // 🎯 CRITICAL: Return EXACT structure GalleryGrid expects
-    return {
-      gallerythumbs: optimizedThumbnail.src, // Required by GalleryGrid
-      medium: optimizedMedium.src, // Required by GalleryGrid
-      src: optimizedLarge.src, // Required by GalleryGrid
-      placeholder: placeholder.src, // Optional
-      alt: `Limban Resort team member ${index + 1} - passionate hospitality professional dedicated to creating unforgettable safari experiences at Tadoba National Park Maharashtra`,
-      width: optimizedLarge.width,
-      height: optimizedLarge.height,
-    };
-  } catch (error) {
-    console.error(`Failed to process team image ${index}:`, error);
-
-    // 🎯 CRITICAL: Fallback with exact structure
-    return {
-      gallerythumbs: item.optimisedSquare || item.url,
-      medium: item.optimisedSquare || item.url,
-      src: item.optimisedSquare || item.url,
-      placeholder: item.optimisedSquare || item.url,
-      alt: `Limban Resort team member ${index + 1} - passionate hospitality professional Tadoba National Park safari lodge`,
-      width: 400,
-      height: 400,
-    };
-  }
-}
-
-// 🎯 EXACT: Single image optimizer (unchanged)
-async function optimizeSingleImage(url, width, height, quality = 80) {
-  if (!url) return null;
-  try {
-    const [optimized, placeholder] = await Promise.all([
-      getImage({
-        src: url,
-        width: width,
-        height: height,
-        format: "avif",
-        quality: quality,
-        fit: "cover",
-        inferSize: true,
-      }),
-      // Generate tiny LQIP
-      getImage({
-        src: url,
-        width: Math.floor(width / 15), // 1/15th size for LQIP
-        height: Math.floor(height / 15),
-        format: "avif",
-        quality: 20,
-        fit: "cover",
-        inferSize: true,
-      }),
-    ]);
-
-    return {
-      ...optimized,
-      placeholder: placeholder.src,
-    };
-  } catch (error) {
-    console.error("Failed to optimize single image:", error);
-    return { src: url, placeholder: url };
-  }
-}
-
-// 🎯 EXACT: Gallery image processor (unchanged)
-async function processGalleryImage(item, index = 0) {
-  try {
-    const imageObj = item.image || item;
-    const sourceUrl = imageObj.large || imageObj.grid || imageObj.url;
-
-    if (!sourceUrl) {
-      throw new Error(`No URL found for image ${index}`);
-    }
-
-    const [optimizedThumbnail, optimizedMedium, optimizedLarge] =
-      await Promise.all([
-        getImage({
-          src: sourceUrl,
-          width: 96,
-          height: 96,
-          format: "avif",
-          quality: 60,
-          fit: "cover",
-          inferSize: true,
-        }),
-
-        getImage({
-          src: sourceUrl,
-          width: 300,
-          height: 300,
-          format: "avif",
-          quality: 60,
-          fit: "cover",
-          inferSize: true,
-        }),
-
-        getImage({
-          src: sourceUrl,
-          width: 1600,
-          format: "avif",
-          quality: 80,
-          fit: "inside",
-          inferSize: true,
-        }),
-      ]);
-
-    return {
-      src: optimizedLarge.src,
-      gallerythumbs: optimizedThumbnail.src,
-      medium: optimizedMedium.src,
-      placeholder: imageObj.placeholder || sourceUrl,
-      alt: `${item.caption || item.altText || "Limban Resort experience"} - Luxury safari lodge Tadoba National Park Maharashtra architectural design sustainable tourism`,
-      width: optimizedLarge.width,
-      height: optimizedLarge.height,
-    };
-  } catch (error) {
-    console.error(`Failed to process gallery image ${index}:`, error);
-
-    const imageObj = item.image || item;
-    return {
-      src: imageObj.large || imageObj.grid || imageObj.url,
-      gallerythumbs: imageObj.gallerythumbs || imageObj.grid || imageObj.url,
-      medium: imageObj.thumb400 || imageObj.grid || imageObj.url,
-      placeholder: imageObj.placeholder || imageObj.url,
-      alt: `${item.caption || item.altText || "Limban Resort experience"} - Luxury safari lodge Tadoba National Park Maharashtra ${index + 1}`,
-      width: imageObj.width || 300,
-      height: imageObj.height || 300,
-    };
-  }
-}
-
-// Fetch data with retry protection
+// Server-side data fetching with error handling
 let aboutData = null;
 try {
-  aboutData = await fetchWithRetry(() => fetchAboutData());
+  aboutData = await fetchAboutPage();
 } catch (err) {
   console.error("Failed to load about data:", err);
   aboutData = {
@@ -242,95 +27,150 @@ const aboutPage = aboutData?.aboutPage || {};
 const vibeGallery = aboutData?.vibeGallery || { images: [] };
 const guestGallery = aboutData?.guestGallery || { images: [] };
 
-// 🎯 EXACT: Process hero images (unchanged)
-const [heroImage, philosophyImage, foundersImage] = await Promise.all([
-  optimizeSingleImage(
-    aboutPage?.heroImage?.optimisedCard || aboutPage?.heroImage?.url,
-    1920,
-    1080,
-    85
-  ),
-  optimizeSingleImage(
-    aboutPage?.philosophyImage?.optimisedWide ||
-      aboutPage?.philosophyImage?.url,
-    1200,
-    686,
-    60
-  ),
-  optimizeSingleImage(
-    aboutPage?.foundersImage?.optimisedPortrait ||
-      aboutPage?.foundersImage?.url,
-    600,
-    1000,
-    60
-  ),
-]);
+// Process hero images through ImageService
+const heroImageData = aboutPage?.heroImage
+  ? {
+      ...aboutPage.heroImage,
+      context: {
+        pageType: "about",
+        contentName: "Limban Resort",
+        imageType: "hero",
+      },
+    }
+  : null;
 
-// 🎯 EXACT: Process team images (unchanged)
-const teamImages = aboutPage?.teamImages || [];
-const [initialTeamOptimized] = await Promise.all([
-  // Process first 12 team images for initial display
-  teamImages.slice(0, 12).length > 0
-    ? Promise.all(
-        teamImages
-          .slice(0, 12)
-          .map((item, index) => processTeamImage(item, index))
+const philosophyImageData = aboutPage?.philosophyImage
+  ? {
+      ...aboutPage.philosophyImage,
+      context: {
+        pageType: "about",
+        contentName: "Philosophy",
+        imageType: "philosophy",
+      },
+    }
+  : null;
+
+const foundersImageData = aboutPage?.foundersImage
+  ? {
+      ...aboutPage.foundersImage,
+      context: {
+        pageType: "about",
+        contentName: "Founders",
+        imageType: "founders",
+      },
+    }
+  : null;
+
+// Process all gallery images through ImageService
+const processedVibeImages =
+  vibeGallery?.images && vibeGallery.images.length > 0
+    ? processGalleryImages(
+        vibeGallery.images.map((galleryItem, index) => ({
+          ...galleryItem,
+          caption:
+            galleryItem.caption ||
+            galleryItem.altText ||
+            `Limban vibe ${index + 1}`,
+          context: {
+            pageType: "about",
+            contentName: "Limban Vibe",
+            imageType: "gallery",
+            caption: galleryItem.caption || galleryItem.altText,
+            index,
+          },
+        })),
+        "vibe",
+        {
+          contentName: "Limban Vibe",
+          pageContext: "about-vibe",
+        }
       )
-    : [],
-]);
+    : [];
 
-// Process remaining team images (unoptimized for performance)
-const remainingTeamImages = (teamImages || []).slice(12).map((item, index) => ({
-  gallerythumbs: item.optimisedSquare || item.url,
-  medium: item.optimisedSquare || item.url,
-  src: item.optimisedSquare || item.url,
-  placeholder: item.optimisedSquare || item.url,
-  alt: `Limban Resort team member ${index + 13} - passionate hospitality professional Tadoba National Park safari lodge Maharashtra`,
-  width: 400,
-  height: 400,
-}));
+const processedGuestImages =
+  guestGallery?.images && guestGallery.images.length > 0
+    ? processGalleryImages(
+        guestGallery.images.map((galleryItem, index) => ({
+          ...galleryItem,
+          caption:
+            galleryItem.caption ||
+            galleryItem.altText ||
+            `Guest moments ${index + 1}`,
+          context: {
+            pageType: "about",
+            contentName: "Guest Moments",
+            imageType: "gallery",
+            caption: galleryItem.caption || galleryItem.altText,
+            index,
+          },
+        })),
+        "guest",
+        {
+          contentName: "Guest Moments",
+          pageContext: "about-guests",
+        }
+      )
+    : [];
 
-// 🎯 EXACT: Process gallery images in batches (unchanged)
-const [initialVibeOptimized, initialGuestOptimized] = await Promise.all([
-  processImagesInBatches(vibeGallery?.images?.slice(0, 12) || []),
-  processImagesInBatches(guestGallery?.images?.slice(0, 12) || []),
-]);
+const processedTeamImages =
+  aboutPage?.teamImages && aboutPage.teamImages.length > 0
+    ? processGalleryImages(
+        aboutPage.teamImages.map((galleryItem, index) => ({
+          ...galleryItem,
+          caption:
+            galleryItem.caption ||
+            galleryItem.altText ||
+            `Team member ${index + 1}`,
+          context: {
+            pageType: "about",
+            contentName: "Limban Team",
+            imageType: "gallery",
+            caption: galleryItem.caption || galleryItem.altText,
+            index,
+          },
+        })),
+        "team",
+        {
+          contentName: "Limban Team",
+          pageContext: "about-team",
+        }
+      )
+    : [];
 
-// Process remaining images (unoptimized for performance)
-const remainingVibeImages = (vibeGallery?.images || [])
-  .slice(12)
-  .map((item, index) => ({
-    src: item?.image?.large || item?.image?.grid || item?.image?.url || "",
-    gallerythumbs: item?.image?.gallerythumbs || item?.image?.grid || "",
-    medium: item?.image?.thumb400 || item?.image?.url || "",
-    placeholder: item?.image?.placeholder || item?.image?.url || "",
-    alt: `${item?.altText || "Limban Resort vibe"} - Luxury safari experience Tadoba National Park Maharashtra architecture sustainable design ${index + 13}`,
-    width: parseInt(item?.image?.width) || 300,
-    height: parseInt(item?.image?.height) || 300,
-  }));
+// Split for load more functionality
+const initialVibeImages = processedVibeImages.slice(0, 12);
+const remainingVibeImages = processedVibeImages.slice(12);
 
-const remainingGuestImages = (guestGallery?.images || [])
-  .slice(12)
-  .map((item, index) => ({
-    src: item?.large || item?.grid || item?.url || "",
-    gallerythumbs: item?.gallerythumbs || item?.grid || "",
-    medium: item?.thumb400 || item?.url || "",
-    placeholder: item?.placeholder || item?.url || "",
-    alt: `Guests enjoying luxury safari experience at Limban Resort Tadoba National Park Maharashtra wildlife photography ${index + 13}`,
-    width: parseInt(item?.width) || 300,
-    height: parseInt(item?.height) || 300,
-  }));
+const initialGuestImages = processedGuestImages.slice(0, 12);
+const remainingGuestImages = processedGuestImages.slice(12);
 
-// Split for display
-const initialVibeImages = initialVibeOptimized;
-const initialGuestImages = initialGuestOptimized;
-const initialTeamImages = initialTeamOptimized;
+const initialTeamImages = processedTeamImages.slice(0, 12);
+const remainingTeamImages = processedTeamImages.slice(12);
 
-// Extract optimized URLs for meta tags
-const heroImageSrc = heroImage?.src || "/limban-about-hero.avif";
-const philosophyImageSrc = philosophyImage?.src || "";
-const foundersImageSrc = foundersImage?.src || "";
+// Generate SEO-optimized URLs for schema
+const heroImageUrl = heroImageData
+  ? imageService.processImage(heroImageData, "heroDesktop", { quality: 75 })
+  : "https://limban.com/img/about-hero.avif";
+
+const philosophyImageUrl = philosophyImageData
+  ? imageService.processImage(philosophyImageData, "heroWide", { quality: 70 })
+  : "";
+
+const foundersImageUrl = foundersImageData
+  ? imageService.processImage(foundersImageData, "portrait", { quality: 70 })
+  : "";
+
+const schemaImages = [
+  heroImageUrl,
+  philosophyImageUrl,
+  foundersImageUrl,
+  ...processedVibeImages.slice(0, 3).map((img) => img.processedUrls.large),
+  ...processedGuestImages.slice(0, 2).map((img) => img.processedUrls.large),
+  ...processedTeamImages.slice(0, 2).map((img) => img.processedUrls.large),
+].filter(Boolean);
 ---
+
+<link rel="preload" as="image" href={heroImageUrl} fetchpriority="high" />
 
 <Layout>
   <AstroSEO
@@ -342,7 +182,7 @@ const foundersImageSrc = foundersImage?.src || "";
       title: "About Limban Resort - Where the Wild Meets the Soul",
       description:
         "A luxury safari sanctuary where architecture, wilderness, and soul converge in Tadoba National Park.",
-      image: heroImageSrc,
+      image: heroImageUrl,
       type: "website",
       url: "https://limban.com/about",
     }}
@@ -353,14 +193,7 @@ const foundersImageSrc = foundersImage?.src || "";
       description:
         "Discover the philosophy behind Limban Resort - a luxury safari sanctuary crafted by visionary architects in the heart of Tadoba National Park.",
       url: "https://limban.com/about",
-      image: [
-        heroImageSrc,
-        philosophyImageSrc,
-        foundersImageSrc,
-        ...initialVibeImages.slice(0, 3).map((img) => img.src),
-        ...initialGuestImages.slice(0, 2).map((img) => img.src),
-        ...initialTeamImages.slice(0, 2).map((img) => img.src),
-      ].filter(Boolean),
+      image: schemaImages,
       mainEntity: {
         "@type": "LodgingBusiness",
         "@id": "https://limban.com/#organization",
@@ -426,39 +259,23 @@ const foundersImageSrc = foundersImage?.src || "";
     }}
   />
 
-  <!-- Critical resource hints for LCP optimization -->
-  {
-    heroImage && (
-      <link
-        rel="preload"
-        as="image"
-        href={heroImage.src}
-        fetchpriority="high"
-      />
-    )
-  }
-  {
-    philosophyImage && (
-      <link rel="preload" as="image" href={philosophyImage.src} />
-    )
-  }
-
   <div class="bg-gray-950 text-gray-100 selection:bg-gray-700">
-    <!-- Hero Section with LQIP background -->
+    <!-- Hero Section -->
     <section
       class="relative min-h-screen flex items-center justify-center overflow-hidden"
     >
       <div class="absolute inset-0">
         <div class="absolute inset-0 bg-black/60 z-10"></div>
-        <img
-          src={heroImage?.src || heroImageSrc}
-          alt="Limban Resort - Where wilderness meets luxury in Tadoba National Park - sustainable architecture award-winning design"
-          class="w-full h-full object-cover scale-105"
-          fetchpriority="high"
-          style={heroImage?.placeholder
-            ? `background-image: url(${heroImage.placeholder}); background-size: cover; background-position: center;`
-            : ""}
-        />
+        {
+          heroImageData && (
+            <img
+              src={heroImageUrl}
+              alt="Limban Resort - Where wilderness meets luxury in Tadoba National Park"
+              class="w-full h-full object-cover scale-105"
+              fetchpriority="high"
+            />
+          )
+        }
       </div>
 
       <div class="relative z-20 text-center max-w-5xl mx-auto px-6">
@@ -494,27 +311,45 @@ const foundersImageSrc = foundersImage?.src || "";
     </section>
 
     <!-- Breadcrumb Navigation -->
-    <nav class="py-6 border-b border-gray-800/50">
+    <nav
+      class="py-6 bg-gray-900/50 border-b border-gray-800"
+      aria-label="Breadcrumb"
+    >
       <div class="max-w-7xl mx-auto px-6">
-        <div
-          class="flex items-center justify-center space-x-2 text-sm text-gray-400"
-        >
-          <a
-            href="/"
-            class="hover:text-amber-400 transition-colors duration-300">Home</a
-          >
-          <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-            <path
-              fill-rule="evenodd"
-              d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
-              clip-rule="evenodd"></path>
-          </svg>
-          <span class="text-amber-400 font-medium">About</span>
-        </div>
+        <ol class="flex items-center justify-center space-x-2 text-sm">
+          <li>
+            <a
+              href="/"
+              class="text-gray-400 hover:text-amber-400 transition-colors duration-300 flex items-center"
+            >
+              <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                <path
+                  d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"
+                ></path>
+              </svg>
+              Home
+            </a>
+          </li>
+          <li>
+            <svg
+              class="w-4 h-4 text-gray-600"
+              fill="currentColor"
+              viewBox="0 0 20 20"
+            >
+              <path
+                fill-rule="evenodd"
+                d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
+                clip-rule="evenodd"></path>
+            </svg>
+          </li>
+          <li>
+            <span class="text-amber-400 font-medium">About</span>
+          </li>
+        </ol>
       </div>
     </nav>
 
-    <!-- Philosophy Section with optimized image -->
+    <!-- Philosophy Section -->
     <section class="py-32 bg-gray-900">
       <div class="max-w-6xl mx-auto px-6">
         <div class="text-center mb-20">
@@ -540,19 +375,14 @@ const foundersImageSrc = foundersImage?.src || "";
         </div>
 
         {
-          philosophyImage?.src && (
+          philosophyImageUrl && (
             <div class="mb-20">
               <div class="relative aspect-[21/9] bg-gray-800 rounded-2xl overflow-hidden">
                 <img
-                  src={philosophyImage.src}
-                  alt="Limban Resort philosophy - award-winning sustainable luxury safari lodge architecture surrounded by Tadoba wilderness Maharashtra"
+                  src={philosophyImageUrl}
+                  alt="Limban Resort philosophy - sustainable luxury safari lodge architecture"
                   class="w-full h-full object-cover hover:scale-105 transition-transform duration-700"
                   loading="lazy"
-                  style={
-                    philosophyImage.placeholder
-                      ? `background-image: url(${philosophyImage.placeholder}); background-size: cover; background-position: center;`
-                      : ""
-                  }
                 />
               </div>
             </div>
@@ -573,7 +403,7 @@ const foundersImageSrc = foundersImage?.src || "";
       </div>
     </section>
 
-    <!-- Visionaries Section with optimized founders image -->
+    <!-- Visionaries Section -->
     <section class="py-32 bg-gray-950">
       <div class="max-w-7xl mx-auto px-6">
         <div class="text-center mb-20">
@@ -676,19 +506,14 @@ const foundersImageSrc = foundersImage?.src || "";
           </div>
 
           {
-            foundersImage?.src && (
+            foundersImageUrl && (
               <div class="relative">
                 <div class="aspect-[4/5] bg-gray-800 rounded-3xl overflow-hidden">
                   <img
-                    src={foundersImage.src}
-                    alt="Amala Sheth and Anand Bhagat - Visionary architects founders of Limban Resort award-winning sustainable luxury safari lodge design Tadoba Maharashtra"
+                    src={foundersImageUrl}
+                    alt="Amala Sheth and Anand Bhagat - Visionary architects founders of Limban Resort"
                     class="w-full h-full object-cover hover:scale-105 transition-transform duration-700"
                     loading="lazy"
-                    style={
-                      foundersImage.placeholder
-                        ? `background-image: url(${foundersImage.placeholder}); background-size: cover; background-position: center;`
-                        : ""
-                    }
                   />
                 </div>
               </div>
@@ -722,143 +547,191 @@ const foundersImageSrc = foundersImage?.src || "";
       </div>
     </section>
 
-    <!-- Feel the Vibe Gallery with batched processing -->
-    <section class="py-32 bg-gray-900">
+    <!-- Feel the Vibe Gallery -->
+    <section class="py-32 bg-gray-800">
       <div class="max-w-7xl mx-auto px-6">
-        <div class="text-center mb-20">
+        <header class="text-center mb-16">
           <div
             class="inline-block px-6 py-2 bg-amber-400/10 border border-amber-400/30 rounded-full mb-8"
           >
             <span
               class="text-amber-400 text-sm font-medium tracking-widest uppercase"
-              >The Limban Experience</span
+              >Visual Journey</span
             >
           </div>
-          <h2 class="font-serif italic text-4xl md:text-6xl text-white mb-8">
+          <h2 class="font-serif italic text-4xl md:text-6xl text-white mb-6">
             Feel the Vibe of the Wild
           </h2>
-          <p class="text-xl text-gray-300 font-light max-w-4xl mx-auto">
+          <p class="text-xl text-gray-300 max-w-2xl mx-auto">
             From dawn to dusk, each corner of Limban offers its own unique
-            chapter in your safari story, designed to awaken your senses and
-            connect you deeper with the wild.
+            chapter in your safari story
           </p>
-        </div>
+        </header>
 
-        <GalleryGrid
-          images={initialVibeImages}
-          galleryType="vibe"
-          gridId="vibe-gallery-grid"
-        />
+        {
+          processedVibeImages.length > 0 ? (
+            <>
+              <GalleryGrid
+                images={initialVibeImages}
+                galleryType="vibe"
+                gridId="vibe-gallery-grid"
+                layout="grid"
+                columns={{
+                  mobile: 2,
+                  tablet: 4,
+                  desktop: 6,
+                  xl: 6,
+                }}
+                aspectRatio="square"
+                showOverlay={true}
+                loadingStrategy="intersection"
+              />
 
-        <LoadMoreGallery
-          buttonId="load-more-vibe"
-          remainingImages={remainingVibeImages}
-          initialImages={initialVibeImages}
-          galleryType="vibe"
-          galleryGridId="vibe-gallery-grid"
-        />
+              {remainingVibeImages.length > 0 && (
+                <LoadMoreGallery
+                  buttonId="load-more-vibe-gallery"
+                  remainingImages={remainingVibeImages}
+                  galleryType="vibe"
+                  galleryGridId="vibe-gallery-grid"
+                  initialCount={initialVibeImages.length}
+                  batchSize={12}
+                  customLabels={{ vibe: "Vibe Images" }}
+                />
+              )}
 
-        <div class="text-center mt-8">
-          <p class="text-lg text-gray-300 font-light italic">
-            Click any image to explore our signature spaces in detail
-          </p>
-        </div>
+              <div class="text-center mt-8">
+                <p class="text-gray-400 font-light italic">
+                  Click any image to explore our signature spaces in detail
+                </p>
+              </div>
+            </>
+          ) : (
+            <div class="text-center py-16">
+              <p class="text-gray-400 text-lg">Gallery images coming soon...</p>
+            </div>
+          )
+        }
       </div>
     </section>
 
-    <!-- Guest Gallery with batched processing -->
-    <section class="py-32 bg-gray-800">
+    <!-- Guest Gallery -->
+    <section class="py-32 bg-gray-900">
       <div class="max-w-7xl mx-auto px-6">
-        <div class="text-center mb-20">
+        <header class="text-center mb-16">
           <div
             class="inline-block px-6 py-2 bg-amber-400/10 border border-amber-400/30 rounded-full mb-8"
           >
             <span
               class="text-amber-400 text-sm font-medium tracking-widest uppercase"
-              >Our Guests</span
+              >Visual Journey</span
             >
           </div>
-          <h2 class="font-serif italic text-4xl md:text-5xl text-white mb-6">
+          <h2 class="font-serif italic text-4xl md:text-6xl text-white mb-6">
             Moments Made at Limban
           </h2>
-          <p class="text-xl text-gray-300 font-light max-w-3xl mx-auto">
+          <p class="text-xl text-gray-300 max-w-2xl mx-auto">
             Every smile tells a story, every moment captures the magic of
             connecting with the wild
           </p>
-        </div>
+        </header>
 
-        <GalleryGrid
-          images={initialGuestImages}
-          galleryType="guest"
-          gridId="guest-gallery-grid"
-        />
+        {
+          processedGuestImages.length > 0 ? (
+            <>
+              <GalleryGrid
+                images={initialGuestImages}
+                galleryType="guest"
+                gridId="guest-gallery-grid"
+                layout="grid"
+                columns={{
+                  mobile: 2,
+                  tablet: 4,
+                  desktop: 6,
+                  xl: 6,
+                }}
+                aspectRatio="square"
+                showOverlay={true}
+                loadingStrategy="intersection"
+              />
 
-        <LoadMoreGallery
-          buttonId="load-more-guests"
-          remainingImages={remainingGuestImages}
-          initialImages={initialGuestImages}
-          galleryType="guest"
-          galleryGridId="guest-gallery-grid"
-        />
+              {remainingGuestImages.length > 0 && (
+                <LoadMoreGallery
+                  buttonId="load-more-guest-gallery"
+                  remainingImages={remainingGuestImages}
+                  galleryType="guest"
+                  galleryGridId="guest-gallery-grid"
+                  initialCount={initialGuestImages.length}
+                  batchSize={12}
+                  customLabels={{ guest: "Guest Images" }}
+                />
+              )}
 
-        <div class="text-center mt-6">
-          <p class="text-gray-400 font-light italic">
-            Click any photo to explore our guest moments in detail
-          </p>
-        </div>
+              <div class="text-center mt-8">
+                <p class="text-gray-400 font-light italic">
+                  Click any image to explore our guest moments in detail
+                </p>
+              </div>
+            </>
+          ) : (
+            <div class="text-center py-16">
+              <p class="text-gray-400 text-lg">Gallery images coming soon...</p>
+            </div>
+          )
+        }
       </div>
     </section>
 
-    <!-- Team Gallery Section -->
+    <!-- Team Gallery -->
     {
-      initialTeamImages && initialTeamImages.length > 0 && (
+      processedTeamImages.length > 0 && (
         <section class="py-32 bg-gray-950">
           <div class="max-w-7xl mx-auto px-6">
-            <div class="text-center mb-20">
+            <header class="text-center mb-16">
               <div class="inline-block px-6 py-2 bg-amber-400/10 border border-amber-400/30 rounded-full mb-8">
                 <span class="text-amber-400 text-sm font-medium tracking-widest uppercase">
-                  Our People
+                  Visual Journey
                 </span>
               </div>
-              <h2 class="font-serif italic text-4xl md:text-6xl text-white mb-8">
+              <h2 class="font-serif italic text-4xl md:text-6xl text-white mb-6">
                 The Heart of Limban
               </h2>
-              <p class="text-xl text-gray-300 font-light max-w-3xl mx-auto">
+              <p class="text-xl text-gray-300 max-w-2xl mx-auto">
                 Meet our passionate team which brings Limban to life, each
-                dedicated to creating unforgettable experiences that connect you
-                with the wild.
+                dedicated to creating unforgettable experiences
               </p>
-            </div>
+            </header>
 
             <GalleryGrid
               images={initialTeamImages}
               galleryType="team"
               gridId="team-gallery-grid"
+              layout="grid"
+              columns={{
+                mobile: 2,
+                tablet: 4,
+                desktop: 6,
+                xl: 6,
+              }}
+              aspectRatio="square"
+              showOverlay={true}
+              loadingStrategy="intersection"
             />
 
-            {remainingTeamImages && remainingTeamImages.length > 0 && (
+            {remainingTeamImages.length > 0 && (
               <LoadMoreGallery
-                buttonId="load-more-team"
+                buttonId="load-more-team-gallery"
                 remainingImages={remainingTeamImages}
-                initialImages={initialTeamImages}
                 galleryType="team"
                 galleryGridId="team-gallery-grid"
+                initialCount={initialTeamImages.length}
+                batchSize={12}
+                customLabels={{ team: "Team Images" }}
               />
             )}
 
-            {(!remainingTeamImages || remainingTeamImages.length === 0) && (
-              <script define:vars={{ initialTeamImages }}>
-                window.addEventListener('load', () => {
-                  // Set up team gallery for modal (since LoadMoreGallery won't run)
-                  window.galleryImages = window.galleryImages || {};
-                  window.galleryImages.team = initialTeamImages;
-                  console.log('Team gallery manually set up with', initialTeamImages.length, 'images');
-                });
-              </script>
-            )}
-            <div class="text-center mt-6">
+            <div class="text-center mt-8">
               <p class="text-gray-400 font-light italic">
-                Click any photo to meet our team members
+                Click any image to meet our team members in detail
               </p>
             </div>
           </div>
@@ -891,8 +764,12 @@ const foundersImageSrc = foundersImage?.src || "";
         <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
           <div class="group text-center">
             <div
-              class="bg-gradient-to-br from-gray-800/30 to-gray-900/50 backdrop-blur-xl border border-gray-700 rounded-3xl p-8 hover:border-amber-400/30 hover:-translate-y-2 transition-all duration-500"
+              class="bg-gradient-to-br from-gray-800/30 to-gray-900/50 backdrop-blur-xl border border-gray-700 rounded-3xl p-8 flex flex-col items-center hover:border-amber-400/30 hover:-translate-y-2 transition-all duration-500"
             >
+              <Icon
+                name="ion:airplane-outline"
+                class="w-12 h-12 text-white mb-4"
+              />
               <h3 class="text-xl font-semibold text-white mb-4">By Air</h3>
               <p class="text-gray-300 leading-relaxed">
                 Dr. Babasaheb Ambedkar International Airport, Nagpur (125 km).
@@ -904,8 +781,12 @@ const foundersImageSrc = foundersImage?.src || "";
 
           <div class="group text-center">
             <div
-              class="bg-gradient-to-br from-gray-800/30 to-gray-900/50 backdrop-blur-xl border border-gray-700 rounded-3xl p-8 hover:border-amber-400/30 hover:-translate-y-2 transition-all duration-500"
+              class="bg-gradient-to-br from-gray-800/30 to-gray-900/50 backdrop-blur-xl border border-gray-700 rounded-3xl p-8 flex flex-col items-center hover:border-amber-400/30 hover:-translate-y-2 transition-all duration-500"
             >
+              <Icon
+                name="bi:car-front-fill"
+                class="w-12 h-12 text-white mb-4"
+              />
               <h3 class="text-xl font-semibold text-white mb-4">By Road</h3>
               <p class="text-gray-300 leading-relaxed">
                 A delightful drive through picturesque landscapes and rural
@@ -917,8 +798,12 @@ const foundersImageSrc = foundersImage?.src || "";
 
           <div class="group text-center">
             <div
-              class="bg-gradient-to-br from-gray-800/30 to-gray-900/50 backdrop-blur-xl border border-gray-700 rounded-3xl p-8 hover:border-amber-400/30 hover:-translate-y-2 transition-all duration-500"
+              class="bg-gradient-to-br from-gray-800/30 to-gray-900/50 backdrop-blur-xl border border-gray-700 rounded-3xl p-8 flex flex-col items-center hover:border-amber-400/30 hover:-translate-y-2 transition-all duration-500"
             >
+              <Icon
+                name="material-symbols-light:train-outline"
+                class="w-12 h-12 text-white mb-4"
+              />
               <h3 class="text-xl font-semibold text-white mb-4">By Train</h3>
               <p class="text-gray-300 leading-relaxed">
                 Chandrapur Railway Station (41 km) with connections to major
@@ -928,7 +813,6 @@ const foundersImageSrc = foundersImage?.src || "";
             </div>
           </div>
         </div>
-
         <!-- Address & Map -->
         <div
           class="bg-gradient-to-br from-gray-800/30 to-gray-900/50 backdrop-blur-xl border border-gray-700 rounded-3xl overflow-hidden"
@@ -1019,44 +903,29 @@ const foundersImageSrc = foundersImage?.src || "";
   </div>
 
   <GalleryModal />
-</Layout>
 
-<style>
-  .optimised-image {
-    transition:
-      filter 0.5s ease,
-      opacity 0.5s ease;
-    will-change: filter, opacity;
-  }
-
-  .optimised-image.opacity-100 {
-    opacity: 1 !important;
-  }
-
-  ::-webkit-scrollbar {
-    width: 8px;
-  }
-
-  ::-webkit-scrollbar-track {
-    background: #1f2937;
-  }
-
-  ::-webkit-scrollbar-thumb {
-    background: #f59e0b;
-    border-radius: 4px;
-  }
-
-  ::-webkit-scrollbar-thumb:hover {
-    background: #d97706;
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    .transition-transform,
-    .transition-all,
-    .hover\:scale-105,
-    .optimised-image {
-      transition: none !important;
-      transform: none !important;
+  <style>
+    /* Performance optimizations */
+    .group {
+      will-change: transform;
     }
-  }
-</style>
+
+    .transition-transform {
+      will-change: transform;
+    }
+
+    /* Respect user motion preferences */
+    @media (prefers-reduced-motion: reduce) {
+      .transition-all,
+      .transition-transform,
+      .transition-colors,
+      .hover\:scale-105,
+      .hover\:scale-110,
+      .animate-pulse {
+        transition: none !important;
+        transform: none !important;
+        animation: none !important;
+      }
+    }
+  </style>
+</Layout>

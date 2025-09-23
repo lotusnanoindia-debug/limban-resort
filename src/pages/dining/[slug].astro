@@ -2,66 +2,32 @@
 import { Icon } from 'astro-icon/components'
 import Layout from "../../layouts/Layout.astro";
 import { AstroSEO } from "astro-seo-plugin";
-import {
-  fetchDiningExperienceBySlug,
-  fetchDiningExperiencesData,
-} from "../../api.js";
 import GalleryGrid from "../../components/GalleryGrid.astro";
 import LoadMoreGallery from "../../components/LoadMoreGallery.astro";
 import GalleryModal from "../../components/GalleryModal.astro";
 import DiningReservationForm from "../../components/DiningReservationForm.astro";
 import SmartReserveButton from "../../components/SmartReserveButton.astro";
-import { processGalleryImage } from "../../components/imageProcessor.js";
-import { getImage } from "astro:assets";
+import imageService, { processGalleryImages } from "../../utils/ImageService.js";
+import {
+  fetchDiningBySlug,
+  fetchDining,
+} from "../../api-clean.js";
 
-// Ultra-reliable API fetching with retry logic
-async function fetchWithRetry(fetchFn, retries = 2) {
-  for (let i = 0; i < retries; i++) {
-    try {
-      return await fetchFn();
-    } catch (error) {
-      if (i === retries - 1) throw error;
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-    }
-  }
-}
-
-// 🎯 ENHANCED: Single image optimizer with better quality
-async function optimizeImage(url, width, height, quality = 80) {
-  if (!url) return null;
-  try {
-    const optimized = await getImage({
-      src: url,
-      width: width,
-      height: height,
-      format: "avif",
-      quality: quality,
-      fit: "cover",
-      inferSize: true,
-    });
-    return optimized;
-  } catch (error) {
-    return { src: url };
-  }
-}
-
-// Server-side data fetching
-let data = { experiences: []};
+// Server-side data fetching with error handling
+let data = { experiences: [] };
 let error = null;
 
 try {
-  const [experiences] = await Promise.all([
-    fetchWithRetry(() => fetchDiningExperiencesData()),
-    ]);
+  const experiences = await fetchDining();
   data = { experiences };
 } catch (err) {
   console.error("Failed to load dining experiences data:", err);
-  error = "Failed to load content from Hygraph";
+  error = "Failed to load content from CMS";
 }
 
 export async function getStaticPaths() {
   try {
-    const experiences = await fetchDiningExperiencesData();
+    const experiences = await fetchDining();
     return experiences.map((experience) => ({
       params: { slug: experience.url },
       props: { experienceData: experience },
@@ -73,77 +39,78 @@ export async function getStaticPaths() {
 }
 
 const { slug } = Astro.params;
-const experience = await fetchWithRetry(() => fetchDiningExperienceBySlug(slug));
+const experience = await fetchDiningBySlug(slug);
 
 if (!experience) {
   return Astro.redirect("/dining");
 }
 
-// 🎯 ENHANCED: Process all images in parallel with higher quality
-const [allDiningImages, optimizedHero, optimizedOtherExperiences] = await Promise.all([
-  experience.images && experience.images.length > 0
-    ? Promise.all(experience.images.map((item, index) => processGalleryImage(item, index)))
-    : Promise.resolve([]),
+// Process hero image through ImageService (same pattern as rooms)
+const heroImageData = experience.images?.[0] ? {
+  ...experience.images[0],
+  context: {
+    pageType: 'dining',
+    contentName: experience.restaurantName,
+    imageType: 'hero'
+  }
+} : null;
 
-  // 🎯 ENHANCED: Higher quality hero image
-  optimizeImage(
-    experience.images?.[0]?.large || experience.images?.[0]?.url,
-    1920,
-    1080,
-    95 // Higher quality for hero
-  ),
+// Process all gallery images through ImageService (exact same pattern as rooms)
+const processedGalleryImages = experience.images && experience.images.length > 0
+  ? processGalleryImages(experience.images.map((galleryItem, index) => ({
+      ...galleryItem,
+      caption: galleryItem.alt || galleryItem.fileName || `${experience.restaurantName} view ${index + 1}`,
+      context: {
+        pageType: 'dining',
+        contentName: experience.restaurantName,
+        imageType: 'gallery',
+        caption: galleryItem.alt || galleryItem.fileName,
+        index
+      }
+    })), 'dining', {
+      contentName: experience.restaurantName,
+      pageContext: 'dining-detail'
+    })
+  : [];
 
-  // 🎯 ENHANCED: Better quality other experiences
-  Promise.all(
-    data.experiences
-      .filter((otherExperience) => otherExperience.url !== experience.url)
-      .map(async (otherExperience) => {
-        const sourceUrl = otherExperience.images?.[0]?.large || otherExperience.images?.[0]?.url;
-        const optimized = await optimizeImage(sourceUrl, 400, 300, 85);
-                
-        return {
-          ...otherExperience,
-          optimizedCardImg: optimized,
-        };
-      })
-  ),
-]);
+// Split for load more functionality (exact same pattern as rooms)
+const initialGalleryImages = processedGalleryImages.slice(0, 12);
+const remainingGalleryImages = processedGalleryImages.slice(12);
 
-// Split for load more functionality
-const initialDiningImages = allDiningImages.slice(0, 12);
-const remainingDiningImages = allDiningImages.slice(12);
+// Generate SEO-optimized URLs for schema (same pattern as rooms)
+const heroImageUrl = heroImageData 
+  ? imageService.processImage(heroImageData, 'heroDesktop', { quality: 75 })
+  : 'https://limban.com/img/dining-placeholder.avif';
 
-// Safe hero image
-const heroImage = optimizedHero?.src || 
-                  experience.images?.[0]?.large || 
-                  experience.images?.[0]?.url || 
-                  "/img/default-dining.avif";
-
+const schemaImages = [
+  heroImageUrl,
+  ...processedGalleryImages.slice(0, 4).map(img => img.processedUrls.large)
+].filter(Boolean);
 ---
 
-<link rel="preload" as="image" href={heroImage} fetchpriority="high" />
+<link rel="preload" as="image" href={heroImageUrl} fetchpriority="high" />
 
 <Layout>
   <AstroSEO
     slot="head"
     title={`${experience.restaurantName} | Dining Experience - Limban Resort`}
     description={`Experience authentic dining at ${experience.restaurantName} - ${experience.shortIntro} Discover flavors that connect you to the heart of Tadoba National Park.`}
-    canonical={`https://limban.com/dining/${slug}`}
+    canonical={`https://limban.com/dining/${experience.url}`}
     openGraph={{
       title: `${experience.restaurantName} - Dining Experience at Limban Resort`,
       description: `${experience.shortIntro} Experience authentic flavors and intimate dining in the wilderness of Tadoba National Park.`,
-      image: heroImage,
+      image: heroImageUrl,
       type: "article",
-      url: `https://limban.com/dining/${slug}`,
+      url: `https://limban.com/dining/${experience.url}`,
     }}
     jsonLd={{
       "@context": "https://schema.org",
       "@type": "Restaurant",
-      "@id": `https://limban.com/dining/${slug}#restaurant`,
+      "@id": `https://limban.com/dining/${experience.url}#restaurant`,
       name: experience.restaurantName,
       description: `${experience.shortIntro} - Located in the heart of Tadoba National Park, offering an intimate dining experience that celebrates local flavors and sustainable cuisine.`,
-      url: `https://limban.com/dining/${slug}`,
-      image: [heroImage, ...allDiningImages.slice(0, 4).map((img) => img.src)].filter(Boolean),
+      url: `https://limban.com/dining/${experience.url}`,
+      image: schemaImages,
       address: {
         "@type": "PostalAddress",
         streetAddress: "Survey No. 306, Village Mudholi, Taluka Bhadravati",
@@ -160,36 +127,36 @@ const heroImage = optimizedHero?.src ||
   </a>
 
   <div class="bg-gray-950 text-gray-100 font-sans antialiased selection:bg-gray-700">
-    <!-- 🎯 ENHANCED: Hero Section with Dining Type Badge -->
+    <!-- Hero Section with Processed Image (same pattern as rooms) -->
     <section class="relative pt-44 pb-16 overflow-hidden bg-gray-900" role="banner">
-      <img
-        src={heroImage}
-        alt={`${experience.restaurantName} hero - authentic dining experience`}
-        class="absolute inset-0 w-full h-full object-cover opacity-50"
-        loading="eager"
-        fetchpriority="high"
-      />
+      {heroImageData && (
+        <img
+          image={heroImageData}
+          variant="heroTablet"
+          loading="eager"
+          fetchPriority="high"
+          class="absolute inset-0 w-full h-full opacity-50"
+        />
+      )}
 
-      <!-- 🎯 ENHANCED: Better gradient overlay -->
+      <!-- Enhanced gradient overlay -->
       <div class="absolute inset-0 bg-gradient-to-b from-gray-900/95 via-gray-900/70 to-gray-900/95"></div>
-      
-      <!-- 🎯 NEW: Subtle animated overlay -->
+
+      <!-- Subtle animated overlay -->
       <div class="absolute inset-0 bg-gradient-to-r from-transparent via-amber-400/5 to-transparent animate-pulse"></div>
 
       <main id="main-content" class="relative z-10 max-w-7xl mx-auto px-6" role="main">
         <div class="text-center mb-12">
-          
           <div class="text-sm text-gray-300 tracking-[0.2em] uppercase mb-4">
             Limban Dining Experience
           </div>
-          <h1 class="font-serif italic text-4xl md:text-6xl lg:text-7xl text-white drop-shadow-lg mb-8">
+          <h1 class="font-serif italic text-4xl md:text-6xl lg:text-7xl text-white drop-shadow-lg mb-6">
             {experience.restaurantName}
           </h1>
 
-          <!-- 🎯 ENHANCED: Better description display -->
           {experience.shortIntro && (
-            <div class="mt-2  inline-block max-w-4xl">
-              <p class="text-lg md:text-xl text-gray-200 leading-relaxed">
+            <div class="mt-8 p-8 bg-black/40 backdrop-blur-lg rounded-3xl inline-block border border-gray-700/50">
+              <p class="text-lg md:text-xl text-gray-200 leading-relaxed max-w-4xl">
                 {experience.shortIntro}
               </p>
             </div>
@@ -198,31 +165,40 @@ const heroImage = optimizedHero?.src ||
       </main>
     </section>
 
-
-    <!-- 🎯 ENHANCED: Breadcrumb Navigation -->
+    <!-- Breadcrumb Navigation (exact same as rooms) -->
     <nav class="py-6 bg-gray-900/50 border-b border-gray-800" aria-label="Breadcrumb">
       <div class="max-w-7xl mx-auto px-6">
         <ol class="flex items-center justify-center space-x-2 text-sm">
           <li>
             <a href="/" class="text-gray-400 hover:text-amber-400 transition-colors duration-300 flex items-center">
               <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"/>
+                <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"></path>
               </svg>
               Home
             </a>
           </li>
-          <li><svg class="w-4 h-4 text-gray-600" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/></svg></li>
           <li>
-            <a href="/dining" class="text-gray-400 hover:text-amber-400 transition-colors duration-300">Dining Experiences</a>
+            <svg class="w-4 h-4 text-gray-600" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
+            </svg>
           </li>
-          <li><svg class="w-4 h-4 text-gray-600" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/></svg></li>
-          <li><span class="text-amber-400 font-medium">{experience.restaurantName}</span></li>
+          <li>
+            <a href="/dining" class="text-gray-400 hover:text-amber-400 transition-colors duration-300">Dining</a>
+          </li>
+          <li>
+            <svg class="w-4 h-4 text-gray-600" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
+            </svg>
+          </li>
+          <li>
+            <span class="text-amber-400 font-medium">{experience.restaurantName}</span>
+          </li>
         </ol>
       </div>
     </nav>
 
-    <!-- 🎯 ENHANCED: Gallery Section -->
-    <section class="py-32 bg-gray-950">
+    <!-- Gallery Section with Universal Components (exact same pattern as rooms) -->
+    <section class="py-32 bg-gray-800">
       <div class="max-w-7xl mx-auto px-6">
         <header class="text-center mb-16">
           <div class="inline-block px-6 py-2 bg-amber-400/10 border border-amber-400/30 rounded-full mb-8">
@@ -232,101 +208,116 @@ const heroImage = optimizedHero?.src ||
             {experience.restaurantName} Gallery
           </h2>
           <p class="text-xl text-gray-300 max-w-2xl mx-auto">
-            Discover the atmosphere and flavors of our authentic dining experience
+            Discover the atmosphere and authentic flavors of our dining experience
           </p>
         </header>
 
-        <GalleryGrid
-          images={initialDiningImages}
-          layout="grid"
-          galleryType="dining"
-          gridId="dining-gallery-grid"
-        />
+        <!-- Universal Gallery Grid (same setup as rooms) -->
+        {processedGalleryImages.length > 0 ? (
+          <>
+            <GalleryGrid
+              images={initialGalleryImages}
+              galleryType="dining"
+              gridId="dining-gallery-grid"
+              layout="grid"
+              columns={{
+                mobile: 2,
+                tablet: 4,
+                desktop: 6,
+                xl: 6
+              }}
+              aspectRatio="square"
+              showOverlay={true}
+              loadingStrategy="intersection"
+            />
 
-        <LoadMoreGallery
-          buttonId="load-more-dining"
-          remainingImages={remainingDiningImages}
-          initialImages={initialDiningImages}
-          galleryType="dining"
-          galleryGridId="dining-gallery-grid"
-          layout="grid"
-        />
+            {remainingGalleryImages.length > 0 && (
+              <LoadMoreGallery
+                buttonId="load-more-dining-gallery"
+                remainingImages={remainingGalleryImages}
+                galleryType="dining"
+                galleryGridId="dining-gallery-grid"
+                initialCount={initialGalleryImages.length}
+                batchSize={12}
+                customLabels={{ dining: "Dining Views" }}
+              />
+            )}
 
-        <div class="text-center mt-8">
-          <p class="text-gray-400 font-light italic">
-            Click any image to explore {experience.restaurantName} in stunning detail
-          </p>
-        </div>
+            <div class="text-center mt-8">
+              <p class="text-gray-400 font-light italic">
+                Click any image to explore {experience.restaurantName} in stunning detail
+              </p>
+            </div>
+          </>
+        ) : (
+          <div class="text-center py-16">
+            <p class="text-gray-400 text-lg">Gallery images coming soon...</p>
+          </div>
+        )}
       </div>
     </section>
 
-    <!-- 🎯 ENHANCED: Experience Details Section -->
+    <!-- Experience Details Section -->
     <section class="py-32 bg-gray-900">
       <div class="max-w-7xl mx-auto px-6">
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-32 items-start">
-          <!-- Left Column - Experience Description -->
+          <!-- Left Column - Experience & Philosophy -->
           <div class="space-y-16">
-            <!-- 🎯 ENHANCED: Experience description -->
+            <!-- Experience description -->
             <div>
               <div class="inline-block px-4 py-2 bg-amber-400/10 border border-amber-400/30 rounded-full mb-6">
                 <span class="text-amber-400 text-sm font-medium tracking-widest uppercase">Experience</span>
               </div>
               <h2 class="font-serif italic text-3xl md:text-5xl text-white mb-8">
-                A Taste of the Wild
+                {experience.restaurantName}'s Story
               </h2>
               <p class="text-xl text-gray-300 leading-relaxed mb-8">
                 {experience.shortIntro}
               </p>
+              
               {experience.longDescription && (
-                <div class="text-lg text-gray-300 leading-relaxed prose prose-invert max-w-none">
+                <div class="text-lg text-gray-300 leading-relaxed">
                   <p>{experience.longDescription}</p>
                 </div>
               )}
-              
             </div>
 
-            <!-- 🎯 ENHANCED: Dining Philosophy -->
+            <!-- Dining Philosophy -->
             <div>
               <div class="inline-block px-4 py-2 bg-amber-400/10 border border-amber-400/30 rounded-full mb-6">
-                <span class="text-amber-400 text-sm font-medium tracking-widest uppercase">Limban Philosophy</span>
+                <span class="text-amber-400 text-sm font-medium tracking-widest uppercase">Philosophy</span>
               </div>
               <h3 class="font-serif italic text-3xl md:text-4xl text-white mb-6">
                 Fresh. Local. Authentic.
               </h3>
-              <p class="text-lg text-gray-300 mb-12">
-                Every serving tells the story of Tadoba's wilderness, crafted with locally sourced ingredients and prepared with passion.
+              <p class="text-xl text-gray-300 mb-12">
+                Every dish tells the story of Tadoba's wilderness, crafted with locally sourced ingredients and prepared with passion.
               </p>
 
-              <!-- 🎯 ENHANCED: Interactive feature cards -->
+              <!-- Interactive dining features grid -->
               <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
-                {['Local Ingredients', 'Cooked to Order', 'Personal Touch', 'Farm to Table', 'Seasonal Menu', 'Wild Setting'].map((feature, index) => (
+                {['Local Ingredients', 'Cooked to Order', 'Personal Touch', 'Farm to Table', 'Seasonal Menu', 'Wild Setting'].map((feature) => (
                   <div key={feature} class="group/tooltip relative">
                     <div class="p-6 bg-gray-800/60 border border-gray-700/50 rounded-2xl hover:border-amber-400/50 hover:bg-gray-700/60 transition-all duration-500 hover:-translate-y-2 hover:shadow-xl hover:shadow-amber-400/10 flex flex-col items-center text-center">
-                      <div class="mb-4 w-12 h-12 flex items-center justify-center bg-gray-600/30 rounded-2xl group-hover:bg-amber-400/20 transition-all duration-500 group-hover:scale-110">
-                        <div class="w-6 h-6 text-gray-400 group-hover:text-amber-300 transition-colors duration-300 flex items-center justify-center">
-                          {/* Clean professional icons for dining features */}
-                          {feature.includes('Local') && (
-                            <Icon name="ph:map-pin-simple" class="w-full h-full" />
-                          )}
-                          {feature.includes('Order') && (
-                            <Icon name="material-symbols-light:skillet-outline" class="w-full h-full" />
-                          )}
-                          {feature.includes('Personal') && (
-                            <Icon name="ph:heart-straight" class="w-full h-full" />
-                          )}
-                          {feature.includes('Farm') && (
-                            <Icon name="material-symbols-light:eco-outline" class="w-full h-full" />
-                          )}
-                          {feature.includes('Seasonal') && (
-                            <Icon name="carbon:time" class="w-full h-full" />
-                          )}
-                          {feature.includes('Wild') && (
-                            <Icon name="iconoir:pine-tree" class="w-full h-full" />
-                          )}
-                          {!feature.includes('Local') && !feature.includes('Order') && !feature.includes('Personal') && !feature.includes('Farm') && !feature.includes('Seasonal') && !feature.includes('Wild') && (
-                            <Icon name="material-symbols-light:restaurant-outline" class="w-full h-full" />
-                          )}
-                        </div>
+                      <div class="mb-4 w-16 h-16 flex items-center justify-center bg-gray-600/30 rounded-2xl group-hover:bg-amber-400/20 transition-all duration-500 group-hover:scale-110">
+                        {feature === 'Local Ingredients' && (
+                          <Icon name="ph:map-pin-simple" class="w-8 h-8 text-gray-400 group-hover:text-amber-300 transition-colors duration-300" />
+                        )}
+                        {feature === 'Cooked to Order' && (
+                          <Icon name="material-symbols-light:skillet-outline" class="w-8 h-8 text-gray-400 group-hover:text-amber-300 transition-colors duration-300" />
+                        )}
+                        {feature === 'Personal Touch' && (
+                          <Icon name="ph:heart-straight" class="w-8 h-8 text-gray-400 group-hover:text-amber-300 transition-colors duration-300" />
+                        )}
+                        {feature === 'Farm to Table' && (
+                          <Icon name="material-symbols-light:eco-outline" class="w-8 h-8 text-gray-400 group-hover:text-amber-300 transition-colors duration-300" />
+                        )}
+                        {feature === 'Seasonal Menu' && (
+                          <Icon name="carbon:time" class="w-8 h-8 text-gray-400 group-hover:text-amber-300 transition-colors duration-300" />
+                        )}
+                        {feature === 'Wild Setting' && (
+                          <Icon name="iconoir:pine-tree" class="w-8 h-8 text-gray-400 group-hover:text-amber-300 transition-colors duration-300" />
+                        )}
                       </div>
                       <h4 class="text-sm font-medium text-gray-300 group-hover:text-amber-100 transition-colors duration-300 leading-tight">
                         {feature}
@@ -343,7 +334,7 @@ const heroImage = optimizedHero?.src ||
             <div class="bg-gray-800/40 border border-gray-700/50 rounded-3xl p-8 backdrop-blur-sm">
               <DiningReservationForm
                 itemName={experience.restaurantName}
-                itemSlug={slug}
+                itemSlug={experience.url}
               />
             </div>
           </div>
@@ -351,7 +342,7 @@ const heroImage = optimizedHero?.src ||
       </div>
     </section>
 
-    <!-- 🎯 ENHANCED: Other Dining Experiences Section -->
+    <!-- Other Dining Experiences Section with Processed Images -->
     <section class="py-32 bg-gradient-to-b from-gray-950 to-gray-900 border-t border-gray-800">
       <div class="max-w-7xl mx-auto px-6">
         <header class="text-center mb-16">
@@ -366,32 +357,31 @@ const heroImage = optimizedHero?.src ||
           </p>
         </header>
 
-        {optimizedOtherExperiences?.length > 0 ? (
-          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-8">
-            {optimizedOtherExperiences.map((otherExperience) => (
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-8">
+          {data.experiences.filter(otherExperience => otherExperience.url !== experience.url).map((otherExperience) => {
+            // Process other dining hero images
+            const otherExperienceHeroImage = otherExperience.images?.[0] ? {
+              ...otherExperience.images[0],
+              context: {
+                pageType: 'dining',
+                contentName: otherExperience.restaurantName,
+                imageType: 'card'
+              }
+            } : null;
+
+            return (
               <article key={otherExperience.id} class="group relative aspect-[4/5] overflow-hidden rounded-2xl border border-gray-800/50 hover:border-amber-400/50 transition-all duration-700 hover:scale-105 hover:shadow-2xl hover:shadow-amber-400/20">
                 <a href={`/dining/${otherExperience.url}`} class="block w-full h-full">
-                  <img
-                    src={otherExperience.optimizedCardImg?.src || otherExperience.images?.[0]?.large || "/img/dining-placeholder.avif"}
-                    alt={`${otherExperience.restaurantName} dining experience at Limban Resort`}
-                    class="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
-                    loading="lazy"
-                  />
-
+                  {otherExperienceHeroImage && (
+                    <img
+                      image={otherExperienceHeroImage}
+                      variant="roomCard"
+                      loading="lazy"
+                      class="absolute inset-0 w-full h-full group-hover:scale-110 transition-transform duration-700"
+                    />
+                  )}
 
                   <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent group-hover:from-black/70 group-hover:via-black/30 transition-all duration-500" />
-
-                  <!-- Logo overlay -->
-                  {otherExperience.logo?.optimisedLogo && (
-                    <div class="absolute top-3 right-3 w-12 h-12 bg-white/10 backdrop-blur-sm rounded-full p-2 border border-white/20 opacity-80 group-hover:opacity-100 transition-opacity duration-300">
-                      <img
-                        src={otherExperience.logo.optimisedLogo}
-                        alt={`${otherExperience.restaurantName} logo`}
-                        class="w-full h-full object-contain"
-                        loading="lazy"
-                      />
-                    </div>
-                  )}
 
                   <div class="absolute inset-0 flex flex-col justify-end p-5">
                     <h3 class="font-serif italic text-xl text-white mb-2 group-hover:text-amber-300 transition-colors duration-300 line-clamp-2">
@@ -412,23 +402,13 @@ const heroImage = optimizedHero?.src ||
                     </div>
                   </div>
                   
-                  <!-- 🎯 ENHANCED: Glow effect -->
+                  <!-- Glow effect -->
                   <div class="absolute inset-0 rounded-2xl bg-gradient-to-br from-amber-500/0 to-orange-500/0 group-hover:from-amber-500/10 group-hover:to-orange-500/10 transition-all duration-700"></div>
                 </a>
               </article>
-            ))}
-          </div>
-        ) : (
-          <div class="text-center py-16">
-            <div class="w-16 h-16 mx-auto mb-6 text-gray-500">
-              <svg class="w-full h-full" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 14l-7-7-7 7m14 0v3a2 2 0 01-2 2H5a2 2 0 01-2-2v-3" />
-              </svg>
-            </div>
-            <h3 class="text-xl text-gray-400 mb-2">More Experiences Coming Soon</h3>
-            <p class="text-gray-500">We're adding new dining options. Please check back soon.</p>
-          </div>
-        )}
+            );
+          })}
+        </div>
       </div>
     </section>
   </div>
@@ -439,6 +419,8 @@ const heroImage = optimizedHero?.src ||
     position="bottom-right"
     glowOnScroll={true}
   />
+  
+  <!-- Universal Gallery Modal -->
   <GalleryModal />
 </Layout>
 

@@ -1,190 +1,532 @@
 ---
-export interface Props {
-  buttonId: string;
-  remainingImages: Array<any>;
-  initialImages: Array<any>;
-  galleryType: string;
-  galleryGridId: string;
+/**
+ * Universal Load More Gallery Component - FIXED VERSION
+ * Addresses DOM iteration and remaining images issues
+ */
+
+interface ProcessedImage {
+  id: string | number;
+  processedUrls: {
+    thumbnail: string;
+    gallery: string;
+    large: string;
+    modal: string;
+  };
+  alt: string;
+  galleryMeta?: {
+    type: string;
+    index: number;
+  };
 }
 
-const { buttonId, remainingImages, initialImages, galleryType, galleryGridId } =
-  Astro.props;
-
-// Only show button if there are remaining images
-const hasMoreImages = remainingImages.length > 0;
-
-// 🎯 SIMPLIFIED: Create the button text once
-const getButtonText = (remaining: number, type: string) => {
-  const typeLabels = {
-    vibe: "Limban Moments",
-    room: "Room Photos",
-    guest: "Guest Photos",
-    dining: "Dining Photos",
-    wildlife: "Wildlife Snaps",
-    team: "Team Members",
+interface Props {
+  buttonId: string;
+  remainingImages: ProcessedImage[];
+  galleryType: string;
+  galleryGridId: string;
+  initialCount: number;
+  batchSize?: number;
+  customLabels?: {
+    [key: string]: string;
   };
+}
 
-  const label = typeLabels[type] || "Photos";
+const {
+  buttonId,
+  remainingImages,
+  galleryType,
+  galleryGridId,
+  initialCount,
+  batchSize = 12,
+  customLabels = {},
+} = Astro.props;
+
+// Default labels for different gallery types
+const defaultLabels = {
+  rooms: "Room Images",
+  dining: "Dining Images",
+  vibe: "Vibe Images",
+  wildlife: "Wildlife Images",
+  corporate: "Corporate Images",
+  guest: "Guest Images",
+  team: "Team Images",
+  about: "Resort Images",
+  general: "Images",
+};
+
+const getButtonLabel = (remaining: number, type: string) => {
+  const label =
+    customLabels[type] || defaultLabels[type] || defaultLabels.general;
   return `Show ${remaining} More ${label}`;
 };
 
-const initialButtonText = getButtonText(remainingImages.length, galleryType);
+const hasMoreImages = remainingImages && remainingImages.length > 0;
+const initialButtonText = hasMoreImages
+  ? getButtonLabel(remainingImages.length, galleryType)
+  : "";
+
+// Debug logging
+console.log("LoadMore Debug:", {
+  hasMoreImages,
+  remainingCount: remainingImages?.length || 0,
+  galleryType,
+  initialButtonText,
+});
 ---
 
-<!-- ALWAYS render the div (for the script), conditionally render the button -->
-<div>
-  {
-    hasMoreImages && (
-      <div
-        class={
-          galleryType === "vibe" ? "text-center mt-16" : "text-center mt-12"
-        }
+{
+  hasMoreImages && (
+    <div class="text-center mt-8 lg:mt-12">
+      <button
+        id={buttonId}
+        class="group inline-flex items-center px-8 py-4 bg-transparent border-2 border-amber-400/60 text-amber-400 rounded-full hover:bg-amber-400/10 hover:border-amber-400 hover:scale-105 focus:outline-none focus:ring-4 focus:ring-amber-400/30 transition-all duration-300 font-medium"
+        type="button"
+        aria-label={`Load more ${galleryType} images`}
       >
-        <button
-          id={buttonId}
-          class="load-more-btn inline-flex items-center px-8 py-4 border border-amber-400/50 text-amber-400 rounded-full hover:bg-amber-400/10 hover:scale-105 transition-all duration-300"
-          type="button"
+        <span class="button-text">{initialButtonText}</span>
+
+        <div class="loading-spinner ml-3 hidden">
+          <div class="w-5 h-5 border-2 border-amber-400/30 border-t-amber-400 rounded-full animate-spin" />
+        </div>
+
+        <svg
+          class="arrow-icon w-5 h-5 ml-3 transition-transform group-hover:translate-y-1"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
         >
-          {initialButtonText}
-          <svg
-            class="w-5 h-5 ml-3"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M19 9l-7 7-7-7"
-            />
-          </svg>
-        </button>
-      </div>
-    )
-  }
-</div>
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M19 9l-7 7-7-7"
+          />
+        </svg>
+      </button>
+    </div>
+  )
+}
 
 <script
+  is:inline
   define:vars={{
     buttonId,
     remainingImages,
-    initialImages,
     galleryType,
     galleryGridId,
+    initialCount,
+    batchSize,
+    customLabels: { ...defaultLabels, ...customLabels },
   }}
 >
-  // 🎯 SIMPLIFIED: Reusable button text function
-  function getButtonText(remaining, type) {
-    const typeLabels = {
-      vibe: "Limban Moments",
-      room: "Room Photos",
-      guest: "Guest Photos",
-      dining: "Dining Photos",
-    };
+  class UniversalLoadMoreController {
+    constructor(config) {
+      this.config = config;
+      this.loadedCount = 0;
+      this.isLoading = false;
 
-    const label = typeLabels[type] || "Photos";
-    return `Show ${remaining} More ${label}`;
-  }
+      // Safe element selection
+      this.button = document.getElementById(config.buttonId);
+      this.grid = document.getElementById(config.galleryGridId);
 
-  window.addEventListener("load", () => {
-    // Set up global images array for modal
-    window.galleryImages = window.galleryImages || {};
-    window.galleryImages[galleryType] = [...initialImages, ...remainingImages];
+      if (!this.button || !this.grid) {
+        console.warn("LoadMore: Required elements not found", {
+          button: !!this.button,
+          grid: !!this.grid,
+          buttonId: config.buttonId,
+          gridId: config.galleryGridId,
+        });
+        return;
+      }
 
-    const button = document.getElementById(buttonId);
-    if (button) {
-      let loadedCount = 0;
-      const batchSize = 12;
+      // Validate remaining images
+      if (!config.remainingImages || !Array.isArray(config.remainingImages)) {
+        console.warn(
+          "LoadMore: Invalid remaining images data",
+          config.remainingImages
+        );
+        return;
+      }
 
-      button.addEventListener("click", function (e) {
-        e.preventDefault();
+      console.log(
+        "LoadMore: Initialized with",
+        config.remainingImages.length,
+        "remaining images"
+      );
 
-        const grid = document.getElementById(galleryGridId);
-        if (!grid) return;
+      this.setupCompleteGallery();
 
-        const start = loadedCount;
-        const end = Math.min(start + batchSize, remainingImages.length);
+      this.init();
+    }
 
-        for (let i = start; i < end; i++) {
-          const img = remainingImages[i];
-          const globalIndex = initialImages.length + i;
-          const div = createGalleryItem(img, globalIndex);
-          grid.appendChild(div);
+    // FIX: Add this new method
+    setupCompleteGallery() {
+      try {
+        const loadedImages = Array.from(
+          this.grid.querySelectorAll("[data-gallery-index]") || []
+        ).map((item, index) => {
+          const img = item.querySelector("img");
+          return {
+            id: item.dataset.imageId || index.toString(),
+            src:
+              img?.dataset.modalSrc || img?.dataset.largeSrc || img?.src || "",
+            medium: img?.dataset.gallerySrc || img?.src || "",
+            thumbnail: img?.src || "",
+            alt: img?.alt || "Image",
+            index,
+          };
+        });
 
-          const lazyImg = div.querySelector(".lazy-image");
-          if (lazyImg && window.globalImageObserver) {
-            window.globalImageObserver.observe(lazyImg);
-          }
-        }
+        const remainingImages = this.config.remainingImages.map(
+          (imageData, index) => ({
+            id: imageData.id || (loadedImages.length + index).toString(),
+            src:
+              imageData.processedUrls?.modal ||
+              imageData.processedUrls?.large ||
+              imageData.src ||
+              "",
+            medium: imageData.processedUrls?.gallery || imageData.medium || "",
+            thumbnail:
+              imageData.processedUrls?.thumbnail ||
+              imageData.gallerythumbs ||
+              "",
+            alt: imageData.alt || "Image",
+            index: loadedImages.length + index,
+          })
+        );
 
-        loadedCount = end;
+        const allImages = [...loadedImages, ...remainingImages];
 
-        if (loadedCount >= remainingImages.length) {
-          button.style.display = "none";
-        } else {
-          const remaining = remainingImages.length - loadedCount;
-          // 🎯 SIMPLIFIED: Use the reusable function
-          const newText = getButtonText(remaining, galleryType);
+        if (!window.galleryImages) window.galleryImages = {};
+        window.galleryImages[this.config.galleryType] = allImages;
 
-          button.innerHTML = `${newText}<svg class="w-5 h-5 ml-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>`;
-        }
-      });
-
-      // createGalleryItem function stays the same...
-      function createGalleryItem(image, index) {
-        const div = document.createElement("div");
-        const containerClass = "aspect-square";
-        div.className = `group cursor-pointer ${containerClass}`;
-        div.dataset.galleryIndex = index;
-        div.dataset.galleryType = galleryType;
-
-        div.innerHTML = `
-          <div class="relative w-full h-full overflow-hidden rounded-2xl bg-gray-800 hover:shadow-2xl hover:shadow-black/50 transition-all duration-1000 hover:scale-[1.01]">
-            <div class="absolute inset-0">
-              <img src="${image.placeholder || image.gallerythumbs}" alt="" class="w-full h-full object-cover blur-sm scale-110" />
-            </div>
-            <img
-              src="${image.gallerythumbs}"
-              data-medium="${image.medium}"
-              data-large="${image.src}"
-              alt="${image.alt}"
-              class="relative w-full h-full object-cover lazy-image opacity-0 transition-opacity duration-700 blur-sm"
-              loading="lazy"
-              width="${image.width || 300}"
-              height="${image.height || 300}"
-            />
-            <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-500 flex items-center justify-center font-semibold">
-              <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
-              </svg>
-            </div>
-          </div>
-        `;
-        return div;
+        console.log(
+          "LoadMore: Setup complete gallery with",
+          allImages.length,
+          "total images"
+        );
+      } catch (error) {
+        console.warn("LoadMore: Failed to setup complete gallery:", error);
       }
     }
 
-    // Modal handler setup stays the same...
-    if (!window.modalSetup) {
-      window.modalSetup = true;
-      document.addEventListener("click", function (e) {
-        const item = e.target.closest("[data-gallery-type]");
-        if (!item || e.target.closest("button")) return;
-
+    init() {
+      this.button.addEventListener("click", (e) => {
         e.preventDefault();
-        const gType = item.dataset.galleryType;
-        const idx = parseInt(item.dataset.galleryIndex, 10);
-        const images = window.galleryImages[gType] || [];
-
-        if (images.length > 0) {
-          document.dispatchEvent(
-            new CustomEvent("open-gallery", {
-              detail: { images, index: idx },
-            })
-          );
-        }
+        this.loadMoreImages();
       });
     }
-  });
+
+    async loadMoreImages() {
+      if (
+        this.isLoading ||
+        this.loadedCount >= this.config.remainingImages.length
+      ) {
+        console.log(
+          "LoadMore: Cannot load - already loading or no more images"
+        );
+        return;
+      }
+
+      console.log("LoadMore: Starting batch load from index", this.loadedCount);
+      this.isLoading = true;
+      this.setLoadingState(true);
+
+      try {
+        const startIndex = this.loadedCount;
+        const endIndex = Math.min(
+          startIndex + this.config.batchSize,
+          this.config.remainingImages.length
+        );
+        const batch = this.config.remainingImages.slice(startIndex, endIndex);
+
+        console.log("LoadMore: Loading batch", {
+          startIndex,
+          endIndex,
+          batchSize: batch.length,
+        });
+
+        // Create new gallery items
+        const fragment = document.createDocumentFragment();
+
+        // Fix: Get current item count safely using Array.from
+        const existingItems = Array.from(
+          this.grid.querySelectorAll("[data-gallery-index]") || []
+        );
+        const currentItemCount = existingItems.length;
+
+        for (let i = 0; i < batch.length; i++) {
+          const imageData = batch[i];
+          const correctIndex = currentItemCount + i;
+          const galleryItem = this.createGalleryItem(imageData, correctIndex);
+          fragment.appendChild(galleryItem);
+        }
+
+        // Add to grid
+        this.grid.appendChild(fragment);
+
+        // Initialize lazy loading for new images
+        this.initializeNewImages();
+        this.updateGalleryModal();
+
+        this.loadedCount = endIndex;
+        this.updateButtonText();
+
+        console.log(
+          "LoadMore: Batch loaded successfully. Total loaded:",
+          this.loadedCount
+        );
+
+        // Hide button gracefully if all loaded
+        if (this.loadedCount >= this.config.remainingImages.length) {
+          console.log("LoadMore: All images loaded, hiding button");
+          this.hideButton();
+        }
+      } catch (error) {
+        console.error("LoadMore: Failed to load batch:", error);
+        this.showError();
+      } finally {
+        this.isLoading = false;
+        this.setLoadingState(false);
+      }
+    }
+
+    createGalleryItem(imageData, globalIndex) {
+      // Fix: Check if imageData and required properties exist
+      if (!imageData || !imageData.processedUrls) {
+        console.error("LoadMore: Invalid image data", imageData);
+        return document.createElement("div");
+      }
+
+      // Get aspect ratio from existing grid items
+      const existingItem = this.grid.querySelector("[data-gallery-index]");
+      const isSquare = existingItem
+        ? existingItem.classList.contains("aspect-square")
+        : true;
+
+      // Truncate description safely
+      const truncateText = (text, maxLength = 40) => {
+        if (!text || typeof text !== "string") return "Image";
+        if (text.length <= maxLength) return text;
+        return text.substring(0, maxLength - 3) + "...";
+      };
+
+      const item = document.createElement("div");
+      item.className = `group cursor-pointer relative overflow-hidden rounded-xl hover:shadow-2xl hover:shadow-black/30 transition-all duration-500 hover:scale-[1.02] border border-white/10 hover:border-amber-400/40 ${isSquare ? "aspect-square" : "aspect-auto"}`;
+      item.dataset.galleryIndex = globalIndex.toString();
+      item.dataset.galleryType = this.config.galleryType;
+      item.dataset.imageId = imageData.id?.toString() || globalIndex.toString();
+
+      item.innerHTML = `
+        <!-- LQIP Background -->
+        <div class="absolute inset-0 bg-gradient-to-br from-gray-800 to-gray-900">
+          <div class="w-full h-full bg-gradient-to-t from-black/20 to-transparent"></div>
+        </div>
+
+        <!-- Image -->
+        <img
+          src="${imageData.processedUrls.thumbnail || ""}"
+          data-gallery-src="${imageData.processedUrls.gallery || imageData.processedUrls.thumbnail || ""}"
+          data-large-src="${imageData.processedUrls.large || imageData.processedUrls.gallery || ""}"
+          data-modal-src="${imageData.processedUrls.modal || imageData.processedUrls.large || ""}"
+          alt="${imageData.alt || "Image"}"
+          class="absolute inset-0 w-full h-full object-cover lazy-load-image opacity-0 blur-sm transition-all duration-700"
+          loading="lazy"
+          decoding="async"
+        />
+
+        <!-- Hover Overlay with Description -->
+        <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-500 flex items-end justify-center p-4">
+          <div class="text-center max-w-full">
+            <!-- Expand Icon -->
+            <div class="w-12 h-12 mx-auto mb-3 rounded-full bg-white/20 backdrop-blur-sm border border-white/30 flex items-center justify-center group-hover:bg-amber-400/30 group-hover:border-amber-400/50 transition-all duration-300">
+              <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+            </div>
+            
+            <!-- Image Description -->
+            <div class="text-sm text-white font-medium px-2 leading-tight">
+              ${truncateText(imageData.alt)}
+            </div>
+          </div>
+        </div>
+
+        <!-- Loading State -->
+        <div class="absolute inset-0 flex items-center justify-center loading-placeholder">
+          <div class="w-8 h-8 border-2 border-amber-400/30 border-t-amber-400 rounded-full animate-spin"></div>
+        </div>
+      `;
+
+      return item;
+    }
+
+    initializeNewImages() {
+      try {
+        const galleryLoader = this.grid.galleryLoader;
+        if (galleryLoader && galleryLoader.observer) {
+          // Fix: Safely get new images using Array.from
+          const newImages = Array.from(
+            this.grid.querySelectorAll(".lazy-load-image:not(.observed)") || []
+          );
+          newImages.forEach((img) => {
+            img.classList.add("observed");
+            galleryLoader.observer.observe(img);
+          });
+          console.log(
+            "LoadMore: Initialized lazy loading for",
+            newImages.length,
+            "new images"
+          );
+        }
+      } catch (error) {
+        console.warn("LoadMore: Failed to initialize lazy loading:", error);
+      }
+    }
+
+    updateGalleryModal() {
+      try {
+        // Fix: Safely rebuild gallery images array
+        const allCurrentImages = Array.from(
+          this.grid.querySelectorAll("[data-gallery-index]") || []
+        ).map((item, index) => {
+          const img = item.querySelector("img");
+          return {
+            id: item.dataset.imageId || index.toString(),
+            src:
+              img?.dataset.modalSrc || img?.dataset.largeSrc || img?.src || "",
+            medium: img?.dataset.gallerySrc || img?.src || "",
+            thumbnail: img?.src || "",
+            alt: img?.alt || "Image",
+            index,
+          };
+        });
+
+        if (!window.galleryImages) window.galleryImages = {};
+        window.galleryImages[this.config.galleryType] = allCurrentImages;
+
+        console.log(
+          "LoadMore: Updated gallery modal with",
+          allCurrentImages.length,
+          "images"
+        );
+      } catch (error) {
+        console.warn("LoadMore: Failed to update gallery modal:", error);
+      }
+    }
+
+    updateButtonText() {
+      try {
+        const remaining = this.config.remainingImages.length - this.loadedCount;
+        const label =
+          this.config.customLabels[this.config.galleryType] || "Images";
+        const newText = `Show ${remaining} More ${label}`;
+
+        const buttonText = this.button.querySelector(".button-text");
+        if (buttonText) {
+          buttonText.textContent = newText;
+        }
+      } catch (error) {
+        console.warn("LoadMore: Failed to update button text:", error);
+      }
+    }
+
+    setLoadingState(loading) {
+      try {
+        const spinner = this.button.querySelector(".loading-spinner");
+        const arrow = this.button.querySelector(".arrow-icon");
+
+        if (loading) {
+          spinner?.classList.remove("hidden");
+          arrow?.classList.add("opacity-0");
+          this.button.disabled = true;
+          this.button.classList.add("opacity-75", "cursor-not-allowed");
+        } else {
+          spinner?.classList.add("hidden");
+          arrow?.classList.remove("opacity-0");
+          this.button.disabled = false;
+          this.button.classList.remove("opacity-75", "cursor-not-allowed");
+        }
+      } catch (error) {
+        console.warn("LoadMore: Failed to set loading state:", error);
+      }
+    }
+
+    hideButton() {
+      try {
+        this.button.style.transform = "scale(0.95)";
+        this.button.style.opacity = "0";
+        setTimeout(() => {
+          this.button.style.display = "none";
+        }, 300);
+      } catch (error) {
+        console.warn("LoadMore: Failed to hide button:", error);
+      }
+    }
+
+    showError() {
+      try {
+        const buttonText = this.button.querySelector(".button-text");
+        if (buttonText) {
+          const originalText = buttonText.textContent;
+          buttonText.textContent = "Failed to load. Try again.";
+          this.button.classList.add("border-red-400", "text-red-400");
+          setTimeout(() => {
+            buttonText.textContent = originalText;
+            this.button.classList.remove("border-red-400", "text-red-400");
+          }, 3000);
+        }
+      } catch (error) {
+        console.warn("LoadMore: Failed to show error:", error);
+      }
+    }
+  }
+
+  // Initialize with proper error handling
+  function initLoadMore() {
+    try {
+      const buttonElement = document.getElementById(buttonId);
+      const gridElement = document.getElementById(galleryGridId);
+
+      if (!buttonElement) {
+        console.log(
+          "LoadMore: Button not found, component may not be rendered"
+        );
+        return;
+      }
+
+      if (!gridElement) {
+        console.error("LoadMore: Gallery grid not found:", galleryGridId);
+        return;
+      }
+
+      if (
+        !remainingImages ||
+        !Array.isArray(remainingImages) ||
+        remainingImages.length === 0
+      ) {
+        console.log("LoadMore: No remaining images to load");
+        return;
+      }
+
+      console.log("LoadMore: Initializing controller...");
+      new UniversalLoadMoreController({
+        buttonId,
+        remainingImages,
+        galleryType,
+        galleryGridId,
+        initialCount,
+        batchSize,
+        customLabels,
+      });
+    } catch (error) {
+      console.error("LoadMore: Failed to initialize:", error);
+    }
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initLoadMore);
+  } else {
+    initLoadMore();
+  }
 </script>

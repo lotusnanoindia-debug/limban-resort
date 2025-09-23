@@ -21,7 +21,7 @@ export default defineConfig({
         mdi: ["*"],
         ph: ["*"],
       }
-    })
+    }),
   ],
   
   image: {

@@ -45,9 +45,7 @@ const SUB_HERO_QUERY = `
       title
       imageAltText
       bodyText { html }
-      image {
-        url(transformation: { image: { resize: { width: 500, height: 600, fit: crop }, quality: { value: 60 } }, document: { output: { format: webp } } })
-      }
+      image
       stats {
         number
         label
@@ -66,7 +64,7 @@ const ROOMS_QUERY = `
       shortDescription
       basePrice
       heroImage {
-        optimisedCard: url(transformation: { image: { resize: { width: 600, height: 400, fit: crop }, quality: { value: 60 } }, document: { output: { format: webp } } })
+        optimisedCard: url(transformation: { image: { resize: { width: 600, height: 400, fit: crop } } })
       }
       roomFeature(first: 100) {
         id
@@ -325,9 +323,7 @@ const ROOMS_OPTIMIZED_QUERY = `
         url
         altText
       }
-      heroImage {
-        optimisedCard: url(transformation: { image: { resize: { width: 600, height: 400, fit: crop }, quality: { value: 60 } }, document: { output: { format: webp } } })
-      }
+      heroImage
       roomFeature(first: 100) {
         id
         featureName

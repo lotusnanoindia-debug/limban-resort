@@ -1,109 +1,382 @@
 ---
+/**
+ * Universal Gallery Grid - Plug and Play
+ * Works with ANY processed image data from ImageService
+ * Zero raw URLs, zero hardcoded logic
+ */
 import type { HTMLAttributes } from 'astro/types';
 
-
-interface Image {
-  gallerythumbs: string; 
-  medium: string;
-  src: string;
-  placeholder?: string;
+interface ProcessedImage {
+  id: string | number;
+  processedUrls: {
+    thumbnail: string;
+    gallery: string;
+    large: string;
+    modal: string;
+  };
   alt: string;
+  context?: {
+    pageType?: string;
+    contentName?: string;
+    index?: number;
+  };
+  galleryMeta?: {
+    type: string;
+    index: number;
+    total: number;
+    isFirst: boolean;
+    isLast: boolean;
+  };
   width?: number;
   height?: number;
 }
 
-
 interface Props extends HTMLAttributes<'div'> {
-  images: Image[];
-  layout?: 'grid';
-  galleryType?: string;
-  gridId?: string;
-  loadingStrategy?: string;
-  priority?: number;
+  images: ProcessedImage[];
+  galleryType: string;
+  gridId: string;
+  layout?: 'grid' | 'masonry' | 'flex';
+  columns?: {
+    mobile: number;
+    tablet: number;
+    desktop: number;
+    xl: number;
+  };
+  aspectRatio?: 'square' | 'landscape' | 'portrait' | 'auto';
+  showOverlay?: boolean;
+  loadingStrategy?: 'lazy' | 'eager' | 'intersection';
 }
 
+const {
+  images,
+  galleryType,
+  gridId,
+  layout = 'grid',
+  columns = {
+    mobile: 2,
+    tablet: 3,
+    desktop: 4,
+    xl: 6
+  },
+  aspectRatio = 'square',
+  showOverlay = true,
+  loadingStrategy = 'intersection',
+  class: additionalClasses = '',
+  ...attrs
+} = Astro.props;
 
-const { images, layout = 'grid', galleryType, gridId, loadingStrategy, priority, ...attrs } = Astro.props;
+// Generate responsive grid classes
+const gridClasses = [
+  `grid`,
+  `grid-cols-${columns.mobile}`,
+  `md:grid-cols-${columns.tablet}`,
+  `lg:grid-cols-${columns.desktop}`,
+  `xl:grid-cols-${columns.xl}`,
+  `gap-4 md:gap-6`,
+].join(' ');
 
+// Container aspect ratio class
+const aspectRatioClass = {
+  square: 'aspect-square',
+  landscape: 'aspect-[4/3]',
+  portrait: 'aspect-[3/4]', 
+  auto: 'aspect-auto'
+}[aspectRatio];
 
-const gridClass = 'grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6';
-
-
-const imageContainerClass = 'aspect-square';
-
-
-const imageClass = 'relative w-full h-full object-cover';
+// Loading strategy classes
+const loadingClass = loadingStrategy === 'intersection' ? 'lazy-load-image' : '';
 ---
 
-
-<div id={gridId} class:list={[gridClass, 'gallery-grid-component']} {...attrs}>
+<div
+  id={gridId}
+  class:list={[
+    gridClasses,
+    'universal-gallery-grid',
+    additionalClasses
+  ]}
+  data-gallery-type={galleryType}
+  data-total-images={images.length}
+  {...attrs}
+>
   {images.map((image, index) => (
     <div 
-      key={index}
-      class:list={['group cursor-pointer', imageContainerClass]}
+      key={image.id || index}
+      class:list={[
+        'group cursor-pointer relative overflow-hidden rounded-xl',
+        'hover:shadow-2xl hover:shadow-black/30',
+        'transition-all duration-500 hover:scale-[1.02]',
+        'border border-white/10 hover:border-amber-400/40',
+        aspectRatioClass
+      ]}
       data-gallery-index={index}
       data-gallery-type={galleryType}
+      data-image-id={image.id}
     >
-      <div class="relative w-full h-full overflow-hidden rounded-2xl bg-gray-800 hover:shadow-2xl hover:shadow-black/50 transition-all duration-1000 hover:scale-[1.01]">
-        
-        <!-- 🎯 OPTIMIZED: LQIP Background using placeholder -->
-        <div class="absolute inset-0">
-          <img 
-            src={image.placeholder || image.gallerythumbs} 
-            alt="" 
-            class="w-full h-full object-cover blur-sm scale-110" 
-          />
-        </div>
-        
-        <!-- 🎯 OPTIMIZED: Main Image using gallerythumbs (2KB!) -->
-        <img
-          src={image.gallerythumbs}
-          data-medium={image.medium}
-          data-large={image.src}
-          alt={image.alt}
-          class:list={[imageClass, 'lazy-image opacity-0 transition-opacity duration-700 blur-sm']}
-          style=""
-          loading="lazy"
-          width={image.width}
-          height={image.height}
-        />
-        
-        <!-- Hover Overlay -->
-        <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-500 flex items-center justify-center">
-          <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-          </svg>
-        </div>
+      <!-- LQIP Background Layer -->
+      <div class="absolute inset-0 bg-gradient-to-br from-gray-800 to-gray-900">
+        <div class="w-full h-full bg-gradient-to-t from-black/20 to-transparent" />
       </div>
+
+      <!-- Thumbnail Image with Intersection Loading -->
+      <img
+        src={image.processedUrls.thumbnail}
+        data-gallery-src={image.processedUrls.gallery}
+        data-large-src={image.processedUrls.large}
+        data-modal-src={image.processedUrls.modal}
+        alt={image.alt}
+        class:list={[
+          'absolute inset-0 w-full h-full object-cover',
+          'transition-all duration-700',
+          loadingClass,
+          loadingStrategy === 'intersection' ? 'opacity-0 blur-sm' : 'opacity-100'
+        ]}
+        loading={loadingStrategy === 'eager' ? 'eager' : 'lazy'}
+        decoding="async"
+        width={image.width}
+        height={image.height}
+      />
+
+      <!-- Enhanced Hover Overlay -->
+      {showOverlay && (
+        <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-all duration-500 flex items-end justify-center p-4">
+          <div class="text-center">
+            <!-- Expand Icon -->
+            <div class="w-12 h-12 mx-auto mb-2 rounded-full bg-white/20 backdrop-blur-sm border border-white/30 flex items-center justify-center group-hover:bg-amber-400/30 group-hover:border-amber-400/50 transition-all duration-300">
+              <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <!-- Loading State -->
+      {loadingStrategy === 'intersection' && (
+        <div class="absolute inset-0 flex items-center justify-center loading-placeholder">
+          <div class="w-8 h-8 border-2 border-amber-400/30 border-t-amber-400 rounded-full animate-spin" />
+        </div>
+      )}
     </div>
   ))}
 </div>
 
+<!-- FIX: Store all images globally for modal access -->
+<script define:vars={{ images, galleryType }}>
+  // Set up complete image arrays for modal access
+  window.galleryImages = window.galleryImages || {};
+  
+  window.galleryImages[galleryType] = images.map((img, index) => ({
+    id: img.id || index,
+    src: img.processedUrls.modal || img.processedUrls.large,
+    medium: img.processedUrls.gallery,
+    thumbnail: img.processedUrls.thumbnail,
+    alt: img.alt,
+    index
+  }));
+</script>
 
 <script>
-  const lazyImages = document.querySelectorAll('.gallery-grid-component .lazy-image');
-  const imageObserver = new IntersectionObserver((entries, observer) => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting) {
-        const img = entry.target as HTMLImageElement;
-        
-        // 🎯 OPTIMIZED: Load medium quality image for better UX
-        const mediumSrc = img.dataset.medium || img.dataset.large || img.src;
-        
-        // Preload the image
+  /**
+   * Universal Gallery Grid Script
+   * Handles intersection loading and gallery interactions
+   * Works with any gallery type - completely plug and play
+   */
+  
+  // Enhanced Intersection Observer for lazy loading
+  class UniversalGalleryLoader {
+    constructor(gridElement) {
+      this.grid = gridElement;
+      this.galleryType = gridElement.dataset.galleryType;
+      this.images = Array.from(gridElement.querySelectorAll('.lazy-load-image'));
+      this.loadedImages = new Set();
+      
+      this.setupIntersectionObserver();
+      this.bindEvents();
+    }
+
+    setupIntersectionObserver() {
+      if (!('IntersectionObserver' in window)) {
+        // Fallback for older browsers
+        this.loadAllImages();
+        return;
+      }
+
+      this.observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting && !this.loadedImages.has(entry.target)) {
+            this.loadImage(entry.target);
+          }
+        });
+      }, {
+        rootMargin: '50px 0px',
+        threshold: 0.1
+      });
+
+      // Observe all lazy images
+      this.images.forEach(img => this.observer.observe(img));
+    }
+
+    async loadImage(imgElement) {
+      const placeholder = imgElement.closest('[data-gallery-index]')?.querySelector('.loading-placeholder');
+      
+      try {
+        // Show loading state
+        if (placeholder) placeholder.style.opacity = '1';
+
+        // Create new image for preloading
         const preloadImg = new Image();
-        preloadImg.onload = () => {
-          img.src = mediumSrc;
-          img.classList.remove('blur-sm');  // Remove blur effect
-          img.classList.add('opacity-100');  // Fade to visible
-        };
-        preloadImg.src = mediumSrc;
+        preloadImg.decoding = 'async';
         
-        observer.unobserve(img);
+        // Load the gallery-quality image
+        const gallerySrc = imgElement.dataset.gallerySrc || imgElement.src;
+        
+        await new Promise((resolve, reject) => {
+          preloadImg.onload = resolve;
+          preloadImg.onerror = reject;
+          preloadImg.src = gallerySrc;
+        });
+
+        // Update image source and reveal
+        imgElement.src = gallerySrc;
+        imgElement.classList.remove('opacity-0', 'blur-sm');
+        imgElement.classList.add('opacity-100');
+        
+        // Hide loading state
+        if (placeholder) {
+          placeholder.style.opacity = '0';
+          setTimeout(() => {
+            placeholder.style.display = 'none';
+          }, 300);
+        }
+
+        // Mark as loaded and unobserve
+        this.loadedImages.add(imgElement);
+        this.observer?.unobserve(imgElement);
+
+      } catch (error) {
+        console.warn(`Failed to load gallery image:`, error);
+        
+        // Hide loading state even on error
+        if (placeholder) placeholder.style.display = 'none';
+        imgElement.classList.remove('opacity-0', 'blur-sm');
+        imgElement.classList.add('opacity-100');
+      }
+    }
+
+    loadAllImages() {
+      // Fallback method for browsers without IntersectionObserver
+      this.images.forEach(img => this.loadImage(img));
+    }
+
+    bindEvents() {
+      // Gallery click events
+      this.grid.addEventListener('click', (e) => {
+        const galleryItem = e.target.closest('[data-gallery-index]');
+        if (!galleryItem || e.target.closest('button')) return;
+
+        e.preventDefault();
+        
+        const index = parseInt(galleryItem.dataset.galleryIndex);
+        const galleryType = galleryItem.dataset.galleryType;
+        
+        // FIX: Get ALL images from window.galleryImages if available, fallback to visible
+        const allImages = window.galleryImages?.[galleryType] || 
+          Array.from(this.grid.querySelectorAll('[data-gallery-index]')).map((item, idx) => {
+            const img = item.querySelector('img');
+            return {
+              id: item.dataset.imageId || idx,
+              src: img.dataset.modalSrc || img.dataset.largeSrc || img.src,
+              medium: img.dataset.gallerySrc || img.src,
+              thumbnail: img.src,
+              alt: img.alt,
+              index: idx
+            };
+          });
+
+        // Dispatch gallery open event with ALL images
+        document.dispatchEvent(new CustomEvent('open-gallery', {
+          detail: { 
+            images: allImages, 
+            index, 
+            title: `${galleryType.charAt(0).toUpperCase() + galleryType.slice(1)} Gallery`,
+            galleryType 
+          }
+        }));
+      });
+    }
+
+    destroy() {
+      this.observer?.disconnect();
+      this.grid.removeEventListener('click', this.bindEvents);
+    }
+  }
+
+  // Initialize galleries when DOM is ready
+  function initializeGalleries() {
+    const galleries = document.querySelectorAll('.universal-gallery-grid');
+    
+    galleries.forEach(grid => {
+      if (!grid.galleryLoader) {
+        grid.galleryLoader = new UniversalGalleryLoader(grid);
       }
     });
-  }, { rootMargin: '200px 0px', threshold: 0.01 });
-  
-  lazyImages.forEach(img => imageObserver.observe(img));
-  window.globalImageObserver = imageObserver;
+
+    // Store reference for cleanup
+    window.galleryLoaders = window.galleryLoaders || [];
+    window.galleryLoaders.push(...Array.from(galleries).map(g => g.galleryLoader));
+  }
+
+  // Initialize on load and for dynamic content
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initializeGalleries);
+  } else {
+    initializeGalleries();
+  }
+
+  // Cleanup function for SPA navigation
+  window.cleanupGalleries = function() {
+    window.galleryLoaders?.forEach(loader => loader?.destroy());
+    window.galleryLoaders = [];
+  };
 </script>
+
+<style>
+  /* Smooth loading animations */
+  .lazy-load-image {
+    transition: opacity 0.7s ease-out, filter 0.7s ease-out;
+  }
+
+  .loading-placeholder {
+    transition: opacity 0.3s ease-out;
+  }
+
+  /* Enhanced hover effects */
+  .universal-gallery-grid [data-gallery-index]:hover {
+    transform: scale(1.02);
+  }
+
+  /* Responsive grid gaps */
+  .universal-gallery-grid {
+    gap: 1rem;
+  }
+
+  @media (min-width: 768px) {
+    .universal-gallery-grid {
+      gap: 1.5rem;
+    }
+  }
+
+  /* Performance optimizations */
+  .universal-gallery-grid img {
+    will-change: transform, opacity;
+  }
+
+  /* Reduced motion support */
+  @media (prefers-reduced-motion: reduce) {
+    .universal-gallery-grid * {
+      transition: none !important;
+      transform: none !important;
+      animation: none !important;
+    }
+  }
+</style>

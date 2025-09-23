@@ -109,7 +109,7 @@ export default {
   },
 plugins: [
   require("tailwindcss-animate"),
-  require("@tailwindcss/forms"),  // Add this line
+  require("@tailwindcss/forms"),
 ],
   
 }

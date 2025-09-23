@@ -8,20 +8,18 @@ import ExperiencesSection from "../components/ExperiencesSection.astro";
 import TestimonialsSection from "../components/TestimonialsSection.astro";
 import AwardsSection from "../components/AwardsSection.astro";
 import ContactSection from "../components/ContactSection.astro";
+import { fetchHomepageData } from "../api-clean.js";
 
-// ✅ CHANGE: Use optimized API for AVIF images
-import { fetchAllHomepageDataOptimized } from "../api-optimized.js";
-
-// Fetch data using optimized function
-const data = await fetchAllHomepageDataOptimized();
+// Fetch data using clean API function
+const data = await fetchHomepageData();
 
 const heroes =
   data.heroes?.map((hero) => ({
     ...hero,
     heroImage: {
-      url: hero.backgroundImage?.url, // ✅ Use backgroundImage not heroImage
+      url: hero.backgroundImage?.url,
       alt:
-        hero.backgroundImage?.altText ||
+        hero.backgroundImage?.alt ||
         `${hero.slideTitle} - Limban Resort luxury safari experience`,
     },
   })) || [];
@@ -29,18 +27,23 @@ const heroes =
 const rooms =
   data.rooms?.map((room) => ({
     ...room,
+    roomImage: {
+      url: room.heroImage?.url,
+      alt: room.heroImage?.alt || room.roomName,
+      altText: room.heroImage?.alt || room.roomName,
+    },
     heroImage: {
       url: room.heroImage?.url,
-      alt: room.heroImage?.altText || room.roomName,
+      alt: room.heroImage?.alt || room.roomName,
     },
   })) || [];
 
 const services =
-  data.experiences?.experience?.map((exp) => ({
+  data.services?.experience?.map((exp) => ({
     ...exp,
     serviceImage: {
       url: exp.image?.url,
-      alt: exp.image?.altText || exp.title,
+      alt: exp.image?.alt || exp.title,
     },
   })) || [];
 

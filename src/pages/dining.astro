@@ -1,48 +1,17 @@
 ---
 import Layout from "../layouts/Layout.astro";
 import { AstroSEO } from "astro-seo-plugin";
-import { fetchDiningExperiencesData, fetchSpecialDealData } from "../api.js";
-import { getImage } from 'astro:assets';
+import imageService from '../utils/ImageService.js';
+import { fetchDining, fetchSpecialDeal } from "../api-clean.js";
 
-// Ultra-reliable API fetching with retry logic
-async function fetchWithRetry(fetchFn, retries = 2) {
-  for (let i = 0; i < retries; i++) {
-    try {
-      return await fetchFn();
-    } catch (error) {
-      if (i === retries - 1) throw error;
-      await new Promise(resolve => setTimeout(resolve, 1000));
-    }
-  }
-}
-
-// 🎯 ENHANCED: Single image optimizer for all dining images
-async function optimizeImage(url, width, height, quality = 60) {
-  if (!url) return null;
-  try {
-    const optimized = await getImage({
-      src: url,
-      width: width,
-      height: height,
-      format: 'avif',
-      quality: quality,
-      fit: 'cover',
-      inferSize: true,
-    });
-    return optimized;
-  } catch (error) {
-    return { src: url };
-  }
-}
-
-// Server-side data fetching
+// Server-side data fetching with clean API
 let data = { experiences: [], specialDeal: null };
 let error = null;
 
 try {
   const [diningExperiences, specialDeal] = await Promise.all([
-    fetchWithRetry(() => fetchDiningExperiencesData()),
-    fetchWithRetry(() => fetchSpecialDealData())
+    fetchDining(),
+    fetchSpecialDeal()
   ]);
   data = { experiences: diningExperiences || [], specialDeal };
 } catch (err) {
@@ -50,37 +19,41 @@ try {
   error = "Failed to load dining experiences from Hygraph";
 }
 
-// 🎯 ENHANCED: Process and optimize all images with better quality
-const experiences = await Promise.all(
-  data.experiences.map(async (experience, index) => {
-    const sourceUrl = experience.images?.[0]?.large || experience.images?.[0]?.url;
-    const logoUrl = experience.logo?.optimisedLogo || experience.logo?.url;
-    
-    const [optimizedHero, optimizedCard, optimizedLogo, lqip] = await Promise.all([
-      optimizeImage(sourceUrl, 600, 400, 85), // Higher quality for hero
-      optimizeImage(sourceUrl, 400, 300, 80), // Cards
-      optimizeImage(logoUrl, 64, 64, 90), // High quality logos
-      optimizeImage(sourceUrl, 24, 18, 20) // LQIP
-    ]);
+// Process experiences with optimized ImageService URLs
+const experiences = data.experiences.map((experience, index) => {
+  const heroImageData = experience.images?.[0] ? {
+    ...experience.images[0],
+    context: {
+      pageType: 'dining',
+      contentName: experience.restaurantName,
+      imageType: 'hero'
+    }
+  } : null;
 
+  const logoImageData = experience.logo ? {
+    ...experience.logo,
+    context: {
+      pageType: 'dining', 
+      contentName: experience.restaurantName,
+      imageType: 'logo'
+    }
+  } : null;
 
-    return {
-      id: experience.id,
-      name: experience.restaurantName,
-      intro: experience.shortIntro,
-      description: experience.longDescription,
-      optimizedLogo: optimizedLogo?.src || logoUrl || "",
-      optimizedHero: optimizedHero?.src || sourceUrl || "",
-      optimizedCard: optimizedCard?.src || sourceUrl || "",
-      lqip: lqip?.src || sourceUrl || "",
-      slug: experience.url || `experience-${index + 1}`,
-      alt: `${experience.restaurantName} dining experience at Limban Resort`,
-      priority: index < 3 // First 3 get priority loading
-    };
-  })
-);
+  return {
+    id: experience.id,
+    name: experience.restaurantName,
+    intro: experience.shortIntro,
+    description: experience.longDescription,
+    logoUrl: logoImageData ? imageService.processImage(logoImageData, 'logo', { quality: 80 }) : "",
+    imageUrl: heroImageData ? imageService.processImage(heroImageData, 'serviceCard', { quality: 75 }) : "",
+    mosaicUrl: heroImageData ? imageService.processImage(heroImageData, 'grid', { quality: 60 }) : "",
+    slug: experience.url || `experience-${index + 1}`,
+    alt: `${experience.restaurantName} dining experience at Limban Resort`,
+    priority: index < 3
+  };
+});
 
-// 🎯 ENHANCED: Create randomized hero mosaic
+// Create randomized hero mosaic
 function shuffleArray(array) {
   const shuffled = [...array];
   for (let i = shuffled.length - 1; i > 0; i--) {
@@ -92,18 +65,22 @@ function shuffleArray(array) {
 
 // Create randomized mosaic tiles (24 total)
 const mosaicTiles = [];
-const availableExperiences = [...experiences];
-
-for (let i = 0; i < 24; i++) {
-  if (availableExperiences.length === 0) {
-    availableExperiences.push(...shuffleArray(experiences));
+if (experiences.length > 0) {
+  const availableExperiences = [...experiences];
+  
+  for (let i = 0; i < 24; i++) {
+    if (availableExperiences.length === 0) {
+      availableExperiences.push(...shuffleArray(experiences));
+    }
+    mosaicTiles.push(availableExperiences.pop());
   }
-  mosaicTiles.push(availableExperiences.pop());
 }
 
 // Safe hero image for meta
-const heroImageSrc = experiences[0]?.optimizedHero || "/img/dining-hero.avif";
+const heroImageSrc = experiences[0]?.imageUrl || "/img/dining-hero.avif";
 ---
+
+<link rel="preload" as="image" href={heroImageSrc} fetchpriority="high" />
 
 <Layout>
   <AstroSEO
@@ -126,7 +103,7 @@ const heroImageSrc = experiences[0]?.optimizedHero || "/img/dining-hero.avif";
       "name": "Limban Resort Dining Experiences",
       "description": "Authentic dining experiences in the heart of Tadoba National Park. From dawn coffee with morning chorus to candlelit dinners under ancient trees, discover flavors crafted from the freshest local ingredients.",
       "url": "https://limban.com/dining",
-      "image": [heroImageSrc, ...experiences.slice(0, 5).map(exp => exp.optimizedHero)].filter(Boolean),
+      "image": [heroImageSrc, ...experiences.slice(0, 5).map(exp => exp.imageUrl)].filter(Boolean),
       "servesCuisine": ["Indian Cuisine", "Local Maharashtrian", "Farm-to-Table"],
       "priceRange": "₹₹₹",
       "acceptsReservations": true,
@@ -141,19 +118,15 @@ const heroImageSrc = experiences[0]?.optimizedHero || "/img/dining-hero.avif";
             "name": exp.name,
             "description": exp.intro,
             "url": `https://limban.com/dining/${exp.slug}`,
-            "image": exp.optimizedHero
+            "image": exp.imageUrl
           }
         }))
       }
     }}
   />
 
-  {/* Preload critical images */}
-  <link rel="preload" as="image" href={heroImageSrc} fetchpriority="high" />
-  {experiences[0]?.optimizedCard && <link rel="preload" as="image" href={experiences[0].optimizedCard} />}
-
   <div class="bg-gray-950 text-gray-100">
-    <!-- 🎯 ENHANCED: Hero Section with Dynamic Mosaic -->
+    <!-- Enhanced Hero Section with Direct Image URLs -->
     <section class="relative pt-48 pb-32 overflow-hidden bg-gray-950">
       <!-- Dynamic mosaic background -->
       <div class="absolute inset-0 grid grid-cols-4 md:grid-cols-6 gap-0 opacity-60">
@@ -164,14 +137,12 @@ const heroImageSrc = experiences[0]?.optimizedHero || "/img/dining-hero.avif";
             style={`animation-delay: ${index * 50}ms`}
           >
             <img
-              src={experience.optimizedHero}
+              src={experience.mosaicUrl || experience.imageUrl}
               alt={`${experience.name} dining at Limban Resort`}
-              class="relative w-full h-full object-cover hover:scale-105 transition-all duration-1000"
               loading={index < 12 ? 'eager' : 'lazy'}
-              fetchpriority={index < 6 ? 'high' : 'auto'}
-              decoding="async"
+              class="relative w-full h-full object-cover hover:scale-105 transition-all duration-1000"
             />
-            
+
             <!-- Experience name overlay on hover -->
             <div class="absolute inset-0 bg-gray-900/80 opacity-0 hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
               <span class="text-white text-xs font-medium text-center px-2">
@@ -190,19 +161,16 @@ const heroImageSrc = experiences[0]?.optimizedHero || "/img/dining-hero.avif";
       <!-- Hero Content -->
       <div class="relative z-20 max-w-7xl mx-auto px-6">
         <div class="text-center space-y-8">
-          <!-- Badge -->
           <div class="inline-block px-6 py-2 bg-amber-400/10 border border-amber-400/30 rounded-full mb-8">
             <span class="text-amber-400 text-sm font-medium tracking-widest uppercase">
               Savour the Wild
             </span>
           </div>
           
-          <!-- Main Heading -->
           <h1 class="font-serif italic text-5xl md:text-7xl lg:text-8xl text-white leading-tight drop-shadow-2xl">
             Dining <span class="text-amber-400">Experiences</span>
           </h1>
           
-          <!-- Subheading -->
           <p class="text-xl md:text-2xl text-gray-200 font-light leading-relaxed max-w-4xl mx-auto drop-shadow-lg">
             In the heart of Tadoba, every meal tells a story. From dawn coffee with the morning chorus 
             to candlelit dinners under ancient trees, discover authentic flavours crafted from the 
@@ -230,7 +198,7 @@ const heroImageSrc = experiences[0]?.optimizedHero || "/img/dining-hero.avif";
       </div>
     </nav>
 
-    <!-- 🎯 ENHANCED: Dining Experiences Grid -->
+    <!-- Dining Experiences Grid -->
     <section class="py-32 bg-gradient-to-b from-gray-950 to-gray-800">
       <div class="max-w-7xl mx-auto px-6">
         
@@ -272,42 +240,26 @@ const heroImageSrc = experiences[0]?.optimizedHero || "/img/dining-hero.avif";
             {experiences.map((experience, index) => (
               <article
                 key={experience.id}
-                class="group relative overflow-hidden rounded-3xl bg-gray-800/40 border border-gray-700/50 hover:border-amber-400/50 transition-all duration-700 hover:-translate-y-2 hover:shadow-2xl hover:shadow-amber-400/10"
+                class="group relative overflow-hidden rounded-3xl bg-gray-800/40 border border-amber-100/20 hover:border-amber-400/50 transition-all duration-700 hover:-translate-y-2 hover:shadow-2xl hover:shadow-amber-400/10"
                 role="listitem"
               >
-                <!-- 🎯 ENHANCED: Image with LQIP and dining type badge -->
+                <!-- Enhanced Image with Direct URL -->
                 <div class="relative aspect-[4/3] overflow-hidden">
-                  <!-- LQIP Background -->
-                  {experience.lqip && (
-                    <img
-                      src={experience.lqip}
-                      alt=""
-                      class="absolute inset-0 w-full h-full object-cover blur-sm scale-105"
-                      aria-hidden="true"
-                    />
-                  )}
-                  
-                  <!-- Main optimized image -->
                   <img
-                    src={experience.optimizedCard}
+                    src={experience.imageUrl}
                     alt={experience.alt}
-                    class="relative w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                     loading={experience.priority ? 'eager' : 'lazy'}
-                    fetchpriority={experience.priority ? 'high' : 'auto'}
-                    decoding="async"
+                    class="relative w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                   />
-                                    
-                  <!-- Gradient overlay -->
-                  <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent group-hover:from-black/60 transition-colors duration-500"></div>
                   
-                  <!-- 🎯 ENHANCED: Experience logo with better positioning -->
-                  {experience.optimizedLogo && (
+                  <!-- Experience logo -->
+                  {experience.logoUrl && (
                     <div class="absolute top-4 right-4 w-12 h-12 bg-white/10 backdrop-blur-sm rounded-full p-2 border border-white/20 opacity-80 group-hover:opacity-100 transition-opacity duration-300">
                       <img
-                        src={experience.optimizedLogo}
+                        src={experience.logoUrl}
                         alt={`${experience.name} logo`}
-                        class="w-full h-full object-contain"
                         loading="lazy"
+                        class="w-full h-full object-contain"
                       />
                     </div>
                   )}
@@ -324,28 +276,22 @@ const heroImageSrc = experiences[0]?.optimizedHero || "/img/dining-hero.avif";
                     </p>
                   </header>
                   
-                  <!-- 🎯 ENHANCED: CTA Button with better styling -->
+                  <!-- CTA Button -->
                   <footer>
                     <a
                       href={`/dining/${experience.slug}`}
-                      class="action-btn group/cta relative overflow-hidden"
+                      class="action-btn"
                       aria-label={`Explore ${experience.name} dining experience`}
                     >
                       <span class="relative z-10 flex items-center justify-center">
                         Explore {experience.name}
-                        <svg class="w-5 h-5 ml-2 group-hover/cta:translate-x-1 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
                         </svg>
                       </span>
-                      
-                      <!-- Animated background effect -->
-                      <div class="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0 transform translate-x-[-100%] group-hover/cta:translate-x-[100%] transition-transform duration-1000 ease-out"></div>
                     </a>
                   </footer>
                 </div>
-                
-                <!-- 🎯 ENHANCED: Glow effect -->
-                <div class="absolute inset-0 rounded-3xl bg-gradient-to-br from-amber-500/0 to-orange-500/0 group-hover:from-amber-500/5 group-hover:to-orange-500/5 transition-all duration-700"></div>
               </article>
             ))}
           </div>
@@ -353,7 +299,7 @@ const heroImageSrc = experiences[0]?.optimizedHero || "/img/dining-hero.avif";
       </div>
     </section>
 
-    <!-- 🎯 ENHANCED: Philosophy Section -->
+    <!-- Philosophy Section -->
     <section class="py-32 bg-gray-900">
       <div class="max-w-6xl mx-auto px-6 text-center">
         <div class="inline-block px-6 py-2 bg-amber-400/10 border border-amber-400/30 rounded-full mb-8">
@@ -368,7 +314,7 @@ const heroImageSrc = experiences[0]?.optimizedHero || "/img/dining-hero.avif";
           the kind of personal attention that makes each meal memorable.
         </p>
         
-        <!-- 🎯 NEW: Philosophy highlights -->
+        <!-- Philosophy highlights -->
         <div class="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl mx-auto">
           <div class="p-6 bg-gray-800/40 rounded-2xl border border-gray-700/50">
             <div class="w-12 h-12 mx-auto mb-4 text-green-400">
