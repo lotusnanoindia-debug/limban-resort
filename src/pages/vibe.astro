@@ -4,7 +4,7 @@ import { AstroSEO } from "astro-seo-plugin";
 import GalleryGrid from "../components/GalleryGrid.astro";
 import LoadMoreGallery from "../components/LoadMoreGallery.astro";
 import GalleryModal from "../components/GalleryModal.astro";
-import imageService, { processGalleryImages } from "../utils/ImageService.js";
+import imageService from "../utils/ImageService.js";
 import { fetchVibePage } from "../api.js";
 
 // Server-side data fetching with error handling
@@ -19,38 +19,42 @@ try {
   };
 }
 
-// Process all gallery images through ImageService
+// FIXED: Handle the actual API structure
 const processedVibeImages = vibeData?.vibeImages && vibeData.vibeImages.length > 0
-  ? processGalleryImages(vibeData.vibeImages.map((galleryItem, index) => ({
-      ...galleryItem,
-      caption: galleryItem.caption || galleryItem.altText || `Limban vibe ${index + 1}`,
-      context: {
-        pageType: 'vibe',
-        contentName: 'Limban Experience',
-        imageType: 'gallery',
-        caption: galleryItem.caption || galleryItem.altText,
-        index
-      }
-    })), 'vibe', {
-      contentName: 'Limban Experience',
-      pageContext: 'vibe-page'
+  ? vibeData.vibeImages.map((item, index) => {
+      const imageData = item.image || item;
+      
+      return {
+        id: imageData.id,
+        alt: imageData.alt || item.altText || `Image ${index + 1}`,
+        width: imageData.width,
+        height: imageData.height,
+        processedUrls: {
+          thumbnail: imageService.processImage(imageData, 'galleryThumbnail'),
+          gallery: imageService.processImage(imageData, 'galleryLarge'),
+          large: imageService.processImage(imageData, 'galleryModal'), 
+          modal: imageService.processImage(imageData, 'heroDesktop')
+        }
+      };
     })
   : [];
 
 const processedWildlifeImages = vibeData?.wildlifeImages && vibeData.wildlifeImages.length > 0
-  ? processGalleryImages(vibeData.wildlifeImages.map((galleryItem, index) => ({
-      ...galleryItem,
-      caption: galleryItem.caption || galleryItem.alt || `Wildlife ${index + 1}`,
-      context: {
-        pageType: 'wildlife',
-        contentName: 'Tadoba Wildlife',
-        imageType: 'gallery',
-        caption: galleryItem.caption || galleryItem.alt,
-        index
-      }
-    })), 'wildlife', {
-      contentName: 'Tadoba Wildlife',
-      pageContext: 'vibe-wildlife'
+  ? vibeData.wildlifeImages.map((item, index) => {
+      const imageData = item.image || item;
+      
+      return {
+        id: imageData.id,
+        alt: imageData.alt || item.alt || `Wildlife ${index + 1}`,
+        width: imageData.width,
+        height: imageData.height,
+        processedUrls: {
+          thumbnail: imageService.processImage(imageData, 'galleryThumbnail'),
+          gallery: imageService.processImage(imageData, 'galleryLarge'),
+          large: imageService.processImage(imageData, 'galleryModal'),
+          modal: imageService.processImage(imageData, 'heroDesktop')
+        }
+      };
     })
   : [];
 
@@ -62,13 +66,20 @@ const initialWildlifeImages = processedWildlifeImages.slice(0, 12);
 const remainingWildlifeImages = processedWildlifeImages.slice(12);
 
 // Process hero tiles for mosaic
-const heroTiles = processedVibeImages.slice(0, 12).map((img, index) => ({
-  src: imageService.processImage(img, 'heroTile', { quality: 60 }),
-  alt: img.alt,
-  width: 300,
-  height: 400,
-  caption: img.caption || img.altText || null,
-}));
+const heroTiles = vibeData?.vibeImages && vibeData.vibeImages.length > 0
+  ? vibeData.vibeImages.slice(0, 12).map((item, index) => {
+      // Get the raw image data (like rooms does with room.heroImage)
+      const imageData = item.image || item;
+      
+      return {
+        src: imageService.processImage(imageData, 'heroTile', { quality: 60 }),
+        alt: imageData.alt || item.altText || `Limban Experience ${index + 1}`,
+        width: 300,
+        height: 400,
+        caption: imageData.alt || item.altText || `Limban Experience ${index + 1}`,
+      };
+    })
+  : [];
 
 // Generate SEO-optimized URLs for schema
 const heroImageUrl = heroTiles[0]?.src || 

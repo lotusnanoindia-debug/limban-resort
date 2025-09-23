@@ -12,7 +12,7 @@ const positionClass =
 
 <button
   id="auto-float-btn"
-  class={`fixed ${positionClass} z-50 bg-amber-500 hover:bg-amber-600 text-white px-3 py-2 sm:px-4 sm:py-2.5 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 text-xs sm:text-sm font-semibold opacity-0 pointer-events-none`}
+  class={`fixed ${positionClass} z-50 bg-amber-500 hover:bg-amber-600 text-white px-3 py-2 sm:px-4 sm:py-2.5 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 text-sm font-semibold opacity-0 pointer-events-none`}
 >
   {buttonText}
 </button>
@@ -40,7 +40,18 @@ const positionClass =
         }).observe(form);
 
         btn.onclick = () => {
-          form.scrollIntoView({ behavior: "smooth", block: "center" });
+          // Smart offset based on screen size
+          const isMobile = window.innerWidth <= 768;
+          const headerOffset = isMobile ? 300 : 200; // More offset on mobile
+
+          const formRect = form.getBoundingClientRect();
+          const targetPosition =
+            window.pageYOffset + formRect.top - headerOffset;
+
+          window.scrollTo({
+            top: Math.max(0, targetPosition),
+            behavior: "smooth",
+          });
 
           setTimeout(() => {
             form.style.boxShadow = "0 0 40px rgba(245, 158, 11, 0.5)";
@@ -51,7 +62,6 @@ const positionClass =
         setTimeout(setup, 500);
       }
     }
-
     setup();
   }
 

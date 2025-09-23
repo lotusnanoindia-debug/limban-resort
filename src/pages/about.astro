@@ -61,80 +61,65 @@ const foundersImageData = aboutPage?.foundersImage
     }
   : null;
 
-// Process all gallery images through ImageService
+// FIXED: Complete image processing for all about page galleries
 const processedVibeImages =
   vibeGallery?.images && vibeGallery.images.length > 0
-    ? processGalleryImages(
-        vibeGallery.images.map((galleryItem, index) => ({
-          ...galleryItem,
-          caption:
-            galleryItem.caption ||
-            galleryItem.altText ||
-            `Limban vibe ${index + 1}`,
-          context: {
-            pageType: "about",
-            contentName: "Limban Vibe",
-            imageType: "gallery",
-            caption: galleryItem.caption || galleryItem.altText,
-            index,
+    ? vibeGallery.images.map((item, index) => {
+        const imageData = item.image || item;
+
+        return {
+          id: imageData.id,
+          alt: imageData.alt || item.altText || `Limban vibe ${index + 1}`,
+          width: imageData.width,
+          height: imageData.height,
+          processedUrls: {
+            thumbnail: imageService.processImage(imageData, "galleryThumbnail"),
+            gallery: imageService.processImage(imageData, "galleryLarge"),
+            large: imageService.processImage(imageData, "galleryModal"),
+            modal: imageService.processImage(imageData, "heroDesktop"),
           },
-        })),
-        "vibe",
-        {
-          contentName: "Limban Vibe",
-          pageContext: "about-vibe",
-        }
-      )
+        };
+      })
     : [];
 
 const processedGuestImages =
   guestGallery?.images && guestGallery.images.length > 0
-    ? processGalleryImages(
-        guestGallery.images.map((galleryItem, index) => ({
-          ...galleryItem,
-          caption:
-            galleryItem.caption ||
-            galleryItem.altText ||
-            `Guest moments ${index + 1}`,
-          context: {
-            pageType: "about",
-            contentName: "Guest Moments",
-            imageType: "gallery",
-            caption: galleryItem.caption || galleryItem.altText,
-            index,
+    ? guestGallery.images.map((item, index) => {
+        const imageData = item.image || item;
+
+        return {
+          id: imageData.id,
+          alt: imageData.alt || item.altText || `Guest moments ${index + 1}`,
+          width: imageData.width,
+          height: imageData.height,
+          processedUrls: {
+            thumbnail: imageService.processImage(imageData, "galleryThumbnail"),
+            gallery: imageService.processImage(imageData, "galleryLarge"),
+            large: imageService.processImage(imageData, "galleryModal"),
+            modal: imageService.processImage(imageData, "heroDesktop"),
           },
-        })),
-        "guest",
-        {
-          contentName: "Guest Moments",
-          pageContext: "about-guests",
-        }
-      )
+        };
+      })
     : [];
 
 const processedTeamImages =
   aboutPage?.teamImages && aboutPage.teamImages.length > 0
-    ? processGalleryImages(
-        aboutPage.teamImages.map((galleryItem, index) => ({
-          ...galleryItem,
-          caption:
-            galleryItem.caption ||
-            galleryItem.altText ||
-            `Team member ${index + 1}`,
-          context: {
-            pageType: "about",
-            contentName: "Limban Team",
-            imageType: "gallery",
-            caption: galleryItem.caption || galleryItem.altText,
-            index,
+    ? aboutPage.teamImages.map((item, index) => {
+        const imageData = item.image || item;
+
+        return {
+          id: imageData.id,
+          alt: imageData.alt || item.alt || `Team member ${index + 1}`,
+          width: imageData.width,
+          height: imageData.height,
+          processedUrls: {
+            thumbnail: imageService.processImage(imageData, "galleryThumbnail"),
+            gallery: imageService.processImage(imageData, "galleryLarge"),
+            large: imageService.processImage(imageData, "galleryModal"),
+            modal: imageService.processImage(imageData, "heroDesktop"),
           },
-        })),
-        "team",
-        {
-          contentName: "Limban Team",
-          pageContext: "about-team",
-        }
-      )
+        };
+      })
     : [];
 
 // Split for load more functionality
