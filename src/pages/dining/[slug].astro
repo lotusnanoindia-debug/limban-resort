@@ -11,7 +11,7 @@ import imageService, { processGalleryImages } from "../../utils/ImageService.js"
 import {
   fetchDiningBySlug,
   fetchDining,
-} from "../../api-clean.js";
+} from "../../api.js";
 
 // Server-side data fetching with error handling
 let data = { experiences: [] };
@@ -131,14 +131,13 @@ const schemaImages = [
     <section class="relative pt-44 pb-16 overflow-hidden bg-gray-900" role="banner">
       {heroImageData && (
         <img
-          image={heroImageData}
-          variant="heroTablet"
+          src={heroImageUrl}
+          alt={`${experience.restaurantName} dining experience at Limban Resort`}
           loading="eager"
-          fetchPriority="high"
-          class="absolute inset-0 w-full h-full opacity-50"
+          fetchpriority="high"
+          class="absolute inset-0 w-full h-full opacity-50 object-cover"
         />
       )}
-
       <!-- Enhanced gradient overlay -->
       <div class="absolute inset-0 bg-gradient-to-b from-gray-900/95 via-gray-900/70 to-gray-900/95"></div>
 
@@ -372,14 +371,14 @@ const schemaImages = [
             return (
               <article key={otherExperience.id} class="group relative aspect-[4/5] overflow-hidden rounded-2xl border border-gray-800/50 hover:border-amber-400/50 transition-all duration-700 hover:scale-105 hover:shadow-2xl hover:shadow-amber-400/20">
                 <a href={`/dining/${otherExperience.url}`} class="block w-full h-full">
-                  {otherExperienceHeroImage && (
-                    <img
-                      image={otherExperienceHeroImage}
-                      variant="roomCard"
-                      loading="lazy"
-                      class="absolute inset-0 w-full h-full group-hover:scale-110 transition-transform duration-700"
-                    />
-                  )}
+                {otherExperienceHeroImage && (
+                  <img
+                    src={imageService.processImage(otherExperienceHeroImage, 'serviceCard', { quality: 60 })}
+                    alt={`${otherExperience.restaurantName} dining experience`}
+                    loading="lazy"
+                    class="absolute inset-0 w-full h-full group-hover:scale-110 transition-transform duration-700 object-cover"
+                  />
+                )}
 
                   <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent group-hover:from-black/70 group-hover:via-black/30 transition-all duration-500" />
 
@@ -413,13 +412,10 @@ const schemaImages = [
     </section>
   </div>
 
-  <SmartReserveButton
-    formSelector="#reservation-form"
-    buttonText={`Reserve ${experience.restaurantName}`}
-    position="bottom-right"
-    glowOnScroll={true}
   />
-  
+  <!-- Smart btn -->
+  <SmartReserveButton buttonText={`Reserve ${experience.restaurantName}`} />
+
   <!-- Universal Gallery Modal -->
   <GalleryModal />
 </Layout>

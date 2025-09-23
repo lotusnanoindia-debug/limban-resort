@@ -1,10 +1,42 @@
 ---
-import OptimizedImage from '../components/OptimizedImage.astro';
+import imageService from '../utils/ImageService.js';
 const { heroes } = Astro.props;
+
+// Process hero images through ImageService
+const processedHeroes = heroes.map((hero, index) => {
+  const heroImageData = hero.backgroundImage || hero.heroImage;
+  
+  const processedHero = {
+    ...hero,
+    imageUrl: heroImageData ? 
+      imageService.processImage({
+        ...heroImageData,
+        context: {
+          pageType: 'homepage',
+          contentName: hero.slideTitle,
+          imageType: 'hero',
+          index
+        }
+      }, 'heroDesktop', { quality: index === 0 ? 75 : 65 }) : '/img/hero-placeholder.avif',
+    
+    // Also generate mobile variant
+    mobileImageUrl: heroImageData ? 
+      imageService.processImage({
+        ...heroImageData,
+        context: {
+          pageType: 'homepage',
+          contentName: hero.slideTitle,
+          imageType: 'hero-mobile',
+          index
+        }
+      }, 'heroMobile', { quality: index === 0 ? 75 : 65 }) : '/img/hero-placeholder.avif'
+  };
+  
+  return processedHero;
+});
 ---
 
 <section class="h-screen relative overflow-hidden" role="banner" aria-label="Hero carousel">
-  <!-- Keep your existing loading indicator exactly as is -->
   <div
     id="loading-overlay"
     class="fixed inset-0 bg-black/90 backdrop-blur-sm flex items-center justify-center z-50 opacity-0 invisible transition-opacity duration-300"
@@ -18,23 +50,29 @@ const { heroes } = Astro.props;
   </div>
 
   <div id="hero-carousel" class="h-full relative">
-    {heroes.map((hero, index) => (
+    {processedHeroes.map((hero, index) => (
       <div
         class="hero-slide absolute inset-0 w-full h-full"
         data-slide={index}
         style={index === 0 ? "opacity: 1; z-index: 2;" : "opacity: 0; z-index: 1;"}
       >
-        {/* FIXED: Use the correct hero data structure for OptimizedImage */}
+
         <div class="absolute inset-0 w-full h-full">
-          <OptimizedImage 
-            image={{
-              url: hero.heroImage?.url || hero.backgroundImage?.url,
-              alt: hero.heroImage?.alt || `${hero.slideTitle} - Limban Resort luxury safari experience`
-            }}
-            variant="heroDesktop"
-            loading={index === 0 ? "eager" : "lazy"}
-            class={`w-full h-full object-cover ${index === 0 ? 'scale-102' : 'lazy-image scale-102'}`}
-          />
+          <picture>
+            <!-- Mobile image -->
+            <source 
+              media="(max-width: 768px)" 
+              srcset={hero.mobileImageUrl}
+            />
+            <!-- Desktop image -->
+            <img
+              src={hero.imageUrl}
+              alt={`${hero.slideTitle} - Limban Resort luxury safari experience`}
+              loading={index === 0 ? "eager" : "lazy"}
+              fetchpriority={index === 0 ? "high" : "auto"}
+              class={`w-full h-full object-cover`}
+            />
+          </picture>
         </div>
 
         <!-- Keep your existing gradient overlay exactly as is -->
@@ -68,11 +106,10 @@ const { heroes } = Astro.props;
     ))}
   </div>
 
-  <!-- Keep your existing dots navigation exactly as is -->
-  {heroes.length > 1 && (
+  {processedHeroes.length > 1 && (
     <div class="absolute bottom-8 left-1/2 transform -translate-x-1/2 z-30" role="tablist" aria-label="Slide navigation">
       <div class="flex space-x-3">
-        {heroes.map((_, index) => (
+        {processedHeroes.map((_, index) => (
           <button
             class={`dot-indicator w-3 h-3 rounded-full transition-all duration-300 ${
               index === 0 ? "bg-amber-400 scale-125" : "bg-white/40 hover:bg-white/70 hover:scale-110"
@@ -88,7 +125,6 @@ const { heroes } = Astro.props;
   )}
 </section>
 
-<!-- Keep ALL your existing styles exactly as they were -->
 <style>
   .hero-slide {
     transition: opacity 1.5s cubic-bezier(0.4, 0, 0.2, 1);
@@ -124,7 +160,6 @@ const { heroes } = Astro.props;
   }
 </style>
 
-<!-- Keep ALL your existing JavaScript exactly as it was -->
 <script>
   class HeroCarousel {
     constructor() {

@@ -33,7 +33,6 @@
         class="text-lg md:text-xl text-white/70 tabular-nums">0</span
       >
     </div>
-
     <!-- Gallery Title -->
     <h2
       id="modal-gallery-title"
@@ -41,7 +40,6 @@
     >
       Gallery
     </h2>
-
     <!-- Close Button -->
     <button
       id="close-modal"
@@ -133,12 +131,13 @@
       <canvas
         id="lqip-canvas"
         class="absolute inset-0 w-full h-full object-contain blur-sm opacity-30 transition-opacity duration-300 rounded-lg"
-        style="image-rendering: pixelated;"></canvas>
+        style="image-rendering: pixelated; z-index: 1;"></canvas>
 
       <!-- Fallback Medium Quality Image -->
       <img
         id="fallback-image"
         class="absolute inset-0 w-full h-full object-contain opacity-0 transition-opacity duration-500 rounded-lg"
+        style="z-index: 2;"
         loading="eager"
         decoding="async"
         alt=""
@@ -148,6 +147,7 @@
       <img
         id="main-image"
         class="relative max-w-full max-h-[70vh] w-auto h-auto opacity-0 object-contain rounded-lg shadow-2xl transition-all duration-700"
+        style="z-index: 10;"
         loading="eager"
         decoding="async"
         fetchpriority="high"
@@ -179,7 +179,6 @@
                 fill="currentColor"
                 d="M4 12a8 8 0 018-8v8H4z"></path>
             </svg>
-
             <!-- Progress Ring -->
             <div
               id="progress-ring"
@@ -207,7 +206,6 @@
               </svg>
             </div>
           </div>
-
           <p class="text-white text-sm font-medium tracking-wide mb-1">
             Loading...
           </p>
@@ -244,7 +242,6 @@
       >
         <!-- Thumbnails will be dynamically generated -->
       </div>
-
       <!-- Subtle Fade Gradients -->
       <div
         id="fade-left"
@@ -266,36 +263,16 @@
   #thumbnail-strip::-webkit-scrollbar {
     height: 2px;
   }
-
   #thumbnail-strip::-webkit-scrollbar-track {
     background: rgba(255, 255, 255, 0.1);
     border-radius: 2px;
   }
-
   #thumbnail-strip::-webkit-scrollbar-thumb {
     background: linear-gradient(90deg, #f59e0b, #d97706);
     border-radius: 2px;
   }
-
   #thumbnail-strip::-webkit-scrollbar-thumb:hover {
     background: linear-gradient(90deg, #d97706, #b45309);
-  }
-
-  /* Swipe feedback animation */
-  @keyframes swipeHint {
-    0%,
-    100% {
-      transform: translateX(0);
-      opacity: 0.6;
-    }
-    50% {
-      transform: translateX(10px);
-      opacity: 1;
-    }
-  }
-
-  .swipe-hint {
-    animation: swipeHint 1.5s ease-in-out infinite;
   }
 
   /* Loading shimmer animation */
@@ -307,7 +284,6 @@
       background-position: 200% 0;
     }
   }
-
   .thumbnail-shimmer {
     background: linear-gradient(
       90deg,
@@ -330,25 +306,17 @@
       transform: scale(1);
     }
   }
-
   .modal-enter {
     animation: modalEntrance 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-  }
-
-  /* Image transition effects */
-  #main-image.swipe-transition {
-    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
   /* Performance optimizations */
   #universal-gallery-modal img {
     will-change: opacity;
   }
-
   #thumbnail-strip {
     will-change: scroll-position;
   }
-
   #swipe-zone {
     will-change: transform;
   }
@@ -358,9 +326,15 @@
     #swipe-indicator {
       opacity: 0.8;
     }
-
     .thumbnail-hover-effects {
       transform: none !important;
+    }
+    #thumbnail-strip::-webkit-scrollbar {
+      display: none;
+    }
+    #thumbnail-strip {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
     }
   }
 
@@ -371,27 +345,9 @@
       animation: none !important;
     }
   }
-
-  /* Hide scrollbar on touch devices for cleaner look */
-  @media (pointer: coarse) {
-    #thumbnail-strip::-webkit-scrollbar {
-      display: none;
-    }
-
-    #thumbnail-strip {
-      -ms-overflow-style: none;
-      scrollbar-width: none;
-    }
-  }
 </style>
 
 <script is:inline>
-  /**
-   * Universal Gallery Modal Controller with Native Touch Support
-   * Enterprise-grade modal system with native swipe gestures
-   * Zero dependencies, complete plug-and-play
-   */
-
   function initUniversalGalleryModal() {
     // Modal configuration
     const CONFIG = {
@@ -407,7 +363,6 @@
 
     /**
      * Native Touch Gesture Handler
-     * Handles horizontal swipes for navigation without dependencies
      */
     class TouchGestureHandler {
       constructor(element, callbacks) {
@@ -420,12 +375,10 @@
         this.currentY = 0;
         this.isTracking = false;
         this.hasScrolled = false;
-
         this.initializeEvents();
       }
 
       initializeEvents() {
-        // Touch events
         this.element.addEventListener(
           "touchstart",
           this.handleTouchStart.bind(this),
@@ -445,44 +398,6 @@
           "touchcancel",
           this.handleTouchCancel.bind(this)
         );
-
-        // Mouse events for desktop testing
-        this.element.addEventListener(
-          "mousedown",
-          this.handleMouseStart.bind(this)
-        );
-        this.element.addEventListener(
-          "mousemove",
-          this.handleMouseMove.bind(this)
-        );
-        this.element.addEventListener(
-          "mouseup",
-          this.handleMouseEnd.bind(this)
-        );
-        this.element.addEventListener(
-          "mouseleave",
-          this.handleMouseEnd.bind(this)
-        );
-
-        // Pointer events (modern approach)
-        if (window.PointerEvent) {
-          this.element.addEventListener(
-            "pointerdown",
-            this.handlePointerStart.bind(this)
-          );
-          this.element.addEventListener(
-            "pointermove",
-            this.handlePointerMove.bind(this)
-          );
-          this.element.addEventListener(
-            "pointerup",
-            this.handlePointerEnd.bind(this)
-          );
-          this.element.addEventListener(
-            "pointercancel",
-            this.handlePointerEnd.bind(this)
-          );
-        }
       }
 
       getEventCoords(e) {
@@ -507,13 +422,11 @@
         this.startTime = Date.now();
         this.isTracking = true;
         this.hasScrolled = false;
-
         this.callbacks.onStart?.(e);
       }
 
       handleMove(e) {
         if (!this.isTracking) return;
-
         const coords = this.getEventCoords(e);
         const deltaX = coords.x - this.startX;
         const deltaY = coords.y - this.startY;
@@ -521,17 +434,14 @@
         this.currentX = coords.x;
         this.currentY = coords.y;
 
-        // Determine if this is a horizontal or vertical gesture
         const isHorizontal = Math.abs(deltaX) > Math.abs(deltaY);
         const isSignificant = Math.abs(deltaX) > 10 || Math.abs(deltaY) > 10;
 
         if (isSignificant) {
           if (isHorizontal) {
-            // Horizontal swipe - prevent vertical scrolling
             e.preventDefault();
             this.callbacks.onMove?.(e, deltaX, deltaY);
           } else {
-            // Vertical scroll - allow normal scrolling, stop tracking horizontal
             this.hasScrolled = true;
             this.isTracking = false;
           }
@@ -543,7 +453,6 @@
           this.isTracking = false;
           return;
         }
-
         const coords = this.getEventCoords(e);
         const deltaX = coords.x - this.startX;
         const deltaY = coords.y - this.startY;
@@ -552,7 +461,6 @@
 
         this.isTracking = false;
 
-        // Determine swipe direction and validate
         const isValidSwipe =
           Math.abs(deltaX) > CONFIG.SWIPE_THRESHOLD &&
           Math.abs(deltaX) > Math.abs(deltaY) * 1.5 &&
@@ -567,7 +475,6 @@
         this.callbacks.onEnd?.(e);
       }
 
-      // Touch event handlers
       handleTouchStart(e) {
         this.handleStart(e);
       }
@@ -581,42 +488,10 @@
         this.isTracking = false;
         this.callbacks.onEnd?.(e);
       }
-
-      // Mouse event handlers
-      handleMouseStart(e) {
-        e.preventDefault();
-        this.handleStart(e);
-      }
-      handleMouseMove(e) {
-        if (this.isTracking) {
-          e.preventDefault();
-          this.handleMove(e);
-        }
-      }
-      handleMouseEnd(e) {
-        this.handleEnd(e);
-      }
-
-      // Pointer event handlers
-      handlePointerStart(e) {
-        if (e.pointerType === "touch" || e.pointerType === "pen") {
-          this.handleStart(e);
-        }
-      }
-      handlePointerMove(e) {
-        if (e.pointerType === "touch" || e.pointerType === "pen") {
-          this.handleMove(e);
-        }
-      }
-      handlePointerEnd(e) {
-        if (e.pointerType === "touch" || e.pointerType === "pen") {
-          this.handleEnd(e);
-        }
-      }
     }
 
     /**
-     * Enhanced Image Cache with LRU eviction
+     * Enhanced Image Cache
      */
     class ImageCache {
       constructor(maxSize = CONFIG.CACHE_SIZE) {
@@ -641,7 +516,6 @@
           this.cache.delete(oldestKey);
           this.accessTimes.delete(oldestKey);
         }
-
         this.cache.set(key, value);
         this.accessTimes.set(key, Date.now());
       }
@@ -649,7 +523,6 @@
       has(key) {
         return this.cache.has(key);
       }
-
       clear() {
         this.cache.clear();
         this.accessTimes.clear();
@@ -657,7 +530,7 @@
     }
 
     /**
-     * Advanced Image Loader with retry logic
+     * Image Loader with retry logic
      */
     class ImageLoader {
       constructor() {
@@ -717,7 +590,6 @@
 
           const img = new Image();
           let timeoutId;
-
           const cleanup = () => {
             if (timeoutId) clearTimeout(timeoutId);
             img.onload = img.onerror = null;
@@ -745,7 +617,6 @@
             }, timeout);
           }
 
-          // Simulate progress for better UX
           if (onProgress) {
             let progress = 0;
             const progressInterval = setInterval(() => {
@@ -790,7 +661,6 @@
         this.preloadQueue = new Set();
         this.touchGestureHandler = null;
         this.swipeIndicatorTimeout = null;
-
         this.initializeElements();
         this.bindEvents();
         this.setupTouchGestures();
@@ -821,29 +691,14 @@
 
       setupTouchGestures() {
         if (!this.swipeZone) return;
-
         this.touchGestureHandler = new TouchGestureHandler(this.swipeZone, {
           onStart: () => {
             this.hideSwipeIndicator();
-            this.mainImage?.classList.add("swipe-transition");
           },
           onMove: (e, deltaX, deltaY) => {
-            // Visual feedback during swipe
-            if (this.mainImage && Math.abs(deltaX) > 20) {
-              const progress = Math.min(Math.abs(deltaX) / 100, 0.3);
-              const direction = deltaX > 0 ? 1 : -1;
-              this.mainImage.style.transform = `translateX(${deltaX * 0.3}px) scale(${1 - progress * 0.1})`;
-              this.mainImage.style.opacity = 1 - progress * 0.3;
-            }
+            // NO VISUAL FEEDBACK - prevents conflicts
           },
           onSwipe: (direction, deltaX, velocity) => {
-            // Reset visual state
-            if (this.mainImage) {
-              this.mainImage.style.transform = "";
-              this.mainImage.style.opacity = "";
-            }
-
-            // Navigate based on swipe direction
             if (direction === "left") {
               this.nextImage();
             } else if (direction === "right") {
@@ -851,33 +706,21 @@
             }
           },
           onEnd: () => {
-            // Reset visual state
-            setTimeout(() => {
-              this.mainImage?.classList.remove("swipe-transition");
-              if (this.mainImage) {
-                this.mainImage.style.transform = "";
-                this.mainImage.style.opacity = "";
-              }
-            }, 300);
+            // No cleanup needed
           },
         });
       }
 
       bindEvents() {
-        // Modal controls
         this.closeBtn?.addEventListener("click", () => this.closeModal());
         this.prevBtn?.addEventListener("click", () => this.previousImage());
         this.nextBtn?.addEventListener("click", () => this.nextImage());
 
-        // Keyboard navigation
         document.addEventListener("keydown", (e) => this.handleKeyboard(e));
-
-        // Click outside to close
         this.modal?.addEventListener("click", (e) => {
           if (e.target === this.modal) this.closeModal();
         });
 
-        // Listen for gallery open events
         document.addEventListener("open-gallery", (e) => {
           const {
             images,
@@ -891,17 +734,11 @@
 
       showSwipeIndicator() {
         if (!this.swipeIndicator) return;
-
-        // Only show on touch devices
         if (!("ontouchstart" in window)) return;
-
         this.swipeIndicator.style.opacity = "0.8";
-
-        // Auto-hide after 3 seconds
         if (this.swipeIndicatorTimeout) {
           clearTimeout(this.swipeIndicatorTimeout);
         }
-
         this.swipeIndicatorTimeout = setTimeout(() => {
           this.hideSwipeIndicator();
         }, 3000);
@@ -910,7 +747,6 @@
       hideSwipeIndicator() {
         if (!this.swipeIndicator) return;
         this.swipeIndicator.style.opacity = "0";
-
         if (this.swipeIndicatorTimeout) {
           clearTimeout(this.swipeIndicatorTimeout);
           this.swipeIndicatorTimeout = null;
@@ -924,53 +760,42 @@
         galleryType = "general"
       ) {
         if (!images || images.length === 0) return;
-
         this.currentImages = images;
         this.currentIndex = Math.max(0, Math.min(index, images.length - 1));
         this.galleryType = galleryType;
 
-        // Update UI
         if (this.galleryTitle) this.galleryTitle.textContent = title;
         if (this.totalImages) this.totalImages.textContent = images.length;
 
-        // Show modal
         if (this.modal) {
           this.modal.classList.remove("hidden");
           this.modal.classList.add("flex", "modal-enter");
           document.body.style.overflow = "hidden";
         }
 
-        // Initialize content
         this.generateThumbnails();
         await this.displayCurrentImage();
         this.updateUI();
         this.startPreloading();
 
-        // Show swipe indicator for touch devices
         setTimeout(() => {
           this.showSwipeIndicator();
         }, 1000);
 
-        // Focus management
         this.modal?.focus();
       }
 
       closeModal() {
         this.cleanup();
         this.hideSwipeIndicator();
-
         if (this.modal) {
           this.modal.classList.add("hidden");
           this.modal.classList.remove("flex", "modal-enter");
           document.body.style.overflow = "auto";
         }
-
-        // Clear thumbnails
         if (this.thumbnailStrip) {
           this.thumbnailStrip.innerHTML = "";
         }
-
-        // Reset state
         this.currentImages = [];
         this.currentIndex = 0;
         this.isLoading = false;
@@ -978,10 +803,7 @@
 
       generateThumbnails() {
         if (!this.thumbnailStrip) return;
-
         this.thumbnailStrip.innerHTML = "";
-
-        // Always center thumbnails for cleaner look
         const shouldCenter = this.currentImages.length <= 8;
         this.thumbnailStrip.classList.toggle("justify-center", shouldCenter);
         this.thumbnailStrip.classList.toggle("justify-start", !shouldCenter);
@@ -994,11 +816,9 @@
               : "border-white/20 hover:border-amber-400/60 thumbnail-hover-effects"
           }`;
 
-          // Shimmer loading placeholder
           const shimmer = document.createElement("div");
           shimmer.className = "absolute inset-0 thumbnail-shimmer rounded-lg";
 
-          // Thumbnail image
           const thumbnailImg = document.createElement("img");
           thumbnailImg.src = image.thumbnail || image.src;
           thumbnailImg.alt = `Thumbnail ${index + 1}`;
@@ -1007,13 +827,11 @@
           thumbnailImg.loading = "lazy";
           thumbnailImg.decoding = "async";
 
-          // Handle thumbnail load
           thumbnailImg.onload = () => {
             thumbnailImg.style.opacity = "1";
             shimmer.style.display = "none";
           };
 
-          // Click handler
           thumbnailWrapper.addEventListener("click", () =>
             this.goToImage(index)
           );
@@ -1028,8 +846,8 @@
 
       updateThumbnailSelection() {
         if (!this.thumbnailStrip) return;
-
         const thumbnails = this.thumbnailStrip.children;
+
         Array.from(thumbnails).forEach((thumbnail, index) => {
           if (index === this.currentIndex) {
             thumbnail.className = thumbnail.className.replace(
@@ -1050,13 +868,11 @@
 
       scrollToActiveThumbnail() {
         if (!this.thumbnailStrip) return;
-
         const activeThumbnail = this.thumbnailStrip.children[this.currentIndex];
         if (!activeThumbnail) return;
 
         const stripRect = this.thumbnailStrip.getBoundingClientRect();
         const thumbRect = activeThumbnail.getBoundingClientRect();
-
         const scrollOffset =
           thumbRect.left -
           stripRect.left -
@@ -1071,14 +887,11 @@
 
       updateThumbnailScroll() {
         if (!this.thumbnailStrip) return;
-
         const { scrollLeft, scrollWidth, clientWidth } = this.thumbnailStrip;
 
-        // Update fade gradients only when necessary
         if (this.fadeLeft && this.fadeRight) {
           const showLeftFade = scrollLeft > 5;
           const showRightFade = scrollLeft < scrollWidth - clientWidth - 5;
-
           this.fadeLeft.style.opacity = showLeftFade ? "1" : "0";
           this.fadeRight.style.opacity = showRightFade ? "1" : "0";
         }
@@ -1092,16 +905,11 @@
         this.showLoadingState();
 
         try {
-          // Generate LQIP placeholder
           this.renderLQIP(image);
-
-          // Load fallback image
           const fallbackSrc = image.medium || image.src;
           if (fallbackSrc) {
             this.loadFallbackImage(fallbackSrc);
           }
-
-          // Load main high-quality image
           const mainSrc = image.src;
           await this.loadMainImage(mainSrc, image.alt || "Gallery image");
         } catch (error) {
@@ -1115,19 +923,14 @@
 
       renderLQIP(image) {
         if (!this.lqipCanvas) return;
-
-        // Simple gradient placeholder
         this.lqipCanvas.width = 20;
         this.lqipCanvas.height = 15;
-
         const ctx = this.lqipCanvas.getContext("2d");
         const gradient = ctx.createLinearGradient(0, 0, 20, 15);
         gradient.addColorStop(0, "rgb(31, 41, 55)");
         gradient.addColorStop(1, "rgb(17, 24, 39)");
-
         ctx.fillStyle = gradient;
         ctx.fillRect(0, 0, 20, 15);
-
         this.lqipCanvas.style.opacity = "0.4";
       }
 
@@ -1138,7 +941,6 @@
           this.fallbackImage.style.opacity = "0.8";
           return;
         }
-
         try {
           const img = await this.imageLoader.loadImage(src, { timeout: 8000 });
           this.imageCache.set(src, img);
@@ -1159,21 +961,31 @@
         const img = await this.imageLoader.loadImage(src, {
           onProgress: (progress) => this.updateProgress(progress),
         });
-
         this.imageCache.set(src, img);
         this.displayLoadedImage(img, alt);
       }
 
+      // FIXED: displayLoadedImage method - this fixes the blur issue
       displayLoadedImage(img, alt) {
+        // IMMEDIATELY hide blur layers BEFORE setting new image
+        if (this.lqipCanvas) {
+          this.lqipCanvas.style.opacity = "0";
+          this.lqipCanvas.style.display = "none";
+        }
+        if (this.fallbackImage) {
+          this.fallbackImage.style.opacity = "0";
+          this.fallbackImage.style.display = "none";
+        }
+
+        // Set new image with full opacity and proper z-index
         this.mainImage.src = img.src;
         this.mainImage.alt = alt;
         this.mainImage.style.opacity = "1";
+        this.mainImage.style.zIndex = "10";
 
-        // Fade out lower quality layers
-        setTimeout(() => {
-          if (this.lqipCanvas) this.lqipCanvas.style.opacity = "0";
-          if (this.fallbackImage) this.fallbackImage.style.opacity = "0";
-        }, 200);
+        // Clear any transforms/filters
+        this.mainImage.style.transform = "";
+        this.mainImage.style.filter = "";
       }
 
       showLoadingState() {
@@ -1182,6 +994,13 @@
           this.loadingOverlay.style.opacity = "1";
         }
         if (this.mainImage) this.mainImage.style.opacity = "0";
+
+        // Show LQIP while loading
+        if (this.lqipCanvas) {
+          this.lqipCanvas.style.display = "block";
+          this.lqipCanvas.style.opacity = "0.4";
+        }
+
         this.updateProgress(0);
       }
 
@@ -1204,25 +1023,21 @@
       }
 
       updateUI() {
-        // Update position counter
         if (this.currentPosition) {
           this.currentPosition.textContent = this.currentIndex + 1;
         }
 
-        // Update image description
         const currentImage = this.currentImages[this.currentIndex];
         if (this.imageDescription && currentImage) {
           this.imageDescription.textContent =
             currentImage.alt || `Image ${this.currentIndex + 1}`;
         }
 
-        // Update navigation buttons (desktop only)
         if (this.prevBtn)
           this.prevBtn.disabled = this.currentImages.length <= 1;
         if (this.nextBtn)
           this.nextBtn.disabled = this.currentImages.length <= 1;
 
-        // Update thumbnails
         this.updateThumbnailSelection();
       }
 
@@ -1240,7 +1055,7 @@
         await this.displayCurrentImage();
         this.updateUI();
         this.preloadAdjacentImages();
-        this.hideSwipeIndicator(); // Hide indicator after user navigates
+        this.hideSwipeIndicator();
       }
 
       async nextImage() {
@@ -1259,7 +1074,6 @@
 
       handleKeyboard(e) {
         if (!this.modal?.classList.contains("flex")) return;
-
         switch (e.key) {
           case "Escape":
             e.preventDefault();
@@ -1290,8 +1104,6 @@
 
       startPreloading() {
         this.preloadAdjacentImages();
-
-        // Preload more images when idle
         requestIdleCallback(
           () => {
             this.preloadBatch();
@@ -1325,7 +1137,6 @@
       preloadBatch() {
         let loaded = 0;
         const maxBatch = 3;
-
         for (
           let i = 0;
           i < this.currentImages.length && loaded < maxBatch;
@@ -1346,7 +1157,6 @@
       async preloadImage(src) {
         if (this.preloadQueue.has(src)) return;
         this.preloadQueue.add(src);
-
         try {
           const img = await this.imageLoader.loadImage(src, {
             timeout: 15000,
@@ -1361,12 +1171,10 @@
       }
 
       cleanup() {
-        // Cancel ongoing loads
         this.preloadQueue.forEach((src) => {
           this.imageLoader.cancelLoad(src);
         });
         this.preloadQueue.clear();
-
         this.isLoading = false;
         this.updateProgress(0);
         this.hideSwipeIndicator();

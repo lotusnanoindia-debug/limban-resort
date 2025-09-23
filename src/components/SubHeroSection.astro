@@ -1,32 +1,25 @@
 ---
 import { Icon } from 'astro-icon/components'
-import OptimizedImage from './OptimizedImage.astro';
+import imageService from '../utils/ImageService.js';
 
-export interface Props {
-  subHero?: {
-    aboveHeader?: string;
-    title?: string;
-    bodyText?: { html: string };
-    stats?: Array<{ 
-      svg: string;
-      number: string;
-      label: string;
-    }>;
-    subHeroImage?: { 
-      id: string;
-      fileName?: string;
-      alt?: string;
-      url?: string;
-    };
-    imageAltText?: string;
-  };
-}
 
 const { subHero } = Astro.props;
 
-// 🚀 CLEAN: Use the image object directly
-const imageAlt = subHero?.imageAltText || "Limban Resort luxury safari experience - award-winning eco-tourism destination in Tadoba National Park Maharashtra";
+// Process image through ImageService
+const imageData = subHero?.subHeroImage || subHero?.image;
+const imageUrl = imageData ? 
+  imageService.processImage({
+    ...imageData,
+    context: {
+      pageType: 'homepage',
+      contentName: subHero.title || 'About Limban',
+      imageType: 'subhero'
+    }
+  }, 'subhero', { quality: 75 }) : '';
 
+const imageAlt = subHero?.subHeroImage?.altText || 
+  subHero?.imageAltText || 
+  "Limban Resort luxury safari experience - award-winning eco-tourism destination in Tadoba National Park Maharashtra";
 ---
 
 {subHero && (
@@ -82,16 +75,12 @@ const imageAlt = subHero?.imageAltText || "Limban Resort luxury safari experienc
           )}
         </div>
         
-        <!-- subhero -->
         <div class="order-1 lg:order-2 hidden sm:block">
           <div class="relative aspect-[4/5] rounded-2xl overflow-hidden shadow-2xl">
-            {(subHero.subHeroImage || subHero.image) && (
-              <OptimizedImage 
-                image={{
-                  url: subHero.subHeroImage?.url || subHero.image?.url,
-                  alt: subHero.subHeroImage?.altText || subHero.imageAltText || imageAlt
-                }}
-                variant="subhero"
+            {imageUrl && (
+              <img
+                src={imageUrl}
+                alt={imageAlt}
                 loading="lazy"
                 class="w-full h-full object-cover transition-all duration-700 hover:scale-105"
               />

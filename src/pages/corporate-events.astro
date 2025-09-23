@@ -1,84 +1,29 @@
 ---
 import Layout from "../layouts/Layout.astro";
 import { AstroSEO } from "astro-seo-plugin";
-import { fetchCorporateGallery, fetchSpecialDealData } from "../api.js";
+import { fetchCorporateGallery} from "../api.js";
 import { CorporateDatePicker } from "@/components/CorporateDatePicker";
 import SmartReserveButton from "../components/SmartReserveButton.astro";
-import { getImage } from "astro:assets";
 import { Icon } from 'astro-icon/components'
 
-// Ultra-reliable API fetching with retry logic
-async function fetchWithRetry(fetchFn, retries = 2) {
-  for (let i = 0; i < retries; i++) {
-    try {
-      return await fetchFn();
-    } catch (error) {
-      if (i === retries - 1) throw error;
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-    }
-  }
-}
 const pageUrl = Astro.url.href;
 
-// Enhanced image optimizer
-async function optimizeImage(url, width, height, quality = 85) {
-  if (!url) return null;
-  try {
-    const optimized = await getImage({
-      src: url,
-      width: width,
-      height: height,
-      format: "avif",
-      quality: quality,
-      fit: "cover",
-      inferSize: true,
-    });
-    return optimized;
-  } catch (error) {
-    return { src: url };
-  }
-}
+// Use your specified hero image URL directly
+const heroImage = "https://res.cloudinary.com/dfa5hhzej/image/fetch/v1758544199/https://ap-south-1.graphassets.com/cmek3o6f00dcb07o59sno2s0e/cmf0pq9joactp07pc27d6thbq";
 
-// Server-side data fetching
-let data = { corporateGallery: [], specialDeal: null };
+// Server-side data fetching - simplified
+let data = { corporateGallery: [] };
 let error = null;
 
 try {
-  const [corporateGallery, specialDeal] = await Promise.all([
-    fetchWithRetry(() => fetchCorporateGallery()),
-    fetchWithRetry(() => fetchSpecialDealData()),
+  const [corporateGallery] = await Promise.all([
+    fetchCorporateGallery()
   ]);
-  data = { corporateGallery: corporateGallery || [], specialDeal };
+  data = { corporateGallery: corporateGallery };
 } catch (err) {
   console.error("Failed to load corporate data:", err);
   error = "Failed to load content from CMS";
 }
-
-// Process and optimize images
-const [optimizedHero, optimizedGallery] = await Promise.all([
-  optimizeImage(
-    "https://ap-south-1.graphassets.com/cmek3o6f00dcb07o59sno2s0e/cmf0pq9jbactk07pc8nlokgkz",
-    1920,
-    1080,
-    95
-  ),
-  data.corporateGallery.length > 0
-    ? Promise.all(
-        data.corporateGallery.slice(0, 6).map(async (item, index) => {
-          const optimized = await optimizeImage(item.image?.url, 600, 450, 85);
-          return {
-            ...item,
-            optimizedImage: optimized?.src || item.image?.url,
-            priority: index < 3,
-          };
-        })
-      )
-    : Promise.resolve([]),
-]);
-
-const heroImage =
-  optimizedHero?.src ||
-  "https://ap-south-1.graphassets.com/cmek3o6f00dcb07o59sno2s0e/cmf0pq9jbactk07pc8nlokgkz";
 
 // Enhanced event categories with strategic icons
 const eventCategories = [
@@ -144,11 +89,11 @@ const eventCategories = [
   },
 ];
 
-// Enhanced testimonials (keeping for now as requested)
+// Simplified testimonials - local images only
 const testimonials = [
   {
     name: "Rajesh Sharma", 
-    company: "Tech Innovations Ltd",
+    company: "A Tech Innovation Co.",
     role: "CEO",
     image: "/rajeshs.jpg",
     takeaway: "Breakthrough strategic clarity in 48 hours",
@@ -158,7 +103,7 @@ const testimonials = [
   },
   {
     name: "Priya Mehta",
-    company: "Global Finance Corp", 
+    company: "A Global Finance Corp", 
     role: "Chief Strategy Officer",
     image: "/priya.jpg",
     takeaway: "Transformative stakeholder experiences",
@@ -168,7 +113,7 @@ const testimonials = [
   },
   {
     name: "Arjun Patel",
-    company: "Manufacturing Excellence",
+    company: "A Manufacturing Co.",
     role: "CHRO",
     image: "/arjun.jpg",
     takeaway: "Authentic team transformation",
@@ -211,7 +156,7 @@ const testimonials = [
   />
 
   <div class="bg-gray-950 text-gray-100">
-    <!-- Enhanced Hero with Icons -->
+    <!-- Enhanced Hero - Direct image URL -->
     <section class="relative pt-48 pb-32 overflow-hidden bg-gray-950">
       <img
         src={heroImage}
@@ -241,8 +186,46 @@ const testimonials = [
         </div>
       </div>
     </section>
+    <!-- Breadcrumb Navigation -->
+    <nav
+      class="py-6 bg-gray-900/50 border-b border-gray-800"
+      aria-label="Breadcrumb"
+    >
+      <div class="max-w-7xl mx-auto px-6">
+        <ol class="flex items-center justify-center space-x-2 text-sm">
+          <li>
+            <a
+              href="/"
+              class="text-gray-400 hover:text-amber-400 transition-colors duration-300 flex items-center"
+            >
+              <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                <path
+                  d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"
+                ></path>
+              </svg>
+              Home
+            </a>
+          </li>
+          <li>
+            <svg
+              class="w-4 h-4 text-gray-600"
+              fill="currentColor"
+              viewBox="0 0 20 20"
+            >
+              <path
+                fill-rule="evenodd"
+                d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
+                clip-rule="evenodd"></path>
+            </svg>
+          </li>
+          <li>
+            <span class="text-amber-400 font-medium">Corporate Events</span>
+          </li>
+        </ol>
+      </div>
+    </nav>
 
-    <!-- Results Showcase with Icons -->
+    <!-- Results Showcase -->
     <section class="py-32 bg-gradient-to-b from-gray-800 to-gray-900">
       <div class="max-w-7xl mx-auto px-6">
         <div class="text-center mb-16">
@@ -280,7 +263,7 @@ const testimonials = [
       </div>
     </section>
 
-    <!-- Enhanced Programmes with Strategic Icons -->
+    <!-- Event Categories - Same as before -->
     <section class="py-32 bg-gradient-to-b from-gray-950 to-gray-800">
       <div class="max-w-7xl mx-auto px-6">
         <header class="text-center mb-20">
@@ -332,7 +315,7 @@ const testimonials = [
       </div>
     </section>
 
-    <!-- Expert Network with Enhanced Icons -->
+    <!-- Expert Network - Same as before -->
     <section class="py-32 bg-gradient-to-b from-gray-800 to-gray-900">
       <div class="max-w-7xl mx-auto px-6">
         <div class="text-center mb-16">
@@ -384,7 +367,7 @@ const testimonials = [
       </div>
     </section>
 
-    <!-- Enhanced Success Stories -->
+    <!-- Success Stories - Local images only -->
     <section class="py-32 bg-gradient-to-b from-gray-950 to-gray-800">
       <div class="max-w-7xl mx-auto px-6">
         <header class="text-center mb-20">
@@ -401,7 +384,7 @@ const testimonials = [
           {testimonials.map((testimonial) => (
             <article key={testimonial.name} class="group bg-gradient-to-br from-gray-800/60 to-gray-900/80 backdrop-blur-xl border border-gray-700/50 rounded-3xl overflow-hidden hover:border-amber-400/30 transition-all duration-700 hover:-translate-y-2 hover:shadow-2xl hover:shadow-amber-400/10">
               <div class="p-10">
-                <!-- Guest Image & Takeaway -->
+                <!-- Guest Image & Takeaway - Local image -->
                 <div class="flex items-center gap-4 mb-8">
                   <div class="w-16 h-16 rounded-full overflow-hidden border-2 border-amber-400/50 flex-shrink-0">
                     <img
@@ -451,7 +434,7 @@ const testimonials = [
       </div>
     </section>
 
-<!-- Professional Contact & Service Standards -->
+    <!-- Professional Contact & Service Standards -->
     <section class="py-32 bg-gradient-to-b from-gray-900 to-gray-900/50">
       <div class="max-w-5xl mx-auto from-gray-800/40 to-gray-900/60 backdrop-blur-xl border border-gray-600/30 rounded-3xl overflow-hidden">
         
@@ -557,307 +540,247 @@ const testimonials = [
       </div>
     </section>
 
-<!-- External script for turnstile captcha validation -->
-<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
 
-<!-- Sophisticated enquiry Form -->
-<section
-  id="enquiry-form"
-  class="py-32 bg-gradient-to-b from-gray-900 to-gray-950"
-  aria-labelledby="enquiry-heading"
->
-  <div class="max-w-5xl mx-auto px-6">
-    <header class="text-center mb-16">
-      <h2
-        id="enquiry-heading"
-        class="font-serif italic text-4xl md:text-5xl text-white mb-8"
-      >
-        Let's Plan Your <span class="text-amber-400"
-          >Extraordinary Experience</span
+    <!-- Sophisticated enquiry Form -->
+    <section id="enquiry-form" class="py-32 bg-gradient-to-b from-gray-900 to-gray-950" aria-labelledby="enquiry-heading">
+      <div class="max-w-5xl mx-auto px-6">
+        <header class="text-center mb-16">
+          <h2
+            id="enquiry-heading"
+            class="font-serif italic text-4xl md:text-5xl text-white mb-8"
+          >
+            Let's Plan Your <span class="text-amber-400"
+              >Extraordinary Experience</span
+            >
+          </h2>
+          <p class="text-xl text-gray-300 max-w-3xl mx-auto leading-relaxed">
+            Share your vision with us. We'll turn it into reality. We will design a bespoke proposal
+            that transforms your event into a legendary experience
+            your organisation will reference for years.
+          </p>
+        </header>
+
+        <!-- Success/Error Message Container -->
+        <div id="form-message" class="hidden mb-8 p-6 rounded-2xl text-center">
+        </div>
+
+        <form
+          id="corporate-enquiry-form"
+          name="corporate-enquiry"
+          class="bg-gradient-to-br from-gray-800/60 to-gray-900/60 backdrop-blur-xl border border-gray-600/50 rounded-3xl p-12"
         >
-      </h2>
-      <p class="text-xl text-gray-300 max-w-3xl mx-auto leading-relaxed">
-        Share your vision with us. We'll turn it into reality. We will design a bespoke proposal
-        that transforms your event into a legendary experience
-        your organisation will reference for years.
-      </p>
-    </header>
-
-    <!-- Success/Error Message Container -->
-    <div id="form-message" class="hidden mb-8 p-6 rounded-2xl text-center">
-    </div>
-
-    <form
-      id="corporate-enquiry-form"
-      name="corporate-enquiry"
-      class="bg-gradient-to-br from-gray-800/60 to-gray-900/60 backdrop-blur-xl border border-gray-600/50 rounded-3xl p-12"
-    >
-      <!-- Turnstile widget -->
-      <div
-        class="cf-turnstile"
-        data-sitekey="0x4AAAAAAB08V5IJ7fONN28Y"
-        data-theme="dark"
-      >
-      </div>
-
-      <input type="hidden" name="form-name" value="corporate-enquiry" />
-      <input type="hidden" name="pageUrl" value={pageUrl} />
-
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-        <!-- Contact Information -->
-        <div>
-          <label
-            for="contactName"
-            class="block text-sm font-medium text-gray-300 mb-3"
-            >Your Name *</label
-          >
-          <input
-            id="contactName"
-            name="contactName"
-            type="text"
-            required
-            class="w-full rounded-2xl bg-gray-800/50 border border-gray-600 px-6 py-4 text-white focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all duration-300"
-          />
-        </div>
-
-        <div>
-          <label
-            for="companyName"
-            class="block text-sm font-medium text-gray-300 mb-3"
-            >Organisation *</label
-          >
-          <input
-            id="companyName"
-            name="companyName"
-            type="text"
-            required
-            class="w-full rounded-2xl bg-gray-800/50 border border-gray-600 px-6 py-4 text-white focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all duration-300"
-          />
-        </div>
-
-        <div>
-          <label
-            for="email"
-            class="block text-sm font-medium text-gray-300 mb-3"
-            >Professional Email *</label
-          >
-          <input
-            id="email"
-            name="email"
-            type="email"
-            pattern="[a-zA-Z0-9._%+\\-]+@[a-zA-Z0-9.\\-]+\\.[a-zA-Z]{2,}"
-            required
-            class="w-full rounded-2xl bg-gray-800/50 border border-gray-600 px-6 py-4 text-white focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all duration-300"
-          />
-        </div>
-
-        <div>
-          <label
-            for="phone"
-            class="block text-sm font-medium text-gray-300 mb-3"
-            >Contact Number *</label
-          >
-          <input
-            id="phone"
-            name="phone"
-            type="tel"
-            required
-            class="w-full rounded-2xl bg-gray-800/50 border border-gray-600 px-6 py-4 text-white focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all duration-300"
-          />
-        </div>
-
-        <!-- Event Details -->
-        <div>
-          <label
-            for="eventType"
-            class="block text-sm font-medium text-gray-300 mb-3"
-            >Event Category *</label
-          >
-          <select
-            id="eventType"
-            name="eventType"
-            required
-            class="w-full rounded-2xl bg-gray-800/50 border border-gray-600 px-6 py-4 text-white focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all duration-300"
-          >
-            <option value=""></option>
-            <option value="Executive Retreat">Executive Retreat</option>
-            <option value="Strategic Planning Session"
-              >Strategic Planning Session</option
-            >
-            <option value="Team Development">Team Development</option>
-            <option value="Board Meeting">Board Meeting</option>
-            <option value="Leadership Development"
-              >Leadership Development</option
-            >
-            <option value="Client Entertainment"
-              >Client Entertainment</option
-            >
-            <option value="Innovation Workshop">Innovation Workshop</option>
-            <option value="Achievement Celebration"
-              >Achievement Celebration</option
-            >
-            <option value="Product Launch">Product Launch</option>
-            <option value="Other">Other (specify in message)</option>
-          </select>
-        </div>
-
-        <div>
-          <label
-            for="attendeeCount"
-            class="block text-sm font-medium text-gray-300 mb-3"
-            >Group Size *</label
-          >
-          <select
-            id="attendeeCount"
-            name="attendeeCount"
-            required
-            class="w-full rounded-2xl bg-gray-800/50 border border-gray-600 px-6 py-4 text-white focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all duration-300"
-          >
-            <option value=""></option>
-            <option value="5-8"
-              >5-8 people (Intimate executive group)</option
-            >
-            <option value="9-15">9-15 people (Core leadership team)</option>
-            <option value="16-25"
-              >16-25 people (Department or division)</option
-            >
-            <option value="26-35">26-35 people (Large team event)</option>
-            <option value="36-40">36-40 people (Maximum capacity)</option>
-          </select>
-        </div>
-
-        <div>
-          <label class="block text-sm font-medium text-gray-300 mb-3">Preferred Date</label>
-          <CorporateDatePicker 
-            name="preferredDate" 
-            required={true} 
-            placeholder="Pick your preferred date" 
-            client:load
-          />
-        </div>
-
-        <div>
-          <label
-            for="duration"
-            class="block text-sm font-medium text-gray-300 mb-3"
-            >Event Duration</label
-          >
-          <select
-            id="duration"
-            name="duration"
-            class="w-full rounded-2xl bg-gray-800/50 border border-gray-600 px-6 py-4 text-white focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all duration-300"
-          >
-            <option value=""></option>
-            <option value="Half day">Half day (4 hours)</option>
-            <option value="Full day">Full day (8 hours)</option>
-            <option value="2 days">2 days (overnight stay)</option>
-            <option value="3 days">3 days (comprehensive programme)</option>
-            <option value="4+ days"
-              >4+ days (transformation intensive)</option
-            >
-          </select>
-        </div>
-      </div>
-
-      <!-- Message -->
-      <div class="mt-8">
-        <label
-          for="message"
-          class="block text-sm font-medium text-gray-300 mb-3"
-          >Your Vision & Objectives *</label
-        >
-        <textarea
-          id="message"
-          name="message"
-          rows="6"
-          required
-          placeholder="Tell us about your objectives for this event. What would make it a transformational success for your organisation? What challenges are you hoping to address? What outcomes do you envision?"
-          class="w-full rounded-2xl bg-gray-800/50 border border-gray-600 px-6 py-4 text-white placeholder-gray-400 focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all duration-300 resize-none leading-relaxed"
-        ></textarea>
-      </div>
-
-      <div class="text-center mt-12">
-        <button
-          type="submit"
-          id="submit-btn"
-          class="group relative bg-amber-300 hover:from-amber-400 hover:to-orange-400 text-gray-900 px-16 py-5 rounded-2xl font-bold text-xl tracking-wide transition-all duration-300 hover:shadow-2xl hover:shadow-amber-400/30 hover:-translate-y-1 focus:outline-none focus:ring-4 focus:ring-amber-400/50 disabled:opacity-50 disabled:cursor-not-allowed overflow-hidden"
-        >
-          <span class="relative z-10">Request Bespoke Proposal</span>
+          <!-- Turnstile widget -->
           <div
-            class="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0 transform translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000 ease-out"
+            class="cf-turnstile"
+            data-sitekey="0x4AAAAAAB08V5IJ7fONN28Y"
+            data-theme="dark"
           >
           </div>
-        </button>
-        <p
-          class="text-gray-400 text-sm mt-6 max-w-2xl mx-auto leading-relaxed"
-        >
-          Our events director will respond within 24 hours. All enquiries are treated with complete
-          confidentiality. Your data is never shared with third parties without your explicit consent.
-        </p>
+
+          <input type="hidden" name="form-name" value="corporate-enquiry" />
+          <input type="hidden" name="pageUrl" value={pageUrl} />
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <!-- Contact Information -->
+            <div>
+              <label
+                for="contactName"
+                class="block text-sm font-medium text-gray-300 mb-3"
+                >Your Name *</label
+              >
+              <input
+                id="contactName"
+                name="contactName"
+                type="text"
+                required
+                class="w-full rounded-2xl bg-gray-800/50 border border-gray-600 px-6 py-4 text-white focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all duration-300"
+              />
+            </div>
+
+            <div>
+              <label
+                for="companyName"
+                class="block text-sm font-medium text-gray-300 mb-3"
+                >Organisation *</label
+              >
+              <input
+                id="companyName"
+                name="companyName"
+                type="text"
+                required
+                class="w-full rounded-2xl bg-gray-800/50 border border-gray-600 px-6 py-4 text-white focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all duration-300"
+              />
+            </div>
+
+            <div>
+              <label
+                for="email"
+                class="block text-sm font-medium text-gray-300 mb-3"
+                >Professional Email *</label
+              >
+              <input
+                id="email"
+                name="email"
+                type="email"
+                pattern="[a-zA-Z0-9._%+\\-]+@[a-zA-Z0-9.\\-]+\\.[a-zA-Z]{2,}"
+                required
+                class="w-full rounded-2xl bg-gray-800/50 border border-gray-600 px-6 py-4 text-white focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all duration-300"
+              />
+            </div>
+
+            <div>
+              <label
+                for="phone"
+                class="block text-sm font-medium text-gray-300 mb-3"
+                >Contact Number *</label
+              >
+              <input
+                id="phone"
+                name="phone"
+                type="tel"
+                required
+                class="w-full rounded-2xl bg-gray-800/50 border border-gray-600 px-6 py-4 text-white focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all duration-300"
+              />
+            </div>
+
+            <!-- Event Details -->
+            <div>
+              <label
+                for="eventType"
+                class="block text-sm font-medium text-gray-300 mb-3"
+                >Event Category *</label
+              >
+              <select
+                id="eventType"
+                name="eventType"
+                required
+                class="w-full rounded-2xl bg-gray-800/50 border border-gray-600 px-6 py-4 text-white focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all duration-300"
+              >
+                <option value=""></option>
+                <option value="Executive Retreat">Executive Retreat</option>
+                <option value="Strategic Planning Session"
+                  >Strategic Planning Session</option
+                >
+                <option value="Team Development">Team Development</option>
+                <option value="Board Meeting">Board Meeting</option>
+                <option value="Leadership Development"
+                  >Leadership Development</option
+                >
+                <option value="Client Entertainment"
+                  >Client Entertainment</option
+                >
+                <option value="Innovation Workshop">Innovation Workshop</option>
+                <option value="Achievement Celebration"
+                  >Achievement Celebration</option
+                >
+                <option value="Product Launch">Product Launch</option>
+                <option value="Other">Other (specify in message)</option>
+              </select>
+            </div>
+
+            <div>
+              <label
+                for="attendeeCount"
+                class="block text-sm font-medium text-gray-300 mb-3"
+                >Group Size *</label
+              >
+              <select
+                id="attendeeCount"
+                name="attendeeCount"
+                required
+                class="w-full rounded-2xl bg-gray-800/50 border border-gray-600 px-6 py-4 text-white focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all duration-300"
+              >
+                <option value=""></option>
+                <option value="5-8"
+                  >5-8 people (Intimate executive group)</option
+                >
+                <option value="9-15">9-15 people (Core leadership team)</option>
+                <option value="16-25"
+                  >16-25 people (Department or division)</option
+                >
+                <option value="26-35">26-35 people (Large team event)</option>
+                <option value="36-40">36-40 people (Maximum capacity)</option>
+              </select>
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-gray-300 mb-3">Preferred Date</label>
+              <CorporateDatePicker 
+                name="preferredDate" 
+                required={true} 
+                placeholder="Pick your preferred date" 
+                client:load
+              />
+            </div>
+
+            <div>
+              <label
+                for="duration"
+                class="block text-sm font-medium text-gray-300 mb-3"
+                >Event Duration</label
+              >
+              <select
+                id="duration"
+                name="duration"
+                class="w-full rounded-2xl bg-gray-800/50 border border-gray-600 px-6 py-4 text-white focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all duration-300"
+              >
+                <option value=""></option>
+                <option value="Half day">Half day (4 hours)</option>
+                <option value="Full day">Full day (8 hours)</option>
+                <option value="2 days">2 days (overnight stay)</option>
+                <option value="3 days">3 days (comprehensive programme)</option>
+                <option value="4+ days"
+                  >4+ days (transformation intensive)</option
+                >
+              </select>
+            </div>
+          </div>
+
+          <!-- Message -->
+          <div class="mt-8">
+            <label
+              for="message"
+              class="block text-sm font-medium text-gray-300 mb-3"
+              >Your Vision & Objectives *</label
+            >
+            <textarea
+              id="message"
+              name="message"
+              rows="6"
+              required
+              placeholder="Tell us about your objectives for this event. What would make it a transformational success for your organisation? What challenges are you hoping to address? What outcomes do you envision?"
+              class="w-full rounded-2xl bg-gray-800/50 border border-gray-600 px-6 py-4 text-white placeholder-gray-400 focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all duration-300 resize-none leading-relaxed"
+            ></textarea>
+          </div>
+
+          <div class="text-center mt-12">
+            <button
+              type="submit"
+              id="submit-btn"
+              class="group relative overflow-hidden action-btn"
+            >
+              Request Bespoke Proposal
+            </button>
+            <hr class="border-gray-700 mt-12">
+            <p
+              class="text-gray-500 text-sm mt-6 max-w-2xl mx-auto leading-relaxed"
+            >
+              Our events director will respond within 24 hours. All enquiries are treated with complete
+              confidentiality. Your data is never shared with third parties without your explicit consent.
+            </p>
+          </div>
+        </form>
       </div>
-    </form>
-  </div>
-</section>
+    </section>
 
-  <SmartReserveButton
-    formSelector="#corporate-enquiry-form"
-    buttonText={`Make a Corporate Enquiry`}
-    position="bottom-right"
-    glowOnScroll={true}
-  />
-
-
-<!-- Enhanced Styles -->
-<style>
-  /* Enhanced smooth transitions with GPU acceleration */
-  .group img,
-  .group/feature,
-  .group/cta {
-    transform-origin: center center;
-    backface-visibility: hidden;
-    will-change: transform;
-  }
-
-  /* Respect user motion preferences */
-  @media (prefers-reduced-motion: reduce) {
-    .transition-all,
-    .transition-transform,
-    .transition-colors,
-    .group-hover\:scale-110,
-    .hover\:-translate-y-2,
-    .hover\:-translate-y-1 {
-      transition: none !important;
-      transform: none !important;
-    }
-  }
-
-  /* Enhanced contrast for accessibility */
-  @media (prefers-contrast: high) {
-    .border-gray-600,
-    .border-gray-700 {
-      border-color: rgba(255, 255, 255, 0.4);
-    }
-  }
-
-  /* Accessible focus states */
-  .focus\:not-sr-only:focus {
-    position: absolute !important;
-    width: auto !important;
-    height: auto !important;
-    padding: 1rem !important;
-    margin: 0 !important;
-    overflow: visible !important;
-    clip: auto !important;
-    white-space: normal !important;
-  }
-</style>
+  <SmartReserveButton buttonText="Make a Corporate Enquiry" position="bottom-right" />
+</layout>
 
 <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
 
 
 <script type="module">
   document.addEventListener("DOMContentLoaded", async () => {
-    // REMOVED: Air Datepicker initialization since we're using React component now
 
     // FORM SUBMISSION WITH TURNSTILE 
     try {

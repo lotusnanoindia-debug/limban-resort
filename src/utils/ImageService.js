@@ -19,7 +19,7 @@ export const IMAGE_CONFIG = {
     // Card layouts
     roomCard: "w_590,h_400,c_fill",
     roomCardHome: "w_400,h_300,c_fill",
-    serviceCard: "w_400,h_300,c_fill",
+    serviceCard: "w_400,h_400,c_fill",
     
     // Gallery system
     gallery: "w_400,h_300,c_fill",

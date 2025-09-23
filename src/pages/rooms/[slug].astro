@@ -12,7 +12,7 @@ import {
   fetchRoomBySlug,
   fetchRooms,
   fetchSpecialDeal,
-} from "../../api-clean.js";
+} from "../../api.js";
 
 // Server-side data fetching with error handling
 let data = { rooms: [], specialDeal: null };
@@ -63,22 +63,28 @@ const heroImageData = room.heroImage ? {
 const safePrice = Number(room.basePrice) || 0;
 
 // Process all gallery images through ImageService
-const processedGalleryImages = room.gallery && room.gallery.length > 0
-  ? processGalleryImages(room.gallery.map((galleryItem, index) => ({
-      ...galleryItem,
-      caption: galleryItem.alt || galleryItem.fileName || `${room.roomName} view ${index + 1}`,
-      context: {
-        pageType: 'rooms',
-        contentName: room.roomName,
-        imageType: 'gallery',
-        caption: galleryItem.alt || galleryItem.fileName,
-        index
+const processedGalleryImages = room.gallery && Array.isArray(room.gallery) && room.gallery.length > 0
+  ? room.gallery.map((item, index) => {
+      // Handle both structures: item.image or item directly
+      const imageData = item.image || item;
+      
+      if (!imageData || !imageData.url) {
+        console.warn('Invalid gallery item:', item);
+        return null;
       }
-    })), 'rooms', {
-      contentName: room.roomName,
-      pageContext: 'room-detail'
-    })
+      
+      return {
+        ...imageData,
+        caption: item.caption || imageData.alt || `${room.roomName} view ${index + 1}`,
+        processedUrls: {
+          thumbnail: imageService.processImage(imageData, 'galleryThumbnail'),
+          large: imageService.processImage(imageData, 'galleryLarge'),
+          modal: imageService.processImage(imageData, 'galleryModal')
+        }
+      };
+    }).filter(Boolean)  // Remove null items
   : [];
+
 
 // Split for load more functionality
 const initialGalleryImages = processedGalleryImages.slice(0, 12);
@@ -144,15 +150,15 @@ const schemaImages = [
   <div class="bg-gray-950 text-gray-100 font-sans antialiased selection:bg-gray-700">
     <!-- Hero Section with Processed Image -->
     <section class="relative pt-44 pb-16 overflow-hidden bg-gray-900" role="banner">
-      {heroImageData && (
-        <img
-          image={heroImageData}
-          variant="heroTablet"
-          loading="eager"
-          fetchPriority="high"
-          class="absolute inset-0 w-full h-full opacity-50"
-        />
-      )}
+    {heroImageData && (
+      <img
+        src={heroImageUrl}
+        alt={`${room.roomName} luxury safari accommodation at Limban Resort`}
+        loading="eager"
+        fetchpriority="high"
+        class="absolute inset-0 w-full h-full opacity-50 object-cover"
+      />
+    )}
 
       <!-- Enhanced gradient overlay -->
       <div class="absolute inset-0 bg-gradient-to-b from-gray-900/95 via-gray-900/70 to-gray-900/95"></div>
@@ -393,25 +399,26 @@ const schemaImages = [
 
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-8">
           {data.rooms.filter(otherRoom => otherRoom.url !== room.url).map((otherRoom) => {
-            // Process other room hero images
-            const otherRoomHeroImage = otherRoom.heroImage ? {
-              ...otherRoom.heroImage,
-              context: {
-                pageType: 'rooms',
-                contentName: otherRoom.roomName,
-                imageType: 'card'
-              }
-            } : null;
+            // Process other room hero image URL
+            const otherRoomImageUrl = otherRoom.heroImage ? 
+              imageService.processImage({
+                ...otherRoom.heroImage,
+                context: {
+                  pageType: 'rooms',
+                  contentName: otherRoom.roomName,
+                  imageType: 'card'
+                }
+              }, 'roomCard', { quality: 70 }) : '';
 
             return (
               <article key={otherRoom.id} class="group relative aspect-[4/5] overflow-hidden rounded-2xl border border-gray-800/50 hover:border-amber-400/50 transition-all duration-700 hover:scale-105 hover:shadow-2xl hover:shadow-amber-400/20">
                 <a href={`/rooms/${otherRoom.url}`} class="block w-full h-full">
-                  {otherRoomHeroImage && (
+                  {otherRoomImageUrl && (
                     <img
-                      image={otherRoomHeroImage}
-                      variant="roomCard"
+                      src={otherRoomImageUrl}
+                      alt={`${otherRoom.roomName} luxury safari room at Limban Resort`}
                       loading="lazy"
-                      class="absolute inset-0 w-full h-full group-hover:scale-110 transition-transform duration-700"
+                      class="absolute inset-0 w-full h-full group-hover:scale-110 transition-transform duration-700 object-cover"
                     />
                   )}
 
@@ -447,13 +454,9 @@ const schemaImages = [
     </section>
   </div>
 
-  <SmartReserveButton
-    formSelector="#reservation-form"
-    buttonText={`Reserve ${room.roomName}`}
-    position="bottom-right"
-    glowOnScroll={true}
-  />
-  
+  <!-- Smart btn -->
+  <SmartReserveButton buttonText={`Reserve ${room.roomName}`} />
+
   <!-- Universal Gallery Modal -->
   <GalleryModal />
 </Layout>

@@ -1,19 +1,27 @@
-"use client"
-import * as React from "react"
-import { format } from "date-fns"
-import { Calendar as CalendarIcon } from "lucide-react"
-import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
-import { Calendar } from "@/components/ui/calendar"
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+"use client";
+import * as React from "react";
+import { format } from "date-fns";
+import { Calendar as CalendarIcon } from "lucide-react";
+import { cn } from "../lib/utils";
+import { Button } from "../components/ui/button";
+import { Calendar } from "../components/ui/calendar";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "../components/ui/popover";
 
 export function CorporateDatePicker({
   name,
   required = false,
   placeholder = "Pick a date",
-}: { name: string; required?: boolean; placeholder?: string }) {
-  const [date, setDate] = React.useState<Date | undefined>(undefined)
-  const [open, setOpen] = React.useState(false)
+}: {
+  name: string;
+  required?: boolean;
+  placeholder?: string;
+}) {
+  const [date, setDate] = React.useState<Date | undefined>(undefined);
+  const [open, setOpen] = React.useState(false);
 
   return (
     <>
@@ -31,15 +39,19 @@ export function CorporateDatePicker({
             mode="single"
             selected={date}
             onSelect={(d) => {
-              if (!d) return
-              setDate(d)
-              setOpen(false)
+              if (!d) return;
+              setDate(d);
+              setOpen(false);
             }}
             disabled={(date) => {
-              const today = new Date()
-              const minDate = new Date(today.getTime() + 3 * 24 * 60 * 60 * 1000)
-              const maxDate = new Date(today.getTime() + 365 * 24 * 60 * 60 * 1000)
-              return date < minDate || date > maxDate
+              const today = new Date();
+              const minDate = new Date(
+                today.getTime() + 3 * 24 * 60 * 60 * 1000
+              );
+              const maxDate = new Date(
+                today.getTime() + 365 * 24 * 60 * 60 * 1000
+              );
+              return date < minDate || date > maxDate;
             }}
             autoFocus
           />
@@ -53,5 +65,5 @@ export function CorporateDatePicker({
         required={required}
       />
     </>
-  )
+  );
 }

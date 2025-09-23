@@ -64,14 +64,6 @@ const hasMoreImages = remainingImages && remainingImages.length > 0;
 const initialButtonText = hasMoreImages
   ? getButtonLabel(remainingImages.length, galleryType)
   : "";
-
-// Debug logging
-console.log("LoadMore Debug:", {
-  hasMoreImages,
-  remainingCount: remainingImages?.length || 0,
-  galleryType,
-  initialButtonText,
-});
 ---
 
 {

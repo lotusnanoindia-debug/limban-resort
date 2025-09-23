@@ -1,183 +1,64 @@
 ---
-// SmartReserveButton.astro
 interface Props {
-  formSelector?: string;
   buttonText?: string;
   position?: "bottom-left" | "bottom-right";
-  showIcon?: boolean;
-  glowOnScroll?: boolean;
-  headerOffset?: number;
 }
 
-const {
-  formSelector = 'form, [class*="reservation"], [class*="dining"], [id*="reservation"], [id*="dining"]',
-  buttonText = "Reserve",
-  position = "bottom-left",
-  glowOnScroll = true,
-  headerOffset = 300, // Default offset for sticky header (adjust as needed)
-} = Astro.props;
+const { buttonText = "Reserve Now", position = "bottom-right" } = Astro.props;
 
-const positionClasses = {
-  "bottom-left": "bottom-6 left-6",
-  "bottom-right": "bottom-6 right-6",
-};
+const positionClass =
+  position === "bottom-left" ? "bottom-4 left-4" : "bottom-4 right-4";
 ---
 
-<!-- Smart floating reserve button -->
-<div
-  id="smart-reserve-btn"
-  class={`fixed ${positionClasses[position]} z-50 transform translate-y-16 opacity-0 pointer-events-none transition-all duration-700 ease-out`}
-  data-form-selector={formSelector}
-  data-glow-on-scroll={glowOnScroll}
-  data-header-offset={headerOffset}
+<button
+  id="auto-float-btn"
+  class={`fixed ${positionClass} z-50 bg-amber-500 hover:bg-amber-600 text-white px-3 py-2 sm:px-4 sm:py-2.5 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 text-xs sm:text-sm font-semibold opacity-0 pointer-events-none`}
 >
-  <button
-    id="scroll-to-form"
-    class="group relative bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-white px-4 py-2.5 rounded-full shadow-lg hover:shadow-xl transition-all duration-500 ease-out hover:scale-105 text-sm font-semibold flex items-center space-x-2"
-  >
-    {buttonText}
-    <div
-      class="absolute inset-0 rounded-full bg-gradient-to-r from-amber-400/0 to-amber-400/0 group-hover:from-amber-400/20 group-hover:to-amber-500/20 transition-all duration-500 -z-10"
-    >
-    </div>
-  </button>
-</div>
+  {buttonText}
+</button>
 
 <script>
-  function initElegantReserveButton() {
-    const floatingBtn = document.getElementById("smart-reserve-btn");
-    const scrollBtn = document.getElementById("scroll-to-form");
+  function init() {
+    const btn = document.getElementById("auto-float-btn");
+    if (!btn) return;
 
-    if (!floatingBtn || !scrollBtn) return;
+    function findForm() {
+      return (
+        document.querySelector("form") ||
+        document.querySelector('[id*="form"]') ||
+        document.querySelector('[class*="form"]')
+      );
+    }
 
-    const formSelector =
-      floatingBtn.getAttribute("data-form-selector") || "form";
-    const glowOnScroll =
-      floatingBtn.getAttribute("data-glow-on-scroll") === "true";
-    const headerOffset = parseInt(
-      floatingBtn.getAttribute("data-header-offset") || "120"
-    );
+    function setup() {
+      const form = findForm();
 
-    // Find the reservation form with fallback selectors
-    let reservationForm = document.querySelector(formSelector);
+      if (form) {
+        new IntersectionObserver(([entry]) => {
+          btn.style.opacity = entry.isIntersecting ? "0" : "1";
+          btn.style.pointerEvents = entry.isIntersecting ? "none" : "auto";
+        }).observe(form);
 
-    if (!reservationForm) {
-      const fallbackSelectors = [
-        "form",
-        '[class*="reservation"]',
-        '[class*="dining"]',
-        '[id*="reservation"]',
-        '[id*="dining"]',
-        ".form",
-      ];
+        btn.onclick = () => {
+          form.scrollIntoView({ behavior: "smooth", block: "center" });
 
-      for (const selector of fallbackSelectors) {
-        reservationForm = document.querySelector(selector);
-        if (reservationForm) break;
+          setTimeout(() => {
+            form.style.boxShadow = "0 0 40px rgba(245, 158, 11, 0.5)";
+            setTimeout(() => (form.style.boxShadow = ""), 2000);
+          }, 800);
+        };
+      } else {
+        setTimeout(setup, 500);
       }
     }
 
-    if (!reservationForm) return;
-
-    // Intersection Observer for form visibility
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting && entry.intersectionRatio > 0.1) {
-            // Form is visible - elegant fade out
-            floatingBtn.classList.remove(
-              "opacity-100",
-              "translate-y-0",
-              "pointer-events-auto"
-            );
-            floatingBtn.classList.add(
-              "opacity-0",
-              "translate-y-16",
-              "pointer-events-none"
-            );
-          } else {
-            // Form not visible - elegant fade in
-            floatingBtn.classList.remove(
-              "opacity-0",
-              "translate-y-16",
-              "pointer-events-none"
-            );
-            floatingBtn.classList.add(
-              "opacity-100",
-              "translate-y-0",
-              "pointer-events-auto"
-            );
-          }
-        });
-      },
-      {
-        threshold: [0, 0.1, 0.25],
-        rootMargin: "-80px 0px -80px 0px",
-      }
-    );
-
-    observer.observe(reservationForm);
-
-    // Enhanced smooth scrolling with sticky header offset
-    scrollBtn.addEventListener("click", function (e) {
-      e.preventDefault();
-
-      // Calculate scroll position accounting for sticky header
-      const formRect = reservationForm.getBoundingClientRect();
-      const currentScrollY = window.pageYOffset;
-      const targetPosition = currentScrollY + formRect.top - headerOffset;
-
-      window.scrollTo({
-        top: Math.max(0, targetPosition),
-        behavior: "smooth",
-      });
-
-      // Optional glow effect
-      if (glowOnScroll) {
-        setTimeout(() => {
-          reservationForm.style.boxShadow = "0 0 20px rgba(245, 158, 11, 0.3)";
-          setTimeout(() => {
-            reservationForm.style.boxShadow = "";
-          }, 2000);
-        }, 800);
-      }
-    });
-
-    // Handle window resize gracefully
-    let resizeTimeout;
-    window.addEventListener("resize", () => {
-      clearTimeout(resizeTimeout);
-      resizeTimeout = setTimeout(() => {
-        observer.unobserve(reservationForm);
-        observer.observe(reservationForm);
-      }, 150);
-    });
+    setup();
   }
 
-  // Initialize when DOM is ready
+  // Wait for DOM
   if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", initElegantReserveButton);
+    document.addEventListener("DOMContentLoaded", init);
   } else {
-    setTimeout(initElegantReserveButton, 100);
+    init();
   }
 </script>
-
-<style>
-  /* This is literally all you need for 60fps performance */
-  #smart-reserve-btn {
-    transform: translateZ(0);
-    transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
-  }
-
-  #smart-reserve-btn button {
-    transform: translateZ(0);
-    transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
-  }
-
-  #smart-reserve-btn:not(:hover) {
-    will-change: auto;
-  }
-  #smart-reserve-btn button:not(:hover):not(:focus) {
-    will-change: auto;
-  }
-</style>

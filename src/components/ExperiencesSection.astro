@@ -1,5 +1,5 @@
 ---
-import OptimizedImage from '../components/OptimizedImage.astro';
+import imageService from '../utils/ImageService.js';
 
 export interface Props {
   experiences?: {
@@ -25,6 +25,27 @@ export interface Props {
 }
 
 const { experiences, gridClass = "grid-cols-1 md:grid-cols-3" } = Astro.props;
+
+// Process experience images through ImageService
+const processedExperiences = experiences?.experience?.map((experience, index) => {
+  const imageUrl = experience.serviceImage?.url ? 
+    imageService.processImage({
+      ...experience.serviceImage,
+      context: {
+        pageType: 'homepage',
+        contentName: experience.title,
+        imageType: 'service',
+        index
+      }
+    }, 'serviceCard', { quality: 70 }) : '';
+
+  return {
+    ...experience,
+    imageUrl,
+    alt: experience.serviceImage?.alt || experience.imageAltText || `${experience.title} - Limban Resort experience`,
+    priority: index < 2 // First 2 experiences get priority loading
+  };
+}) || [];
 ---
 
 {experiences && (
@@ -46,23 +67,25 @@ const { experiences, gridClass = "grid-cols-1 md:grid-cols-3" } = Astro.props;
         </p>
       </header>
       
-      <!-- 🚀 ULTRA-CLEAN: Dynamic grid with OptimizedImage -->
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-        {experiences.experience?.map((experience, index) => (
+      <!-- Dynamic grid with direct image URLs -->
+      <div class={`grid ${gridClass} gap-8`}>
+        {processedExperiences.map((experience, index) => (
           <article 
             key={index}
             class="group bg-gray-800/50 border border-gray-700 rounded-2xl overflow-hidden transition-all duration-500 hover:border-gray-600 hover:-translate-y-1 hover:shadow-xl"
           >
             
-            <!-- 🚀 PERFECT: OptimizedImage with aspect ratio -->
+            <!-- FIXED: Direct image URL from ImageService -->
             <div class="relative aspect-[2/1] overflow-hidden">
-              <OptimizedImage 
-                image={experience.serviceImage}
-                variant="serviceCard"
-                loading={index < 2 ? "eager" : "lazy"}
-                class="transition-transform duration-700 group-hover:scale-105"
-                sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
-              />
+              {experience.imageUrl && (
+                <img
+                  src={experience.imageUrl}
+                  alt={experience.alt}
+                  loading={experience.priority ? "eager" : "lazy"}
+                  class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                  sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                />
+              )}
             </div>
             
             <!-- Content -->

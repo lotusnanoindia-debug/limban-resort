@@ -2,6 +2,7 @@
 import Header from "../components/Header.astro";
 import Footer from "../components/Footer.astro";
 import "../styles/global.css";
+
 const { title = "Limban Resort" } = Astro.props;
 ---
 
@@ -11,15 +12,17 @@ const { title = "Limban Resort" } = Astro.props;
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <slot name="head" />
+
+    <!-- Essential preconnects only -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link rel="preconnect" href="https://ap-south-1.cdn.hygraph.com" />
+    <link rel="preconnect" href="https://res.cloudinary.com" />
+
+    <!-- Font -->
     <link
       href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400;1,600&display=swap"
       rel="stylesheet"
     />
-    <link rel="dns-prefetch" href="https://ap-south-1.graphassets.com" />
-    <link rel="preconnect" href="https://ap-south-1.graphassets.com" />
   </head>
   <body
     class="bg-gray-950 text-gray-100 font-sans antialiased selection:bg-gray-700"
@@ -29,101 +32,17 @@ const { title = "Limban Resort" } = Astro.props;
       <slot />
     </main>
     <Footer />
-    <script>
-      let loaderTimeout;
-      let navigationInProgress = false;
 
-      function showLoader() {
-        // Prevent multiple loaders
-        if (navigationInProgress) return;
-
-        navigationInProgress = true;
-        const existingLoader = document.getElementById("page-loader");
-        if (existingLoader) return; // Already showing
-
-        const loader = document.createElement("div");
-        loader.id = "page-loader";
-        loader.className =
-          "fixed inset-0 bg-gray-950/80 backdrop-blur-sm z-50 flex items-center justify-center opacity-0";
-        loader.innerHTML = `
-      <div class="text-center">
-        <div class="w-16 h-16 border-2 border-amber-400/30 border-t-amber-400 rounded-full animate-spin mx-auto mb-4"></div>
-      </div>
-    `;
-        document.body.appendChild(loader);
-
-        // Fade in smoothly
-        requestAnimationFrame(() => {
-          loader.style.opacity = "1";
-          loader.style.transition = "opacity 0.3s ease";
-        });
-
-        // Emergency fallback - hide after 5 seconds no matter what
-        loaderTimeout = setTimeout(() => {
-          hideLoader();
-        }, 5000);
-      }
-
-      function hideLoader() {
-        navigationInProgress = false;
-
-        // Clear the emergency timeout
-        if (loaderTimeout) {
-          clearTimeout(loaderTimeout);
-          loaderTimeout = null;
-        }
-
-        const loader = document.getElementById("page-loader");
-        if (loader) {
-          loader.style.opacity = "0";
-          setTimeout(() => {
-            if (loader.parentNode) {
-              loader.remove();
-            }
-          }, 300);
-        }
-      }
-
-      // Show on link clicks (exclude external links and anchors)
+    <script is:inline>
+      // Essential smooth scrolling only
       document.addEventListener("click", (e) => {
-        const target = e.target.closest("a"); // Handle nested elements
-
-        if (
-          target &&
-          target.href &&
-          !target.href.includes("#") &&
-          !target.hasAttribute("target") && // Skip external links
-          target.href.startsWith(window.location.origin)
-        ) {
-          // Same domain only
-
-          showLoader();
+        const target = e.target.closest('a[href^="#"]');
+        if (target) {
+          e.preventDefault();
+          document
+            .querySelector(target.getAttribute("href"))
+            ?.scrollIntoView({ behavior: "smooth" });
         }
-      });
-
-      // Hide loader on ALL page state changes
-      function handlePageReady() {
-        hideLoader();
-      }
-
-      // Multiple event listeners to catch all scenarios
-      window.addEventListener("load", handlePageReady); // Initial page load
-      window.addEventListener("pageshow", handlePageReady); // Back/forward navigation
-      document.addEventListener("DOMContentLoaded", handlePageReady); // DOM ready
-
-      // Astro-specific events (if using View Transitions)
-      document.addEventListener("astro:page-load", handlePageReady);
-      document.addEventListener("astro:after-swap", handlePageReady);
-
-      // Cleanup on page unload
-      window.addEventListener("beforeunload", () => {
-        hideLoader();
-      });
-
-      // Handle browser back/forward buttons specifically
-      window.addEventListener("popstate", () => {
-        // Small delay to let the page settle
-        setTimeout(hideLoader, 100);
       });
     </script>
   </body>
