@@ -377,9 +377,6 @@ export const getCloudinaryUrl = (url, variant = 'gallery', options = {}) => {
   return imageService.processImage(imageData, variant, options);
 };
 
-// Export configuration for advanced usage
-export { IMAGE_CONFIG };
-
 // Performance monitoring
 if (typeof window !== 'undefined') {
   window.ImageServiceMetrics = () => imageService.getMetrics();
