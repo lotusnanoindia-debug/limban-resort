@@ -543,7 +543,8 @@ const testimonials = [
 
     <!-- Sophisticated enquiry Form -->
     <section id="enquiry-form" class="py-32 bg-gradient-to-b from-gray-900 to-gray-950" aria-labelledby="enquiry-heading">
-      <div class="max-w-5xl mx-auto px-6">
+      <div class="max-w-6xl mx-auto">
+        <section class="px-6 md:p-12">
         <header class="text-center mb-16">
           <h2
             id="enquiry-heading"
@@ -553,10 +554,8 @@ const testimonials = [
               >Extraordinary Experience</span
             >
           </h2>
-          <p class="text-xl text-gray-300 max-w-3xl mx-auto leading-relaxed">
-            Share your vision with us. We'll turn it into reality. We will design a bespoke proposal
-            that transforms your event into a legendary experience
-            your organisation will reference for years.
+          <p class="text-gray-300 max-w-3xl mx-auto leading-relaxed">
+            Share your event vision with us. We'll turn it into reality.
           </p>
         </header>
 
@@ -567,7 +566,7 @@ const testimonials = [
         <form
           id="corporate-enquiry-form"
           name="corporate-enquiry"
-          class="bg-gradient-to-br from-gray-800/60 to-gray-900/60 backdrop-blur-xl border border-gray-600/50 rounded-3xl p-12"
+          class="bg-gradient-to-br from-gray-800/60 to-gray-900/60 backdrop-blur-xl border border-gray-600/50 rounded-3xl p-6 md:p-12"
         >
           <!-- Turnstile widget -->
           <div
@@ -748,7 +747,7 @@ const testimonials = [
               name="message"
               rows="6"
               required
-              placeholder="Tell us about your objectives for this event. What would make it a transformational success for your organisation? What challenges are you hoping to address? What outcomes do you envision?"
+              placeholder="Tell us briefly about your objectives for this event."
               class="w-full rounded-2xl bg-gray-800/50 border border-gray-600 px-6 py-4 text-white placeholder-gray-400 focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all duration-300 resize-none leading-relaxed"
             ></textarea>
           </div>
@@ -765,12 +764,12 @@ const testimonials = [
             <p
               class="text-gray-500 text-sm mt-6 max-w-2xl mx-auto leading-relaxed"
             >
-              Our events director will respond within 24 hours. All enquiries are treated with complete
-              confidentiality. Your data is never shared with third parties without your explicit consent.
+              Our events director will respond within 24 hours. Enquiries are treated with               confidentiality. Your data is never shared without your explicit consent.
             </p>
           </div>
         </form>
       </div>
+      </section>
     </section>
 
   <SmartReserveButton buttonText="Make a Corporate Enquiry" position="bottom-right" />

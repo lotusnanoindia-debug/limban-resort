@@ -65,24 +65,23 @@ const safePrice = Number(room.basePrice) || 0;
 // Process all gallery images through ImageService
 const processedGalleryImages = room.gallery && Array.isArray(room.gallery) && room.gallery.length > 0
   ? room.gallery.map((item, index) => {
-      // Handle both structures: item.image or item directly
       const imageData = item.image || item;
-      
-      if (!imageData || !imageData.url) {
-        console.warn('Invalid gallery item:', item);
-        return null;
-      }
-      
+
+      // If you have id/alt/size fields, always set them!
       return {
-        ...imageData,
+        id: imageData.id || index,
+        alt: imageData.alt || item.caption || `${room.roomName} view ${index + 1}`,
+        width: imageData.width,
+        height: imageData.height,
         caption: item.caption || imageData.alt || `${room.roomName} view ${index + 1}`,
         processedUrls: {
-          thumbnail: imageService.processImage(imageData, 'galleryThumbnail'),
-          large: imageService.processImage(imageData, 'galleryLarge'),
-          modal: imageService.processImage(imageData, 'galleryModal')
+          thumbnail: imageService.processImage(imageData, "galleryThumbnail"),
+          gallery: imageService.processImage(imageData, "gallery"),
+          large: imageService.processImage(imageData, "galleryLarge"),
+          modal: imageService.processImage(imageData, "heroDesktop"), // Must map to BIG variant!
         }
       };
-    }).filter(Boolean)  // Remove null items
+    }).filter(Boolean)
   : [];
 
 
@@ -369,15 +368,11 @@ const schemaImages = [
           </div>
 
           <!-- Right Column - Enhanced Reservation Form -->
-          <div class="lg:sticky lg:top-32">
-            <div class="bg-gray-800/40 border border-gray-700/50 rounded-3xl p-8 backdrop-blur-sm">
               <ReservationForm
                 roomName={room.roomName}
                 roomSlug={room.url}
                 basePrice={safePrice}
               />
-            </div>
-          </div>
         </div>
       </div>
     </section>

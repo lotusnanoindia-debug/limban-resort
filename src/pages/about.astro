@@ -7,7 +7,7 @@ import LoadMoreGallery from "../components/LoadMoreGallery.astro";
 import GalleryModal from "../components/GalleryModal.astro";
 import TestimonialsSection from "../components/TestimonialsSection.astro";
 import AwardsSection from "../components/AwardsSection.astro";
-import imageService, { processGalleryImages } from "../utils/ImageService.js";
+import imageService from "../utils/ImageService.js"; // REMOVED processGalleryImages import
 import { fetchAboutPage } from "../api.js";
 
 // Server-side data fetching with error handling
@@ -27,41 +27,7 @@ const aboutPage = aboutData?.aboutPage || {};
 const vibeGallery = aboutData?.vibeGallery || { images: [] };
 const guestGallery = aboutData?.guestGallery || { images: [] };
 
-// Process hero images through ImageService
-const heroImageData = aboutPage?.heroImage
-  ? {
-      ...aboutPage.heroImage,
-      context: {
-        pageType: "about",
-        contentName: "Limban Resort",
-        imageType: "hero",
-      },
-    }
-  : null;
-
-const philosophyImageData = aboutPage?.philosophyImage
-  ? {
-      ...aboutPage.philosophyImage,
-      context: {
-        pageType: "about",
-        contentName: "Philosophy",
-        imageType: "philosophy",
-      },
-    }
-  : null;
-
-const foundersImageData = aboutPage?.foundersImage
-  ? {
-      ...aboutPage.foundersImage,
-      context: {
-        pageType: "about",
-        contentName: "Founders",
-        imageType: "founders",
-      },
-    }
-  : null;
-
-// FIXED: Complete image processing for all about page galleries
+// FIXED: Complete image processing with all required URLs (matching your working vibe page)
 const processedVibeImages =
   vibeGallery?.images && vibeGallery.images.length > 0
     ? vibeGallery.images.map((item, index) => {
@@ -122,6 +88,10 @@ const processedTeamImages =
       })
     : [];
 
+const heroImageData = aboutPage?.heroImage || null;
+const philosophyImageData = aboutPage?.philosophyImage || null;
+const foundersImageData = aboutPage?.foundersImage || null;
+
 // Split for load more functionality
 const initialVibeImages = processedVibeImages.slice(0, 12);
 const remainingVibeImages = processedVibeImages.slice(12);
@@ -132,17 +102,23 @@ const remainingGuestImages = processedGuestImages.slice(12);
 const initialTeamImages = processedTeamImages.slice(0, 12);
 const remainingTeamImages = processedTeamImages.slice(12);
 
-// Generate SEO-optimized URLs for schema
-const heroImageUrl = heroImageData
-  ? imageService.processImage(heroImageData, "heroDesktop", { quality: 75 })
+// FIXED: Simple image processing without complex context objects
+const heroImageUrl = aboutPage?.heroImage
+  ? imageService.processImage(aboutPage.heroImage, "heroDesktop", {
+      quality: 80,
+    })
   : "https://limban.com/img/about-hero.avif";
 
-const philosophyImageUrl = philosophyImageData
-  ? imageService.processImage(philosophyImageData, "heroWide", { quality: 70 })
+const philosophyImageUrl = aboutPage?.philosophyImage
+  ? imageService.processImage(aboutPage.philosophyImage, "heroMobile", {
+      quality: 80,
+    })
   : "";
 
-const foundersImageUrl = foundersImageData
-  ? imageService.processImage(foundersImageData, "portrait", { quality: 70 })
+const foundersImageUrl = aboutPage?.foundersImage
+  ? imageService.processImage(aboutPage.foundersImage, "subhero", {
+      quality: 85,
+    })
   : "";
 
 const schemaImages = [

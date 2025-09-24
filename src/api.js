@@ -231,6 +231,36 @@ const CORPORATE_GALLERY_QUERY = `
   ${IMAGE_FRAGMENT}
 `;
 
+const SAFARI_GALLERY_QUERY = `
+  query GetSafariGallery {
+    safarisGalleries{
+      id
+      safariImages(first: 100)  { ...CleanImage }
+    }
+  }
+  ${IMAGE_FRAGMENT}
+`;
+
+const SAFARI_OVERVIEW_QUERY = `
+  query GetSafariOverview {
+    safaris(
+      where: { isActive: true }
+      orderBy: sortOrder_ASC
+    ) {
+      id
+      title
+      subtitle
+      description
+      image { ...CleanImage }
+      altText
+      duration
+      isActive
+      sortOrder
+    }
+  }
+  ${IMAGE_FRAGMENT}
+`;
+
 const SPECIAL_DEAL_QUERY = `
   query GetSpecialDeal {
     specialRoomsDeals(orderBy: createdAt_DESC, first: 1) {
@@ -371,6 +401,24 @@ export const fetchCorporateGallery = async () => {
     return data.corporateGalleries;
   } catch (error) {
     handleError(error, "fetchCorporateGallery");
+  }
+};
+
+export const fetchSafariGallery = async () => {
+  try {
+    const data = await request(HYGRAPH_URL, SAFARI_GALLERY_QUERY);
+    return data.safarisGalleries?.[0]?.safariImages || []; // ✅ Fixed: safarisGalleries
+  } catch (error) {
+    handleError(error, "fetchSafariGallery");
+  }
+};
+
+export const fetchSafariOverview = async () => {
+  try {
+    const data = await request(HYGRAPH_URL, SAFARI_OVERVIEW_QUERY);
+    return data.safaris;
+  } catch (error) {
+    handleError(error, "fetchSafariOverview");
   }
 };
 

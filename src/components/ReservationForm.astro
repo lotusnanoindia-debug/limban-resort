@@ -12,7 +12,10 @@ const { roomName, roomSlug, basePrice } = Astro.props;
 const pageUrl = Astro.url.href;
 ---
 
-<section aria-labelledby="reservation-heading">
+<section
+  aria-labelledby="reservation-heading"
+  class="lg:sticky lg:top-32 bg-gray-800/40 border border-gray-700/50 rounded-3xl p-8 backdrop-blur-sm"
+>
   <h2
     id="reservation-heading"
     class="font-serif italic text-3xl md:text-5xl text-white mb-6"

@@ -57,21 +57,25 @@ const heroImageData = experience.images?.[0] ? {
 
 // Process all gallery images through ImageService (exact same pattern as rooms)
 const processedGalleryImages = experience.images && experience.images.length > 0
-  ? processGalleryImages(experience.images.map((galleryItem, index) => ({
-      ...galleryItem,
-      caption: galleryItem.alt || galleryItem.fileName || `${experience.restaurantName} view ${index + 1}`,
-      context: {
-        pageType: 'dining',
-        contentName: experience.restaurantName,
-        imageType: 'gallery',
-        caption: galleryItem.alt || galleryItem.fileName,
-        index
-      }
-    })), 'dining', {
-      contentName: experience.restaurantName,
-      pageContext: 'dining-detail'
+  ? experience.images.map((item, index) => {
+      const imageData = item.image || item;
+      
+      return {
+        id: imageData.id || index,
+        alt: imageData.alt || item.caption || `${experience.restaurantName} view ${index + 1}`,
+        width: imageData.width,
+        height: imageData.height,
+        caption: item.caption || imageData.alt || `${experience.restaurantName} view ${index + 1}`,
+        processedUrls: {
+          thumbnail: imageService.processImage(imageData, 'galleryThumbnail'),
+          gallery: imageService.processImage(imageData, 'gallery'),
+          large: imageService.processImage(imageData, 'galleryLarge'),
+          modal: imageService.processImage(imageData, 'heroDesktop'), // ← BIGGEST
+        }
+      };
     })
   : [];
+
 
 // Split for load more functionality (exact same pattern as rooms)
 const initialGalleryImages = processedGalleryImages.slice(0, 12);
@@ -327,16 +331,11 @@ const schemaImages = [
               </div>
             </div>
           </div>
-
           <!-- Right Column - Enhanced Reservation Form -->
-          <div class="lg:sticky lg:top-32">
-            <div class="bg-gray-800/40 border border-gray-700/50 rounded-3xl p-8 backdrop-blur-sm">
-              <DiningReservationForm
-                itemName={experience.restaurantName}
-                itemSlug={experience.url}
-              />
-            </div>
-          </div>
+          <DiningReservationForm
+            itemName={experience.restaurantName}
+            itemSlug={experience.url}
+          />
         </div>
       </div>
     </section>

@@ -1,4 +1,6 @@
 ---
+import { Icon } from "astro-icon/components";
+
 interface Props {
   buttonText?: string;
   position?: "bottom-left" | "bottom-right";
@@ -7,13 +9,17 @@ interface Props {
 const { buttonText = "Reserve Now", position = "bottom-right" } = Astro.props;
 
 const positionClass =
-  position === "bottom-left" ? "bottom-4 left-4" : "bottom-4 right-4";
+  position === "bottom-left" ? "bottom-6 left-6" : "bottom-4 right-4";
 ---
 
 <button
   id="auto-float-btn"
-  class={`fixed ${positionClass} z-50 bg-amber-500 hover:bg-amber-600 text-white px-3 py-2 sm:px-4 sm:py-2.5 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 text-sm font-semibold opacity-0 pointer-events-none`}
+  class={`fixed ${positionClass} z-50 bg-amber-700 hover:bg-amber-600 text-white px-3 py-2 rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 font-semibold inline-flex items-center gap-2 `}
 >
+  <Icon
+    name="material-symbols-light:arrow-circle-right-outline"
+    class="w-6 h-6"
+  />
   {buttonText}
 </button>
 
@@ -22,31 +28,31 @@ const positionClass =
     const btn = document.getElementById("auto-float-btn");
     if (!btn) return;
 
-    function findForm() {
-      return (
+    function findSection() {
+      const form =
         document.querySelector("form") ||
         document.querySelector('[id*="form"]') ||
-        document.querySelector('[class*="form"]')
-      );
+        document.querySelector('[class*="form"]');
+      return form ? form.closest("section") : null;
     }
 
     function setup() {
-      const form = findForm();
+      const section = findSection();
 
-      if (form) {
+      if (section) {
         new IntersectionObserver(([entry]) => {
           btn.style.opacity = entry.isIntersecting ? "0" : "1";
           btn.style.pointerEvents = entry.isIntersecting ? "none" : "auto";
-        }).observe(form);
+        }).observe(section);
 
         btn.onclick = () => {
           // Smart offset based on screen size
           const isMobile = window.innerWidth <= 768;
-          const headerOffset = isMobile ? 300 : 200; // More offset on mobile
+          const headerOffset = isMobile ? 300 : 200;
 
-          const formRect = form.getBoundingClientRect();
+          const sectionRect = section.getBoundingClientRect();
           const targetPosition =
-            window.pageYOffset + formRect.top - headerOffset;
+            window.pageYOffset + sectionRect.top - headerOffset;
 
           window.scrollTo({
             top: Math.max(0, targetPosition),
@@ -54,8 +60,24 @@ const positionClass =
           });
 
           setTimeout(() => {
-            form.style.boxShadow = "0 0 40px rgba(245, 158, 11, 0.5)";
-            setTimeout(() => (form.style.boxShadow = ""), 2000);
+            // Sophisticated multi-layered glow effect
+            section.style.boxShadow = `
+              0 0 0 2px rgba(245, 158, 11, 0.3),
+              0 0 20px rgba(245, 158, 11, 0.2),
+              0 0 40px rgba(245, 158, 11, 0.1),
+              0 0 80px rgba(245, 158, 11, 0.05),
+              inset 0 0 0 1px rgba(245, 158, 11, 0.1)
+            `;
+            section.style.borderRadius = "16px";
+            section.style.transition = "all 0.8s cubic-bezier(0.4, 0, 0.2, 1)";
+
+            // Clear the highlight after 3 seconds with smooth fade
+            setTimeout(() => {
+              section.style.boxShadow = "";
+              section.style.borderRadius = "";
+              section.style.transition =
+                "all 1.5s cubic-bezier(0.4, 0, 0.2, 1)";
+            }, 3000);
           }, 800);
         };
       } else {
