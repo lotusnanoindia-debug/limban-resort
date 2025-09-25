@@ -1,0 +1,444 @@
+---
+import Layout from "../layouts/Layout.astro";
+import { AstroSEO } from "astro-seo-plugin";
+
+const pageTitle = "Privacy Policy | Limban Resort - Tadoba Safari Lodge";
+const pageDescription =
+  "Learn about Limban Resort's commitment to protecting your privacy and personal information during your safari experience in Tadoba National Park, India.";
+const heroImage =
+  "https://res.cloudinary.com/dfa5hhzej/image/fetch/w_800,c_limit,f_auto,q_auto/https://ap-south-1.graphassets.com/cmek3o6f00dcb07o59sno2s0e/cmfxqunnp0u5j08pogn9dd2si";
+---
+
+<Layout title="Privacy Policy">
+  <AstroSEO
+    slot="head"
+    title={pageTitle}
+    description={pageDescription}
+    canonical="https://limban.com/privacy-policy"
+    openGraph={{
+      title: "Privacy Policy - Limban Resort",
+      description: pageDescription,
+      type: "website",
+      url: "https://limban.com/privacy-policy",
+    }}
+    jsonLd={{
+      "@context": "https://schema.org",
+      "@type": "WebPage",
+      name: "Privacy Policy - Limban Resort",
+      description: pageDescription,
+      url: "https://limban.com/privacy-policy",
+      lastReviewed: new Date().toISOString().split("T")[0],
+    }}
+  />
+
+  <div class="bg-gray-950 text-gray-100 selection:bg-gray-700">
+    <!-- Hero Section -->
+    <section
+      class="relative h-[50vh] flex items-center justify-center overflow-hidden"
+    >
+      <!-- Background Image -->
+      <img
+        src={heroImage}
+        alt="Majestic nature in Tadoba National Park - experience it at Limban Resort"
+        class="absolute inset-0 w-full h-full object-cover scale-110"
+        loading="eager"
+        fetchpriority="high"
+      />
+
+      <!-- Background Overlays -->
+      <div class="absolute inset-0 bg-black/60 z-10"></div>
+      <div
+        class="absolute inset-0 bg-gradient-to-b from-gray-950/40 via-transparent to-gray-950/80 z-10"
+      >
+      </div>
+      <div
+        class="absolute inset-0 bg-gradient-radial from-transparent via-gray-950/20 to-gray-950/60 z-10"
+      >
+      </div>
+
+      <div class="relative z-20 text-center max-w-5xl mx-auto px-6">
+        <h1 class="font-serif text-4xl md:text-6xl text-white mb-6 italic">
+          Privacy Policy
+        </h1>
+        <p class="text-xl text-gray-200 max-w-3xl mx-auto">
+          Your privacy is important to us. Learn how we collect, use, and
+          protect your personal information at Limban Resort.
+        </p>
+      </div>
+    </section>
+
+    <!-- Breadcrumb Navigation -->
+    <nav
+      class="py-6 bg-gray-900/50 border-b border-gray-800"
+      aria-label="Breadcrumb"
+    >
+      <div class="max-w-7xl mx-auto px-6">
+        <ol class="flex items-center justify-center space-x-2 text-sm">
+          <li>
+            <a
+              href="/"
+              title="Return to Limban Resort homepage"
+              class="text-gray-400 hover:text-amber-400 transition-colors duration-300 flex items-center"
+            >
+              <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                <path
+                  d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"
+                ></path>
+              </svg>
+              Home
+            </a>
+          </li>
+          <li>
+            <svg
+              class="w-4 h-4 text-gray-600"
+              fill="currentColor"
+              viewBox="0 0 20 20"
+            >
+              <path
+                fill-rule="evenodd"
+                d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
+                clip-rule="evenodd"></path>
+            </svg>
+          </li>
+          <li>
+            <span class="text-amber-400 font-medium">Privacy Policy</span>
+          </li>
+        </ol>
+      </div>
+    </nav>
+
+    <!-- Privacy Policy Content -->
+    <section class="py-20 bg-gray-900">
+      <div class="max-w-5xl mx-auto px-6">
+        <div class="prose prose-lg prose-invert max-w-none">
+          <div class="mb-12">
+            <p class="text-gray-400 text-sm">
+              Last updated: {
+                new Date().toLocaleDateString("en-IN", {
+                  year: "numeric",
+                  month: "long",
+                  day: "numeric",
+                })
+              }
+            </p>
+          </div>
+
+          <div class="space-y-8">
+            <div>
+              <h2 class="font-serif text-3xl text-amber-400 mb-6">
+                Introduction
+              </h2>
+              <p class="mb-4">
+                Limban Resort, located in Tadoba National Park, Maharashtra,
+                India, operates the website limban.com and related services.
+                This Privacy Policy governs the manner in which Limban Resort
+                collects, uses, maintains, and discloses information collected
+                from users (each, a "Visitor") of the website.
+              </p>
+              <p>
+                This privacy policy applies to information collected by or
+                provided to us when you use our website, book accommodations,
+                participate in safaris, or otherwise interact with our services.
+              </p>
+            </div>
+
+            <div>
+              <h2 class="font-serif text-3xl text-amber-400 mb-6">
+                Personal Identification Information
+              </h2>
+              <p class="mb-4">
+                We may collect personal identification information from Visitors
+                in a variety of ways, including, but not limited to, when
+                Visitors visit our website, register on the site, make a
+                reservation, subscribe to a newsletter, respond to a survey,
+                fill out a form, and in connection with other activities,
+                services, features, or resources we make available on our Site.
+              </p>
+              <p>
+                Personal Identification Information may include, but is not
+                limited to, name, email address, telephone number, address,
+                credit card information, passport details, dietary preferences,
+                medical requirements, and other relevant information necessary
+                for providing our safari and accommodation services.
+              </p>
+            </div>
+
+            <div>
+              <h2 class="font-serif text-3xl text-amber-400 mb-6">
+                Non-Personal Identification Information
+              </h2>
+              <p>
+                We may also collect non-personal identification information
+                about Visitors whenever they interact with our Site.
+                Non-personal identification information may include the browser
+                name, the type of computer, mobile device, operating system, and
+                other technical information about a Visitor's means of
+                connection to our Site, such as the IP address and domain names
+                of the servers utilized by the Visitor.
+              </p>
+            </div>
+
+            <div>
+              <h2 class="font-serif text-3xl text-amber-400 mb-6">
+                How We Use Collected Information
+              </h2>
+              <p class="mb-4">
+                Limban Resort may collect and use Visitors' personal information
+                for the following purposes:
+              </p>
+              <ul class="list-disc pl-6 space-y-2 mb-4">
+                <li>
+                  <strong>To improve customer service:</strong> Information you provide
+                  helps us respond to your customer service requests and support
+                  needs more efficiently.
+                </li>
+                <li>
+                  <strong>To personalize user experience:</strong> We may use information
+                  in the aggregate to understand how our Visitors as a group use
+                  the services and resources provided on our Site.
+                </li>
+                <li>
+                  <strong>To improve our Site:</strong> We may use feedback you provide
+                  to improve our products and services.
+                </li>
+                <li>
+                  <strong>To process transactions:</strong> We may use the information
+                  Visitors provide about themselves when making a reservation to
+                  provide service and to follow up regarding the nature of the reservation.
+                </li>
+                <li>
+                  <strong>To send periodic emails:</strong> We may use the email
+                  address to respond to inquiries, questions, and other requests.
+                  If Visitor decides to opt-in to our mailing list, they will receive
+                  emails that may include company news, updates, related product
+                  or service information, etc.
+                </li>
+                <li>
+                  <strong>To fulfill reservations:</strong> Personal information
+                  is used to complete and fulfill your reservation and related services,
+                  including accommodation, safari bookings, dining arrangements,
+                  and other special activities.
+                </li>
+                <li>
+                  <strong>To provide personalized safari experiences:</strong> Information
+                  about dietary preferences, medical conditions, and other special
+                  requirements helps us customize your safari experience.
+                </li>
+              </ul>
+            </div>
+
+            <div>
+              <h2 class="font-serif text-3xl text-amber-400 mb-6">
+                How We Protect Your Information
+              </h2>
+              <p class="mb-4">
+                We adopt appropriate data collection, storage, and processing
+                practices and security measures to protect against unauthorized
+                access, alteration, disclosure, or destruction of your personal
+                information, username, password, transaction information, and
+                data stored on our Site.
+              </p>
+              <p>
+                Sensitive and private data exchange between the Site and our
+                servers happens over a SSL secured communication channel and is
+                encrypted and protected with digital signatures. Our Site is
+                also in compliance with PCI standards to ensure secure handling
+                of credit card information.
+              </p>
+            </div>
+
+            <div>
+              <h2 class="font-serif text-3xl text-amber-400 mb-6">
+                Sharing Your Personal Information
+              </h2>
+              <p class="mb-4">
+                We do not sell, trade, or rent Visitors' personal identification
+                information to others. We may share generic aggregated
+                demographic information not linked to any personal
+                identification information regarding Visitors as a general
+                audience measurement statistic.
+              </p>
+              <p>
+                We may share your personal information with third parties only
+                in the following circumstances:
+              </p>
+              <ul class="list-disc pl-6 space-y-2 mb-4">
+                <li>
+                  With service providers who assist us in operating our
+                  business, conducting transactions, or serving our users,
+                  provided they agree to maintain the confidentiality of such
+                  information.
+                </li>
+                <li>
+                  When required to do so by law, court order, or other legal
+                  process.
+                </li>
+                <li>
+                  To protect our rights, property, or safety, and that of our
+                  guests, employees, or others.
+                </li>
+                <li>With your consent or at your direction.</li>
+                <li>
+                  With government authorities for immigration or security
+                  purposes as required by Indian law.
+                </li>
+              </ul>
+            </div>
+
+            <div>
+              <h2 class="font-serif text-3xl text-amber-400 mb-6">
+                Cookies and Web Beacons
+              </h2>
+              <p class="mb-4">
+                Our Site may use "cookies" to enhance Visitor experience.
+                Visitors' web browsers place cookies on their hard drive for
+                record-keeping purposes and sometimes to track information about
+                them. Visitors may choose to set their web browser to refuse
+                cookies or to alert you when cookies are being sent. If they do
+                so, note that some parts of the Site may not function properly.
+              </p>
+              <p>
+                We use cookies to understand and save visitor preferences for
+                future visits and compile aggregate data about site traffic and
+                site interaction so that we can offer better site experiences
+                and tools in the future.
+              </p>
+            </div>
+
+            <div>
+              <h2 class="font-serif text-3xl text-amber-400 mb-6">
+                Third-Party Websites
+              </h2>
+              <p>
+                Visitors may find advertising or other content on our Site that
+                link to the sites and services of our partners, suppliers,
+                advertisers, sponsors, licensors, and other third parties. We do
+                not control the content or links that appear on these sites and
+                are not responsible for the practices employed by websites
+                linked to or from our Site. These sites may have their own
+                privacy policies and customer service policies. Browsing and
+                interaction with any other website, including websites which
+                have a link to our Site, is subject to that website's own terms
+                and policies.
+              </p>
+            </div>
+
+            <div>
+              <h2 class="font-serif text-3xl text-amber-400 mb-6">
+                Compliance with Indian Laws
+              </h2>
+              <p>
+                Limban Resort complies with the Information Technology Act 2000,
+                Information Technology (Reasonable Security Practices and
+                Procedures and Sensitive Personal Data or Information) Rules,
+                2011, and other applicable Indian laws. We follow the provisions
+                of the Information Technology Act 2000 to protect the electronic
+                records and privacy of our users.
+              </p>
+            </div>
+
+            <div>
+              <h2 class="font-serif text-3xl text-amber-400 mb-6">
+                Data Protection Rights Under Indian Law
+              </h2>
+              <p class="mb-4">
+                Under Indian data protection guidelines, you may have the
+                following rights regarding your personal data:
+              </p>
+              <ul class="list-disc pl-6 space-y-2 mb-4">
+                <li>
+                  The right to access – You have the right to request copies of
+                  your personal data.
+                </li>
+                <li>
+                  The right to rectification – You have the right to request
+                  that we correct any information you believe is inaccurate.
+                </li>
+                <li>
+                  The right to erasure – You have the right to request that we
+                  erase your personal data, under certain conditions.
+                </li>
+                <li>
+                  The right to restrict processing – You have the right to
+                  request that we restrict the processing of your personal data,
+                  under certain conditions.
+                </li>
+              </ul>
+            </div>
+
+            <div>
+              <h2 class="font-serif text-3xl text-amber-400 mb-6">Consent</h2>
+              <p>
+                By using our website, you consent to this privacy policy and
+                agree to its terms. We may update this policy at any time. When
+                we do, we will revise the updated date at the top of this page.
+                We encourage Visitors to frequently check this page for any
+                changes to stay informed about how we are helping to protect the
+                personal information we collect. You acknowledge and agree that
+                it is your responsibility to review this privacy policy
+                periodically and become aware of modifications.
+              </p>
+            </div>
+
+            <div>
+              <h2 class="font-serif text-3xl text-amber-400 mb-6">
+                Changes to This Privacy Policy
+              </h2>
+              <p class="mb-4">
+                Limban Resort has the discretion to update this privacy policy
+                at any time. When we do, we will revise the updated date at the
+                top of this page. We encourage Visitors to frequently check this
+                page for any changes to stay informed about how we are helping
+                to protect the personal information we collect.
+              </p>
+              <p>
+                You acknowledge and agree that it is your responsibility to
+                review this privacy policy periodically and become aware of
+                modifications.
+              </p>
+            </div>
+
+            <div>
+              <h2 class="font-serif text-3xl text-amber-400 mb-6">
+                Your Acceptance of These Terms
+              </h2>
+              <p>
+                By using this Site, you signify your acceptance of this policy.
+                If you do not agree to this policy, please do not use our Site.
+                Your continued use of the Site following the posting of changes
+                to this policy will be deemed your acceptance of those changes.
+              </p>
+            </div>
+
+            <div>
+              <h2 class="font-serif text-3xl text-amber-400 mb-6">
+                Contacting Us
+              </h2>
+              <p class="mb-4">
+                If you have any questions about this Privacy Policy, the
+                practices of this site, or your dealings with this site, please
+                contact us at:
+              </p>
+              <div class="bg-gray-800/50 rounded-xl p-6 border border-gray-700">
+                <p class="mb-2"><strong>Limban Resort</strong></p>
+                <p class="mb-2">
+                  Survey No. 306, Village Mudholi, Taluka Bhadravati
+                </p>
+                <p class="mb-2">Chandrapur, Maharashtra 442906</p>
+                <p class="mb-2">India</p>
+                <p class="mb-2">
+                  <strong>Email:</strong>
+                  <a
+                    href="mailto:privacy@limban.com"
+                    class="text-amber-400 hover:underline">privacy@limban.com</a
+                  >
+                </p>
+                <p><strong>Phone:</strong> +91 90226 80451</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+</Layout>

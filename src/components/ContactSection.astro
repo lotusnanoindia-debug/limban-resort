@@ -23,11 +23,16 @@ const pageUrl = Astro.url.href;
         class="bg-gray-800/50 backdrop-blur-xl border border-gray-700 p-8 rounded-2xl"
       >
         <h3 class="text-3xl text-white mb-8 font-serif italic">Contact Us</h3>
+
+        <!-- Contact Methods -->
         <div class="space-y-6">
           <div class="flex items-start">
-            <Icon name="ph:phone" class="w-6 h-6 text-gray-400 mt-1 mr-4" />
+            <Icon
+              name="material-symbols-light:call-outline"
+              class="w-6 h-6 text-gray-400 mt-1 mr-4"
+            />
             <div>
-              <div class="font-medium text-white mb-1">Reservations</div>
+              <div class="font-medium text-amber-400 mb-1">Reservations</div>
               <div class="text-gray-300">+91 90226 80451</div>
               <div class="text-gray-300">+91 92262 54475</div>
             </div>
@@ -38,7 +43,7 @@ const pageUrl = Astro.url.href;
               class="w-6 h-6 text-gray-400 mt-1 mr-4"
             />
             <div>
-              <div class="font-medium text-white mb-1">Email</div>
+              <div class="font-medium text-amber-400 mb-1">Email</div>
               <div class="text-gray-300">info@limban.com</div>
               <div class="text-gray-300">reservations@limban.com</div>
             </div>
@@ -49,25 +54,83 @@ const pageUrl = Astro.url.href;
               class="w-6 h-6 text-gray-400 mt-1 mr-4"
             />
             <div>
-              <div class="font-medium text-white mb-1">Location</div>
+              <div class="font-medium text-amber-400 mb-1">Location</div>
               <div class="text-gray-300">Near Tadoba-Andhari Tiger Reserve</div>
               <div class="text-gray-300">Chandrapur, Maharashtra, India</div>
             </div>
           </div>
         </div>
+
+        <!-- Condensed Resort Information -->
         <div class="mt-8 pt-8 border-t border-gray-700">
-          <div class="text-sm text-gray-400 leading-relaxed">
-            <strong class="text-gray-300">Airport Transfers:</strong> Available 24
-            hours<br />
-            <strong class="text-gray-300">Nearest Airport:</strong> Nagpur, India<br
-            />
-            <strong class="text-gray-300">Pet Friendly:</strong> Yes<br />
-            <strong class="text-gray-300">Check-in:</strong> 1:00 PM | <strong
-              class="text-gray-300">Check-out:</strong
-            > 11:00 AM<br /><br />
-            <strong class="text-gray-300"
-              >Limban Resort is committed to an inclusive stay for all guests</strong
-            >
+          <div class="grid grid-cols-2 gap-4 text-sm">
+            <div class="flex items-center">
+              <Icon
+                name="material-symbols-light:flight-takeoff"
+                class="w-4 h-4 text-amber-400 mr-2"
+              />
+              <span class="text-gray-400">Nearest Airport:</span>
+              <span class="text-gray-300 ml-1">Nagpur</span>
+            </div>
+
+            <div class="flex items-center">
+              <Icon
+                name="material-symbols-light:train"
+                class="w-4 h-4 text-amber-400 mr-2"
+              />
+              <span class="text-gray-400">Train Station:</span>
+              <span class="text-gray-300 ml-1">Chandrapur</span>
+            </div>
+
+            <div class="flex items-center">
+              <Icon
+                name="material-symbols-light:transfer-within-a-station"
+                class="w-4 h-4 text-amber-400 mr-2"
+              />
+              <span class="text-gray-400">Airport Transfers:</span>
+              <span class="text-gray-300 ml-1">24/7</span>
+            </div>
+
+            <div class="flex items-center">
+              <Icon
+                name="material-symbols-light:pets"
+                class="w-4 h-4 text-amber-400 mr-2"
+              />
+              <span class="text-gray-400">Pet Friendly:</span>
+              <span class="text-gray-300 ml-1">Yes</span>
+            </div>
+
+            <div class="flex items-center">
+              <Icon
+                name="material-symbols-light:schedule"
+                class="w-4 h-4 text-amber-400 mr-2"
+              />
+              <span class="text-gray-400">Check-in:</span>
+              <span class="text-gray-300 ml-1">1:00 PM</span>
+            </div>
+
+            <div class="flex items-center">
+              <Icon
+                name="material-symbols-light:schedule"
+                class="w-4 h-4 text-amber-400 mr-2"
+              />
+              <span class="text-gray-400">Check-out:</span>
+              <span class="text-gray-300 ml-1">11:00 AM</span>
+            </div>
+          </div>
+
+          <div
+            class="mt-12 p-3 bg-green-100/10 rounded-lg border border-green-400/20"
+          >
+            <div class="flex items-center">
+              <Icon
+                name="material-symbols-light:diversity-3"
+                class="w-4 h-4 text-amber-400 mr-4"
+              />
+              <span class="text-amber-100 text-sm"
+                >Limban Resort welcomes guests of all backgrounds and abilities</span
+              >
+            </div>
           </div>
         </div>
       </div>
@@ -258,7 +321,7 @@ const pageUrl = Astro.url.href;
             console.error("Submission error:", error);
             showMessage(
               "Sorry, there was an error submitting your enquiry. Please try again or contact us directly.",
-              "error"
+              "error",
             );
             submitBtn.disabled = false;
             submitBtn.textContent = "Send Your Enquiry";

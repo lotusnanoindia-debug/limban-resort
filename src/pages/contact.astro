@@ -1,0 +1,1041 @@
+---
+import Layout from "@/layouts/Layout.astro";
+import ContactSection from "@/components/ContactSection.astro";
+import { Icon } from "astro-icon/components";
+import { AstroSEO } from "astro-seo-plugin";
+
+const heroImage =
+  "https://res.cloudinary.com/dfa5hhzej/image/fetch/w_800,c_limit,f_auto,q_auto/https://ap-south-1.graphassets.com/cmek3o6f00dcb07o59sno2s0e/cmfxqunnp0u5j08pogn9dd2si";
+
+const faqs = [
+  {
+    question: "What are the check-in and check-out times?",
+    answer:
+      "Check-in time is 1:00 PM and check-out time is 11:00 AM. Early check-in and late check-out are subject to availability and may incur additional charges. Early check-in from 10:00 AM (subject to availability), Late check-out until 2:00 PM (subject to availability), Special arrangements for connecting flights, Baggage storage available before check-in and after check-out.",
+  },
+  {
+    question: "Is airport transfer available?",
+    answer:
+      "Yes, we offer 24-hour airport transfer services from Nagpur Airport (125 km). Our representative will coordinate with you to ensure a seamless arrival experience. Transfer options include Private luxury vehicles, Shared transfer service, Luxury SUV options, Special arrangements for large groups. Airport transfers are charged separately. Please contact our team directly for pricing details.",
+  },
+  {
+    question: "Are pets allowed at the resort?",
+    answer:
+      "Yes, we are pet-friendly and welcome your furry companions. There are no additional charges for accommodating pets. Please inform us in advance about your pet's needs and size so we can prepare accordingly. Complimentary pet amenities include Pet bed and food bowls, Pet waste stations, Trained staff assistance, Pet-friendly walking areas.",
+  },
+  {
+    question: "What safari options are available?",
+    answer:
+      "We offer both morning and evening safari drives in Tadoba National Park. Our experienced guides will take you through the wilderness for an unforgettable wildlife experience. Morning Safari: Departure at 6:00 AM, Duration: 3-4 hours, Best for tiger sightings, Cooler temperatures. Evening Safari: Departure at 3:30 PM, Duration: 3-4 hours, Evening light photography, Wildlife activity. Custom Options: Private vehicle, Photography trips, Extended expeditions, Family-friendly.",
+  },
+  {
+    question: "How do I book a room at Limban Resort?",
+    answer:
+      "You can make a reservation through our website, by phone, or by email. Our team is available 24/7 to assist you with your reservation. Contact options: Phone & WhatsApp: +91 90226 80451, Phone & WhatsApp: +91 92262 54475, Email: reservations@limban.com.",
+  },
+  {
+    question: "What is the cancellation policy?",
+    answer:
+      "We offer free cancellation up to 24 hours before your scheduled arrival. You can re-reserve (preferred) or receive a full refund. No-shows are not eligible for refunds. Free cancellation: Up to 24 hours before arrival, Full refund guaranteed, Easy re-reservation option, No penalty charges. Important notes: No-shows receive no refund, Changes are encouraged, Contact us to re-reserve, Flexible with emergencies.",
+  },
+  {
+    question: "What dining experiences are available?",
+    answer:
+      "Our culinary team offers Indian and international seasonal cuisine, all made with locally sourced ingredients that reflect the flavors of Maharashtra. We accept special requests on prior reservation. Seasonal offerings: Regional specialties, International cuisine, Vegetarian and vegan options, Fresh local produce. Special accommodations: Dietary restrictions, Allergen-free options, Celebration menus, Local wine selection.",
+  },
+  {
+    question: "Is the resort accessible for guests with mobility challenges?",
+    answer:
+      "Yes, we are committed to accessibility and offer rooms and facilities designed for guests with mobility challenges. Our team is trained to accommodate special needs. Accessible Rooms: Wide doorways, Roll-in showers, Grab bars, Lowered fixtures. Mobility Aids: Wheelchairs, Shower chairs, Walkers, Ramps access. Services: Priority check-in, Room service, Concierge, 24/7 support.",
+  },
+  {
+    question: "What wellness and spa services are available?",
+    answer:
+      "Our wellness center offers a range of treatments combining traditional Ayurvedic practices with modern techniques, all set in the peaceful environment of the resort. Body treatments: Traditional Ayurvedic massages, Hot stone therapy, Herbal body wraps, Detoxifying scrubs. Facial services: Organic plant-based facials, Anti-aging treatments, Hydration therapies, Relaxation packages. Additional wellness: Yoga and meditation sessions, outdoor therapy, nutrition consultations, and nature-based healing activities are available upon request.",
+  },
+];
+---
+
+<Layout>
+  <AstroSEO
+    slot="head"
+    title="Contact Limban Resort | Tadoba National Park Luxury Accommodation"
+    description="Get in touch with Limban Resort in Tadoba National Park for luxury safari experiences, accommodations, dining, and events. Reach us by phone, email, or through our contact form."
+    canonical="https://limban.com/contact"
+    jsonLd={{
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      mainEntity: faqs.map((faq) => ({
+        "@type": "Question",
+        name: faq.question,
+        acceptedAnswer: {
+          "@type": "Answer",
+          text: faq.answer,
+        },
+      })),
+    }}
+  />
+  <main>
+    <!-- Hero Section with Background Image and Overlay Text -->
+    <section
+      class="relative h-[50vh] flex items-center justify-center overflow-hidden"
+    >
+      <!-- Background Image -->
+      <img
+        src={heroImage}
+        alt="Majestic nature in Tadoba National Park - experience it at Limban Resort"
+        class="absolute inset-0 w-full h-full object-cover scale-110"
+        loading="eager"
+        fetchpriority="high"
+      />
+
+      <!-- Background Overlays -->
+      <div class="absolute inset-0 bg-black/60 z-10"></div>
+      <div
+        class="absolute inset-0 bg-gradient-to-b from-gray-950/40 via-transparent to-gray-950/80 z-10"
+      >
+      </div>
+      <div
+        class="absolute inset-0 bg-gradient-radial from-transparent via-gray-950/20 to-gray-950/60 z-10"
+      >
+      </div>
+
+      <!-- Hero Content - All on top of background -->
+      <div class="relative z-20 max-w-7xl mx-auto px-6 text-center">
+        <!-- Welcome badge -->
+        <div class="inline-block mb-8 group">
+          <div
+            class="bg-gradient-to-r from-amber-400/20 via-amber-500/20 to-emerald-400/20 border border-amber-400/40 rounded-full px-8 py-3"
+          >
+            Get In Touch
+          </div>
+        </div>
+
+        <!-- Main headline -->
+        <h1
+          class="font-serif italic text-5xl md:text-7xl xl:text-8xl text-white leading-[0.9] mb-6 relative"
+        >
+          Contact
+          <span
+            class="block text-transparent bg-gradient-to-r from-amber-300 via-amber-400 to-yellow-400 bg-clip-text"
+          >
+            Limban Resort
+          </span>
+        </h1>
+
+        <!-- Subtitle -->
+        <div class="max-w-4xl mx-auto">
+          <p
+            class="text-lg md:text-xl xl:text-2xl text-gray-200 font-semibold leading-[1.3]"
+          >
+            <span class="inline-block"
+              >Your journey into the wild begins with a conversation.</span
+            >
+            <span class="inline-block"
+              >Connect with our team for reservations, information, and
+              assistance.</span
+            >
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Breadcrumb Navigation -->
+    <nav
+      class="py-6 bg-gray-900/50 border-b border-gray-800"
+      aria-label="Breadcrumb"
+    >
+      <div class="max-w-7xl mx-auto px-6">
+        <ol class="flex items-center justify-center space-x-2 text-sm">
+          <li>
+            <a
+              href="/"
+              title="Return to Limban Resort homepage"
+              class="text-gray-400 hover:text-amber-400 transition-colors duration-300 flex items-center focus:outline-none focus:ring-2 focus:ring-amber-400/50 rounded"
+            >
+              <svg
+                class="w-4 h-4 mr-1"
+                fill="currentColor"
+                viewBox="0 0 20 20"
+                aria-hidden="true"
+              >
+                <path
+                  d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"
+                ></path>
+              </svg>
+              Home
+            </a>
+          </li>
+          <li aria-hidden="true">
+            <svg
+              class="w-4 h-4 text-gray-600"
+              fill="currentColor"
+              viewBox="0 0 20 20"
+            >
+              <path
+                fill-rule="evenodd"
+                d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
+                clip-rule="evenodd"></path>
+            </svg>
+          </li>
+          <li aria-current="page">
+            <span class="text-amber-400 font-medium">Contact Us</span>
+          </li>
+        </ol>
+      </div>
+    </nav>
+
+    <!-- Contact Form Section -->
+    <ContactSection />
+
+    <!-- Location & Map Section -->
+    <section class="py-32 bg-gray-900">
+      <div class="max-w-7xl mx-auto px-6">
+        <div class="text-center mb-20">
+          <div class="text-sm text-gray-400 tracking-[0.2em] uppercase mb-4">
+            Find Your Way
+          </div>
+          <h2 class="font-serif italic text-4xl md:text-6xl text-white mb-8">
+            Journey to the Wild
+          </h2>
+          <p class="text-xl text-gray-300 max-w-3xl mx-auto leading-relaxed">
+            Nestled in the heart of Tadoba National Park, your journey to Limban
+            is part of the experience itself.
+          </p>
+        </div>
+
+        <!-- Travel Options - Optimized -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
+          <!-- By Air -->
+          <div class="group text-center">
+            <div
+              class="bg-gray-800/50 border border-gray-700 rounded-2xl p-8 flex flex-col items-center hover:border-amber-400/40 hover:-translate-y-1 transition-all duration-300"
+            >
+              <div
+                class="w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center mb-6 group-hover:scale-105 transition-transform duration-300"
+              >
+                <Icon
+                  name="material-symbols-light:flight-takeoff"
+                  class="w-8 h-8 text-white"
+                />
+              </div>
+              <h3 class="text-xl font-semibold text-white mb-4">By Air</h3>
+              <div class="space-y-3">
+                <div
+                  class="bg-gray-900/40 rounded-lg p-3 border border-gray-700/40"
+                >
+                  <p class="text-amber-400 font-medium text-sm">
+                    Nagpur Airport
+                  </p>
+                  <p class="text-gray-300 text-sm">125 km away</p>
+                </div>
+                <p class="text-gray-400 text-sm leading-relaxed">
+                  Direct flights from Mumbai, Delhi, Bengaluru, and Hyderabad
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- By Road -->
+          <div class="group text-center">
+            <div
+              class="bg-gray-800/50 border border-gray-700 rounded-2xl p-8 flex flex-col items-center hover:border-amber-400/40 hover:-translate-y-1 transition-all duration-300"
+            >
+              <div
+                class="w-16 h-16 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-xl flex items-center justify-center mb-6 group-hover:scale-105 transition-transform duration-300"
+              >
+                <Icon
+                  name="material-symbols-light:directions-car"
+                  class="w-8 h-8 text-white"
+                />
+              </div>
+              <h3 class="text-xl font-semibold text-white mb-4">By Road</h3>
+              <div class="space-y-3">
+                <div
+                  class="bg-gray-900/40 rounded-lg p-3 border border-gray-700/40"
+                >
+                  <p class="text-amber-400 font-medium text-sm">Scenic Route</p>
+                  <p class="text-gray-300 text-sm">Through Maharashtra</p>
+                </div>
+                <p class="text-gray-400 text-sm leading-relaxed">
+                  A delightful drive making the journey as memorable as the
+                  destination
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- By Train -->
+          <div class="group text-center">
+            <div
+              class="bg-gray-800/50 border border-gray-700 rounded-2xl p-8 flex flex-col items-center hover:border-amber-400/40 hover:-translate-y-1 transition-all duration-300"
+            >
+              <div
+                class="w-16 h-16 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl flex items-center justify-center mb-6 group-hover:scale-105 transition-transform duration-300"
+              >
+                <Icon
+                  name="material-symbols-light:train"
+                  class="w-8 h-8 text-white"
+                />
+              </div>
+              <h3 class="text-xl font-semibold text-white mb-4">By Train</h3>
+              <div class="space-y-3">
+                <div
+                  class="bg-gray-900/40 rounded-lg p-3 border border-gray-700/40"
+                >
+                  <p class="text-amber-400 font-medium text-sm">
+                    Chandrapur Station
+                  </p>
+                  <p class="text-gray-300 text-sm">41 km away</p>
+                </div>
+                <p class="text-gray-400 text-sm leading-relaxed">
+                  Major city connections with comfortable transfers arranged by
+                  our team
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Address & Map - Optimized -->
+        <div
+          class="bg-gray-800/60 border border-gray-700 rounded-2xl overflow-hidden"
+        >
+          <div class="p-8 text-center">
+            <h3 class="font-serif italic text-4xl text-white mb-4">
+              Our Address
+            </h3>
+            <div class="space-y-2 text-gray-300">
+              <p class="text-lg">
+                Survey No. 306, Village Mudholi, Taluka Bhadravati
+              </p>
+              <p>Chandrapur, Maharashtra 442906</p>
+              <p class="text-amber-400 font-mono text-sm">
+                20.25602486093492, 79.2847888101826
+              </p>
+            </div>
+          </div>
+
+          <div class="relative h-96 bg-gray-800">
+            <iframe
+              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3065.6143576966315!2d79.28224607418248!3d20.255878913877122!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3bd331638d23f16f%3A0xd1c44c43e72c13f7!2sLimban%20Resort!5e1!3m2!1sen!2sin!4v1746016058517!5m2!1sen!2sin"
+              width="100%"
+              height="100%"
+              style="border:0; filter: grayscale(20%) sepia(10%) hue-rotate(200deg) saturate(0.8);"
+              allowfullscreen=""
+              loading="lazy"
+              referrerpolicy="no-referrer-when-downgrade"
+              class="w-full h-full"
+            >
+            </iframe>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- FAQ Section -->
+    <section class="py-32 bg-gradient-to-b from-gray-800 to-gray-950">
+      <div class="max-w-7xl mx-auto px-6">
+        <header class="text-center mb-16">
+          <div
+            class="inline-block px-6 py-2 bg-amber-400/10 border border-amber-400/30 rounded-full mb-8"
+          >
+            <span
+              class="text-amber-400 text-sm font-medium tracking-widest uppercase"
+              >Common Questions</span
+            >
+          </div>
+          <h2 class="font-serif italic text-4xl md:text-6xl text-white mb-6">
+            Contact <span class="text-amber-400">Essentials</span>
+          </h2>
+          <p class="text-xl text-gray-300 max-w-3xl mx-auto leading-relaxed">
+            Everything you need to know about connecting with our team and
+            planning your stay at Limban Resort
+          </p>
+        </header>
+
+        <div class="max-w-4xl mx-auto">
+          <div class="space-y-4">
+            <!-- FAQ Item 1 - Check-in/Check-out -->
+            <div
+              class="group bg-gradient-to-br from-gray-800/60 to-gray-900/80 border border-gray-700/50 rounded-2xl overflow-hidden"
+            >
+              <button
+                class="w-full text-left p-8 flex items-center justify-between rounded-2xl"
+                data-faq-toggle
+              >
+                <div>
+                  <h3
+                    class="text-xl font-semibold text-white mb-2 group-hover:text-amber-400 transition-colors duration-300"
+                  >
+                    What are the check-in and check-out times?
+                  </h3>
+                  <p class="text-gray-400 text-sm">
+                    Flexible timing • Comfortable arrangements • Extended
+                    options
+                  </p>
+                </div>
+                <Icon
+                  name="ph:caret-down-bold"
+                  class="w-6 h-6 text-amber-400 transition-transform duration-300 group-hover:rotate-180"
+                />
+              </button>
+              <div
+                class="faq-content max-h-0 overflow-hidden transition-all duration-300 ease-in-out"
+              >
+                <div class="px-8 pb-8 border-t border-gray-700/30 pt-6">
+                  <p class="text-gray-300 leading-relaxed mb-4">
+                    <strong class="text-amber-400"
+                      >Check-in time is 1:00 PM</strong
+                    > and
+                    <strong class="text-amber-400"
+                      >check-out time is 11:00 AM</strong
+                    >. Early check-in and late check-out are subject to
+                    availability and may incur additional charges.
+                  </p>
+                  <div
+                    class="bg-gray-900/60 rounded-xl p-4 border border-amber-400/20"
+                  >
+                    <p class="text-sm text-amber-300 mb-2">
+                      <strong>Flexible arrangements:</strong>
+                    </p>
+                    <ul class="text-gray-300 text-sm space-y-1">
+                      <li>
+                        • Early check-in from 10:00 AM (subject to availability)
+                      </li>
+                      <li>
+                        • Late check-out until 2:00 PM (subject to availability)
+                      </li>
+                      <li>• Special arrangements for connecting flights</li>
+                      <li>
+                        • Baggage storage available before check-in and after
+                        check-out
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- FAQ Item 2 - Airport Transfers -->
+            <div
+              class="group bg-gradient-to-br from-gray-800/60 to-gray-900/80 backdrop-blur-xl border border-gray-700/50 rounded-2xl overflow-hidden"
+            >
+              <button
+                class="w-full text-left p-8 flex items-center justify-between rounded-2xl"
+                data-faq-toggle
+              >
+                <div>
+                  <h3
+                    class="text-xl font-semibold text-white mb-2 group-hover:text-amber-400 transition-colors duration-300"
+                  >
+                    Is airport transfer available?
+                  </h3>
+                  <p class="text-gray-400 text-sm">
+                    24/7 service • Nagpur Airport • Comfort guaranteed
+                  </p>
+                </div>
+                <Icon
+                  name="ph:caret-down-bold"
+                  class="w-6 h-6 text-amber-400 transition-transform duration-300 group-hover:rotate-180"
+                />
+              </button>
+              <div
+                class="faq-content max-h-0 overflow-hidden transition-all duration-300 ease-in-out"
+              >
+                <div class="px-8 pb-8 border-t border-gray-700/30 pt-6">
+                  <p class="text-gray-300 leading-relaxed mb-4">
+                    <strong class="text-amber-400"
+                      >Yes, we offer 24-hour airport transfer services</strong
+                    >
+                    from Nagpur Airport (125 km). Our representative will coordinate
+                    with you to ensure a seamless arrival experience.
+                  </p>
+                  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div
+                      class="bg-gray-900/60 rounded-xl p-4 border border-green-400/20"
+                    >
+                      <p class="text-sm text-green-300 mb-2">
+                        <strong>Transfer options:</strong>
+                      </p>
+                      <ul class="text-gray-300 text-sm space-y-1">
+                        <li>• Private luxury vehicles</li>
+                        <li>• Shared transfer service</li>
+                        <li>• Luxury SUV options</li>
+                        <li>• Special arrangements for large groups</li>
+                      </ul>
+                    </div>
+                    <div
+                      class="bg-gray-900/60 rounded-xl p-4 border border-amber-400/20"
+                    >
+                      <p class="text-sm text-amber-300 mb-2">
+                        <strong>Additional information:</strong>
+                      </p>
+                      <p class="text-gray-300 text-sm">
+                        Airport transfers are charged separately. Please contact
+                        our team directly for pricing details.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- FAQ Item 3 - Pet Policy -->
+            <div
+              class="group bg-gradient-to-br from-gray-800/60 to-gray-900/80 backdrop-blur-xl border border-gray-700/50 rounded-2xl overflow-hidden"
+            >
+              <button
+                class="w-full text-left p-8 flex items-center justify-between rounded-2xl"
+                data-faq-toggle
+              >
+                <div>
+                  <h3
+                    class="text-xl font-semibold text-white mb-2 group-hover:text-amber-400 transition-colors duration-300"
+                  >
+                    Are pets allowed at the resort?
+                  </h3>
+                  <p class="text-gray-400 text-sm">
+                    Pet-friendly • Complimentary • Advance notice
+                  </p>
+                </div>
+                <Icon
+                  name="ph:caret-down-bold"
+                  class="w-6 h-6 text-amber-400 transition-transform duration-300 group-hover:rotate-180"
+                />
+              </button>
+              <div
+                class="faq-content max-h-0 overflow-hidden transition-all duration-300 ease-in-out"
+              >
+                <div class="px-8 pb-8 border-t border-gray-700/30 pt-6">
+                  <p class="text-gray-300 leading-relaxed mb-4">
+                    <strong class="text-amber-400"
+                      >Yes, we are pet-friendly</strong
+                    > and welcome your furry companions. There are no additional
+                    charges for accommodating pets. Please inform us in advance about
+                    your pet's needs and size so we can prepare accordingly.
+                  </p>
+                  <div
+                    class="mt-4 bg-gray-900/60 rounded-xl p-4 border border-amber-400/20"
+                  >
+                    <p class="text-sm text-amber-300 mb-2">
+                      <strong>Complimentary pet amenities include:</strong>
+                    </p>
+                    <ul class="text-gray-300 text-sm space-y-1">
+                      <li>• Pet bed and food bowls</li>
+                      <li>• Pet waste stations</li>
+                      <li>• Trained staff assistance</li>
+                      <li>• Pet-friendly walking areas</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- FAQ Item 4 - Safari Options -->
+            <div
+              class="group bg-gradient-to-br from-gray-800/60 to-gray-900/80 backdrop-blur-xl border border-gray-700/50 rounded-2xl overflow-hidden"
+            >
+              <button
+                class="w-full text-left p-8 flex items-center justify-between rounded-2xl"
+                data-faq-toggle
+              >
+                <div>
+                  <h3
+                    class="text-xl font-semibold text-white mb-2 group-hover:text-amber-400 transition-colors duration-300"
+                  >
+                    What safari options are available?
+                  </h3>
+                  <p class="text-gray-400 text-sm">
+                    Tadoba National Park • Expert guides • Custom experiences
+                  </p>
+                </div>
+                <Icon
+                  name="ph:caret-down-bold"
+                  class="w-6 h-6 text-amber-400 transition-transform duration-300 group-hover:rotate-180"
+                />
+              </button>
+              <div
+                class="faq-content max-h-0 overflow-hidden transition-all duration-300 ease-in-out"
+              >
+                <div class="px-8 pb-8 border-t border-gray-700/30 pt-6">
+                  <p class="text-gray-300 leading-relaxed mb-4">
+                    <strong class="text-amber-400"
+                      >We offer both morning and evening safari drives</strong
+                    >
+                    in Tadoba National Park. Our experienced guides will take you
+                    through the wilderness for an unforgettable wildlife experience.
+                  </p>
+                  <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div
+                      class="bg-gray-900/60 rounded-xl p-4 border border-amber-400/20"
+                    >
+                      <p class="text-sm text-amber-300 mb-3">
+                        <strong>Morning Safari:</strong>
+                      </p>
+                      <ul class="text-gray-300 text-sm space-y-1">
+                        <li>• Departure at 6:00 AM</li>
+                        <li>• Duration: 3-4 hours</li>
+                        <li>• Best for tiger sightings</li>
+                        <li>• Cooler temperatures</li>
+                      </ul>
+                    </div>
+                    <div
+                      class="bg-gray-900/60 rounded-xl p-4 border border-green-400/20"
+                    >
+                      <p class="text-sm text-green-300 mb-3">
+                        <strong>Evening Safari:</strong>
+                      </p>
+                      <ul class="text-gray-300 text-sm space-y-1">
+                        <li>• Departure at 3:30 PM</li>
+                        <li>• Duration: 3-4 hours</li>
+                        <li>• Evening light photography</li>
+                        <li>• Wildlife activity</li>
+                      </ul>
+                    </div>
+                    <div
+                      class="bg-gray-900/60 rounded-xl p-4 border border-blue-400/20"
+                    >
+                      <p class="text-sm text-blue-300 mb-3">
+                        <strong>Custom Options:</strong>
+                      </p>
+                      <ul class="text-gray-300 text-sm space-y-1">
+                        <li>• Private vehicle</li>
+                        <li>• Photography trips</li>
+                        <li>• Extended expeditions</li>
+                        <li>• Family-friendly</li>
+                      </ul>
+                    </div>
+                  </div>
+                  <div class="text-center mt-6">
+                    <a
+                      href="/safaris"
+                      class="inline-block px-6 py-3 bg-gradient-to-r from-amber-400/10 to-orange-500/10 backdrop-blur-sm border border-amber-400/30 rounded-full hover:from-amber-400/20 hover:to-orange-500/20 hover:border-amber-400/50 transition-all duration-300"
+                    >
+                      <span
+                        class="text-amber-400 font-medium text-sm uppercase tracking-wider"
+                        >Explore Safari Experiences</span
+                      >
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- FAQ Item 5 - Reservation Process -->
+            <div
+              class="group bg-gradient-to-br from-gray-800/60 to-gray-900/80 backdrop-blur-xl border border-gray-700/50 rounded-2xl overflow-hidden"
+            >
+              <button
+                class="w-full text-left p-8 flex items-center justify-between rounded-2xl"
+                data-faq-toggle
+              >
+                <div>
+                  <h3
+                    class="text-xl font-semibold text-white mb-2 group-hover:text-amber-400 transition-colors duration-300"
+                  >
+                    How do I book a room at Limban Resort?
+                  </h3>
+                  <p class="text-gray-400 text-sm">
+                    Multiple channels • 24/7 support • Flexible options
+                  </p>
+                </div>
+                <Icon
+                  name="ph:caret-down-bold"
+                  class="w-6 h-6 text-amber-400 transition-transform duration-300 group-hover:rotate-180"
+                />
+              </button>
+              <div
+                class="faq-content max-h-0 overflow-hidden transition-all duration-300 ease-in-out"
+              >
+                <div class="px-8 pb-8 border-t border-gray-700/30 pt-6">
+                  <p class="text-gray-300 leading-relaxed mb-4">
+                    <strong class="text-amber-400"
+                      >You can make a reservation</strong
+                    > through our website, by phone, or by email. Our team is available
+                    24/7 to assist you with your reservation.
+                  </p>
+                  <div
+                    class="bg-amber-900/20 rounded-xl p-4 border border-amber-400/30"
+                  >
+                    <p class="text-amber-300 font-semibold mb-2 text-sm">
+                      Contact options:
+                    </p>
+                    <div
+                      class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gray-300"
+                    >
+                      <div>
+                        <p class="mb-2">• Phone & WhatsApp: +91 90226 80451</p>
+                        <p class="mb-2">• Phone & WhatsApp: +91 92262 54475</p>
+                        <p>• Email: reservations@limban.com</p>
+                      </div>
+                      <div>
+                        <div class="text-center mt-4">
+                          <a
+                            href="/rooms"
+                            class="inline-block px-6 py-3 bg-gradient-to-r from-amber-400/10 to-orange-500/10 backdrop-blur-sm border border-amber-400/30 rounded-full hover:from-amber-400/20 hover:to-orange-500/20 hover:border-amber-400/50 transition-all duration-300"
+                          >
+                            <span
+                              class="text-amber-400 font-medium text-sm uppercase tracking-wider"
+                              >Choose Your Room</span
+                            >
+                          </a>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- FAQ Item 6 - Cancellation Policy -->
+            <div
+              class="group bg-gradient-to-br from-gray-800/60 to-gray-900/80 backdrop-blur-xl border border-gray-700/50 rounded-2xl overflow-hidden"
+            >
+              <button
+                class="w-full text-left p-8 flex items-center justify-between rounded-2xl"
+                data-faq-toggle
+              >
+                <div>
+                  <h3
+                    class="text-xl font-semibold text-white mb-2 group-hover:text-amber-400 transition-colors duration-300"
+                  >
+                    What is the cancellation policy?
+                  </h3>
+                  <p class="text-gray-400 text-sm">
+                    Flexible terms • Free cancellation • Full refund policy
+                  </p>
+                </div>
+                <Icon
+                  name="ph:caret-down-bold"
+                  class="w-6 h-6 text-amber-400 transition-transform duration-300 group-hover:rotate-180"
+                />
+              </button>
+              <div
+                class="faq-content max-h-0 overflow-hidden transition-all duration-300 ease-in-out"
+              >
+                <div class="px-8 pb-8 border-t border-gray-700/30 pt-6">
+                  <p class="text-gray-300 leading-relaxed mb-4">
+                    <strong class="text-amber-400"
+                      >We offer free cancellation</strong
+                    > up to 24 hours before your scheduled arrival. You can re-reserve
+                    (preferred) or receive a full refund. No-shows are not eligible
+                    for refunds.
+                  </p>
+                  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div
+                      class="bg-gray-900/60 rounded-xl p-4 border border-green-400/20"
+                    >
+                      <p class="text-sm text-green-300 mb-2">
+                        <strong>Free cancellation:</strong>
+                      </p>
+                      <ul class="text-gray-300 text-sm space-y-1">
+                        <li>• Up to 24 hours before arrival</li>
+                        <li>• Full refund guaranteed</li>
+                        <li>• Easy re-reservation option</li>
+                        <li>• No penalty charges</li>
+                      </ul>
+                    </div>
+                    <div
+                      class="bg-gray-900/60 rounded-xl p-4 border border-amber-400/20"
+                    >
+                      <p class="text-sm text-amber-300 mb-2">
+                        <strong>Important notes:</strong>
+                      </p>
+                      <ul class="text-gray-300 text-sm space-y-1">
+                        <li>• No-shows receive no refund</li>
+                        <li>• Changes are encouraged</li>
+                        <li>• Contact us to re-reserve</li>
+                        <li>• Flexible with emergencies</li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- FAQ Item 7 - Dining Experiences -->
+            <div
+              class="group bg-gradient-to-br from-gray-800/60 to-gray-900/80 backdrop-blur-xl border border-gray-700/50 rounded-2xl overflow-hidden"
+            >
+              <button
+                class="w-full text-left p-8 flex items-center justify-between rounded-2xl"
+                data-faq-toggle
+              >
+                <div>
+                  <h3
+                    class="text-xl font-semibold text-white mb-2 group-hover:text-amber-400 transition-colors duration-300"
+                  >
+                    What dining experiences are available?
+                  </h3>
+                  <p class="text-gray-400 text-sm">
+                    Culinary excellence • Local flavors • Special occasions
+                  </p>
+                </div>
+                <Icon
+                  name="ph:caret-down-bold"
+                  class="w-6 h-6 text-amber-400 transition-transform duration-300 group-hover:rotate-180"
+                />
+              </button>
+              <div
+                class="faq-content max-h-0 overflow-hidden transition-all duration-300 ease-in-out"
+              >
+                <div class="px-8 pb-8 border-t border-gray-700/30 pt-6">
+                  <p class="text-gray-300 leading-relaxed mb-4">
+                    <strong class="text-amber-400"
+                      >Our culinary team offers</strong
+                    > Indian and international seasonal cuisine, all made with locally
+                    sourced ingredients that reflect the flavors of Maharashtra.
+                    We accept special requests on prior reservation.
+                  </p>
+                  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div
+                      class="bg-gray-900/60 rounded-xl p-4 border border-green-400/20"
+                    >
+                      <p class="text-sm text-green-300 mb-2">
+                        <strong>Seasonal offerings:</strong>
+                      </p>
+                      <ul class="text-gray-300 text-sm space-y-1">
+                        <li>• Regional specialties</li>
+                        <li>• International cuisine</li>
+                        <li>• Vegetarian and vegan options</li>
+                        <li>• Fresh local produce</li>
+                      </ul>
+                    </div>
+                    <div
+                      class="bg-gray-900/60 rounded-xl p-4 border border-amber-400/20"
+                    >
+                      <p class="text-sm text-amber-300 mb-2">
+                        <strong>Special accommodations:</strong>
+                      </p>
+                      <ul class="text-gray-300 text-sm space-y-1">
+                        <li>• Dietary restrictions</li>
+                        <li>• Allergen-free options</li>
+                        <li>• Celebration menus</li>
+                        <li>• Local wine selection</li>
+                      </ul>
+                    </div>
+                  </div>
+                  <div class="text-center mt-6">
+                    <a
+                      href="/dining"
+                      class="inline-block px-6 py-3 bg-gradient-to-r from-amber-400/10 to-orange-500/10 backdrop-blur-sm border border-amber-400/30 rounded-full hover:from-amber-400/20 hover:to-orange-500/20 hover:border-amber-400/50 transition-all duration-300"
+                    >
+                      <span
+                        class="text-amber-400 font-medium text-sm uppercase tracking-wider"
+                        >Discover Dining Experiences</span
+                      >
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- FAQ Item 8 - Accessibility -->
+            <div
+              class="group bg-gradient-to-br from-gray-800/60 to-gray-900/80 backdrop-blur-xl border border-gray-700/50 rounded-2xl overflow-hidden"
+            >
+              <button
+                class="w-full text-left p-8 flex items-center justify-between rounded-2xl"
+                data-faq-toggle
+              >
+                <div>
+                  <h3
+                    class="text-xl font-semibold text-white mb-2 group-hover:text-amber-400 transition-colors duration-300"
+                  >
+                    Is the resort accessible for guests with mobility
+                    challenges?
+                  </h3>
+                  <p class="text-gray-400 text-sm">
+                    Accessible rooms • Mobility aids • Special arrangements
+                  </p>
+                </div>
+                <Icon
+                  name="ph:caret-down-bold"
+                  class="w-6 h-6 text-amber-400 transition-transform duration-300 group-hover:rotate-180"
+                />
+              </button>
+              <div
+                class="faq-content max-h-0 overflow-hidden transition-all duration-300 ease-in-out"
+              >
+                <div class="px-8 pb-8 border-t border-gray-700/30 pt-6">
+                  <p class="text-gray-300 leading-relaxed mb-4">
+                    <strong class="text-amber-400"
+                      >Yes, we are committed to accessibility</strong
+                    > and offer rooms and facilities designed for guests with mobility
+                    challenges. Our team is trained to accommodate special needs.
+                  </p>
+                  <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div
+                      class="bg-green-900/40 rounded-xl p-4 border border-green-400/20"
+                    >
+                      <p class="text-green-300 font-semibold mb-2 text-sm">
+                        Accessible Rooms
+                      </p>
+                      <ul class="text-gray-300 text-sm space-y-1">
+                        <li>• Wide doorways</li>
+                        <li>• Roll-in showers</li>
+                        <li>• Grab bars</li>
+                        <li>• Lowered fixtures</li>
+                      </ul>
+                    </div>
+                    <div
+                      class="bg-amber-900/40 rounded-xl p-4 border border-amber-400/20"
+                    >
+                      <p class="text-amber-300 font-semibold mb-2 text-sm">
+                        Mobility Aids
+                      </p>
+                      <ul class="text-gray-300 text-sm space-y-1">
+                        <li>• Wheelchairs</li>
+                        <li>• Shower chairs</li>
+                        <li>• Walkers</li>
+                        <li>• Ramps access</li>
+                      </ul>
+                    </div>
+                    <div
+                      class="bg-blue-900/40 rounded-xl p-4 border border-blue-400/20"
+                    >
+                      <p class="text-blue-300 font-semibold mb-2 text-sm">
+                        Services
+                      </p>
+                      <ul class="text-gray-300 text-sm space-y-1">
+                        <li>• Priority check-in</li>
+                        <li>• Room service</li>
+                        <li>• Concierge</li>
+                        <li>• 24/7 support</li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- FAQ Item 9 - Wellness Services -->
+            <div
+              class="group bg-gradient-to-br from-gray-800/60 to-gray-900/80 backdrop-blur-xl border border-gray-700/50 rounded-2xl overflow-hidden"
+            >
+              <button
+                class="w-full text-left p-8 flex items-center justify-between rounded-2xl"
+                data-faq-toggle
+              >
+                <div>
+                  <h3
+                    class="text-xl font-semibold text-white mb-2 group-hover:text-amber-400 transition-colors duration-300"
+                  >
+                    What wellness and spa services are available?
+                  </h3>
+                  <p class="text-gray-400 text-sm">
+                    Traditional treatments • Outdoor therapies • Expert
+                    therapists
+                  </p>
+                </div>
+                <Icon
+                  name="ph:caret-down-bold"
+                  class="w-6 h-6 text-amber-400 transition-transform duration-300 group-hover:rotate-180"
+                />
+              </button>
+              <div
+                class="faq-content max-h-0 overflow-hidden transition-all duration-300 ease-in-out"
+              >
+                <div class="px-8 pb-8 border-t border-gray-700/30 pt-6">
+                  <p class="text-gray-300 leading-relaxed mb-4">
+                    <strong class="text-amber-400"
+                      >Our wellness center offers</strong
+                    > a range of treatments combining traditional Ayurvedic practices
+                    with modern techniques, all set in the peaceful environment of
+                    the resort.
+                  </p>
+                  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div
+                      class="bg-gray-900/60 rounded-xl p-4 border border-green-400/20"
+                    >
+                      <p class="text-sm text-green-300 mb-2">
+                        <strong>Body treatments:</strong>
+                      </p>
+                      <ul class="text-gray-300 text-sm space-y-1">
+                        <li>• Traditional Ayurvedic massages</li>
+                        <li>• Hot stone therapy</li>
+                        <li>• Herbal body wraps</li>
+                        <li>• Detoxifying scrubs</li>
+                      </ul>
+                    </div>
+                    <div
+                      class="bg-gray-900/60 rounded-xl p-4 border border-amber-400/20"
+                    >
+                      <p class="text-sm text-amber-300 mb-2">
+                        <strong>Facial services:</strong>
+                      </p>
+                      <ul class="text-gray-300 text-sm space-y-1">
+                        <li>• Organic plant-based facials</li>
+                        <li>• Anti-aging treatments</li>
+                        <li>• Hydration therapies</li>
+                        <li>• Relaxation packages</li>
+                      </ul>
+                    </div>
+                  </div>
+                  <div
+                    class="mt-4 bg-amber-900/20 rounded-xl p-4 border border-amber-400/30"
+                  >
+                    <p class="text-amber-300 font-semibold mb-2 text-sm">
+                      Additional wellness:
+                    </p>
+                    <p class="text-gray-300 text-sm">
+                      Yoga and meditation sessions, outdoor therapy, nutrition
+                      consultations, and nature-based healing activities are
+                      available upon request.
+                    </p>
+                  </div>
+                  <div class="text-center mt-6">
+                    <a
+                      href="/wellness"
+                      class="inline-block px-6 py-3 bg-gradient-to-r from-amber-400/10 to-orange-500/10 backdrop-blur-sm border border-amber-400/30 rounded-full hover:from-amber-400/20 hover:to-orange-500/20 hover:border-amber-400/50 transition-all duration-300"
+                    >
+                      <span
+                        class="text-amber-400 font-medium text-sm uppercase tracking-wider"
+                        >Explore Wellness Services</span
+                      >
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+</Layout>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const faqToggles = document.querySelectorAll("[data-faq-toggle]");
+
+    faqToggles.forEach((toggle) => {
+      toggle.addEventListener("click", function () {
+        const content = this.nextElementSibling;
+        const icon = this.querySelector("svg");
+        const isOpen =
+          content.style.maxHeight && content.style.maxHeight !== "0px";
+
+        // Close all other FAQs
+        faqToggles.forEach((otherToggle) => {
+          if (otherToggle !== this) {
+            const otherContent = otherToggle.nextElementSibling;
+            const otherIcon = otherToggle.querySelector("svg");
+            otherContent.style.maxHeight = "0px";
+            otherIcon.style.transform = "rotate(0deg)";
+          }
+        });
+
+        // Toggle current FAQ
+        if (isOpen) {
+          content.style.maxHeight = "0px";
+          icon.style.transform = "rotate(0deg)";
+        } else {
+          content.style.maxHeight = content.scrollHeight + "px";
+          icon.style.transform = "rotate(180deg)";
+        }
+      });
+    });
+  });
+</script>

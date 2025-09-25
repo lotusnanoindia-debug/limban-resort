@@ -126,7 +126,7 @@ const schemaImages = [
     }}
   />
 
-  <a href="#main-content" class="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 bg-amber-400 text-gray-900 px-4 py-2 rounded z-50">
+  <a href="#main-content" title="Skip to main content" class="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 bg-amber-400 text-gray-900 px-4 py-2 rounded z-50">
     Skip to main content
   </a>
 
@@ -173,7 +173,7 @@ const schemaImages = [
       <div class="max-w-7xl mx-auto px-6">
         <ol class="flex items-center justify-center space-x-2 text-sm">
           <li>
-            <a href="/" class="text-gray-400 hover:text-amber-400 transition-colors duration-300 flex items-center">
+            <a href="/" title="Return to Limban Resort homepage" class="text-gray-400 hover:text-amber-400 transition-colors duration-300 flex items-center">
               <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
                 <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"></path>
               </svg>
@@ -186,7 +186,7 @@ const schemaImages = [
             </svg>
           </li>
           <li>
-            <a href="/dining" class="text-gray-400 hover:text-amber-400 transition-colors duration-300">Dining</a>
+            <a href="/dining" title="View all dining experiences at Limban Resort" class="text-gray-400 hover:text-amber-400 transition-colors duration-300">Dining</a>
           </li>
           <li>
             <svg class="w-4 h-4 text-gray-600" fill="currentColor" viewBox="0 0 20 20">
@@ -369,7 +369,7 @@ const schemaImages = [
 
             return (
               <article key={otherExperience.id} class="group relative aspect-[4/5] overflow-hidden rounded-2xl border border-gray-800/50 hover:border-amber-400/50 transition-all duration-700 hover:scale-105 hover:shadow-2xl hover:shadow-amber-400/20">
-                <a href={`/dining/${otherExperience.url}`} class="block w-full h-full">
+                <a href={`/dining/${otherExperience.url}`} title={`Explore ${otherExperience.restaurantName} dining experience`} class="block w-full h-full">
                 {otherExperienceHeroImage && (
                   <img
                     src={imageService.processImage(otherExperienceHeroImage, 'serviceCard', { quality: 60 })}

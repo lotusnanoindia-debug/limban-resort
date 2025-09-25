@@ -131,21 +131,6 @@ const initialButtonText = hasMoreImages
         return;
       }
 
-      // Validate remaining images
-      if (!config.remainingImages || !Array.isArray(config.remainingImages)) {
-        console.warn(
-          "LoadMore: Invalid remaining images data",
-          config.remainingImages
-        );
-        return;
-      }
-
-      console.log(
-        "LoadMore: Initialized with",
-        config.remainingImages.length,
-        "remaining images"
-      );
-
       this.setupCompleteGallery();
 
       this.init();
@@ -155,7 +140,7 @@ const initialButtonText = hasMoreImages
     setupCompleteGallery() {
       try {
         const loadedImages = Array.from(
-          this.grid.querySelectorAll("[data-gallery-index]") || []
+          this.grid.querySelectorAll("[data-gallery-index]") || [],
         ).map((item, index) => {
           const img = item.querySelector("img");
           return {
@@ -184,19 +169,13 @@ const initialButtonText = hasMoreImages
               "",
             alt: imageData.alt || "Image",
             index: loadedImages.length + index,
-          })
+          }),
         );
 
         const allImages = [...loadedImages, ...remainingImages];
 
         if (!window.galleryImages) window.galleryImages = {};
         window.galleryImages[this.config.galleryType] = allImages;
-
-        console.log(
-          "LoadMore: Setup complete gallery with",
-          allImages.length,
-          "total images"
-        );
       } catch (error) {
         console.warn("LoadMore: Failed to setup complete gallery:", error);
       }
@@ -215,12 +194,11 @@ const initialButtonText = hasMoreImages
         this.loadedCount >= this.config.remainingImages.length
       ) {
         console.log(
-          "LoadMore: Cannot load - already loading or no more images"
+          "LoadMore: Cannot load - already loading or no more images",
         );
         return;
       }
 
-      console.log("LoadMore: Starting batch load from index", this.loadedCount);
       this.isLoading = true;
       this.setLoadingState(true);
 
@@ -228,22 +206,16 @@ const initialButtonText = hasMoreImages
         const startIndex = this.loadedCount;
         const endIndex = Math.min(
           startIndex + this.config.batchSize,
-          this.config.remainingImages.length
+          this.config.remainingImages.length,
         );
         const batch = this.config.remainingImages.slice(startIndex, endIndex);
-
-        console.log("LoadMore: Loading batch", {
-          startIndex,
-          endIndex,
-          batchSize: batch.length,
-        });
 
         // Create new gallery items
         const fragment = document.createDocumentFragment();
 
         // Fix: Get current item count safely using Array.from
         const existingItems = Array.from(
-          this.grid.querySelectorAll("[data-gallery-index]") || []
+          this.grid.querySelectorAll("[data-gallery-index]") || [],
         );
         const currentItemCount = existingItems.length;
 
@@ -264,14 +236,8 @@ const initialButtonText = hasMoreImages
         this.loadedCount = endIndex;
         this.updateButtonText();
 
-        console.log(
-          "LoadMore: Batch loaded successfully. Total loaded:",
-          this.loadedCount
-        );
-
         // Hide button gracefully if all loaded
         if (this.loadedCount >= this.config.remainingImages.length) {
-          console.log("LoadMore: All images loaded, hiding button");
           this.hideButton();
         }
       } catch (error) {
@@ -359,17 +325,12 @@ const initialButtonText = hasMoreImages
         if (galleryLoader && galleryLoader.observer) {
           // Fix: Safely get new images using Array.from
           const newImages = Array.from(
-            this.grid.querySelectorAll(".lazy-load-image:not(.observed)") || []
+            this.grid.querySelectorAll(".lazy-load-image:not(.observed)") || [],
           );
           newImages.forEach((img) => {
             img.classList.add("observed");
             galleryLoader.observer.observe(img);
           });
-          console.log(
-            "LoadMore: Initialized lazy loading for",
-            newImages.length,
-            "new images"
-          );
         }
       } catch (error) {
         console.warn("LoadMore: Failed to initialize lazy loading:", error);
@@ -380,7 +341,7 @@ const initialButtonText = hasMoreImages
       try {
         // Fix: Safely rebuild gallery images array
         const allCurrentImages = Array.from(
-          this.grid.querySelectorAll("[data-gallery-index]") || []
+          this.grid.querySelectorAll("[data-gallery-index]") || [],
         ).map((item, index) => {
           const img = item.querySelector("img");
           return {
@@ -396,12 +357,6 @@ const initialButtonText = hasMoreImages
 
         if (!window.galleryImages) window.galleryImages = {};
         window.galleryImages[this.config.galleryType] = allCurrentImages;
-
-        console.log(
-          "LoadMore: Updated gallery modal with",
-          allCurrentImages.length,
-          "images"
-        );
       } catch (error) {
         console.warn("LoadMore: Failed to update gallery modal:", error);
       }
@@ -482,7 +437,7 @@ const initialButtonText = hasMoreImages
 
       if (!buttonElement) {
         console.log(
-          "LoadMore: Button not found, component may not be rendered"
+          "LoadMore: Button not found, component may not be rendered",
         );
         return;
       }
@@ -500,17 +455,6 @@ const initialButtonText = hasMoreImages
         console.log("LoadMore: No remaining images to load");
         return;
       }
-
-      console.log("LoadMore: Initializing controller...");
-      new UniversalLoadMoreController({
-        buttonId,
-        remainingImages,
-        galleryType,
-        galleryGridId,
-        initialCount,
-        batchSize,
-        customLabels,
-      });
     } catch (error) {
       console.error("LoadMore: Failed to initialize:", error);
     }

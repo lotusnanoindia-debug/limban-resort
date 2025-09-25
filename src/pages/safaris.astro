@@ -6,11 +6,12 @@ import GalleryGrid from "../components/GalleryGrid.astro";
 import LoadMoreGallery from "../components/LoadMoreGallery.astro";
 import GalleryModal from "../components/GalleryModal.astro";
 import imageService from "../utils/ImageService.js";
+import ContactSection from "../components/ContactSection.astro";
 import { fetchSafariOverview, fetchSafariGallery } from "../api.js";
 
 // Hero image
 const heroImage =
-  "https://res.cloudinary.com/dfa5hhzej/image/fetch/v1758544199/https://ap-south-1.graphassets.com/cmek3o6f00dcb07o59sno2s0e/cmetq5zs61pfu07oa7eaplprz";
+  "https://res.cloudinary.com/dfa5hhzej/image/fetch/w_800,c_limit,f_auto,q_auto/https://ap-south-1.graphassets.com/cmek3o6f00dcb07o59sno2s0e/cmfxqunpk0u5t08pokz44mq8l";
 
 // Fetch data
 let safariOverview = [];
@@ -70,6 +71,84 @@ const heroImageUrl = imageService.processImage(
       type: "website",
       url: "https://limban.com/safaris",
     }}
+    jsonLd={{
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      mainEntity: [
+        {
+          "@type": "Question",
+          name: "How do safari bookings work with my stay?",
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: "Safari experiences are curated add-ons to your stay, designed to complement your accommodation with expertly guided wilderness encounters. We handle all the complex coordination—permits, timing, vehicles, and guides—so you enjoy seamless experiences. Our turnkey safari service includes: forest department permit coordination, expert naturalist guides, premium safari vehicles with experienced drivers, strategic timing and route planning, and flexible scheduling around your preferences.",
+          },
+        },
+        {
+          "@type": "Question",
+          name: "Can I have a private safari vehicle just for my group?",
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: "Absolutely! We offer custom private vehicles for guests who prefer an exclusive safari experience. Perfect for families, couples seeking intimacy, or photography enthusiasts requiring flexibility. Private vehicle benefits include: set your own pace and stops, dedicated naturalist guide, photography-focused routes, and flexible timing. For booking, request private vehicles when booking your stay. Subject to availability and may involve additional coordination with park authorities.",
+          },
+        },
+        {
+          "@type": "Question",
+          name: "What are the best times for tiger sightings?",
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: "Early morning and late afternoon safaris offer the highest success rates for tiger sightings, when these magnificent cats are most active hunting and patrolling their territory. Morning safari is at 6:00 AM when tigers are active after cool night. Afternoon safari is at 3:30 PM for evening hunt preparation. The best season is November to March with cooler weather and active wildlife.",
+          },
+        },
+        {
+          "@type": "Question",
+          name: "What should I bring on safari?",
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: "We provide water and basic refreshments, but here are essential items to enhance your safari experience and ensure maximum comfort. Essential items include: wide-brimmed hat, sunglasses, sunscreen (SPF 30+), and light jacket for early mornings. Photography items: camera with telephoto lens, extra batteries, memory cards, and lens cleaning cloth. Comfort items: binoculars (we provide backup), small backpack, personal snacks, and insect repellent.",
+          },
+        },
+        {
+          "@type": "Question",
+          name: "Do I need to worry about permits and bookings?",
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: "Not at all! Safari permits and bookings are entirely handled by our team. While safari availability ultimately depends on forest department authorities, we manage all the complex coordination so you can focus on the experience. Our turnkey service includes: daily permit applications, gate coordination and timing, guide and vehicle assignments, weather contingency planning, alternative route preparation, and all entry fee payments.",
+          },
+        },
+        {
+          "@type": "Question",
+          name: "How safe are the safari experiences?",
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: "Safety is our absolute priority. Our experienced naturalists and drivers follow strict forest department protocols, maintain respectful distances from wildlife, and carry emergency communication equipment. Safety measures include: certified naturalist guides, regular vehicle maintenance, first aid kit on every vehicle, and radio communication with base. Wildlife protocols: maintain safe distances from animals, no sudden movements or loud noises, follow all forest department rules, and emergency evacuation procedures.",
+          },
+        },
+        {
+          "@type": "Question",
+          name: "Will I actually see tigers, or could I go home disappointed?",
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: "Tadoba hosts 97 tigers across its core zones, giving excellent sighting opportunities, though wildlife encounters are never guaranteed—that's what makes them magical. Even without tigers, every safari reveals incredible biodiversity: leopards, wild dogs, sloth bears, deer, and over 200 bird species. What you will see includes: diverse wildlife every safari, ancient forest ecosystems, bird species and butterflies, and traditional tribal landscapes. Tiger sighting factors include: season and weather conditions, time of day and temperature, multiple safari opportunities, and expert guide knowledge.",
+          },
+        },
+        {
+          "@type": "Question",
+          name: "Are safaris suitable for families with children of different ages?",
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: "Safaris are wonderful for families! We welcome children of all ages and elderly family members. Our naturalists are skilled at engaging young minds with age-appropriate wildlife education, while our comfortable vehicles accommodate various mobility needs. For young children: can sit on laps (under 5), shorter safari options, early return if needed, and educational engagement. For older adults: comfortable seating, easy vehicle access, regular rest stops, and flexible pacing. For family groups: private vehicle options, customised timing, photography assistance, and shared learning experience.",
+          },
+        },
+        {
+          "@type": "Question",
+          name: "How do you ensure safe and educational safari experiences?",
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: "All our organised safaris are briefed and attended by trained and experienced staff. Our certified naturalists undergo continuous training, while our drivers have decades of experience navigating Tadoba's terrain and wildlife behaviour patterns. Professional expertise includes: certified naturalist guides, experienced safari drivers, wildlife behaviour specialists, and continuous education programmes. Safety protocols: pre-safari safety briefings, radio communication systems, emergency response procedures, and regular vehicle maintenance. Our naturalists don't just spot animals—they interpret behaviour, ecology, and conservation stories, transforming every sighting into a deeper understanding of Tadoba's ecosystem.",
+          },
+        },
+      ],
+    }}
   />
 
   <div class="bg-gray-950 text-gray-100 selection:bg-gray-700">
@@ -79,7 +158,8 @@ const heroImageUrl = imageService.processImage(
     >
       <div class="absolute inset-0">
         <div
-          class="absolute inset-0 bg-gradient-to-b from-gray-950/60 via-gray-950/20 to-gray-950/80 z-10"
+          class="absolute inset-0 bg-black/60 z-10"
+          data-astro-cid-kh7btl4r=""
         >
         </div>
         <img
@@ -134,14 +214,28 @@ const heroImageUrl = imageService.processImage(
           <li>
             <a
               href="/"
+              title="Return to Limban Resort homepage"
               class="text-gray-400 hover:text-amber-400 transition-colors duration-300 flex items-center"
             >
-              <Icon name="bi:tree" class="w-4 h-4 mr-1" />
+              <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                <path
+                  d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"
+                ></path>
+              </svg>
               Home
             </a>
           </li>
           <li>
-            <Icon name="bi:tree" class="w-4 h-4 text-gray-600" />
+            <svg
+              class="w-4 h-4 text-gray-600"
+              fill="currentColor"
+              viewBox="0 0 20 20"
+            >
+              <path
+                fill-rule="evenodd"
+                d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
+                clip-rule="evenodd"></path>
+            </svg>
           </li>
           <li>
             <span class="text-amber-400 font-medium">Safaris</span>
@@ -177,7 +271,10 @@ const heroImageUrl = imageService.processImage(
             <div
               class="w-16 h-16 bg-gradient-to-br from-amber-400/20 to-orange-500/20 rounded-full flex items-center justify-center mx-auto mb-6"
             >
-              <Icon name="bi:tree" class="w-8 h-8 text-amber-400" />
+              <Icon
+                name="ph:tree-evergreen-bold"
+                class="w-8 h-8 text-amber-400"
+              />
             </div>
             <h3 class="text-xl font-semibold text-white mb-4">
               Conservation First
@@ -192,7 +289,7 @@ const heroImageUrl = imageService.processImage(
             <div
               class="w-16 h-16 bg-gradient-to-br from-amber-400/20 to-orange-500/20 rounded-full flex items-center justify-center mx-auto mb-6"
             >
-              <Icon name="bi:tree" class="w-8 h-8 text-amber-400" />
+              <Icon name="bi:browser-safari" class="w-8 h-8 text-amber-400" />
             </div>
             <h3 class="text-xl font-semibold text-white mb-4">
               Expert Guidance
@@ -207,7 +304,7 @@ const heroImageUrl = imageService.processImage(
             <div
               class="w-16 h-16 bg-gradient-to-br from-amber-400/20 to-orange-500/20 rounded-full flex items-center justify-center mx-auto mb-6"
             >
-              <Icon name="bi:tree" class="w-8 h-8 text-amber-400" />
+              <Icon name="carbon:time" class="w-8 h-8 text-amber-400" />
             </div>
             <h3 class="text-xl font-semibold text-white mb-4">
               Perfect Timing
@@ -231,12 +328,12 @@ const heroImageUrl = imageService.processImage(
           <div
             class="inline-flex items-center gap-3 px-8 py-3 bg-gradient-to-r from-amber-400/10 via-amber-500/10 to-amber-400/10 backdrop-blur-xl border border-amber-400/30 rounded-full mb-10"
           >
-            <div class="w-2 h-2 bg-amber-400 rounded-full animate-pulse"></div>
+            <div class="w-2 h-2 bg-amber-400 rounded-full"></div>
             <span
               class="text-amber-400 text-sm font-medium tracking-[0.2em] uppercase"
               >Safari Experiences</span
             >
-            <div class="w-2 h-2 bg-amber-400 rounded-full animate-pulse"></div>
+            <div class="w-2 h-2 bg-amber-400 rounded-full"></div>
           </div>
           <h2
             class="font-serif italic text-6xl md:text-7xl text-white mb-8 leading-none"
@@ -288,7 +385,7 @@ const heroImageUrl = imageService.processImage(
                         {safari.duration && (
                           <div class="absolute top-4 left-8 bg-amber-700/60 border border-amber-400/30 rounded-full px-6 py-3 group-hover:scale-105 transition-transform duration-300 z-30">
                             <div class="flex items-center gap-3">
-                              <div class="w-2 h-2 bg-amber-400 rounded-full animate-pulse" />
+                              <div class="w-2 h-2 bg-amber-400 rounded-full" />
                               <span class="text-white text-sm font-medium uppercase tracking-wider">
                                 {safari.duration}
                               </span>
@@ -370,7 +467,7 @@ const heroImageUrl = imageService.processImage(
                                     </span>
                                     <div class="w-6 h-6 rounded-full bg-amber-400/20 flex items-center justify-center group-hover:bg-amber-400/30 transition-colors duration-300">
                                       <Icon
-                                        name="bi:tree"
+                                        name="ph:caret-down-bold"
                                         class="w-3 h-3 text-amber-400 transform group-hover:rotate-180 transition-transform duration-500"
                                       />
                                     </div>
@@ -389,9 +486,9 @@ const heroImageUrl = imageService.processImage(
           ) : (
             <div class="text-center py-24">
               <div class="inline-flex items-center gap-3 text-amber-400/60">
-                <div class="w-2 h-2 bg-amber-400/60 rounded-full animate-pulse" />
+                <div class="w-2 h-2 bg-amber-400/60 rounded-full" />
                 <p class="text-lg font-light">Safari experiences loading...</p>
-                <div class="w-2 h-2 bg-amber-400/60 rounded-full animate-pulse" />
+                <div class="w-2 h-2 bg-amber-400/60 rounded-full" />
               </div>
             </div>
           )
@@ -493,7 +590,6 @@ const heroImageUrl = imageService.processImage(
 
         <div class="max-w-4xl mx-auto">
           <div class="space-y-4">
-            <!-- FAQ Item 1 - Safari Inclusion -->
             <!-- FAQ Item 1 - Safari Arrangements -->
             <div
               class="group bg-gradient-to-br from-gray-800/60 to-gray-900/80 backdrop-blur-xl border border-gray-700/50 rounded-2xl overflow-hidden"
@@ -514,7 +610,7 @@ const heroImageUrl = imageService.processImage(
                   </p>
                 </div>
                 <Icon
-                  name="bi:tree"
+                  name="ph:caret-down-bold"
                   class="w-6 h-6 text-amber-400 transition-transform duration-300 group-hover:rotate-180"
                 />
               </button>
@@ -569,7 +665,7 @@ const heroImageUrl = imageService.processImage(
                   </p>
                 </div>
                 <Icon
-                  name="bi:tree"
+                  name="ph:caret-down-bold"
                   class="w-6 h-6 text-amber-400 transition-transform duration-300 group-hover:rotate-180"
                 />
               </button>
@@ -633,7 +729,7 @@ const heroImageUrl = imageService.processImage(
                   </p>
                 </div>
                 <Icon
-                  name="bi:tree"
+                  name="ph:caret-down-bold"
                   class="w-6 h-6 text-amber-400 transition-transform duration-300 group-hover:rotate-180"
                 />
               </button>
@@ -706,7 +802,7 @@ const heroImageUrl = imageService.processImage(
                   </p>
                 </div>
                 <Icon
-                  name="bi:tree"
+                  name="ph:caret-down-bold"
                   class="w-6 h-6 text-amber-400 transition-transform duration-300 group-hover:rotate-180"
                 />
               </button>
@@ -784,7 +880,7 @@ const heroImageUrl = imageService.processImage(
                   </p>
                 </div>
                 <Icon
-                  name="bi:tree"
+                  name="ph:caret-down-bold"
                   class="w-6 h-6 text-amber-400 transition-transform duration-300 group-hover:rotate-180"
                 />
               </button>
@@ -842,7 +938,7 @@ const heroImageUrl = imageService.processImage(
                   </p>
                 </div>
                 <Icon
-                  name="bi:tree"
+                  name="ph:caret-down-bold"
                   class="w-6 h-6 text-amber-400 transition-transform duration-300 group-hover:rotate-180"
                 />
               </button>
@@ -909,7 +1005,7 @@ const heroImageUrl = imageService.processImage(
                   </p>
                 </div>
                 <Icon
-                  name="bi:tree"
+                  name="ph:caret-down-bold"
                   class="w-6 h-6 text-amber-400 transition-transform duration-300 group-hover:rotate-180"
                 />
               </button>
@@ -979,7 +1075,7 @@ const heroImageUrl = imageService.processImage(
                   </p>
                 </div>
                 <Icon
-                  name="bi:tree"
+                  name="ph:caret-down-bold"
                   class="w-6 h-6 text-amber-400 transition-transform duration-300 group-hover:rotate-180"
                 />
               </button>
@@ -1060,7 +1156,7 @@ const heroImageUrl = imageService.processImage(
                   </p>
                 </div>
                 <Icon
-                  name="bi:tree"
+                  name="ph:caret-down-bold"
                   class="w-6 h-6 text-amber-400 transition-transform duration-300 group-hover:rotate-180"
                 />
               </button>
@@ -1125,29 +1221,39 @@ const heroImageUrl = imageService.processImage(
       </div>
     </section>
   </div>
-</Layout>
 
-<!-- Call to Action -->
-<section class="py-32 bg-gradient-to-b from-gray-900 to-gray-950">
-  <div class="max-w-4xl mx-auto px-6 text-center">
-    <h2 class="font-serif italic text-5xl md:text-6xl text-white mb-8">
-      Your Wild <span class="text-amber-400">Adventure Awaits</span>
-    </h2>
-    <p
-      class="text-xl text-gray-300 font-light leading-relaxed mb-12 max-w-3xl mx-auto"
-    >
-      From the moment you enter Tadoba's embrace, every sense awakens to the
-      profound magic of India's greatest wilderness sanctuaries.
-    </p>
+  <!-- Call to Action -->
+  <section class="py-32 bg-gradient-to-b from-gray-900 to-gray-950">
+    <div class="max-w-4xl mx-auto px-6 text-center">
+      <h2 class="font-serif italic text-5xl md:text-6xl text-white mb-8">
+        Your Wild <span class="text-amber-400">Adventure Awaits</span>
+      </h2>
+      <p
+        class="text-xl text-gray-300 font-light leading-relaxed mb-12 max-w-3xl mx-auto"
+      >
+        From the moment you enter Tadoba's embrace, every sense awakens to the
+        profound magic of India's greatest wilderness sanctuaries.
+      </p>
 
-    <div class="flex flex-col sm:flex-row gap-6 justify-center">
-      <a href="/rooms" class="cta-filled"> Plan Your Stay </a>
-      <a href="/about" class="cta-outlined"> Our Story </a>
+      <div class="flex flex-col sm:flex-row gap-6 justify-center">
+        <a
+          href="/rooms"
+          title="View and book luxury safari accommodations at Limban Resort"
+          class="cta-filled">Plan Your Stay</a
+        >
+        <a
+          href="/vibe"
+          title="Experience the unique atmosphere and lifestyle at Limban Resort"
+          class="cta-outlined">The Limban Vibe</a
+        >
+      </div>
     </div>
-  </div>
-</section>
+  </section>
+  <!-- Contact Section -->
+  <ContactSection />
 
-<GalleryModal />
+  <GalleryModal />
+</Layout>
 
 <script>
   window.toggleSafariContent = function (index) {

@@ -1,0 +1,518 @@
+---
+import Layout from "../layouts/Layout.astro";
+import { AstroSEO } from "astro-seo-plugin";
+
+const pageTitle = "Terms of Service | Limban Resort - Tadoba Safari Lodge";
+const pageDescription =
+  "Review the terms and conditions for booking and using services at Limban Resort in Tadoba National Park, India.";
+const heroImage =
+  "https://res.cloudinary.com/dfa5hhzej/image/fetch/w_800,c_limit,f_auto,q_auto/https://ap-south-1.graphassets.com/cmek3o6f00dcb07o59sno2s0e/cmfxqunnp0u5j08pogn9dd2si";
+---
+
+<Layout title="Terms of Service">
+  <AstroSEO
+    slot="head"
+    title={pageTitle}
+    description={pageDescription}
+    canonical="https://limban.com/terms-of-service"
+    openGraph={{
+      title: "Terms of Service - Limban Resort",
+      description: pageDescription,
+      type: "website",
+      url: "https://limban.com/terms-of-service",
+    }}
+    jsonLd={{
+      "@context": "https://schema.org",
+      "@type": "WebPage",
+      name: "Terms of Service - Limban Resort",
+      description: pageDescription,
+      url: "https://limban.com/terms-of-service",
+      lastReviewed: new Date().toISOString().split("T")[0],
+    }}
+  />
+
+  <!-- Hero Section -->
+  <section
+    class="relative h-[50vh] flex items-center justify-center overflow-hidden"
+  >
+    <!-- Background Image -->
+    <img
+      src={heroImage}
+      alt="Majestic nature in Tadoba National Park - experience it at Limban Resort"
+      class="absolute inset-0 w-full h-full object-cover scale-110"
+      loading="eager"
+      fetchpriority="high"
+    />
+
+    <!-- Background Overlays -->
+    <div class="absolute inset-0 bg-black/60 z-10"></div>
+    <div
+      class="absolute inset-0 bg-gradient-to-b from-gray-950/40 via-transparent to-gray-950/80 z-10"
+    >
+    </div>
+    <div
+      class="absolute inset-0 bg-gradient-radial from-transparent via-gray-950/20 to-gray-950/60 z-10"
+    >
+    </div>
+
+    <div class="relative z-20 text-center max-w-5xl mx-auto px-6">
+      <h1 class="font-serif text-4xl md:text-6xl text-white mb-6 italic">
+        Terms of Service
+      </h1>
+      <p class="text-xl text-gray-200 max-w-3xl mx-auto">
+        Please read these terms and conditions carefully before making a
+        reservation or using our services at Limban Resort.
+      </p>
+    </div>
+  </section>
+
+  <!-- Breadcrumb Navigation -->
+  <nav
+    class="py-6 bg-gray-900/50 border-b border-gray-800"
+    aria-label="Breadcrumb"
+  >
+    <div class="max-w-7xl mx-auto px-6">
+      <ol class="flex items-center justify-center space-x-2 text-sm">
+        <li>
+          <a
+            href="/"
+            title="Return to Limban Resort homepage"
+            class="text-gray-400 hover:text-amber-400 transition-colors duration-300 flex items-center"
+          >
+            <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+              <path
+                d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"
+              ></path>
+            </svg>
+            Home
+          </a>
+        </li>
+        <li>
+          <svg
+            class="w-4 h-4 text-gray-600"
+            fill="currentColor"
+            viewBox="0 0 20 20"
+          >
+            <path
+              fill-rule="evenodd"
+              d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
+              clip-rule="evenodd"></path>
+          </svg>
+        </li>
+        <li>
+          <span class="text-amber-400 font-medium">Terms of Service</span>
+        </li>
+      </ol>
+    </div>
+  </nav>
+
+  <!-- Terms of Service Content -->
+  <section class="py-20 bg-gray-900">
+    <div class="max-w-5xl mx-auto px-6">
+      <div class="prose prose-lg prose-invert max-w-none">
+        <div class="mb-12">
+          <p class="text-gray-400 text-sm">
+            Last updated: {
+              new Date().toLocaleDateString("en-IN", {
+                year: "numeric",
+                month: "long",
+                day: "numeric",
+              })
+            }
+          </p>
+        </div>
+
+        <div class="space-y-8">
+          <div>
+            <h2 class="font-serif text-3xl text-amber-400 mb-6">
+              Introduction
+            </h2>
+            <p class="mb-4">
+              These terms and conditions outline the rules and regulations for
+              the use of Limban Resort's Website, located at https://limban.com.
+            </p>
+            <p>
+              By accessing this website and making use of our services, you
+              accept these terms and conditions in full. Do not continue to use
+              Limban Resort's website if you do not agree to take all of the
+              terms and conditions stated on this page.
+            </p>
+          </div>
+
+          <div>
+            <h2 class="font-serif text-3xl text-amber-400 mb-6">
+              Booking and Reservation Terms
+            </h2>
+            <p class="mb-4">
+              All reservations made through our website or other channels are
+              subject to the following terms:
+            </p>
+            <ul class="list-disc pl-6 space-y-2 mb-4">
+              <li>
+                <strong>Availability:</strong> All accommodations and safari slots
+                are subject to availability at the time of booking. We will confirm
+                availability within 24 hours of your booking request.
+              </li>
+              <li>
+                <strong>Confirmation:</strong> All bookings must be confirmed in
+                writing via email. Verbal confirmations are not considered valid.
+              </li>
+              <li>
+                <strong>Guest Information:</strong> Guests must provide accurate
+                and complete information during the booking process, including full
+                names, contact details, and any special requirements.
+              </li>
+              <li>
+                <strong>Age Requirements:</strong> The person making the booking
+                must be at least 18 years of age and legally competent to enter into
+                a contract.
+              </li>
+              <li>
+                <strong>Payment:</strong> Full payment or required deposits must
+                be made as specified in your booking confirmation. Failure to make
+                payment by the specified date may result in cancellation of the reservation.
+              </li>
+            </ul>
+          </div>
+
+          <div>
+            <h2 class="font-serif text-3xl text-amber-400 mb-6">
+              Cancellation and Refund Policy
+            </h2>
+            <p class="mb-4">Our cancellation policy applies as follows:</p>
+            <ul class="list-disc pl-6 space-y-2 mb-4">
+              <li>
+                <strong>Cancellation Policy:</strong> We offer free cancellation
+                up to 24 hours before your scheduled arrival. You can re-reserve
+                (preferred) or receive a full refund. No-shows are not eligible for
+                refunds.
+              </li>
+              <li>
+                <strong>Force Majeure:</strong> In cases of natural disasters, government
+                restrictions, or other circumstances beyond our control, alternative
+                dates or full refunds may be provided at our discretion.
+              </li>
+              <li>
+                <strong>Safari Cancellations:</strong> Safari bookings are non-refundable
+                as they are pre-paid to forest authorities. However, rescheduling
+                may be possible subject to forest department policies.
+              </li>
+            </ul>
+            <p>
+              Cancellations must be made in writing via email and received by
+              our reservation team. Cancellation requests received after
+              check-in will not be eligible for refunds.
+            </p>
+          </div>
+
+          <div>
+            <h2 class="font-serif text-3xl text-amber-400 mb-6">
+              Safari Booking Terms
+            </h2>
+            <p class="mb-4">
+              Safari activities are subject to the following terms and
+              conditions:
+            </p>
+            <ul class="list-disc pl-6 space-y-2 mb-4">
+              <li>
+                Safari bookings are managed in coordination with Tadoba National
+                Park authorities and are subject to government regulations and
+                forest department policies.
+              </li>
+              <li>
+                Safari permits are non-transferable and must be used by the
+                registered guest only.
+              </li>
+              <li>
+                Guests must report to the designated meeting point at least 30
+                minutes before the scheduled safari departure time.
+              </li>
+              <li>
+                Entry to the national park is subject to forest department rules
+                and regulations. The resort is not responsible for entry denial
+                due to government policies.
+              </li>
+              <li>
+                Safari timings, routes, and vehicle allocation are subject to
+                forest department assignments and may change without prior
+                notice.
+              </li>
+              <li>
+                For safety reasons, children under 3 years are not permitted on
+                safari. Children aged 3-12 require special permissions and
+                safety arrangements.
+              </li>
+              <li>
+                Photography is allowed during safaris, but flash photography
+                must be avoided for wildlife conservation.
+              </li>
+              <li>
+                Guests must follow all instructions provided by safari guides
+                and forest department personnel.
+              </li>
+            </ul>
+          </div>
+
+          <div>
+            <h2 class="font-serif text-3xl text-amber-400 mb-6">
+              Check-in and Check-out
+            </h2>
+            <p class="mb-4">
+              Please observe the following check-in and check-out procedures:
+            </p>
+            <ul class="list-disc pl-6 space-y-2 mb-4">
+              <li>
+                <strong>Check-in Time:</strong> 1:00 PM onwards on the date of arrival
+              </li>
+              <li>
+                <strong>Check-out Time:</strong> 11:00 AM on the date of departure
+              </li>
+              <li>
+                Early check-in or late check-out is subject to availability and
+                may incur additional charges.
+              </li>
+              <li>
+                Guests arriving before check-in time may store luggage at the
+                resort while waiting.
+              </li>
+              <li>
+                Guests departing after check-out time may store luggage at the
+                resort after settling accounts.
+              </li>
+            </ul>
+          </div>
+
+          <div>
+            <h2 class="font-serif text-3xl text-amber-400 mb-6">
+              Guest Responsibilities and Conduct
+            </h2>
+            <p class="mb-4">All guests are expected to:</p>
+            <ul class="list-disc pl-6 space-y-2 mb-4">
+              <li>
+                Respect the wildlife and natural environment of Tadoba National
+                Park and surrounding areas.
+              </li>
+              <li>
+                Follow all safety instructions provided by our staff and safari
+                guides.
+              </li>
+              <li>Abide by all local laws and regulations.</li>
+              <li>Respect the privacy and comfort of other guests.</li>
+              <li>Not engage in any illegal activities.</li>
+              <li>Not smoke in non-designated areas.</li>
+              <li>Not bring or consume illegal substances.</li>
+              <li>
+                Not engage in behavior that could disturb other guests or
+                wildlife.
+              </li>
+              <li>
+                Take full responsibility for their personal belongings and
+                valuables.
+              </li>
+              <li>Follow all fire safety and security procedures.</li>
+            </ul>
+            <p>
+              The resort reserves the right to require guests to leave the
+              premises if their conduct is deemed inappropriate or in violation
+              of these terms without refund.
+            </p>
+          </div>
+
+          <div>
+            <h2 class="font-serif text-3xl text-amber-400 mb-6">
+              Liability and Insurance
+            </h2>
+            <p class="mb-4">
+              The following applies regarding liability and insurance:
+            </p>
+            <ul class="list-disc pl-6 space-y-2 mb-4">
+              <li>
+                Guests participate in safari activities and other experiences at
+                their own risk.
+              </li>
+              <li>
+                Limban Resort shall not be held liable for any accidents,
+                injuries, or losses occurring during safari drives,
+                accommodation stay, or other activities.
+              </li>
+              <li>
+                Guests are recommended to carry adequate travel insurance
+                covering adventure activities, medical emergencies, and trip
+                cancellations.
+              </li>
+              <li>
+                The resort is not responsible for delays or cancellations caused
+                by government policies, weather conditions, or other factors
+                beyond our control.
+              </li>
+              <li>
+                We are not liable for any loss, damage, or injury to guests'
+                personal property.
+              </li>
+              <li>
+                The resort maintains appropriate insurance coverage for its
+                operations but guests' insurance remains their responsibility.
+              </li>
+            </ul>
+          </div>
+
+          <div>
+            <h2 class="font-serif text-3xl text-amber-400 mb-6">
+              Pricing and Payment Terms
+            </h2>
+            <p class="mb-4">
+              All pricing information is subject to the following terms:
+            </p>
+            <ul class="list-disc pl-6 space-y-2 mb-4">
+              <li>
+                All prices are quoted in Indian Rupees (INR) unless otherwise
+                specified.
+              </li>
+              <li>
+                Taxes and service charges are included in the stated prices.
+              </li>
+              <li>
+                Prices are subject to change without prior notice, though
+                confirmed bookings will be honored at the originally quoted
+                rate.
+              </li>
+              <li>
+                Foreign currency transactions are converted at the prevailing
+                exchange rate.
+              </li>
+              <li>
+                Safari fees are subject to forest department regulations and may
+                change based on government policies.
+              </li>
+              <li>
+                Additional charges may apply for special requests, room service,
+                spa treatments, and other amenities.
+              </li>
+            </ul>
+          </div>
+
+          <div>
+            <h2 class="font-serif text-3xl text-amber-400 mb-6">
+              Use of Website and Content
+            </h2>
+            <p class="mb-4">By using our website, you agree that:</p>
+            <ul class="list-disc pl-6 space-y-2 mb-4">
+              <li>
+                All materials on this website are protected by copyright,
+                trademark, and other intellectual property laws.
+              </li>
+              <li>
+                You will not copy, reproduce, republish, upload, post, transmit,
+                or distribute any content from this website without our written
+                permission.
+              </li>
+              <li>
+                You will not use this website for any commercial purposes
+                without authorization.
+              </li>
+              <li>
+                You will not use this website in any way that may impair its
+                functionality or cause damage.
+              </li>
+              <li>
+                Any information submitted through our website becomes our
+                property and may be used for marketing or other purposes unless
+                specifically marked as confidential.
+              </li>
+            </ul>
+          </div>
+
+          <div>
+            <h2 class="font-serif text-3xl text-amber-400 mb-6">
+              Force Majeure
+            </h2>
+            <p>
+              Limban Resort shall not be liable for any failure to perform its
+              obligations under these Terms of Service to the extent that such
+              failure is due to circumstances beyond our reasonable control,
+              including but not limited to acts of God, war, terrorism,
+              pandemic, government actions, natural disasters, or other
+              unforeseeable events.
+            </p>
+          </div>
+
+          <div>
+            <h2 class="font-serif text-3xl text-amber-400 mb-6">
+              Applicable Law and Jurisdiction
+            </h2>
+            <p>
+              These Terms of Service are governed by the laws of India and the
+              state of Maharashtra. Any disputes arising from or related to
+              these terms shall be subject to the exclusive jurisdiction of the
+              courts located in Chandrapur, Maharashtra, India.
+            </p>
+          </div>
+
+          <div>
+            <h2 class="font-serif text-3xl text-amber-400 mb-6">
+              Changes to Terms
+            </h2>
+            <p>
+              We reserve the right to modify these terms and conditions at any
+              time. Changes will be effective immediately upon posting to the
+              website. Continued use of our services after changes are posted
+              constitutes acceptance of the modified terms. We recommend
+              reviewing these terms periodically to stay informed of any
+              updates.
+            </p>
+          </div>
+
+          <div>
+            <h2 class="font-serif text-3xl text-amber-400 mb-6">
+              Severability
+            </h2>
+            <p>
+              If any provision of these Terms of Service is deemed invalid or
+              unenforceable by a court of competent jurisdiction, the remaining
+              provisions shall continue in full force and effect.
+            </p>
+          </div>
+
+          <div>
+            <h2 class="font-serif text-3xl text-amber-400 mb-6">
+              Entire Agreement
+            </h2>
+            <p>
+              These Terms of Service, together with our Privacy Policy and any
+              specific terms related to particular services, constitute the
+              entire agreement between you and Limban Resort regarding your use
+              of our services and supersede all prior agreements and
+              understandings.
+            </p>
+          </div>
+
+          <div>
+            <h2 class="font-serif text-3xl text-amber-400 mb-6">
+              Contact Information
+            </h2>
+            <p class="mb-4">
+              If you have any questions about these Terms of Service, please
+              contact us at:
+            </p>
+            <div class="bg-gray-800/50 rounded-xl p-6 border border-gray-700">
+              <p class="mb-2"><strong>Limban Resort</strong></p>
+              <p class="mb-2">
+                Survey No. 306, Village Mudholi, Taluka Bhadravati
+              </p>
+              <p class="mb-2">Chandrapur, Maharashtra 442906</p>
+              <p class="mb-2">India</p>
+              <p class="mb-2">
+                <strong>Email:</strong>
+                <a
+                  href="mailto:info@limban.com"
+                  class="text-amber-400 hover:underline">info@limban.com</a
+                >
+              </p>
+              <p><strong>Phone:</strong> +91 90226 80451</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</Layout>
