@@ -65,6 +65,9 @@ const faqs = [
     jsonLd={{
       "@context": "https://schema.org",
       "@type": "FAQPage",
+      name: "Contact Limban Resort - Frequently Asked Questions",
+      description: "Everything you need to know about connecting with our team and planning your stay at Limban Resort in Tadoba National Park",
+      url: "https://limban.com/contact",
       mainEntity: faqs.map((faq) => ({
         "@type": "Question",
         name: faq.question,
@@ -73,6 +76,130 @@ const faqs = [
           text: faq.answer,
         },
       })),
+      hasPart: {
+        "@type": "Organization",
+        "@id": "https://limban.com/#organization",
+        name: "Limban Resort",
+        alternateName: "Limban Safari Lodge",
+        description: "Award-winning eco-luxury safari resort in Tadoba National Park offering sustainable tiger safaris, wellness programs, and conservation-focused hospitality in Maharashtra, India",
+        url: "https://limban.com",
+        logo: "https://limban.com/limban-resort-tadoba-logo.png",
+        slogan: "Where the Wild Meets the Soul",
+        foundingDate: "2020",
+        telephone: ["+91-90226-80451", "+91 90226 80451", "+91 92262 54475"],
+        email: "info@limban.com",
+        priceRange: "₹15,000-₹45,000",
+        currenciesAccepted: ["INR"],
+        paymentAccepted: ["Cash", "Credit Card", "UPI", "Bank Transfer"],
+        checkinTime: "13:00",
+        checkoutTime: "11:00",
+        numberOfRooms: 6,
+        petsAllowed: true,
+        smokingAllowed: false,
+        aggregateRating: {
+          "@type": "AggregateRating",
+          ratingValue: 4.8,
+          reviewCount: 127,
+          bestRating: 5,
+          worstRating: 1,
+        },
+        address: {
+          "@type": "PostalAddress",
+          streetAddress: "Survey No. 306, Village Mudholi, Taluka Bhadravati",
+          addressLocality: "Chandrapur",
+          addressRegion: "Maharashtra",
+          postalCode: "442906",
+          addressCountry: "IN",
+        },
+        geo: {
+          "@type": "GeoCoordinates",
+          latitude: 20.25602486093492,
+          longitude: 79.2847888101826,
+        },
+        sameAs: [
+          "https://www.tripadvisor.in/Hotel_Review-g10594630-d12902646-Reviews-Limban_Resort-Chandrapur_District_Maharashtra.html",
+          "https://www.instagram.com/limbanresorts/",
+          "https://www.facebook.com/limbanresortstadoba/",
+        ],
+        hasMap: "https://www.google.com/maps/place/20.25602486093492,79.2847888101826",
+        amenityFeature: [
+          {
+            "@type": "LocationFeatureSpecification",
+            name: "Tiger Safari Tours",
+            value: true,
+          },
+          {
+            "@type": "LocationFeatureSpecification",
+            name: "Eco-Luxury Accommodations",
+            value: true,
+          },
+          {
+            "@type": "LocationFeatureSpecification",
+            name: "Wildlife Conservation Programs",
+            value: true,
+          },
+          {
+            "@type": "LocationFeatureSpecification",
+            name: "Spa & Wellness Center",
+            value: true,
+          },
+          {
+            "@type": "LocationFeatureSpecification",
+            name: "Restaurant & Bar",
+            value: true,
+          },
+          {
+            "@type": "LocationFeatureSpecification",
+            name: "Airport Transfer",
+            value: true,
+          },
+          {
+            "@type": "LocationFeatureSpecification",
+            name: "Free WiFi",
+            value: true,
+          },
+        ],
+        award: [
+          "TripAdvisor Travelers' Choice 2023",
+          "Condé Nast Traveller Featured Property",
+          "Outlook Traveller Hidden Gem 2022",
+        ],
+        founder: [
+          {
+            "@type": "Person",
+            name: "Amala Sheth",
+            jobTitle: "Founder & Principal Architect",
+            description: "Visionary architect whose revolutionary approach to sustainable luxury earned international recognition and redefined safari lodge design.",
+            worksFor: {
+              "@type": "Organization",
+              name: "Metaphors Design",
+              url: "http://www.metaphors-design.com/",
+            },
+            knowsAbout: [
+              "Sustainable Architecture",
+              "Luxury Resort Design",
+              "Eco-Tourism",
+            ],
+            award: "International recognition for sustainable luxury design",
+          },
+          {
+            "@type": "Person",
+            name: "Anand Bhagat",
+            jobTitle: "Founder & Principal Architect",
+            description: "Architectural visionary dedicated to creating spaces that connect people with nature and conserve the wild.",
+            worksFor: {
+              "@type": "Organization",
+              name: "Metaphors Design",
+              url: "http://www.metaphors-design.com/",
+            },
+            knowsAbout: [
+              "Sustainable Architecture",
+              "Wildlife Conservation",
+              "Eco-Tourism Design",
+            ],
+          },
+        ],
+      }
     }}
   />
   <main>
