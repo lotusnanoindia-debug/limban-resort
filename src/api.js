@@ -3,7 +3,6 @@ import { request } from "graphql-request";
 const HYGRAPH_URL =
   "https://ap-south-1.cdn.hygraph.com/content/cmek3o66w01vb07w64qwgkybp/master";
 
-// Clean image fragment
 const IMAGE_FRAGMENT = `
   fragment CleanImage on Asset {
     id
@@ -14,7 +13,6 @@ const IMAGE_FRAGMENT = `
   }
 `;
 
-// QUERIES - Clean and focused
 const HERO_QUERY = `
   query GetHeroSlides {
     heroSlides(where: { active: true }, orderBy: displayOrder_ASC) {
@@ -271,6 +269,25 @@ const SPECIAL_DEAL_QUERY = `
   }
 `;
 
+const WELLNESS_QUERY = `
+  query GetWellnessOfferings {
+    wellnesses(orderBy: displayOrder_ASC) {
+      id
+      title
+      category
+      shortDescription
+      fullDescription
+      duration
+      highlights
+      perfectFor
+      image { ...CleanImage }
+      displayOrder
+      isSignature
+    }
+  }
+  ${IMAGE_FRAGMENT}
+`;
+
 // Simple error handler
 const handleError = (error, operation) => {
   console.error(`API Error in ${operation}:`, error);
@@ -449,5 +466,16 @@ export const fetchHomepageData = async () => {
     return { heroes, subHero, rooms, services, specialDeal };
   } catch (error) {
     handleError(error, "fetchHomepageData");
+  }
+};
+
+export const fetchWellnessOfferings = async () => {
+  try {
+    const data = await request(HYGRAPH_URL, WELLNESS_QUERY);
+    return data.wellnesses.sort(
+      (a, b) => (a.displayOrder || 0) - (b.displayOrder || 0),
+    );
+  } catch (error) {
+    handleError(error, "fetchWellnessOfferings");
   }
 };

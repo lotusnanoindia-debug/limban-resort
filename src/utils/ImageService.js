@@ -31,6 +31,7 @@ export const IMAGE_CONFIG = {
     logo: "w_200,h_200,c_fit",
     logoSmall: "w_40,h_40,c_fit",
     headerTile: "w_200,h_200,c_fill",
+    wellness: "w_600,h_750,c_fill,g_auto",
 
     // Modal and lightbox
     modal: "w_1400,h_1050,c_limit",
