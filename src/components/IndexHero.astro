@@ -1,0 +1,312 @@
+---
+import { Icon } from "astro-icon/components";
+import imageService from "../utils/ImageService.js";
+const { heroes } = Astro.props;
+
+// Clean, optimized static background
+const heroImageUrl =
+  "https://res.cloudinary.com/dfa5hhzej/image/upload/f_auto,q_auto:best,w_1920,c_scale/cmfxqunpk0u5t08pokz44mq8l_hspm7l";
+const heroMobileUrl =
+  "https://res.cloudinary.com/dfa5hhzej/image/upload/f_auto,q_auto:best,w_800,c_scale/cmfxqunpk0u5t08pokz44mq8l_hspm7l";
+
+// All 8 slides for cycling
+const contentCycle = heroes.map((h, index) => ({
+  impact: h.slideTitle,
+  promise: h.subtitle || "",
+  action: h.ctaText || "Discover",
+  link: h.ctaLink || "/rooms",
+  index: index,
+  heroImage: h.backgroundImage
+    ? imageService.processImage(
+        {
+          ...h.backgroundImage,
+          context: {
+            pageType: "homepage",
+            contentName: h.slideTitle,
+            imageType: "serviceCard",
+            index,
+          },
+        },
+        "medium",
+        { quality: 60 },
+      )
+    : null,
+}));
+---
+
+<section
+  class="h-screen relative overflow-hidden bg-black"
+  id="revolutionary-hero"
+>
+  <!-- Perfect static background -->
+  <div class="absolute inset-0">
+    <picture>
+      <source media="(max-width: 768px)" srcset={heroMobileUrl} />
+      <img
+        src={heroImageUrl}
+        class="w-full h-full object-cover opacity-85"
+        alt="Limban - Where legends hunt"
+        loading="eager"
+        fetchpriority="high"
+      />
+    </picture>
+    <div
+      class="absolute inset-0 bg-gradient-to-b from-transparent via-black/20 to-black/70"
+    >
+    </div>
+  </div>
+  <!-- Content that CYCLES through all 8 slides -->
+  <div
+    class="relative h-full flex items-end justify-center text-center lg:justify-start lg:text-left z-20 pb-16 px-6 lg:pb-24 lg:pl-16"
+  >
+    <div class="max-w-6xl">
+      <!-- Cycling image positioned directly above the header - HIDDEN ON SMALL SCREENS -->
+      <div
+        class="relative mb-8 flex justify-center lg:justify-start hidden lg:flex"
+      >
+        <div class="relative w-56 h-56">
+          {
+            contentCycle.map((slide, index) => (
+              <div
+                class={`cycling-image absolute inset-0 transition-all duration-500 ease-out ${index === 0 ? "opacity-100 scale-100" : "opacity-0 scale-90"}`}
+                data-slide={index}
+              >
+                {slide.heroImage && (
+                  <img
+                    src={slide.heroImage}
+                    alt={`${slide.impact} experience`}
+                    class="w-full h-full object-cover rounded-full shadow-2xl border border-white/30 shadow-amber-400/50"
+                    loading={index === 0 ? "eager" : "lazy"}
+                  />
+                )}
+              </div>
+            ))
+          }
+          <!-- Elegant accent -->
+          <div
+            class="absolute -inset-1 rounded-full bg-gradient-to-br from-amber-400/20 to-transparent pointer-events-none shadow-lg shadow-amber-400/30"
+          >
+          </div>
+        </div>
+      </div>
+
+      <!-- Hero header that cycles -->
+      <h1
+        id="cycling-impact"
+        class="font-serif text-6xl sm:text-7xl lg:text-8xl text-white mb-6 tracking-tight leading-none"
+      >
+        {heroes[0].slideTitle}
+      </h1>
+
+      <!-- Subtitle that cycles -->
+      <div class="mb-8 h-20 overflow-hidden">
+        <p
+          id="cycling-promise"
+          class="text-lg sm:text-xl lg:text-xl text-amber-100 font-light leading-relaxed"
+        >
+          {heroes[0].subtitle || ""}
+        </p>
+      </div>
+
+      <!-- CTA -->
+      <div class="flex items-center justify-center lg:justify-start">
+        <a
+          id="cycling-action"
+          href={heroes[0].ctaLink || "/rooms"}
+          class="cta-outlined"
+        >
+          <span id="cycling-text">{heroes[0].ctaText || "Discover"}</span>
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Navigation Controls - Simplified Icons Only, Centered Top on Mobile -->
+  <div
+    class="absolute top-32 left-1/2 transform -translate-x-1/2 lg:bottom-8 lg:top-auto lg:right-8 lg:left-auto lg:transform-none z-30"
+  >
+    <div
+      class="flex items-center gap-2 bg-black/40 backdrop-blur-sm rounded-full px-2 py-1 border border-white/20"
+    >
+      <!-- Previous Button -->
+      <button
+        id="prev-slide"
+        class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-white/10 transition-colors duration-200 text-white/60 hover:text-white"
+        aria-label="Previous slide"
+      >
+        <Icon name="ph:caret-left-bold" class="w-4 h-4" />
+      </button>
+
+      <!-- Pause/Play Button -->
+      <button
+        id="pause-play"
+        class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-white/10 transition-colors duration-200 text-white/60 hover:text-white"
+        aria-label="Pause/Play"
+      >
+        <Icon name="ph:pause-bold" id="pause-icon" class="w-4 h-4" />
+        <Icon name="ph:play-bold" id="play-icon" class="w-4 h-4 hidden" />
+      </button>
+
+      <!-- Next Button -->
+      <button
+        id="next-slide"
+        class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-white/10 transition-colors duration-200 text-white/60 hover:text-white"
+        aria-label="Next slide"
+      >
+        <Icon name="ph:caret-right-bold" class="w-4 h-4" />
+      </button>
+    </div>
+  </div>
+</section>
+
+<script define:vars={{ contentCycle }}>
+  // Revolutionary cycling hero with navigation controls
+  let currentSlide = 0;
+  let isAnimating = false;
+  let isPaused = false;
+  let intervalId = null;
+
+  const elements = {
+    impact: document.getElementById("cycling-impact"),
+    promise: document.getElementById("cycling-promise"),
+    action: document.getElementById("cycling-action"),
+    text: document.getElementById("cycling-text"),
+    counter: document.getElementById("slide-counter"),
+    cyclingImages: document.querySelectorAll(".cycling-image"),
+    prevBtn: document.getElementById("prev-slide"),
+    nextBtn: document.getElementById("next-slide"),
+    pauseBtn: document.getElementById("pause-play"),
+    pauseIcon: document.getElementById("pause-icon"),
+    playIcon: document.getElementById("play-icon"),
+  };
+
+  function updateSlideCounter() {
+    if (elements.counter) {
+      elements.counter.textContent = String(currentSlide + 1).padStart(2, "0");
+    }
+  }
+
+  function cycleContent(targetIndex = null) {
+    if (isAnimating || contentCycle.length <= 1) return;
+    isAnimating = true;
+
+    const prevSlide = currentSlide;
+
+    if (targetIndex !== null) {
+      currentSlide = targetIndex;
+    } else {
+      currentSlide = (currentSlide + 1) % contentCycle.length;
+    }
+
+    const nextContent = contentCycle[currentSlide];
+
+    elements.impact.style.transform = "translateY(-30px)";
+    elements.impact.style.opacity = "0";
+    elements.promise.style.transform = "translateY(-20px)";
+    elements.promise.style.opacity = "0";
+
+    if (elements.cyclingImages[prevSlide]) {
+      elements.cyclingImages[prevSlide].style.opacity = "0";
+      elements.cyclingImages[prevSlide].style.transform = "scale(0.9)";
+    }
+
+    setTimeout(() => {
+      elements.impact.textContent = nextContent.impact;
+      elements.promise.textContent = nextContent.promise;
+      elements.text.textContent = nextContent.action;
+      elements.action.href = nextContent.link;
+
+      updateSlideCounter();
+
+      if (elements.cyclingImages[currentSlide]) {
+        elements.cyclingImages[currentSlide].style.opacity = "1";
+        elements.cyclingImages[currentSlide].style.transform = "scale(1)";
+      }
+
+      elements.impact.style.transform = "translateY(0)";
+      elements.impact.style.opacity = "1";
+      elements.promise.style.transform = "translateY(0)";
+      elements.promise.style.opacity = "1";
+
+      isAnimating = false;
+    }, 300);
+  }
+
+  function startAutoplay() {
+    if (intervalId) clearInterval(intervalId);
+    intervalId = setInterval(() => {
+      if (!isPaused) {
+        cycleContent();
+      }
+    }, 6000);
+  }
+
+  function stopAutoplay() {
+    if (intervalId) {
+      clearInterval(intervalId);
+      intervalId = null;
+    }
+  }
+
+  function togglePause() {
+    isPaused = !isPaused;
+    elements.pauseIcon.classList.toggle("hidden", isPaused);
+    elements.playIcon.classList.toggle("hidden", !isPaused);
+
+    if (isPaused) {
+      stopAutoplay();
+    } else {
+      startAutoplay();
+    }
+  }
+
+  // Event listeners
+  if (elements.nextBtn) {
+    elements.nextBtn.addEventListener("click", () => {
+      cycleContent();
+      if (!isPaused) {
+        startAutoplay(); // Reset timer
+      }
+    });
+  }
+
+  if (elements.prevBtn) {
+    elements.prevBtn.addEventListener("click", () => {
+      const prevIndex =
+        (currentSlide - 1 + contentCycle.length) % contentCycle.length;
+      cycleContent(prevIndex);
+      if (!isPaused) {
+        startAutoplay(); // Reset timer
+      }
+    });
+  }
+
+  if (elements.pauseBtn) {
+    elements.pauseBtn.addEventListener("click", togglePause);
+  }
+
+  // Start autoplay
+  if (contentCycle.length > 1) {
+    startAutoplay();
+    updateSlideCounter();
+  }
+</script>
+
+<style>
+  #cycling-impact,
+  #cycling-promise {
+    transition:
+      transform 0.5s cubic-bezier(0.25, 0.8, 0.25, 1),
+      opacity 0.5s ease;
+  }
+
+  .cycling-image {
+    transition:
+      opacity 0.5s cubic-bezier(0.4, 0, 0.2, 1),
+      transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .cycling-image img {
+    will-change: transform, opacity;
+  }
+</style>
