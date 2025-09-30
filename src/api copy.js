@@ -287,58 +287,11 @@ const WELLNESS_QUERY = `
   }
   ${IMAGE_FRAGMENT}
 `;
-const ACTIVITIES_QUERY = `
-  query GetActivities {
-    activities(orderBy: title_ASC, first: 100) {
-      id
-      title
-      description
-      category
-      svg
-    }
-  }
-`;
-
-const ACTIVITIES_BY_CATEGORY_QUERY = `
-  query GetActivitiesByCategory($categories: [ActivitiesCategories!]) {
-    activities(
-      where: { category_in: $categories }
-      orderBy: title_ASC
-      first: 100
-    ) {
-      id
-      title
-      description
-      category
-      svg
-    }
-  }
-`;
 
 // Simple error handler
 const handleError = (error, operation) => {
   console.error(`API Error in ${operation}:`, error);
   throw error;
-};
-
-export const fetchActivities = async () => {
-  try {
-    const data = await request(HYGRAPH_URL, ACTIVITIES_QUERY);
-    return data.activities;
-  } catch (error) {
-    handleError(error, "fetchActivities");
-  }
-};
-
-export const fetchActivitiesByCategory = async (categories) => {
-  try {
-    const data = await request(HYGRAPH_URL, ACTIVITIES_BY_CATEGORY_QUERY, {
-      categories,
-    });
-    return data.activities;
-  } catch (error) {
-    handleError(error, "fetchActivitiesByCategory");
-  }
 };
 
 // Date range checker

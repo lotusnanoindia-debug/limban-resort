@@ -1,0 +1,131 @@
+---
+import { fetchActivities, fetchActivitiesByCategory } from "../api.js";
+import { Icon } from "astro-icon/components";
+
+interface Props {
+  activities?: any[];
+  showCategories?: boolean;
+  columns?: string;
+  limit?: number;
+  categories?: string[];
+  cardStyle?: "detailed" | "compact";
+  className?: string;
+}
+
+const {
+  activities,
+  showCategories = true,
+  columns = "md:grid-cols-3 lg:grid-cols-4",
+  limit,
+  categories,
+  cardStyle = "detailed",
+  className = "",
+} = Astro.props;
+
+// Fetch activities if none provided
+let activitiesData = activities;
+if (!activitiesData) {
+  activitiesData = categories
+    ? await fetchActivitiesByCategory(categories)
+    : await fetchActivities();
+}
+
+// Apply limit if specified
+if (limit) {
+  activitiesData = activitiesData.slice(0, limit);
+}
+
+// Group by category
+const grouped = activitiesData.reduce((acc, item) => {
+  if (!acc[item.category]) acc[item.category] = [];
+  acc[item.category].push(item);
+  return acc;
+}, {});
+
+const categoryNames = {
+  unwind: "Unwind & Recharge",
+  getActive: "Get Active",
+  connect: "Connect with Nature",
+  create: "Create & Learn",
+  explore: "Explore & Discover",
+  kids: "Kids & Families",
+};
+---
+
+<script src="https://code.iconify.design/3/3.1.1/iconify.min.js"></script>
+
+<div class={`activities-container ${className}`}>
+  {
+    showCategories ? (
+      Object.entries(grouped).map(([category, items]) => (
+        <section class="mb-16">
+          <div class="flex items-center gap-4 mb-8">
+            <h3 class="text-3xl font-bold text-emerald-800">
+              {categoryNames[category] || category}
+            </h3>
+            <div class="flex-1 h-px bg-gradient-to-r from-emerald-200 to-transparent" />
+          </div>
+          <div class={`grid grid-cols-1 sm:grid-cols-2 ${columns} gap-6`}>
+            {items.map((activity) => (
+              <div class="group bg-white/95 backdrop-blur-sm rounded-2xl shadow-sm hover:shadow-xl transition-all duration-500 overflow-hidden border border-emerald-100/50 hover:border-emerald-200 hover:-translate-y-1">
+                <div class={`${cardStyle === "compact" ? "p-5" : "p-8"}`}>
+                  <div class="flex items-start gap-5">
+                    <div class="flex-shrink-0">
+                      <div class="w-16 h-16 rounded-xl bg-gradient-to-br from-emerald-50 to-emerald-100 flex items-center justify-center group-hover:from-emerald-100 group-hover:to-emerald-200 transition-all duration-300 shadow-sm">
+                        <Icon
+                          name={activity.svg}
+                          class="text-3xl text-emerald-600 group-hover:scale-110 transition-transform duration-300"
+                        />
+                      </div>
+                    </div>
+                    <div class="flex-1 min-w-0">
+                      <h4 class="font-bold text-xl text-gray-900 mb-3 group-hover:text-emerald-700 transition-colors leading-tight">
+                        {activity.title}
+                      </h4>
+                      {cardStyle === "detailed" && (
+                        <p class="text-gray-600 leading-relaxed whitespace-pre-line text-sm">
+                          {activity.description}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+      ))
+    ) : (
+      <div class={`grid grid-cols-1 sm:grid-cols-2 ${columns} gap-6`}>
+        {activitiesData.map((activity) => (
+          <div class="group bg-white/95 backdrop-blur-sm rounded-2xl shadow-sm hover:shadow-xl transition-all duration-500 p-8 overflow-hidden border border-emerald-100/50 hover:border-emerald-200 hover:-translate-y-1">
+            <div class="flex items-start gap-5">
+              <div class="flex-shrink-0">
+                <div class="w-16 h-16 rounded-xl bg-gradient-to-br from-emerald-50 to-emerald-100 flex items-center justify-center group-hover:from-emerald-100 group-hover:to-emerald-200 transition-all duration-300 shadow-sm">
+                  <Icon
+                    name={activity.svg}
+                    class="text-3xl text-emerald-600 group-hover:scale-110 transition-transform duration-300"
+                  />
+                </div>
+              </div>
+              <div class="flex-1 min-w-0">
+                <h4 class="font-bold text-xl text-gray-900 mb-3 group-hover:text-emerald-700 transition-colors leading-tight">
+                  {activity.title}
+                </h4>
+                <p class="text-gray-600 leading-relaxed whitespace-pre-line text-sm">
+                  {activity.description}
+                </p>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    )
+  }
+</div>
+
+<style>
+  .activities-container {
+    @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+  }
+</style>

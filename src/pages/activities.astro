@@ -1,0 +1,388 @@
+---
+import Layout from "../layouts/Layout.astro";
+import { AstroSEO } from "astro-seo-plugin";
+import { Icon } from "astro-icon/components";
+import ContactSection from "../components/ContactSection.astro";
+import { fetchActivities } from "../api.js";
+
+// Hero image - your clean pattern
+const heroImage = "https://res.cloudinary.com/dfa5hhzej/image/fetch/w_1200,f_avif,q_50/https://ap-south-1.graphassets.com/cmek3o6f00dcb07o59sno2s0e/cmetqft4x1pw807oa6lb58dzm";
+
+// Fetch activities data
+let activitiesData = [];
+try {
+  activitiesData = await fetchActivities();
+} catch (error) {
+  console.error("Activities fetch error:", error);
+}
+
+// Group by category
+const grouped = activitiesData.reduce((acc, item) => {
+  if (!acc[item.category]) acc[item.category] = [];
+  acc[item.category].push(item);
+  return acc;
+}, {});
+
+const categoryConfig = {
+  unwind: {
+    name: "Unwind & Recharge",
+    description: "Slow moments that restore your spirit and connect you with nature's peaceful rhythms",
+    textAccent: "text-emerald-300",
+    textHover: "hover:text-emerald-400",
+    borderColor: "border-emerald-400/30",
+    bgGradient: "from-emerald-400/10 via-teal-500/10 to-emerald-400/10",
+    gradientText: "from-emerald-300 via-teal-400 to-cyan-400",
+    iconColor: "text-emerald-400",
+    image: "https://res.cloudinary.com/dfa5hhzej/image/upload/w_600,h_800,c_fill,g_center,f_avif,q_80/v1759238992/relaxing-yoga_ezwr0t.jpg",
+    imageAlt: "Peaceful wellness and yoga experiences in natural settings - Limban Resort"
+
+  },
+  getActive: {
+    name: "Get Active",
+    description: "Energising pursuits that awaken your competitive spirit and bring people together",
+    textAccent: "text-amber-300",
+    textHover: "hover:text-amber-400",
+    borderColor: "border-amber-400/30",
+    bgGradient: "from-amber-400/10 via-orange-500/10 to-amber-400/10",
+    gradientText: "from-amber-300 via-orange-400 to-amber-400",
+    iconColor: "text-amber-400",
+    image: "https://res.cloudinary.com/dfa5hhzej/image/upload/w_600,h_800,c_fill,g_center,f_avif,q_60/v1759238677/lets-get-active_gwmim7.png",
+    imageAlt: "Active sports and recreational activities for guests - Limban Resort"
+  },
+  connect: {
+    name: "Connect with Nature",
+    description: "Authentic experiences that deepen your relationship with the land and its creatures",
+    textAccent: "text-emerald-300",
+    textHover: "hover:text-emerald-400",
+    borderColor: "border-emerald-400/30",
+    bgGradient: "from-emerald-400/10 via-teal-500/10 to-emerald-400/10",
+    gradientText: "from-emerald-300 via-teal-400 to-cyan-400",
+    iconColor: "text-emerald-400",
+    image: "https://res.cloudinary.com/dfa5hhzej/image/upload/w_600,h_800,c_fill,g_center,f_avif,q_60/v1759237582/our-veggies_ifzs7r.jpg",
+    imageAlt: "Farm-to-table organic vegetables and nature connection experiences - Limban Resort"
+  },
+  create: {
+    name: "Create & Learn",
+    description: "Hands-on workshops that nurture creativity and celebrate traditional crafts",
+    textAccent: "text-rose-300",
+    textHover: "hover:text-rose-400",
+    borderColor: "border-rose-400/30",
+    bgGradient: "from-rose-400/10 via-pink-500/10 to-rose-400/10",
+    gradientText: "from-rose-300 via-pink-400 to-rose-400",
+    iconColor: "text-rose-400",
+    image: "https://res.cloudinary.com/dfa5hhzej/image/upload/w_600,h_800,c_fill,g_center,f_avif,q_60/v1759237651/sketch-in-nature_ft6dvy.jpg",
+    imageAlt: "Creative workshops and artistic activities in natural surroundings - Limban Resort"
+  },
+  explore: {
+    name: "Explore & Discover",
+    description: "Cultural journeys that reveal the stories and traditions of this ancient land",
+    textAccent: "text-cyan-300",
+    textHover: "hover:text-cyan-400",
+    borderColor: "border-cyan-400/30",
+    bgGradient: "from-cyan-400/10 via-teal-500/10 to-cyan-400/10",
+    gradientText: "from-cyan-300 via-teal-400 to-cyan-400",
+    iconColor: "text-cyan-400",
+    image: "https://res.cloudinary.com/dfa5hhzej/image/upload/w_600,h_800,c_fill,g_center,f_avif,q_60/v1759236910/cultural-show_i5pf1g.jpg",
+    imageAlt: "Traditional cultural performances and local heritage experiences - Limban Resort"
+  },
+  kids: {
+    name: "Kids & Families",
+    description: "Specially designed experiences that create magical memories for our youngest explorers",
+    textAccent: "text-cyan-300",
+    textHover: "hover:text-cyan-400",
+    borderColor: "border-cyan-400/30",
+    bgGradient: "from-cyan-400/10 via-teal-500/10 to-cyan-400/10",
+    gradientText: "from-cyan-300 via-teal-400 to-cyan-400",
+    iconColor: "text-cyan-400",
+    image: "https://res.cloudinary.com/dfa5hhzej/image/upload/w_600,h_800,c_fill,g_center,f_avif,q_60/v1759236713/boy-cooking-class_oqlbrz.png",
+    imageAlt: "Family-friendly cooking classes and kids' activities - Limban Resort"
+  }
+};
+
+// FAQ data
+const faqs = [
+  {
+    question: "Which activities are included in the room rate?",
+    answer: "Most of our activities are complimentary for guests, including swimming, table tennis, carrom, board games, farm visits, and nature walks. Specialised workshops and spa treatments may have additional charges. Our team will provide complete details upon arrival."
+  },
+  {
+    question: "Do I need to book activities in advance?",
+    answer: "Whilst many activities are available on a walk-in basis, we recommend booking specialised experiences like cooking classes, craft workshops, and guided nature tours in advance to ensure availability. Our concierge team can assist with scheduling during your stay."
+  },
+  {
+    question: "Are activities suitable for children?",
+    answer: "Absolutely! We have dedicated kids' activities and family-friendly options across all categories. Our team ensures age-appropriate modifications for younger guests, and our Kids & Families section offers specially designed experiences for our youngest explorers."
+  },
+  {
+    question: "What happens during monsoon season?",
+    answer: "We maintain a full range of indoor activities during monsoon months, including our games room, craft workshops, cooking classes, and cultural performances. Many of our covered areas and indoor spaces ensure your experience remains exceptional regardless of weather."
+  },
+  {
+    question: "Can activities be customised for special occasions?",
+    answer: "Yes! We love creating personalised experiences for birthdays, anniversaries, and special celebrations. Our team can arrange private sessions, group activities, or combine multiple experiences for memorable milestone moments."
+  }
+];
+---
+
+<link rel="preload" as="image" href={heroImage} fetchpriority="high" />
+
+<Layout>
+  <AstroSEO slot="head"
+    title="Activities & Experiences at Limban Resort - Tadoba Safari Lodge"
+    description="Discover an abundance of activities at Limban Resort in Tadoba National Park. From wildlife adventures and cultural workshops to family fun and wellness experiences in Maharashtra's premier safari destination."
+    canonical="https://limban.com/activities"
+    openGraph={{
+      title: "Activities & Experiences at Limban Resort - Tadoba Safari Lodge",
+      description: "Discover an abundance of activities at Limban Resort in Tadoba National Park. From wildlife adventures and cultural workshops to family fun and wellness experiences.",
+      image: heroImage,
+      type: "website",
+      url: "https://limban.com/activities"
+    }}
+    jsonLd={{
+      "@context": "https://schema.org",
+      "@type": "TouristAttraction", 
+      "name": "Limban Resort Activities & Experiences",
+      "description": "Comprehensive activity offerings at Limban Resort including wildlife experiences, cultural workshops, family activities, and wellness programmes in Tadoba National Park",
+      "url": "https://limban.com/activities",
+      "image": heroImage,
+      "location": {
+        "@type": "Place",
+        "name": "Limban Resort",
+        "address": {
+          "@type": "PostalAddress",
+          "streetAddress": "Survey No. 306, Village Mudholi",
+          "addressLocality": "Chandrapur",
+          "addressRegion": "Maharashtra", 
+          "postalCode": "442906",
+          "addressCountry": "IN"
+        }
+      }
+    }}
+  />
+
+  <div class="bg-gray-950 text-gray-100 selection:bg-gray-700">
+    
+    <!-- Hero Section -->
+    <section class="relative min-h-screen flex items-center justify-center overflow-hidden">
+      <div class="absolute inset-0">
+        <div class="absolute inset-0 bg-black/60 z-10"></div>
+        <img src={heroImage} alt="Activities and experiences in Tadoba's pristine wilderness - Limban Resort" class="w-full h-full object-cover scale-105" fetchpriority="high" />
+      </div>
+
+      <div class="relative z-20 text-center max-w-6xl mx-auto px-6">
+        <div class="space-y-8">
+          <div class="inline-block px-6 py-3 bg-gradient-to-r from-amber-400/10 via-orange-500/10 to-amber-400/10 backdrop-blur-md border border-amber-400/30 rounded-full mb-8">
+            <span class="text-amber-300 text-sm font-medium tracking-[0.3em] uppercase flex items-center gap-2">
+              <Icon name="ph:leaf-bold" class="w-4 h-4" />
+              Limban Experiences
+            </span>
+          </div>
+
+          <h1 class="font-serif italic text-6xl md:text-8xl lg:text-9xl text-white leading-none mb-8">
+            <span class="block">Boundless</span>
+            <span class="block text-transparent bg-gradient-to-r from-amber-300 via-orange-400 to-amber-400 bg-clip-text">Adventures</span>
+          </h1>
+
+          <p class="text-2xl md:text-3xl text-gray-200 font-light leading-relaxed max-w-4xl mx-auto mb-12">
+            From dawn chorus to starlit evenings, discover activities that connect you with nature's rhythms and create memories that last a lifetime in Tadoba's embrace.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Breadcrumb Navigation -->
+    <nav class="py-6 bg-gray-900/50 border-b border-gray-800" aria-label="Breadcrumb">
+      <div class="max-w-7xl mx-auto px-6">
+        <ol class="flex items-center justify-center space-x-2 text-sm">
+          <li>
+            <a href="/" title="Return to Limban Resort homepage" class="text-gray-400 hover:text-amber-400 transition-colors duration-300 flex items-center">
+              <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"></path>
+              </svg>
+              Home
+            </a>
+          </li>
+          <li>
+            <svg class="w-4 h-4 text-gray-600" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
+            </svg>
+          </li>
+          <li>
+            <span class="text-amber-400 font-medium">Activities & Experiences</span>
+          </li>
+        </ol>
+      </div>
+    </nav>
+
+    <!-- Activities by Category -->
+    <section class="py-32 bg-gradient-to-b from-gray-900 to-gray-950">
+      <div class="max-w-7xl mx-auto px-6">
+        
+        <!-- Section Header -->
+        <header class="text-center mb-24">
+          <div class="inline-block px-6 py-2 bg-amber-400/10 border border-amber-400/30 rounded-full mb-8">
+            <span class="text-amber-400 text-sm font-medium tracking-widest uppercase">Curated Experiences</span>
+          </div>
+          <h2 class="font-serif italic text-5xl md:text-6xl text-white mb-8">
+            Your <span class="text-amber-400">Adventure</span> Awaits
+          </h2>
+          <p class="text-xl text-gray-300 max-w-3xl mx-auto leading-relaxed">
+            Every moment at Limban offers new possibilities. Choose your own adventure from our thoughtfully curated collection of experiences.
+          </p>
+        </header>
+
+        <!-- Activity Categories -->
+        <div class="space-y-32">
+          {Object.entries(grouped).map(([category, activities], categoryIndex) => {
+            const config = categoryConfig[category];
+            if (!config) return null;
+            
+            return (
+              <article key={category} class={`grid grid-cols-1 lg:grid-cols-2 gap-16 items-center ${categoryIndex % 2 === 1 ? 'lg:grid-flow-col-dense' : ''}`}>
+                
+                <!-- Category Image - Portrait -->
+                <div class={`relative group ${categoryIndex % 2 === 1 ? 'lg:col-start-2' : ''}`}>
+                <div class="relative aspect-[3/4] overflow-hidden rounded-3xl border border-gray-700/50 group-hover:border-amber-400/40 transition-all duration-700">
+                    <img 
+                    src={config.image} 
+                    alt={config.imageAlt}
+                    class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" 
+                    loading="lazy"
+                    />
+                    <div class="absolute inset-0 bg-gradient-to-t from-gray-950/60 via-transparent to-gray-950/20"></div>
+                </div>
+                </div>
+
+                <!-- Category Content -->
+                <div class={`space-y-8 ${categoryIndex % 2 === 1 ? 'lg:col-start-1' : ''}`}>
+                  <header class="space-y-6">
+                    <div class="flex items-center gap-4">
+                      <div class={`w-16 h-px bg-gradient-to-r ${config.bgGradient.replace('from-', 'from-').replace('to-', 'to-transparent from-')}`}></div>
+                      <span class={`${config.textAccent}/60 text-sm uppercase tracking-[0.3em] font-medium`}>
+                        Experience Category {categoryIndex + 1}
+                      </span>
+                    </div>
+                    
+                    <h3 class={`font-serif italic text-5xl md:text-6xl text-white leading-none ${config.textHover} transition-colours duration-500`}>
+                      {config.name}
+                    </h3>
+                    
+                    <p class={`text-2xl text-transparent bg-gradient-to-r ${config.gradientText} bg-clip-text font-medium leading-relaxed`}>
+
+                      {config.description}
+                    </p>
+                  </header>
+
+                  <!-- Activities Grid -->
+                  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {activities.map((activity) => (
+                        <div key={activity.id} class={`group relative bg-gray-900/60 rounded-xl p-6 pt-4 ${config.borderColor} border hover:border-opacity-60 hover:-translate-y-1 transition-all duration-300 overflow-hidden`}>
+                        
+                        <div class="absolute top-4 right-2 z-1">
+                            <div class={`w-12 h-12 rounded-lg bg-gradient-to-br ${config.bgGradient} flex items-center justify-center group-hover:opacity-80 transition-all duration-300 shadow-lg`}>
+                            <Icon name={activity.svg} class={`w-6 h-6 ${config.iconColor} group-hover:scale-110 transition-transform duration-300`} />
+                            </div>
+                        </div>
+
+                        <div class="pr-12">
+                            <h4 class={`font-bold text-lg text-white mb-3 group-hover:${config.textAccent} transition-colours leading-tight`}>
+                            {activity.title}
+                            </h4>
+                            <p class="text-gray-400 text-sm leading-relaxed whitespace-pre-line group-hover:text-gray-300 transition-colours">
+                            {activity.description}
+                            </p>
+                        </div>
+                        </div>
+                    ))}
+                  </div>
+                </div>
+                
+              </article>
+            );
+          })}
+        </div>
+
+      </div>
+    </section>
+
+    <!-- FAQ Section -->
+    <section class="py-32 bg-gradient-to-b from-gray-800 to-gray-950">
+      <div class="max-w-7xl mx-auto px-6">
+        <header class="text-center mb-16">
+          <div class="inline-block px-6 py-2 bg-amber-400/10 border border-amber-400/30 rounded-full mb-8">
+            <span class="text-amber-400 text-sm font-medium tracking-widest uppercase">Common Questions</span>
+          </div>
+          <h2 class="font-serif italic text-4xl md:text-6xl text-white mb-6">
+            Activity <span class="text-amber-400">Essentials</span>
+          </h2>
+          <p class="text-xl text-gray-300 max-w-3xl mx-auto leading-relaxed">
+            Everything you need to know about planning and enjoying your activities at Limban Resort
+          </p>
+        </header>
+
+        <div class="max-w-4xl mx-auto">
+          <div class="space-y-4">
+            {faqs.map((faq, index) => (
+              <div key={index} class="group bg-gradient-to-br from-gray-800/60 to-gray-900/80 border border-gray-700/50 rounded-2xl overflow-hidden">
+                <button class="w-full text-left p-8 flex items-center justify-between rounded-2xl" data-faq-toggle>
+                  <div>
+                    <h3 class="text-xl font-semibold text-white mb-2 group-hover:text-amber-400 transition-colours duration-300">
+                      {faq.question}
+                    </h3>
+                    <p class="text-gray-400 text-sm">Practical information for planning your activities</p>
+                  </div>
+                  <Icon name="ph:caret-down-bold" class="w-6 h-6 text-amber-400 transition-transform duration-300 group-hover:rotate-180" />
+                </button>
+                
+                <div class="faq-content max-h-0 overflow-hidden transition-all duration-300 ease-in-out">
+                  <div class="px-8 pb-8 border-t border-gray-700/30 pt-6">
+                    <p class="text-gray-300 leading-relaxed whitespace-pre-line">
+                      {faq.answer}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Contact Section -->
+    <ContactSection />
+
+  </div>
+</Layout>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const faqToggles = document.querySelectorAll('[data-faq-toggle]');
+    
+    faqToggles.forEach(toggle => {
+      toggle.addEventListener('click', function() {
+        const content = this.nextElementSibling;
+        const icon = this.querySelector('svg');
+        const isOpen = content.style.maxHeight && content.style.maxHeight !== '0px';
+        
+        // Close all other FAQs
+        faqToggles.forEach(otherToggle => {
+          if (otherToggle !== this) {
+            const otherContent = otherToggle.nextElementSibling;
+            const otherIcon = otherToggle.querySelector('svg');
+            otherContent.style.maxHeight = '0px';
+            otherIcon.style.transform = 'rotate(0deg)';
+          }
+        });
+        
+        // Toggle current FAQ
+        if (isOpen) {
+          content.style.maxHeight = '0px';
+          icon.style.transform = 'rotate(0deg)';
+        } else {
+          content.style.maxHeight = content.scrollHeight + 'px';
+          icon.style.transform = 'rotate(180deg)';
+        }
+      });
+    });
+  });
+</script>
