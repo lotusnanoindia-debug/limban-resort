@@ -2,12 +2,11 @@
 import Layout from "../layouts/Layout.astro";
 import { Icon } from "astro-icon/components";
 import { AstroSEO } from "astro-seo-plugin";
-import GalleryGrid from "../components/GalleryGrid.astro";
-import LoadMoreGallery from "../components/LoadMoreGallery.astro";
+import UniversalGallery from "../components/UniversalGallery.astro";
 import GalleryModal from "../components/GalleryModal.astro";
 import TestimonialsSection from "../components/TestimonialsSection.astro";
 import AwardsSection from "../components/AwardsSection.astro";
-import imageService from "../utils/ImageService.js"; // REMOVED processGalleryImages import
+import imageService from "../utils/ImageService.js";
 import { fetchAboutPage } from "../api.js";
 
 // Server-side data fetching with error handling
@@ -27,80 +26,9 @@ const aboutPage = aboutData?.aboutPage || {};
 const vibeGallery = aboutData?.vibeGallery || { images: [] };
 const guestGallery = aboutData?.guestGallery || { images: [] };
 
-// FIXED: Complete image processing with all required URLs (matching your working vibe page)
-const processedVibeImages =
-  vibeGallery?.images && vibeGallery.images.length > 0
-    ? vibeGallery.images.map((item, index) => {
-        const imageData = item.image || item;
-
-        return {
-          id: imageData.id,
-          alt: imageData.alt || item.altText || `Limban vibe ${index + 1}`,
-          width: imageData.width,
-          height: imageData.height,
-          processedUrls: {
-            thumbnail: imageService.processImage(imageData, "galleryThumbnail"),
-            gallery: imageService.processImage(imageData, "galleryLarge"),
-            large: imageService.processImage(imageData, "galleryModal"),
-            modal: imageService.processImage(imageData, "heroDesktop"),
-          },
-        };
-      })
-    : [];
-
-const processedGuestImages =
-  guestGallery?.images && guestGallery.images.length > 0
-    ? guestGallery.images.map((item, index) => {
-        const imageData = item.image || item;
-
-        return {
-          id: imageData.id,
-          alt: imageData.alt || item.altText || `Guest moments ${index + 1}`,
-          width: imageData.width,
-          height: imageData.height,
-          processedUrls: {
-            thumbnail: imageService.processImage(imageData, "galleryThumbnail"),
-            gallery: imageService.processImage(imageData, "galleryLarge"),
-            large: imageService.processImage(imageData, "galleryModal"),
-            modal: imageService.processImage(imageData, "heroDesktop"),
-          },
-        };
-      })
-    : [];
-
-const processedTeamImages =
-  aboutPage?.teamImages && aboutPage.teamImages.length > 0
-    ? aboutPage.teamImages.map((item, index) => {
-        const imageData = item.image || item;
-
-        return {
-          id: imageData.id,
-          alt: imageData.alt || item.alt || `Team member ${index + 1}`,
-          width: imageData.width,
-          height: imageData.height,
-          processedUrls: {
-            thumbnail: imageService.processImage(imageData, "galleryThumbnail"),
-            gallery: imageService.processImage(imageData, "galleryLarge"),
-            large: imageService.processImage(imageData, "galleryModal"),
-            modal: imageService.processImage(imageData, "heroDesktop"),
-          },
-        };
-      })
-    : [];
-
 const heroImageData = aboutPage?.heroImage || null;
 const philosophyImageData = aboutPage?.philosophyImage || null;
 const foundersImageData = aboutPage?.foundersImage || null;
-
-// Split for load more functionality
-const initialVibeImages = processedVibeImages.slice(0, 12);
-const remainingVibeImages = processedVibeImages.slice(12);
-
-const initialGuestImages = processedGuestImages.slice(0, 12);
-const remainingGuestImages = processedGuestImages.slice(12);
-
-const initialTeamImages = processedTeamImages.slice(0, 12);
-const remainingTeamImages = processedTeamImages.slice(12);
 
 // FIXED: Simple image processing without complex context objects
 const heroImageUrl = aboutPage?.heroImage
@@ -125,9 +53,6 @@ const schemaImages = [
   heroImageUrl,
   philosophyImageUrl,
   foundersImageUrl,
-  ...processedVibeImages.slice(0, 3).map((img) => img.processedUrls.large),
-  ...processedGuestImages.slice(0, 2).map((img) => img.processedUrls.large),
-  ...processedTeamImages.slice(0, 2).map((img) => img.processedUrls.large),
 ].filter(Boolean);
 ---
 
@@ -532,49 +457,7 @@ const schemaImages = [
           </p>
         </header>
 
-        {
-          processedVibeImages.length > 0 ? (
-            <>
-              <GalleryGrid
-                images={initialVibeImages}
-                galleryType="vibe"
-                gridId="vibe-gallery-grid"
-                layout="grid"
-                columns={{
-                  mobile: 2,
-                  tablet: 4,
-                  desktop: 6,
-                  xl: 6,
-                }}
-                aspectRatio="square"
-                showOverlay={true}
-                loadingStrategy="intersection"
-              />
-
-              {remainingVibeImages.length > 0 && (
-                <LoadMoreGallery
-                  buttonId="load-more-vibe-gallery"
-                  remainingImages={remainingVibeImages}
-                  galleryType="vibe"
-                  galleryGridId="vibe-gallery-grid"
-                  initialCount={initialVibeImages.length}
-                  batchSize={12}
-                  customLabels={{ vibe: "Vibe Images" }}
-                />
-              )}
-
-              <div class="text-center mt-8">
-                <p class="text-gray-400 font-light italic">
-                  Click any image to explore our signature spaces in detail
-                </p>
-              </div>
-            </>
-          ) : (
-            <div class="text-center py-16">
-              <p class="text-gray-400 text-lg">Gallery images coming soon...</p>
-            </div>
-          )
-        }
+        <UniversalGallery rawImages={vibeGallery.images} galleryType="vibe" />
       </div>
     </section>
 
@@ -599,109 +482,35 @@ const schemaImages = [
           </p>
         </header>
 
-        {
-          processedGuestImages.length > 0 ? (
-            <>
-              <GalleryGrid
-                images={initialGuestImages}
-                galleryType="guest"
-                gridId="guest-gallery-grid"
-                layout="grid"
-                columns={{
-                  mobile: 2,
-                  tablet: 4,
-                  desktop: 6,
-                  xl: 6,
-                }}
-                aspectRatio="square"
-                showOverlay={true}
-                loadingStrategy="intersection"
-              />
-
-              {remainingGuestImages.length > 0 && (
-                <LoadMoreGallery
-                  buttonId="load-more-guest-gallery"
-                  remainingImages={remainingGuestImages}
-                  galleryType="guest"
-                  galleryGridId="guest-gallery-grid"
-                  initialCount={initialGuestImages.length}
-                  batchSize={12}
-                  customLabels={{ guest: "Guest Images" }}
-                />
-              )}
-
-              <div class="text-center mt-8">
-                <p class="text-gray-400 font-light italic">
-                  Click any image to explore our guest moments in detail
-                </p>
-              </div>
-            </>
-          ) : (
-            <div class="text-center py-16">
-              <p class="text-gray-400 text-lg">Gallery images coming soon...</p>
-            </div>
-          )
-        }
+        <UniversalGallery rawImages={guestGallery.images} galleryType="guest" />
       </div>
     </section>
 
     <!-- Team Gallery -->
-    {
-      processedTeamImages.length > 0 && (
-        <section class="py-32 bg-gray-950">
-          <div class="max-w-7xl mx-auto px-6">
-            <header class="text-center mb-16">
-              <div class="inline-block px-6 py-2 bg-amber-400/10 border border-amber-400/30 rounded-full mb-8">
-                <span class="text-amber-400 text-sm font-medium tracking-widest uppercase">
-                  Visual Journey
-                </span>
-              </div>
-              <h2 class="font-serif italic text-4xl md:text-6xl text-white mb-6">
-                The Heart of Limban
-              </h2>
-              <p class="text-xl text-gray-300 max-w-2xl mx-auto">
-                Meet our passionate team which brings Limban to life, each
-                dedicated to creating unforgettable experiences
-              </p>
-            </header>
-
-            <GalleryGrid
-              images={initialTeamImages}
-              galleryType="team"
-              gridId="team-gallery-grid"
-              layout="grid"
-              columns={{
-                mobile: 2,
-                tablet: 4,
-                desktop: 6,
-                xl: 6,
-              }}
-              aspectRatio="square"
-              showOverlay={true}
-              loadingStrategy="intersection"
-            />
-
-            {remainingTeamImages.length > 0 && (
-              <LoadMoreGallery
-                buttonId="load-more-team-gallery"
-                remainingImages={remainingTeamImages}
-                galleryType="team"
-                galleryGridId="team-gallery-grid"
-                initialCount={initialTeamImages.length}
-                batchSize={12}
-                customLabels={{ team: "Team Images" }}
-              />
-            )}
-
-            <div class="text-center mt-8">
-              <p class="text-gray-400 font-light italic">
-                Click any image to meet our team members in detail
-              </p>
-            </div>
+    <section class="py-32 bg-gray-950">
+      <div class="max-w-7xl mx-auto px-6">
+        <header class="text-center mb-16">
+          <div
+            class="inline-block px-6 py-2 bg-amber-400/10 border border-amber-400/30 rounded-full mb-8"
+          >
+            <span
+              class="text-amber-400 text-sm font-medium tracking-widest uppercase"
+            >
+              Visual Journey
+            </span>
           </div>
-        </section>
-      )
-    }
+          <h2 class="font-serif italic text-4xl md:text-6xl text-white mb-6">
+            The Heart of Limban
+          </h2>
+          <p class="text-xl text-gray-300 max-w-2xl mx-auto">
+            Meet our passionate team which brings Limban to life, each dedicated
+            to creating unforgettable experiences
+          </p>
+        </header>
+
+        <UniversalGallery rawImages={aboutPage.teamImages} galleryType="team" />
+      </div>
+    </section>
 
     <!-- Location Section -->
     <section class="py-32 bg-gray-900">
@@ -831,7 +640,11 @@ const schemaImages = [
           become memories forever.
         </p>
         <div class="flex flex-col sm:flex-row gap-6 justify-center">
-          <a href="/rooms" title="Explore luxury safari accommodations at Limban Resort" class="cta-filled">
+          <a
+            href="/rooms"
+            title="Explore luxury safari accommodations at Limban Resort"
+            class="cta-filled"
+          >
             Explore Our Rooms
             <svg
               class="w-5 h-5 ml-2"
@@ -846,7 +659,11 @@ const schemaImages = [
                 d="M17 8l4 4m0 0l-4 4m4-4H3"></path>
             </svg>
           </a>
-          <a href="/vibe" title="Discover the unique atmosphere and experiences at Limban Resort" class="cta-outlined">
+          <a
+            href="/vibe"
+            title="Discover the unique atmosphere and experiences at Limban Resort"
+            class="cta-outlined"
+          >
             The Limban Vibe
             <svg
               class="w-5 h-5 ml-2"

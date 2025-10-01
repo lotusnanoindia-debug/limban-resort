@@ -1,0 +1,526 @@
+---
+/**
+ * Universal Gallery Component - One Gallery to Rule Them All
+ * Handles ANY gallery type with load more functionality built-in
+ * Zero configuration required - just works
+ */
+import type { HTMLAttributes } from 'astro/types';
+import { normalizeGalleryData } from '../utils/gallery-normalizer.js';
+
+interface Props extends HTMLAttributes<'div'> {
+  rawImages: any[];
+  galleryType: string;
+  initialCount?: number;
+  batchSize?: number;
+  columns?: {
+    mobile: number;
+    tablet: number;
+    desktop: number;
+    xl: number;
+  };
+  aspectRatio?: 'square' | 'landscape' | 'portrait' | 'auto';
+  showOverlay?: boolean;
+  className?: string;
+}
+
+const {
+  rawImages,
+  galleryType,
+  initialCount = 12,
+  batchSize = 12,
+  columns = {
+    mobile: 2,
+    tablet: 4,
+    desktop: 6,
+    xl: 6
+  },
+  aspectRatio = 'square',
+  showOverlay = true,
+  className = '',
+  ...attrs
+} = Astro.props;
+
+// Normalize ALL images through our smart converter
+const normalizedImages = normalizeGalleryData(rawImages, galleryType);
+
+// Split into initial and remaining
+const initialImages = normalizedImages.slice(0, initialCount);
+const remainingImages = normalizedImages.slice(initialCount);
+
+// Generate unique IDs for this gallery instance
+const gridId = `gallery-${galleryType}-${Math.random().toString(36).substr(2, 9)}`;
+const loadMoreId = `load-more-${galleryType}-${Math.random().toString(36).substr(2, 9)}`;
+
+// Grid classes
+const gridClasses = [
+  'grid',
+  `grid-cols-${columns.mobile}`,
+  `md:grid-cols-${columns.tablet}`,
+  `lg:grid-cols-${columns.desktop}`,
+  `xl:grid-cols-${columns.xl}`,
+  'gap-4 md:gap-6'
+].join(' ');
+
+const aspectRatioClass = {
+  square: 'aspect-square',
+  landscape: 'aspect-[4/3]',
+  portrait: 'aspect-[3/4]',
+  auto: 'aspect-auto'
+}[aspectRatio];
+
+// Labels for load more button
+const galleryLabels = {
+  vibe: 'Vibe Images',
+  guest: 'Guest Images', 
+  team: 'Team Images',
+  rooms: 'Room Images',
+  wildlife: 'Wildlife Images',
+  dining: 'Dining Images',
+  corporate: 'Corporate Images',
+  safari: 'Safari Images',
+  general: 'Images'
+};
+---
+
+{normalizedImages.length > 0 ? (
+  <div class={`universal-gallery ${className}`} {...attrs}>
+    <!-- Gallery Grid -->
+    <div
+      id={gridId}
+      class={gridClasses}
+      data-gallery-type={galleryType}
+      data-total-images={normalizedImages.length}
+    >
+      {initialImages.map((image, index) => (
+        <div
+          key={image.id}
+          class:list={[
+            'group cursor-pointer relative overflow-hidden rounded-xl',
+            'hover:shadow-2xl hover:shadow-black/30',
+            'transition-all duration-500 hover:scale-[1.02]', 
+            'border border-white/10 hover:border-amber-400/40',
+            aspectRatioClass
+          ]}
+          data-gallery-index={index}
+          data-gallery-type={galleryType}
+          data-image-id={image.id}
+        >
+          <!-- LQIP Background -->
+          <div class="absolute inset-0 bg-gradient-to-br from-gray-800 to-gray-900">
+            <div class="w-full h-full bg-gradient-to-t from-black/20 to-transparent" />
+          </div>
+
+          <!-- Image -->
+          <img
+            src={image.processedUrls.thumbnail}
+            data-gallery-src={image.processedUrls.gallery}
+            data-large-src={image.processedUrls.large}
+            data-modal-src={image.processedUrls.modal}
+            alt={image.alt}
+            class="absolute inset-0 w-full h-full object-cover lazy-load-image opacity-0 blur-sm transition-all duration-700"
+            loading="lazy"
+            decoding="async"
+            width={image.width}
+            height={image.height}
+          />
+
+          <!-- Hover Overlay -->
+          {showOverlay && (
+            <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-all duration-500 flex items-end justify-center p-4">
+              <div class="text-center">
+                <div class="w-12 h-12 mx-auto mb-2 rounded-full bg-white/20 backdrop-blur-sm border border-white/30 flex items-center justify-center group-hover:bg-amber-400/30 group-hover:border-amber-400/50 transition-all duration-300">
+                  <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                  </svg>
+                </div>
+              </div>
+            </div>
+          )}
+
+          <!-- Loading State -->
+          <div class="absolute inset-0 flex items-center justify-center loading-placeholder">
+            <div class="w-8 h-8 border-2 border-amber-400/30 border-t-amber-400 rounded-full animate-spin" />
+          </div>
+        </div>
+      ))}
+    </div>
+
+    <!-- Load More Button (only if there are remaining images) -->
+    {remainingImages.length > 0 && (
+      <div class="text-center mt-8 lg:mt-12">
+        <button
+          id={loadMoreId}
+          class="group inline-flex items-center px-8 py-4 bg-transparent border-2 border-amber-400/60 text-amber-400 rounded-full hover:bg-amber-400/10 hover:border-amber-400 hover:scale-105 focus:outline-none focus:ring-4 focus:ring-amber-400/30 transition-all duration-300 font-medium"
+          type="button"
+          aria-label={`Load more ${galleryType} images`}
+        >
+          <span class="button-text">Show {remainingImages.length} More {galleryLabels[galleryType] || 'Images'}</span>
+
+          <div class="loading-spinner ml-3 hidden">
+            <div class="w-5 h-5 border-2 border-amber-400/30 border-t-amber-400 rounded-full animate-spin" />
+          </div>
+
+          <svg
+            class="arrow-icon w-5 h-5 ml-3 transition-transform group-hover:translate-y-1"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+          </svg>
+        </button>
+      </div>
+    )}
+
+    <div class="text-center mt-8">
+      <p class="text-gray-400 font-light italic">
+        Click any image to explore in detail
+      </p>
+    </div>
+  </div>
+) : (
+  <div class="text-center py-16">
+    <p class="text-gray-400 text-lg">Gallery images coming soon...</p>
+  </div>
+)}
+
+<!-- Store images globally for modal (cleaned format) -->
+<script define:vars={{ normalizedImages, galleryType, gridId, loadMoreId, remainingImages, batchSize }}>
+  // Set up complete image arrays for modal access
+  window.galleryImages = window.galleryImages || {};
+  
+  // Store in the format your modal expects
+  window.galleryImages[galleryType] = normalizedImages.map((img, index) => ({
+    id: img.id,
+    src: img.src,
+    medium: img.medium,
+    thumbnail: img.thumbnail,
+    alt: img.alt,
+    index
+  }));
+</script>
+
+<!-- Universal Gallery Controller -->
+<script>
+  class UniversalGalleryController {
+    constructor() {
+      this.galleries = new Map();
+      this.init();
+    }
+
+    init() {
+      // Initialize all galleries on the page
+      document.querySelectorAll('.universal-gallery').forEach(gallery => {
+        const grid = gallery.querySelector('[data-gallery-type]');
+        if (grid) {
+          this.initializeGallery(grid, gallery);
+        }
+      });
+    }
+
+    initializeGallery(grid, container) {
+      const galleryType = grid.dataset.galleryType;
+      const gridId = grid.id;
+      
+      // Set up lazy loading
+      this.setupLazyLoading(grid);
+      
+      // Set up click handlers
+      this.setupClickHandlers(grid);
+      
+      // Set up load more if exists
+      const loadMoreBtn = container.querySelector('[id^="load-more-"]');
+      if (loadMoreBtn) {
+        this.setupLoadMore(loadMoreBtn, grid);
+      }
+      
+      this.galleries.set(gridId, { grid, container, galleryType });
+    }
+
+    setupLazyLoading(grid) {
+      const images = grid.querySelectorAll('.lazy-load-image');
+      
+      if (!('IntersectionObserver' in window)) {
+        images.forEach(img => this.loadImage(img));
+        return;
+      }
+
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            this.loadImage(entry.target);
+            observer.unobserve(entry.target);
+          }
+        });
+      }, { rootMargin: '50px' });
+
+      images.forEach(img => observer.observe(img));
+    }
+
+    async loadImage(imgElement) {
+      const placeholder = imgElement.closest('[data-gallery-index]')?.querySelector('.loading-placeholder');
+      
+      try {
+        if (placeholder) placeholder.style.opacity = '1';
+
+        const gallerySrc = imgElement.dataset.gallerySrc || imgElement.src;
+        
+        await new Promise((resolve, reject) => {
+          const img = new Image();
+          img.onload = resolve;
+          img.onerror = reject;
+          img.src = gallerySrc;
+        });
+
+        imgElement.src = gallerySrc;
+        imgElement.classList.remove('opacity-0', 'blur-sm');
+        imgElement.classList.add('opacity-100');
+        
+        if (placeholder) {
+          placeholder.style.opacity = '0';
+          setTimeout(() => placeholder.style.display = 'none', 300);
+        }
+      } catch (error) {
+        console.warn('Failed to load gallery image:', error);
+        if (placeholder) placeholder.style.display = 'none';
+        imgElement.classList.remove('opacity-0', 'blur-sm');
+        imgElement.classList.add('opacity-100');
+      }
+    }
+
+    setupClickHandlers(grid) {
+      grid.addEventListener('click', (e) => {
+        const galleryItem = e.target.closest('[data-gallery-index]');
+        if (!galleryItem) return;
+
+        e.preventDefault();
+        
+        const index = parseInt(galleryItem.dataset.galleryIndex);
+        const galleryType = galleryItem.dataset.galleryType;
+        const allImages = window.galleryImages?.[galleryType] || [];
+
+        // Dispatch to your existing modal
+        document.dispatchEvent(new CustomEvent('open-gallery', {
+          detail: { 
+            images: allImages,
+            index,
+            title: `${galleryType.charAt(0).toUpperCase() + galleryType.slice(1)} Gallery`,
+            galleryType
+          }
+        }));
+      });
+    }
+    setupLoadMore(button, grid) {
+    const galleryType = grid.dataset.galleryType;
+    let loadedCount = 0;
+    let isLoading = false;
+    
+    // Get remaining images from the component's data
+    const allImages = window.galleryImages?.[galleryType] || [];
+    const initialCount = grid.querySelectorAll('[data-gallery-index]').length;
+    const remainingImages = allImages.slice(initialCount);
+
+    button.addEventListener('click', async (e) => {
+        e.preventDefault();
+        
+        if (isLoading || loadedCount >= remainingImages.length) return;
+        
+        isLoading = true;
+        this.setLoadingState(button, true);
+        
+        try {
+        const startIndex = loadedCount;
+        const endIndex = Math.min(startIndex + 12, remainingImages.length);
+        const batch = remainingImages.slice(startIndex, endIndex);
+        
+        // Create new gallery items
+        const fragment = document.createDocumentFragment();
+        const currentItemCount = grid.querySelectorAll('[data-gallery-index]').length;
+        
+        batch.forEach((imageData, i) => {
+            const globalIndex = currentItemCount + i;
+            const galleryItem = this.createGalleryItem(imageData, globalIndex, galleryType, grid);
+            fragment.appendChild(galleryItem);
+        });
+        
+        // Add to grid
+        grid.appendChild(fragment);
+        
+        // Initialize lazy loading for new images
+        this.setupLazyLoading(grid);
+        
+        // Update modal images array
+        this.updateModalImages(galleryType, grid);
+        
+        loadedCount = endIndex;
+        this.updateButtonText(button, remainingImages.length - loadedCount, galleryType);
+        
+        // Hide button if all loaded
+        if (loadedCount >= remainingImages.length) {
+            this.hideButton(button);
+        }
+        
+        } catch (error) {
+        console.error('Failed to load more images:', error);
+        } finally {
+        isLoading = false;
+        this.setLoadingState(button, false);
+        }
+    });
+    }
+
+    createGalleryItem(imageData, globalIndex, galleryType, grid) {
+    const item = document.createElement('div');
+    
+    // Copy classes from existing items
+    const existingItem = grid.querySelector('[data-gallery-index]');
+    if (existingItem) {
+        item.className = existingItem.className;
+    }
+    
+    item.dataset.galleryIndex = globalIndex.toString();
+    item.dataset.galleryType = galleryType;
+    item.dataset.imageId = imageData.id;
+    
+    item.innerHTML = `
+        <!-- LQIP Background -->
+        <div class="absolute inset-0 bg-gradient-to-br from-gray-800 to-gray-900">
+        <div class="w-full h-full bg-gradient-to-t from-black/20 to-transparent"></div>
+        </div>
+
+        <!-- Image -->
+        <img
+        src="${imageData.thumbnail}"
+        data-gallery-src="${imageData.medium}"
+        data-large-src="${imageData.src}"
+        data-modal-src="${imageData.src}"
+        alt="${imageData.alt}"
+        class="absolute inset-0 w-full h-full object-cover lazy-load-image opacity-0 blur-sm transition-all duration-700"
+        loading="lazy"
+        decoding="async"
+        />
+
+        <!-- Hover Overlay -->
+        <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-all duration-500 flex items-end justify-center p-4">
+        <div class="text-center">
+            <div class="w-12 h-12 mx-auto mb-2 rounded-full bg-white/20 backdrop-blur-sm border border-white/30 flex items-center justify-center group-hover:bg-amber-400/30 group-hover:border-amber-400/50 transition-all duration-300">
+            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+            </div>
+        </div>
+        </div>
+
+        <!-- Loading State -->
+        <div class="absolute inset-0 flex items-center justify-center loading-placeholder">
+        <div class="w-8 h-8 border-2 border-amber-400/30 border-t-amber-400 rounded-full animate-spin"></div>
+        </div>
+    `;
+    
+    return item;
+    }
+
+    setLoadingState(button, loading) {
+    const spinner = button.querySelector('.loading-spinner');
+    const arrow = button.querySelector('.arrow-icon');
+    
+    if (loading) {
+        spinner?.classList.remove('hidden');
+        arrow?.classList.add('opacity-0');
+        button.disabled = true;
+        button.classList.add('opacity-75');
+    } else {
+        spinner?.classList.add('hidden');  
+        arrow?.classList.remove('opacity-0');
+        button.disabled = false;
+        button.classList.remove('opacity-75');
+    }
+    }
+
+    updateButtonText(button, remaining, galleryType) {
+    const buttonText = button.querySelector('.button-text');
+    const labels = {
+        vibe: 'Vibe Images',
+        guest: 'Guest Images',
+        team: 'Team Images', 
+        rooms: 'Room Images',
+        wildlife: 'Wildlife Images',
+        dining: 'Dining Images',
+        corporate: 'Corporate Images',
+        safari: 'Safari Images'
+    };
+    
+    if (buttonText) {
+        buttonText.textContent = `Show ${remaining} More ${labels[galleryType] || 'Images'}`;
+    }
+    }
+
+updateModalImages(galleryType, grid) {
+  // Rebuild the complete images array for the modal
+  const allCurrentImages = Array.from(grid.querySelectorAll('[data-gallery-index]')).map((item, index) => {
+    const img = item.querySelector('img');
+    return {
+      id: item.dataset.imageId,
+      src: img?.dataset.modalSrc || img?.src,
+      medium: img?.dataset.gallerySrc || img?.src,
+      thumbnail: img?.src,
+      alt: img?.alt,
+      index
+    };
+  });
+  
+  window.galleryImages[galleryType] = allCurrentImages;
+}
+
+hideButton(button) {
+  button.style.transform = 'scale(0.95)';
+  button.style.opacity = '0';
+  setTimeout(() => {
+    button.style.display = 'none';
+  }, 300);
+}
+
+
+}
+
+  // Initialize when DOM is ready
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => {
+      new UniversalGalleryController();
+    });
+  } else {
+    new UniversalGalleryController();
+  }
+</script>
+
+<style>
+  .lazy-load-image {
+    transition: opacity 0.7s ease-out, filter 0.7s ease-out;
+  }
+
+  .loading-placeholder {
+    transition: opacity 0.3s ease-out;
+  }
+
+  .universal-gallery [data-gallery-index]:hover {
+    transform: scale(1.02);
+  }
+
+  .universal-gallery {
+    gap: 1rem;
+  }
+
+  @media (min-width: 768px) {
+    .universal-gallery {
+      gap: 1.5rem;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .universal-gallery * {
+      transition: none !important;
+      transform: none !important;
+      animation: none !important;
+    }
+  }
+</style>

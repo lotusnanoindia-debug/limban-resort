@@ -2,8 +2,7 @@
 import Layout from "../layouts/Layout.astro";
 import { AstroSEO } from "astro-seo-plugin";
 import { Icon } from "astro-icon/components";
-import GalleryGrid from "../components/GalleryGrid.astro";
-import LoadMoreGallery from "../components/LoadMoreGallery.astro";
+import UniversalGallery from "../components/UniversalGallery.astro";
 import GalleryModal from "../components/GalleryModal.astro";
 import imageService from "../utils/ImageService.js";
 import ContactSection from "../components/ContactSection.astro";
@@ -23,29 +22,6 @@ try {
 } catch (error) {
   console.error("Safari data fetch error:", error);
 }
-
-// Process gallery images
-const processedSafariImages =
-  safariGalleryImages.length > 0
-    ? safariGalleryImages.map((imageData, index) => ({
-        id: imageData.id,
-        alt:
-          imageData.alt ||
-          `Limban Safari Experience Photo No. ${index + 1} - Guest submitted.`,
-        width: imageData.width,
-        height: imageData.height,
-        processedUrls: {
-          thumbnail: imageService.processImage(imageData, "galleryThumbnail"),
-          gallery: imageService.processImage(imageData, "serviceCard"),
-          large: imageService.processImage(imageData, "galleryModal"),
-          modal: imageService.processImage(imageData, "heroDesktop"),
-        },
-      }))
-    : [];
-
-// Split for load more
-const initialSafariImages = processedSafariImages.slice(0, 12);
-const remainingSafariImages = processedSafariImages.slice(12);
 
 // Hero image processing
 const heroImageUrl = imageService.processImage(
@@ -520,740 +496,706 @@ const heroImageUrl = imageService.processImage(
           </p>
         </header>
 
-        {
-          processedSafariImages.length > 0 ? (
-            <>
-              <GalleryGrid
-                images={initialSafariImages}
-                galleryType="safari"
-                gridId="safari-gallery-grid"
-                layout="grid"
-                columns={{
-                  mobile: 2,
-                  tablet: 4,
-                  desktop: 4,
-                  xl: 6,
-                }}
-                aspectRatio="square"
-                showOverlay={true}
-                loadingStrategy="intersection"
-              />
+        <UniversalGallery
+          rawImages={safariGalleryImages}
+          galleryType="safari"
+        />
 
-              {remainingSafariImages.length > 0 && (
-                <LoadMoreGallery
-                  buttonId="load-more-safari-gallery"
-                  remainingImages={remainingSafariImages}
-                  galleryType="safari"
-                  galleryGridId="safari-gallery-grid"
-                  initialCount={initialSafariImages.length}
-                  batchSize={12}
-                  customLabels={{ safari: "Safari Moments" }}
-                />
-              )}
+        <div class="text-center mt-8">
+          <p class="text-gray-400 font-light italic">
+            Click any image to immerse yourself in the wild beauty of Tadoba
+          </p>
+        </div>
+      </div>
+      ) : (
+      <div class="text-center py-16">
+        <p class="text-gray-400 text-lg">Safari gallery loading...</p>
+      </div>
+      ) }
+    </section>
+  </div>
 
-              <div class="text-center mt-8">
-                <p class="text-gray-400 font-light italic">
-                  Click any image to immerse yourself in the wild beauty of
-                  Tadoba
+  <!-- Safari FAQ Section -->
+  <section class="py-32 bg-gradient-to-b from-gray-800 to-gray-950">
+    <div class="max-w-7xl mx-auto px-6">
+      <header class="text-center mb-16">
+        <div
+          class="inline-block px-6 py-2 bg-amber-400/10 border border-amber-400/30 rounded-full mb-8"
+        >
+          <span
+            class="text-amber-400 text-sm font-medium tracking-widest uppercase"
+            >Common Questions</span
+          >
+        </div>
+        <h2 class="font-serif italic text-4xl md:text-6xl text-white mb-6">
+          Safari <span class="text-amber-400">Essentials</span>
+        </h2>
+        <p class="text-xl text-gray-300 max-w-3xl mx-auto leading-relaxed">
+          Everything you need to know about experiencing Tadoba's wilderness
+          with complete confidence
+        </p>
+      </header>
+
+      <div class="max-w-4xl mx-auto">
+        <div class="space-y-4">
+          <!-- FAQ Item 1 - Safari Arrangements -->
+          <div
+            class="group bg-gradient-to-br from-gray-800/60 to-gray-900/80 backdrop-blur-xl border border-gray-700/50 rounded-2xl overflow-hidden"
+          >
+            <button
+              class="w-full text-left p-8 flex items-center justify-between rounded-2xl"
+              data-faq-toggle
+            >
+              <div>
+                <h3
+                  class="text-xl font-semibold text-white mb-2 group-hover:text-amber-400 transition-colors duration-300"
+                >
+                  How do safari bookings work with my stay?
+                </h3>
+                <p class="text-gray-400 text-sm">
+                  Seamless coordination • Expert planning • Premium experiences
                 </p>
               </div>
-            </>
-          ) : (
-            <div class="text-center py-16">
-              <p class="text-gray-400 text-lg">Safari gallery loading...</p>
-            </div>
-          )
-        }
-      </div>
-    </section>
-
-    <!-- Safari FAQ Section -->
-    <section class="py-32 bg-gradient-to-b from-gray-800 to-gray-950">
-      <div class="max-w-7xl mx-auto px-6">
-        <header class="text-center mb-16">
-          <div
-            class="inline-block px-6 py-2 bg-amber-400/10 border border-amber-400/30 rounded-full mb-8"
-          >
-            <span
-              class="text-amber-400 text-sm font-medium tracking-widest uppercase"
-              >Common Questions</span
-            >
-          </div>
-          <h2 class="font-serif italic text-4xl md:text-6xl text-white mb-6">
-            Safari <span class="text-amber-400">Essentials</span>
-          </h2>
-          <p class="text-xl text-gray-300 max-w-3xl mx-auto leading-relaxed">
-            Everything you need to know about experiencing Tadoba's wilderness
-            with complete confidence
-          </p>
-        </header>
-
-        <div class="max-w-4xl mx-auto">
-          <div class="space-y-4">
-            <!-- FAQ Item 1 - Safari Arrangements -->
+              <Icon
+                name="ph:caret-down-bold"
+                class="w-6 h-6 text-amber-400 transition-transform duration-300 group-hover:rotate-180"
+              />
+            </button>
             <div
-              class="group bg-gradient-to-br from-gray-800/60 to-gray-900/80 backdrop-blur-xl border border-gray-700/50 rounded-2xl overflow-hidden"
+              class="faq-content max-h-0 overflow-hidden transition-all duration-300 ease-in-out"
             >
-              <button
-                class="w-full text-left p-8 flex items-center justify-between rounded-2xl"
-                data-faq-toggle
-              >
-                <div>
-                  <h3
-                    class="text-xl font-semibold text-white mb-2 group-hover:text-amber-400 transition-colors duration-300"
-                  >
-                    How do safari bookings work with my stay?
-                  </h3>
-                  <p class="text-gray-400 text-sm">
-                    Seamless coordination • Expert planning • Premium
-                    experiences
+              <div class="px-8 pb-8 border-t border-gray-700/30 pt-6">
+                <p class="text-gray-300 leading-relaxed mb-4">
+                  <strong class="text-amber-400"
+                    >Safari experiences are curated add-ons to your stay</strong
+                  >, designed to complement your accommodation with expertly
+                  guided wilderness encounters. We handle all the complex
+                  coordination—permits, timing, vehicles, and guides—so you
+                  enjoy seamless experiences.
+                </p>
+                <div
+                  class="bg-gray-900/60 rounded-xl p-4 border border-amber-400/20"
+                >
+                  <p class="text-sm text-amber-300 mb-2">
+                    <strong>Our turnkey safari service includes:</strong>
                   </p>
+                  <ul class="text-gray-300 text-sm space-y-1">
+                    <li>• Forest department permit coordination</li>
+                    <li>• Expert naturalist guides</li>
+                    <li>• Premium safari vehicles with experienced drivers</li>
+                    <li>• Strategic timing and route planning</li>
+                    <li>• Flexible scheduling around your preferences</li>
+                  </ul>
                 </div>
-                <Icon
-                  name="ph:caret-down-bold"
-                  class="w-6 h-6 text-amber-400 transition-transform duration-300 group-hover:rotate-180"
-                />
-              </button>
-              <div
-                class="faq-content max-h-0 overflow-hidden transition-all duration-300 ease-in-out"
-              >
-                <div class="px-8 pb-8 border-t border-gray-700/30 pt-6">
-                  <p class="text-gray-300 leading-relaxed mb-4">
-                    <strong class="text-amber-400"
-                      >Safari experiences are curated add-ons to your stay</strong
-                    >, designed to complement your accommodation with expertly
-                    guided wilderness encounters. We handle all the complex
-                    coordination—permits, timing, vehicles, and guides—so you
-                    enjoy seamless experiences.
-                  </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- FAQ Item 2 - Custom Vehicles -->
+          <div
+            class="group bg-gradient-to-br from-gray-800/60 to-gray-900/80 backdrop-blur-xl border border-gray-700/50 rounded-2xl overflow-hidden"
+          >
+            <button
+              class="w-full text-left p-8 flex items-center justify-between rounded-2xl"
+              data-faq-toggle
+            >
+              <div>
+                <h3
+                  class="text-xl font-semibold text-white mb-2 group-hover:text-amber-400 transition-colors duration-300"
+                >
+                  Can I have a private safari vehicle just for my group?
+                </h3>
+                <p class="text-gray-400 text-sm">
+                  Custom vehicles available • Private group experiences
+                </p>
+              </div>
+              <Icon
+                name="ph:caret-down-bold"
+                class="w-6 h-6 text-amber-400 transition-transform duration-300 group-hover:rotate-180"
+              />
+            </button>
+            <div
+              class="faq-content max-h-0 overflow-hidden transition-all duration-300 ease-in-out"
+            >
+              <div class="px-8 pb-8 border-t border-gray-700/30 pt-6">
+                <p class="text-gray-300 leading-relaxed mb-4">
+                  <strong class="text-amber-400">Absolutely!</strong> We offer custom
+                  private vehicles for guests who prefer an exclusive safari experience.
+                  Perfect for families, couples seeking intimacy, or photography
+                  enthusiasts requiring flexibility.
+                </p>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div
+                    class="bg-gray-900/60 rounded-xl p-4 border border-green-400/20"
+                  >
+                    <p class="text-sm text-green-300 mb-2">
+                      <strong>Private vehicle benefits:</strong>
+                    </p>
+                    <ul class="text-gray-300 text-sm space-y-1">
+                      <li>• Set your own pace and stops</li>
+                      <li>• Dedicated naturalist guide</li>
+                      <li>• Photography-focused routes</li>
+                      <li>• Flexible timing</li>
+                    </ul>
+                  </div>
                   <div
                     class="bg-gray-900/60 rounded-xl p-4 border border-amber-400/20"
                   >
                     <p class="text-sm text-amber-300 mb-2">
-                      <strong>Our turnkey safari service includes:</strong>
+                      <strong>Booking private safaris:</strong>
+                    </p>
+                    <p class="text-gray-300 text-sm">
+                      Request private vehicles when booking your stay. Subject
+                      to availability and may involve additional coordination
+                      with park authorities.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- FAQ Item 3 - Best Times -->
+          <div
+            class="group bg-gradient-to-br from-gray-800/60 to-gray-900/80 backdrop-blur-xl border border-gray-700/50 rounded-2xl overflow-hidden"
+          >
+            <button
+              class="w-full text-left p-8 flex items-center justify-between rounded-2xl"
+              data-faq-toggle
+            >
+              <div>
+                <h3
+                  class="text-xl font-semibold text-white mb-2 group-hover:text-amber-400 transition-colors duration-300"
+                >
+                  What are the best times for tiger sightings?
+                </h3>
+                <p class="text-gray-400 text-sm">
+                  Peak seasons • Optimal timing strategies
+                </p>
+              </div>
+              <Icon
+                name="ph:caret-down-bold"
+                class="w-6 h-6 text-amber-400 transition-transform duration-300 group-hover:rotate-180"
+              />
+            </button>
+            <div
+              class="faq-content max-h-0 overflow-hidden transition-all duration-300 ease-in-out"
+            >
+              <div class="px-8 pb-8 border-t border-gray-700/30 pt-6">
+                <p class="text-gray-300 leading-relaxed mb-4">
+                  <strong class="text-amber-400"
+                    >Early morning and late afternoon safaris offer the highest
+                    success rates</strong
+                  > for tiger sightings, when these magnificent cats are most active
+                  hunting and patrolling their territory.
+                </p>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div
+                    class="bg-blue-900/40 rounded-xl p-4 border border-blue-400/20 text-center"
+                  >
+                    <p class="text-blue-300 font-semibold mb-2">
+                      Morning Safari
+                    </p>
+                    <p class="text-2xl font-bold text-white mb-1">6:00 AM</p>
+                    <p class="text-gray-300 text-xs">
+                      Tigers active after cool night
+                    </p>
+                  </div>
+                  <div
+                    class="bg-amber-900/40 rounded-xl p-4 border border-amber-400/20 text-center"
+                  >
+                    <p class="text-amber-300 font-semibold mb-2">
+                      Afternoon Safari
+                    </p>
+                    <p class="text-2xl font-bold text-white mb-1">3:30 PM</p>
+                    <p class="text-gray-300 text-xs">
+                      Evening hunt preparation
+                    </p>
+                  </div>
+                  <div
+                    class="bg-green-900/40 rounded-xl p-4 border border-green-400/20 text-center"
+                  >
+                    <p class="text-green-300 font-semibold mb-2">Best Season</p>
+                    <p class="text-2xl font-bold text-white mb-1">Nov-Mar</p>
+                    <p class="text-gray-300 text-xs">
+                      Cooler weather, active wildlife
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- FAQ Item 4 - What to Bring -->
+          <div
+            class="group bg-gradient-to-br from-gray-800/60 to-gray-900/80 backdrop-blur-xl border border-gray-700/50 rounded-2xl overflow-hidden"
+          >
+            <button
+              class="w-full text-left p-8 flex items-center justify-between rounded-2xl"
+              data-faq-toggle
+            >
+              <div>
+                <h3
+                  class="text-xl font-semibold text-white mb-2 group-hover:text-amber-400 transition-colors duration-300"
+                >
+                  What should I bring on safari?
+                </h3>
+                <p class="text-gray-400 text-sm">
+                  Essential items • Photography tips • Comfort recommendations
+                </p>
+              </div>
+              <Icon
+                name="ph:caret-down-bold"
+                class="w-6 h-6 text-amber-400 transition-transform duration-300 group-hover:rotate-180"
+              />
+            </button>
+            <div
+              class="faq-content max-h-0 overflow-hidden transition-all duration-300 ease-in-out"
+            >
+              <div class="px-8 pb-8 border-t border-gray-700/30 pt-6">
+                <p class="text-gray-300 leading-relaxed mb-4">
+                  <strong class="text-amber-400"
+                    >We provide water and basic refreshments</strong
+                  >, but here are essential items to enhance your safari
+                  experience and ensure maximum comfort.
+                </p>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div
+                    class="bg-gray-900/60 rounded-xl p-4 border border-amber-400/20"
+                  >
+                    <p class="text-sm text-amber-300 mb-3">
+                      <strong>Essential Items:</strong>
                     </p>
                     <ul class="text-gray-300 text-sm space-y-1">
-                      <li>• Forest department permit coordination</li>
-                      <li>• Expert naturalist guides</li>
-                      <li>
-                        • Premium safari vehicles with experienced drivers
-                      </li>
-                      <li>• Strategic timing and route planning</li>
-                      <li>• Flexible scheduling around your preferences</li>
+                      <li>• Wide-brimmed hat</li>
+                      <li>• Sunglasses</li>
+                      <li>• Sunscreen (SPF 30+)</li>
+                      <li>• Light jacket for early mornings</li>
+                    </ul>
+                  </div>
+                  <div
+                    class="bg-gray-900/60 rounded-xl p-4 border border-green-400/20"
+                  >
+                    <p class="text-sm text-green-300 mb-3">
+                      <strong>Photography:</strong>
+                    </p>
+                    <ul class="text-gray-300 text-sm space-y-1">
+                      <li>• Camera with telephoto lens</li>
+                      <li>• Extra batteries</li>
+                      <li>• Memory cards</li>
+                      <li>• Lens cleaning cloth</li>
+                    </ul>
+                  </div>
+                  <div
+                    class="bg-gray-900/60 rounded-xl p-4 border border-blue-400/20"
+                  >
+                    <p class="text-sm text-blue-300 mb-3">
+                      <strong>Comfort Items:</strong>
+                    </p>
+                    <ul class="text-gray-300 text-sm space-y-1">
+                      <li>• Binoculars (we provide backup)</li>
+                      <li>• Small backpack</li>
+                      <li>• Personal snacks</li>
+                      <li>• Insect repellent</li>
                     </ul>
                   </div>
                 </div>
               </div>
             </div>
+          </div>
 
-            <!-- FAQ Item 2 - Custom Vehicles -->
-            <div
-              class="group bg-gradient-to-br from-gray-800/60 to-gray-900/80 backdrop-blur-xl border border-gray-700/50 rounded-2xl overflow-hidden"
+          <!-- FAQ Item 5 - Permits & Bookings -->
+          <div
+            class="group bg-gradient-to-br from-gray-800/60 to-gray-900/80 backdrop-blur-xl border border-gray-700/50 rounded-2xl overflow-hidden"
+          >
+            <button
+              class="w-full text-left p-8 flex items-center justify-between rounded-2xl"
+              data-faq-toggle
             >
-              <button
-                class="w-full text-left p-8 flex items-center justify-between rounded-2xl"
-                data-faq-toggle
-              >
-                <div>
-                  <h3
-                    class="text-xl font-semibold text-white mb-2 group-hover:text-amber-400 transition-colors duration-300"
-                  >
-                    Can I have a private safari vehicle just for my group?
-                  </h3>
-                  <p class="text-gray-400 text-sm">
-                    Custom vehicles available • Private group experiences
-                  </p>
-                </div>
-                <Icon
-                  name="ph:caret-down-bold"
-                  class="w-6 h-6 text-amber-400 transition-transform duration-300 group-hover:rotate-180"
-                />
-              </button>
-              <div
-                class="faq-content max-h-0 overflow-hidden transition-all duration-300 ease-in-out"
-              >
-                <div class="px-8 pb-8 border-t border-gray-700/30 pt-6">
-                  <p class="text-gray-300 leading-relaxed mb-4">
-                    <strong class="text-amber-400">Absolutely!</strong> We offer
-                    custom private vehicles for guests who prefer an exclusive safari
-                    experience. Perfect for families, couples seeking intimacy, or
-                    photography enthusiasts requiring flexibility.
-                  </p>
-                  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div
-                      class="bg-gray-900/60 rounded-xl p-4 border border-green-400/20"
-                    >
-                      <p class="text-sm text-green-300 mb-2">
-                        <strong>Private vehicle benefits:</strong>
-                      </p>
-                      <ul class="text-gray-300 text-sm space-y-1">
-                        <li>• Set your own pace and stops</li>
-                        <li>• Dedicated naturalist guide</li>
-                        <li>• Photography-focused routes</li>
-                        <li>• Flexible timing</li>
-                      </ul>
-                    </div>
-                    <div
-                      class="bg-gray-900/60 rounded-xl p-4 border border-amber-400/20"
-                    >
-                      <p class="text-sm text-amber-300 mb-2">
-                        <strong>Booking private safaris:</strong>
-                      </p>
-                      <p class="text-gray-300 text-sm">
-                        Request private vehicles when booking your stay. Subject
-                        to availability and may involve additional coordination
-                        with park authorities.
-                      </p>
-                    </div>
-                  </div>
-                </div>
+              <div>
+                <h3
+                  class="text-xl font-semibold text-white mb-2 group-hover:text-amber-400 transition-colors duration-300"
+                >
+                  Do I need to worry about permits and bookings?
+                </h3>
+                <p class="text-gray-400 text-sm">
+                  Turnkey service • All arrangements handled • Zero stress
+                </p>
               </div>
-            </div>
-
-            <!-- FAQ Item 3 - Best Times -->
+              <Icon
+                name="ph:caret-down-bold"
+                class="w-6 h-6 text-amber-400 transition-transform duration-300 group-hover:rotate-180"
+              />
+            </button>
             <div
-              class="group bg-gradient-to-br from-gray-800/60 to-gray-900/80 backdrop-blur-xl border border-gray-700/50 rounded-2xl overflow-hidden"
+              class="faq-content max-h-0 overflow-hidden transition-all duration-300 ease-in-out"
             >
-              <button
-                class="w-full text-left p-8 flex items-center justify-between rounded-2xl"
-                data-faq-toggle
-              >
-                <div>
-                  <h3
-                    class="text-xl font-semibold text-white mb-2 group-hover:text-amber-400 transition-colors duration-300"
-                  >
-                    What are the best times for tiger sightings?
-                  </h3>
-                  <p class="text-gray-400 text-sm">
-                    Peak seasons • Optimal timing strategies
-                  </p>
-                </div>
-                <Icon
-                  name="ph:caret-down-bold"
-                  class="w-6 h-6 text-amber-400 transition-transform duration-300 group-hover:rotate-180"
-                />
-              </button>
-              <div
-                class="faq-content max-h-0 overflow-hidden transition-all duration-300 ease-in-out"
-              >
-                <div class="px-8 pb-8 border-t border-gray-700/30 pt-6">
-                  <p class="text-gray-300 leading-relaxed mb-4">
-                    <strong class="text-amber-400"
-                      >Early morning and late afternoon safaris offer the
-                      highest success rates</strong
-                    > for tiger sightings, when these magnificent cats are most active
-                    hunting and patrolling their territory.
-                  </p>
-                  <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div
-                      class="bg-blue-900/40 rounded-xl p-4 border border-blue-400/20 text-center"
-                    >
-                      <p class="text-blue-300 font-semibold mb-2">
-                        Morning Safari
-                      </p>
-                      <p class="text-2xl font-bold text-white mb-1">6:00 AM</p>
-                      <p class="text-gray-300 text-xs">
-                        Tigers active after cool night
-                      </p>
-                    </div>
-                    <div
-                      class="bg-amber-900/40 rounded-xl p-4 border border-amber-400/20 text-center"
-                    >
-                      <p class="text-amber-300 font-semibold mb-2">
-                        Afternoon Safari
-                      </p>
-                      <p class="text-2xl font-bold text-white mb-1">3:30 PM</p>
-                      <p class="text-gray-300 text-xs">
-                        Evening hunt preparation
-                      </p>
-                    </div>
-                    <div
-                      class="bg-green-900/40 rounded-xl p-4 border border-green-400/20 text-center"
-                    >
-                      <p class="text-green-300 font-semibold mb-2">
-                        Best Season
-                      </p>
-                      <p class="text-2xl font-bold text-white mb-1">Nov-Mar</p>
-                      <p class="text-gray-300 text-xs">
-                        Cooler weather, active wildlife
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <!-- FAQ Item 4 - What to Bring -->
-            <div
-              class="group bg-gradient-to-br from-gray-800/60 to-gray-900/80 backdrop-blur-xl border border-gray-700/50 rounded-2xl overflow-hidden"
-            >
-              <button
-                class="w-full text-left p-8 flex items-center justify-between rounded-2xl"
-                data-faq-toggle
-              >
-                <div>
-                  <h3
-                    class="text-xl font-semibold text-white mb-2 group-hover:text-amber-400 transition-colors duration-300"
-                  >
-                    What should I bring on safari?
-                  </h3>
-                  <p class="text-gray-400 text-sm">
-                    Essential items • Photography tips • Comfort recommendations
-                  </p>
-                </div>
-                <Icon
-                  name="ph:caret-down-bold"
-                  class="w-6 h-6 text-amber-400 transition-transform duration-300 group-hover:rotate-180"
-                />
-              </button>
-              <div
-                class="faq-content max-h-0 overflow-hidden transition-all duration-300 ease-in-out"
-              >
-                <div class="px-8 pb-8 border-t border-gray-700/30 pt-6">
-                  <p class="text-gray-300 leading-relaxed mb-4">
-                    <strong class="text-amber-400"
-                      >We provide water and basic refreshments</strong
-                    >, but here are essential items to enhance your safari
-                    experience and ensure maximum comfort.
-                  </p>
-                  <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div
-                      class="bg-gray-900/60 rounded-xl p-4 border border-amber-400/20"
-                    >
-                      <p class="text-sm text-amber-300 mb-3">
-                        <strong>Essential Items:</strong>
-                      </p>
-                      <ul class="text-gray-300 text-sm space-y-1">
-                        <li>• Wide-brimmed hat</li>
-                        <li>• Sunglasses</li>
-                        <li>• Sunscreen (SPF 30+)</li>
-                        <li>• Light jacket for early mornings</li>
-                      </ul>
-                    </div>
-                    <div
-                      class="bg-gray-900/60 rounded-xl p-4 border border-green-400/20"
-                    >
-                      <p class="text-sm text-green-300 mb-3">
-                        <strong>Photography:</strong>
-                      </p>
-                      <ul class="text-gray-300 text-sm space-y-1">
-                        <li>• Camera with telephoto lens</li>
-                        <li>• Extra batteries</li>
-                        <li>• Memory cards</li>
-                        <li>• Lens cleaning cloth</li>
-                      </ul>
-                    </div>
-                    <div
-                      class="bg-gray-900/60 rounded-xl p-4 border border-blue-400/20"
-                    >
-                      <p class="text-sm text-blue-300 mb-3">
-                        <strong>Comfort Items:</strong>
-                      </p>
-                      <ul class="text-gray-300 text-sm space-y-1">
-                        <li>• Binoculars (we provide backup)</li>
-                        <li>• Small backpack</li>
-                        <li>• Personal snacks</li>
-                        <li>• Insect repellent</li>
-                      </ul>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <!-- FAQ Item 5 - Permits & Bookings -->
-            <div
-              class="group bg-gradient-to-br from-gray-800/60 to-gray-900/80 backdrop-blur-xl border border-gray-700/50 rounded-2xl overflow-hidden"
-            >
-              <button
-                class="w-full text-left p-8 flex items-center justify-between rounded-2xl"
-                data-faq-toggle
-              >
-                <div>
-                  <h3
-                    class="text-xl font-semibold text-white mb-2 group-hover:text-amber-400 transition-colors duration-300"
-                  >
-                    Do I need to worry about permits and bookings?
-                  </h3>
-                  <p class="text-gray-400 text-sm">
-                    Turnkey service • All arrangements handled • Zero stress
-                  </p>
-                </div>
-                <Icon
-                  name="ph:caret-down-bold"
-                  class="w-6 h-6 text-amber-400 transition-transform duration-300 group-hover:rotate-180"
-                />
-              </button>
-              <div
-                class="faq-content max-h-0 overflow-hidden transition-all duration-300 ease-in-out"
-              >
-                <div class="px-8 pb-8 border-t border-gray-700/30 pt-6">
-                  <p class="text-gray-300 leading-relaxed mb-4">
-                    <strong class="text-amber-400">Not at all!</strong> Safari permits
-                    and bookings are entirely handled by our team. While safari availability
-                    ultimately depends on forest department authorities, we manage
-                    all the complex coordination so you can focus on the experience.
+              <div class="px-8 pb-8 border-t border-gray-700/30 pt-6">
+                <p class="text-gray-300 leading-relaxed mb-4">
+                  <strong class="text-amber-400">Not at all!</strong> Safari permits
+                  and bookings are entirely handled by our team. While safari availability
+                  ultimately depends on forest department authorities, we manage
+                  all the complex coordination so you can focus on the experience.
+                </p>
+                <div
+                  class="bg-amber-900/20 rounded-xl p-4 border border-amber-400/30"
+                >
+                  <p class="text-amber-300 font-semibold mb-2 text-sm">
+                    Our turnkey service includes:
                   </p>
                   <div
-                    class="bg-amber-900/20 rounded-xl p-4 border border-amber-400/30"
+                    class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gray-300"
                   >
-                    <p class="text-amber-300 font-semibold mb-2 text-sm">
-                      Our turnkey service includes:
+                    <div>
+                      <p class="mb-2">• Daily permit applications</p>
+                      <p class="mb-2">• Gate coordination and timing</p>
+                      <p>• Guide and vehicle assignments</p>
+                    </div>
+                    <div>
+                      <p class="mb-2">• Weather contingency planning</p>
+                      <p class="mb-2">• Alternative route preparation</p>
+                      <p>• All entry fee payments</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- FAQ Item 6 - Safety -->
+          <div
+            class="group bg-gradient-to-br from-gray-800/60 to-gray-900/80 backdrop-blur-xl border border-gray-700/50 rounded-2xl overflow-hidden"
+          >
+            <button
+              class="w-full text-left p-8 flex items-center justify-between rounded-2xl"
+              data-faq-toggle
+            >
+              <div>
+                <h3
+                  class="text-xl font-semibold text-white mb-2 group-hover:text-amber-400 transition-colors duration-300"
+                >
+                  How safe are the safari experiences?
+                </h3>
+                <p class="text-gray-400 text-sm">
+                  Expert guides • Safety protocols • Emergency preparedness
+                </p>
+              </div>
+              <Icon
+                name="ph:caret-down-bold"
+                class="w-6 h-6 text-amber-400 transition-transform duration-300 group-hover:rotate-180"
+              />
+            </button>
+            <div
+              class="faq-content max-h-0 overflow-hidden transition-all duration-300 ease-in-out"
+            >
+              <div class="px-8 pb-8 border-t border-gray-700/30 pt-6">
+                <p class="text-gray-300 leading-relaxed mb-4">
+                  <strong class="text-amber-400"
+                    >Safety is our absolute priority.</strong
+                  > Our experienced naturalists and drivers follow strict forest
+                  department protocols, maintain respectful distances from wildlife,
+                  and carry emergency communication equipment.
+                </p>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div
+                    class="bg-gray-900/60 rounded-xl p-4 border border-green-400/20"
+                  >
+                    <p class="text-sm text-green-300 mb-2">
+                      <strong>Safety measures:</strong>
                     </p>
-                    <div
-                      class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gray-300"
-                    >
-                      <div>
-                        <p class="mb-2">• Daily permit applications</p>
-                        <p class="mb-2">• Gate coordination and timing</p>
-                        <p>• Guide and vehicle assignments</p>
-                      </div>
-                      <div>
-                        <p class="mb-2">• Weather contingency planning</p>
-                        <p class="mb-2">• Alternative route preparation</p>
-                        <p>• All entry fee payments</p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <!-- FAQ Item 6 - Safety -->
-            <div
-              class="group bg-gradient-to-br from-gray-800/60 to-gray-900/80 backdrop-blur-xl border border-gray-700/50 rounded-2xl overflow-hidden"
-            >
-              <button
-                class="w-full text-left p-8 flex items-center justify-between rounded-2xl"
-                data-faq-toggle
-              >
-                <div>
-                  <h3
-                    class="text-xl font-semibold text-white mb-2 group-hover:text-amber-400 transition-colors duration-300"
-                  >
-                    How safe are the safari experiences?
-                  </h3>
-                  <p class="text-gray-400 text-sm">
-                    Expert guides • Safety protocols • Emergency preparedness
-                  </p>
-                </div>
-                <Icon
-                  name="ph:caret-down-bold"
-                  class="w-6 h-6 text-amber-400 transition-transform duration-300 group-hover:rotate-180"
-                />
-              </button>
-              <div
-                class="faq-content max-h-0 overflow-hidden transition-all duration-300 ease-in-out"
-              >
-                <div class="px-8 pb-8 border-t border-gray-700/30 pt-6">
-                  <p class="text-gray-300 leading-relaxed mb-4">
-                    <strong class="text-amber-400"
-                      >Safety is our absolute priority.</strong
-                    > Our experienced naturalists and drivers follow strict forest
-                    department protocols, maintain respectful distances from wildlife,
-                    and carry emergency communication equipment.
-                  </p>
-                  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div
-                      class="bg-gray-900/60 rounded-xl p-4 border border-green-400/20"
-                    >
-                      <p class="text-sm text-green-300 mb-2">
-                        <strong>Safety measures:</strong>
-                      </p>
-                      <ul class="text-gray-300 text-sm space-y-1">
-                        <li>• Certified naturalist guides</li>
-                        <li>• Regular vehicle maintenance</li>
-                        <li>• First aid kit on every vehicle</li>
-                        <li>• Radio communication with base</li>
-                      </ul>
-                    </div>
-                    <div
-                      class="bg-gray-900/60 rounded-xl p-4 border border-blue-400/20"
-                    >
-                      <p class="text-sm text-blue-300 mb-2">
-                        <strong>Wildlife protocols:</strong>
-                      </p>
-                      <ul class="text-gray-300 text-sm space-y-1">
-                        <li>• Maintain safe distances from animals</li>
-                        <li>• No sudden movements or loud noises</li>
-                        <li>• Follow all forest department rules</li>
-                        <li>• Emergency evacuation procedures</li>
-                      </ul>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <!-- FAQ Item 1 - Tiger Sightings Reality -->
-            <div
-              class="group bg-gradient-to-br from-gray-800/60 to-gray-900/80 backdrop-blur-xl border border-gray-700/50 rounded-2xl overflow-hidden"
-            >
-              <button
-                class="w-full text-left p-8 flex items-center justify-between rounded-2xl"
-                data-faq-toggle
-              >
-                <div>
-                  <h3
-                    class="text-xl font-semibold text-white mb-2 group-hover:text-amber-400 transition-colors duration-300"
-                  >
-                    Will I actually see tigers, or could I go home disappointed?
-                  </h3>
-                  <p class="text-gray-400 text-sm">
-                    Realistic expectations • Tadoba's wildlife abundance • Every
-                    safari is rewarding
-                  </p>
-                </div>
-                <Icon
-                  name="ph:caret-down-bold"
-                  class="w-6 h-6 text-amber-400 transition-transform duration-300 group-hover:rotate-180"
-                />
-              </button>
-              <div
-                class="faq-content max-h-0 overflow-hidden transition-all duration-300 ease-in-out"
-              >
-                <div class="px-8 pb-8 border-t border-gray-700/30 pt-6">
-                  <p class="text-gray-300 leading-relaxed mb-4">
-                    <strong class="text-amber-400"
-                      >Tadoba hosts 97 tigers across its core zones</strong
-                    >, giving excellent sighting opportunities, though wildlife
-                    encounters are never guaranteed—that's what makes them
-                    magical. Even without tigers, every safari reveals
-                    incredible biodiversity: leopards, wild dogs, sloth bears,
-                    deer, and over 200 bird species.
-                  </p>
-                  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div
-                      class="bg-gray-900/60 rounded-xl p-4 border border-green-400/20"
-                    >
-                      <p class="text-sm text-green-300 mb-2">
-                        <strong>What you will see:</strong>
-                      </p>
-                      <ul class="text-gray-300 text-sm space-y-1">
-                        <li>• Diverse wildlife every safari</li>
-                        <li>• Ancient forest ecosystems</li>
-                        <li>• Bird species and butterflies</li>
-                        <li>• Traditional tribal landscapes</li>
-                      </ul>
-                    </div>
-                    <div
-                      class="bg-gray-900/60 rounded-xl p-4 border border-amber-400/20"
-                    >
-                      <p class="text-sm text-amber-300 mb-2">
-                        <strong>Tiger sighting factors:</strong>
-                      </p>
-                      <ul class="text-gray-300 text-sm space-y-1">
-                        <li>• Season and weather conditions</li>
-                        <li>• Time of day and temperature</li>
-                        <li>• Multiple safari opportunities</li>
-                        <li>• Expert guide knowledge</li>
-                      </ul>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <!-- FAQ Item 2 - Family Suitability -->
-            <div
-              class="group bg-gradient-to-br from-gray-800/60 to-gray-900/80 backdrop-blur-xl border border-gray-700/50 rounded-2xl overflow-hidden"
-            >
-              <button
-                class="w-full text-left p-8 flex items-center justify-between rounded-2xl"
-                data-faq-toggle
-              >
-                <div>
-                  <h3
-                    class="text-xl font-semibold text-white mb-2 group-hover:text-amber-400 transition-colors duration-300"
-                  >
-                    Are safaris suitable for families with children of different
-                    ages?
-                  </h3>
-                  <p class="text-gray-400 text-sm">
-                    All ages welcome • Family-friendly arrangements • Safety
-                    considerations
-                  </p>
-                </div>
-                <Icon
-                  name="ph:caret-down-bold"
-                  class="w-6 h-6 text-amber-400 transition-transform duration-300 group-hover:rotate-180"
-                />
-              </button>
-              <div
-                class="faq-content max-h-0 overflow-hidden transition-all duration-300 ease-in-out"
-              >
-                <div class="px-8 pb-8 border-t border-gray-700/30 pt-6">
-                  <p class="text-gray-300 leading-relaxed mb-4">
-                    <strong class="text-amber-400"
-                      >Safaris are wonderful for families!</strong
-                    > We welcome children of all ages and elderly family members.
-                    Our naturalists are skilled at engaging young minds with age-appropriate
-                    wildlife education, while our comfortable vehicles accommodate
-                    various mobility needs.
-                  </p>
-                  <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div
-                      class="bg-blue-900/40 rounded-xl p-4 border border-blue-400/20"
-                    >
-                      <p class="text-blue-300 font-semibold mb-2 text-sm">
-                        Young Children
-                      </p>
-                      <ul class="text-gray-300 text-sm space-y-1">
-                        <li>• Can sit on laps (under 5)</li>
-                        <li>• Shorter safari options</li>
-                        <li>• Early return if needed</li>
-                        <li>• Educational engagement</li>
-                      </ul>
-                    </div>
-                    <div
-                      class="bg-green-900/40 rounded-xl p-4 border border-green-400/20"
-                    >
-                      <p class="text-green-300 font-semibold mb-2 text-sm">
-                        Older Adults
-                      </p>
-                      <ul class="text-gray-300 text-sm space-y-1">
-                        <li>• Comfortable seating</li>
-                        <li>• Easy vehicle access</li>
-                        <li>• Regular rest stops</li>
-                        <li>• Flexible pacing</li>
-                      </ul>
-                    </div>
-                    <div
-                      class="bg-amber-900/40 rounded-xl p-4 border border-amber-400/20"
-                    >
-                      <p class="text-amber-300 font-semibold mb-2 text-sm">
-                        Family Groups
-                      </p>
-                      <ul class="text-gray-300 text-sm space-y-1">
-                        <li>• Private vehicle options</li>
-                        <li>• Customised timing</li>
-                        <li>• Photography assistance</li>
-                        <li>• Shared learning experience</li>
-                      </ul>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <!-- FAQ Item 3 - Professional Standards -->
-            <div
-              class="group bg-gradient-to-br from-gray-800/60 to-gray-900/80 backdrop-blur-xl border border-gray-700/50 rounded-2xl overflow-hidden"
-            >
-              <button
-                class="w-full text-left p-8 flex items-center justify-between rounded-2xl"
-                data-faq-toggle
-              >
-                <div>
-                  <h3
-                    class="text-xl font-semibold text-white mb-2 group-hover:text-amber-400 transition-colors duration-300"
-                  >
-                    How do you ensure safe and educational safari experiences?
-                  </h3>
-                  <p class="text-gray-400 text-sm">
-                    Professional standards • Expert naturalists • Comprehensive
-                    safety protocols
-                  </p>
-                </div>
-                <Icon
-                  name="ph:caret-down-bold"
-                  class="w-6 h-6 text-amber-400 transition-transform duration-300 group-hover:rotate-180"
-                />
-              </button>
-              <div
-                class="faq-content max-h-0 overflow-hidden transition-all duration-300 ease-in-out"
-              >
-                <div class="px-8 pb-8 border-t border-gray-700/30 pt-6">
-                  <p class="text-gray-300 leading-relaxed mb-4">
-                    <strong class="text-amber-400"
-                      >All our organised safaris are briefed and attended by
-                      trained and experienced staff.</strong
-                    > Our certified naturalists undergo continuous training, while
-                    our drivers have decades of experience navigating Tadoba's terrain
-                    and wildlife behaviour patterns.
-                  </p>
-                  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div
-                      class="bg-gray-900/60 rounded-xl p-4 border border-green-400/20"
-                    >
-                      <p class="text-sm text-green-300 mb-2">
-                        <strong>Professional expertise:</strong>
-                      </p>
-                      <ul class="text-gray-300 text-sm space-y-1">
-                        <li>• Certified naturalist guides</li>
-                        <li>• Experienced safari drivers</li>
-                        <li>• Wildlife behaviour specialists</li>
-                        <li>• Continuous education programmes</li>
-                      </ul>
-                    </div>
-                    <div
-                      class="bg-gray-900/60 rounded-xl p-4 border border-amber-400/20"
-                    >
-                      <p class="text-sm text-amber-300 mb-2">
-                        <strong>Safety protocols:</strong>
-                      </p>
-                      <ul class="text-gray-300 text-sm space-y-1">
-                        <li>• Pre-safari safety briefings</li>
-                        <li>• Radio communication systems</li>
-                        <li>• Emergency response procedures</li>
-                        <li>• Regular vehicle maintenance</li>
-                      </ul>
-                    </div>
+                    <ul class="text-gray-300 text-sm space-y-1">
+                      <li>• Certified naturalist guides</li>
+                      <li>• Regular vehicle maintenance</li>
+                      <li>• First aid kit on every vehicle</li>
+                      <li>• Radio communication with base</li>
+                    </ul>
                   </div>
                   <div
-                    class="mt-4 bg-amber-900/20 rounded-xl p-4 border border-amber-400/30"
+                    class="bg-gray-900/60 rounded-xl p-4 border border-blue-400/20"
+                  >
+                    <p class="text-sm text-blue-300 mb-2">
+                      <strong>Wildlife protocols:</strong>
+                    </p>
+                    <ul class="text-gray-300 text-sm space-y-1">
+                      <li>• Maintain safe distances from animals</li>
+                      <li>• No sudden movements or loud noises</li>
+                      <li>• Follow all forest department rules</li>
+                      <li>• Emergency evacuation procedures</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- FAQ Item 1 - Tiger Sightings Reality -->
+          <div
+            class="group bg-gradient-to-br from-gray-800/60 to-gray-900/80 backdrop-blur-xl border border-gray-700/50 rounded-2xl overflow-hidden"
+          >
+            <button
+              class="w-full text-left p-8 flex items-center justify-between rounded-2xl"
+              data-faq-toggle
+            >
+              <div>
+                <h3
+                  class="text-xl font-semibold text-white mb-2 group-hover:text-amber-400 transition-colors duration-300"
+                >
+                  Will I actually see tigers, or could I go home disappointed?
+                </h3>
+                <p class="text-gray-400 text-sm">
+                  Realistic expectations • Tadoba's wildlife abundance • Every
+                  safari is rewarding
+                </p>
+              </div>
+              <Icon
+                name="ph:caret-down-bold"
+                class="w-6 h-6 text-amber-400 transition-transform duration-300 group-hover:rotate-180"
+              />
+            </button>
+            <div
+              class="faq-content max-h-0 overflow-hidden transition-all duration-300 ease-in-out"
+            >
+              <div class="px-8 pb-8 border-t border-gray-700/30 pt-6">
+                <p class="text-gray-300 leading-relaxed mb-4">
+                  <strong class="text-amber-400"
+                    >Tadoba hosts 97 tigers across its core zones</strong
+                  >, giving excellent sighting opportunities, though wildlife
+                  encounters are never guaranteed—that's what makes them
+                  magical. Even without tigers, every safari reveals incredible
+                  biodiversity: leopards, wild dogs, sloth bears, deer, and over
+                  200 bird species.
+                </p>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div
+                    class="bg-gray-900/60 rounded-xl p-4 border border-green-400/20"
+                  >
+                    <p class="text-sm text-green-300 mb-2">
+                      <strong>What you will see:</strong>
+                    </p>
+                    <ul class="text-gray-300 text-sm space-y-1">
+                      <li>• Diverse wildlife every safari</li>
+                      <li>• Ancient forest ecosystems</li>
+                      <li>• Bird species and butterflies</li>
+                      <li>• Traditional tribal landscapes</li>
+                    </ul>
+                  </div>
+                  <div
+                    class="bg-gray-900/60 rounded-xl p-4 border border-amber-400/20"
+                  >
+                    <p class="text-sm text-amber-300 mb-2">
+                      <strong>Tiger sighting factors:</strong>
+                    </p>
+                    <ul class="text-gray-300 text-sm space-y-1">
+                      <li>• Season and weather conditions</li>
+                      <li>• Time of day and temperature</li>
+                      <li>• Multiple safari opportunities</li>
+                      <li>• Expert guide knowledge</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- FAQ Item 2 - Family Suitability -->
+          <div
+            class="group bg-gradient-to-br from-gray-800/60 to-gray-900/80 backdrop-blur-xl border border-gray-700/50 rounded-2xl overflow-hidden"
+          >
+            <button
+              class="w-full text-left p-8 flex items-center justify-between rounded-2xl"
+              data-faq-toggle
+            >
+              <div>
+                <h3
+                  class="text-xl font-semibold text-white mb-2 group-hover:text-amber-400 transition-colors duration-300"
+                >
+                  Are safaris suitable for families with children of different
+                  ages?
+                </h3>
+                <p class="text-gray-400 text-sm">
+                  All ages welcome • Family-friendly arrangements • Safety
+                  considerations
+                </p>
+              </div>
+              <Icon
+                name="ph:caret-down-bold"
+                class="w-6 h-6 text-amber-400 transition-transform duration-300 group-hover:rotate-180"
+              />
+            </button>
+            <div
+              class="faq-content max-h-0 overflow-hidden transition-all duration-300 ease-in-out"
+            >
+              <div class="px-8 pb-8 border-t border-gray-700/30 pt-6">
+                <p class="text-gray-300 leading-relaxed mb-4">
+                  <strong class="text-amber-400"
+                    >Safaris are wonderful for families!</strong
+                  > We welcome children of all ages and elderly family members. Our
+                  naturalists are skilled at engaging young minds with age-appropriate
+                  wildlife education, while our comfortable vehicles accommodate
+                  various mobility needs.
+                </p>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div
+                    class="bg-blue-900/40 rounded-xl p-4 border border-blue-400/20"
+                  >
+                    <p class="text-blue-300 font-semibold mb-2 text-sm">
+                      Young Children
+                    </p>
+                    <ul class="text-gray-300 text-sm space-y-1">
+                      <li>• Can sit on laps (under 5)</li>
+                      <li>• Shorter safari options</li>
+                      <li>• Early return if needed</li>
+                      <li>• Educational engagement</li>
+                    </ul>
+                  </div>
+                  <div
+                    class="bg-green-900/40 rounded-xl p-4 border border-green-400/20"
+                  >
+                    <p class="text-green-300 font-semibold mb-2 text-sm">
+                      Older Adults
+                    </p>
+                    <ul class="text-gray-300 text-sm space-y-1">
+                      <li>• Comfortable seating</li>
+                      <li>• Easy vehicle access</li>
+                      <li>• Regular rest stops</li>
+                      <li>• Flexible pacing</li>
+                    </ul>
+                  </div>
+                  <div
+                    class="bg-amber-900/40 rounded-xl p-4 border border-amber-400/20"
                   >
                     <p class="text-amber-300 font-semibold mb-2 text-sm">
-                      Educational excellence:
+                      Family Groups
                     </p>
-                    <p class="text-gray-300 text-sm">
-                      Our naturalists don't just spot animals—they interpret
-                      behaviour, ecology, and conservation stories, transforming
-                      every sighting into a deeper understanding of Tadoba's
-                      ecosystem.
-                    </p>
+                    <ul class="text-gray-300 text-sm space-y-1">
+                      <li>• Private vehicle options</li>
+                      <li>• Customised timing</li>
+                      <li>• Photography assistance</li>
+                      <li>• Shared learning experience</li>
+                    </ul>
                   </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- FAQ Item 3 - Professional Standards -->
+          <div
+            class="group bg-gradient-to-br from-gray-800/60 to-gray-900/80 backdrop-blur-xl border border-gray-700/50 rounded-2xl overflow-hidden"
+          >
+            <button
+              class="w-full text-left p-8 flex items-center justify-between rounded-2xl"
+              data-faq-toggle
+            >
+              <div>
+                <h3
+                  class="text-xl font-semibold text-white mb-2 group-hover:text-amber-400 transition-colors duration-300"
+                >
+                  How do you ensure safe and educational safari experiences?
+                </h3>
+                <p class="text-gray-400 text-sm">
+                  Professional standards • Expert naturalists • Comprehensive
+                  safety protocols
+                </p>
+              </div>
+              <Icon
+                name="ph:caret-down-bold"
+                class="w-6 h-6 text-amber-400 transition-transform duration-300 group-hover:rotate-180"
+              />
+            </button>
+            <div
+              class="faq-content max-h-0 overflow-hidden transition-all duration-300 ease-in-out"
+            >
+              <div class="px-8 pb-8 border-t border-gray-700/30 pt-6">
+                <p class="text-gray-300 leading-relaxed mb-4">
+                  <strong class="text-amber-400"
+                    >All our organised safaris are briefed and attended by
+                    trained and experienced staff.</strong
+                  > Our certified naturalists undergo continuous training, while
+                  our drivers have decades of experience navigating Tadoba's terrain
+                  and wildlife behaviour patterns.
+                </p>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div
+                    class="bg-gray-900/60 rounded-xl p-4 border border-green-400/20"
+                  >
+                    <p class="text-sm text-green-300 mb-2">
+                      <strong>Professional expertise:</strong>
+                    </p>
+                    <ul class="text-gray-300 text-sm space-y-1">
+                      <li>• Certified naturalist guides</li>
+                      <li>• Experienced safari drivers</li>
+                      <li>• Wildlife behaviour specialists</li>
+                      <li>• Continuous education programmes</li>
+                    </ul>
+                  </div>
+                  <div
+                    class="bg-gray-900/60 rounded-xl p-4 border border-amber-400/20"
+                  >
+                    <p class="text-sm text-amber-300 mb-2">
+                      <strong>Safety protocols:</strong>
+                    </p>
+                    <ul class="text-gray-300 text-sm space-y-1">
+                      <li>• Pre-safari safety briefings</li>
+                      <li>• Radio communication systems</li>
+                      <li>• Emergency response procedures</li>
+                      <li>• Regular vehicle maintenance</li>
+                    </ul>
+                  </div>
+                </div>
+                <div
+                  class="mt-4 bg-amber-900/20 rounded-xl p-4 border border-amber-400/30"
+                >
+                  <p class="text-amber-300 font-semibold mb-2 text-sm">
+                    Educational excellence:
+                  </p>
+                  <p class="text-gray-300 text-sm">
+                    Our naturalists don't just spot animals—they interpret
+                    behaviour, ecology, and conservation stories, transforming
+                    every sighting into a deeper understanding of Tadoba's
+                    ecosystem.
+                  </p>
                 </div>
               </div>
             </div>
           </div>
         </div>
       </div>
-    </section>
-  </div>
-
-  <!-- Call to Action -->
-  <section class="py-32 bg-gradient-to-b from-gray-900 to-gray-950">
-    <div class="max-w-4xl mx-auto px-6 text-center">
-      <h2 class="font-serif italic text-5xl md:text-6xl text-white mb-8">
-        Your Wild <span class="text-amber-400">Adventure Awaits</span>
-      </h2>
-      <p
-        class="text-xl text-gray-300 font-light leading-relaxed mb-12 max-w-3xl mx-auto"
-      >
-        From the moment you enter Tadoba's embrace, every sense awakens to the
-        profound magic of India's greatest wilderness sanctuaries.
-      </p>
-
-      <div class="flex flex-col sm:flex-row gap-6 justify-center">
-        <a
-          href="/rooms"
-          title="View and book luxury safari accommodations at Limban Resort"
-          class="cta-filled">Plan Your Stay</a
-        >
-        <a
-          href="/vibe"
-          title="Experience the unique atmosphere and lifestyle at Limban Resort"
-          class="cta-outlined">The Limban Vibe</a
-        >
-      </div>
     </div>
   </section>
-  <!-- Contact Section -->
-  <ContactSection />
-
-  <GalleryModal />
 </Layout>
+
+<!-- Call to Action -->
+<section class="py-32 bg-gradient-to-b from-gray-900 to-gray-950">
+  <div class="max-w-4xl mx-auto px-6 text-center">
+    <h2 class="font-serif italic text-5xl md:text-6xl text-white mb-8">
+      Your Wild <span class="text-amber-400">Adventure Awaits</span>
+    </h2>
+    <p
+      class="text-xl text-gray-300 font-light leading-relaxed mb-12 max-w-3xl mx-auto"
+    >
+      From the moment you enter Tadoba's embrace, every sense awakens to the
+      profound magic of India's greatest wilderness sanctuaries.
+    </p>
+
+    <div class="flex flex-col sm:flex-row gap-6 justify-center">
+      <a
+        href="/rooms"
+        title="View and book luxury safari accommodations at Limban Resort"
+        class="cta-filled">Plan Your Stay</a
+      >
+      <a
+        href="/vibe"
+        title="Experience the unique atmosphere and lifestyle at Limban Resort"
+        class="cta-outlined">The Limban Vibe</a
+      >
+    </div>
+  </div>
+</section>
+<!-- Contact Section -->
+<ContactSection />
+
+<GalleryModal />
 
 <script>
   window.toggleSafariContent = function (index) {

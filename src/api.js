@@ -315,6 +315,17 @@ const ACTIVITIES_BY_CATEGORY_QUERY = `
   }
 `;
 
+const ACTIVITY_IMAGES_QUERY = `
+  query GetActivityImages {
+    activityImages(orderBy: category_ASC) {
+      category
+      image {
+        url
+      }
+    }
+  }
+`;
+
 // Simple error handler
 const handleError = (error, operation) => {
   console.error(`API Error in ${operation}:`, error);
@@ -338,6 +349,15 @@ export const fetchActivitiesByCategory = async (categories) => {
     return data.activities;
   } catch (error) {
     handleError(error, "fetchActivitiesByCategory");
+  }
+};
+
+export const fetchActivityImages = async () => {
+  try {
+    const data = await request(HYGRAPH_URL, ACTIVITY_IMAGES_QUERY);
+    return data.activityImages;
+  } catch (error) {
+    handleError(error, "fetchActivityImages");
   }
 };
 

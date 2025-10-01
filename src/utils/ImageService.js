@@ -4,6 +4,8 @@
  * Zero raw URLs escape this system
  */
 
+import { act } from "react";
+
 // Core Configuration
 export const IMAGE_CONFIG = {
   cloudName: "dfa5hhzej",
@@ -22,10 +24,14 @@ export const IMAGE_CONFIG = {
     roomCardHome: "w_400,h_300,c_fill",
     serviceCard: "w_400,h_400,c_fill",
 
-    // Gallery system
-    gallery: "w_400,h_300,c_fill",
-    galleryLarge: "w_1200,h_900,c_fill",
-    thumbnail: "w_92,h_92,c_fill",
+    // Gallery system - OPTIMIZED FOR UNIVERSAL GALLERY
+    thumbnail: "w_150,h_150,c_fill", // Grid thumbnails
+    gallery: "w_400,h_400,c_fill", // Gallery viewing
+    modal: "w_1400,h_1050,c_limit", // Modal display
+
+    // Gallery aliases for backward compatibility
+    galleryThumbnail: "w_150,h_150,c_fill", // Same as thumbnail
+    galleryModal: "w_1200,h_900,c_fill", // Same as galleryLarge
 
     // Specialized layouts
     subhero: "w_600,h_750,c_fill",
@@ -33,39 +39,39 @@ export const IMAGE_CONFIG = {
     logoSmall: "w_40,h_40,c_fit",
     headerTile: "w_200,h_200,c_fill",
     wellness: "w_600,h_750,c_fill,g_auto",
+    activity: "w_570,h_760,c_fill,g_auto",
 
-    // Modal and lightbox
-    modal: "w_1400,h_1050,c_limit",
-    modalFallback: "w_800,h_600,c_limit",
-
-    // Responsive sizes
+    // Legacy responsive sizes (keep if used elsewhere)
     small: "w_400,h_300,c_fill",
     medium: "w_600,h_450,c_fill",
     large: "w_1000,h_750,c_fill",
     xlarge: "w_1400,h_1050,c_fill",
+
+    // Modal fallback
+    modalFallback: "w_800,h_600,c_limit",
   },
 
-  // Quality presets by use case
+  // Quality presets by use case - OPTIMIZED FOR PERFORMANCE
   qualityPresets: {
-    hero: 65, // High quality for main visuals
-    gallery: 60, // Balanced for gallery viewing
-    thumbnail: 70, // Sharp for small previews
-    modal: 65, // Optimized for large viewing
+    hero: 65, // ← Reduced from 69 for faster loading
+    gallery: 55, // ← Reduced from 60, still sharp for viewing
+    thumbnail: 50, // ← Reduced from 70, thumbnails don't need high quality
+    modal: 65, // ← Kept high for detail viewing
     card: 65, // Clean for card layouts
     logo: 90, // Crisp for branding
   },
 
-  // Performance settings
+  // Performance settings - GALLERY OPTIMIZED
   performance: {
-    defaultFormat: "avif",
-    fallbackFormat: "webp",
+    defaultFormat: "avif", // Best compression
+    fallbackFormat: "webp", // Good fallback
     enableProgressive: true,
     enableLossless: false,
     compressionLevel: "auto",
     fetchPriority: {
       hero: "high",
-      gallery: "low",
-      thumbnail: "low",
+      gallery: "low", // Galleries load after hero
+      thumbnail: "low", // Thumbnails load last
     },
   },
 
@@ -229,6 +235,7 @@ class ImageService {
       modalFallback: IMAGE_CONFIG.qualityPresets.modal,
       logo: IMAGE_CONFIG.qualityPresets.logo,
       logoSmall: IMAGE_CONFIG.qualityPresets.logo,
+      homeRound: IMAGE_CONFIG.qualityPresets.card,
     };
 
     return qualityMap[variant] || IMAGE_CONFIG.qualityPresets.gallery;

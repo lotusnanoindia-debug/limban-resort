@@ -2,12 +2,11 @@
 import { Icon } from "astro-icon/components";
 import Layout from "../../layouts/Layout.astro";
 import { AstroSEO } from "astro-seo-plugin";
-import GalleryGrid from "../../components/GalleryGrid.astro";
-import LoadMoreGallery from "../../components/LoadMoreGallery.astro";
+import UniversalGallery from "../../components/UniversalGallery.astro";
 import GalleryModal from "../../components/GalleryModal.astro";
 import ReservationForm from "../../components/ReservationForm.astro";
 import SmartReserveButton from "../../components/SmartReserveButton.astro";
-import imageService, { processGalleryImages } from "../../utils/ImageService.js";
+import imageService from "../../utils/ImageService.js";
 import {
   fetchRoomBySlug,
   fetchRooms,
@@ -62,42 +61,14 @@ const heroImageData = room.heroImage ? {
 // Safe price processing
 const safePrice = Number(room.basePrice) || 0;
 
-// Process all gallery images through ImageService
-const processedGalleryImages = room.gallery && Array.isArray(room.gallery) && room.gallery.length > 0
-  ? room.gallery.map((item, index) => {
-      const imageData = item.image || item;
-
-      // If you have id/alt/size fields, always set them!
-      return {
-        id: imageData.id || index,
-        alt: imageData.alt || item.caption || `${room.roomName} view ${index + 1}`,
-        width: imageData.width,
-        height: imageData.height,
-        caption: item.caption || imageData.alt || `${room.roomName} view ${index + 1}`,
-        processedUrls: {
-          thumbnail: imageService.processImage(imageData, "galleryThumbnail"),
-          gallery: imageService.processImage(imageData, "gallery"),
-          large: imageService.processImage(imageData, "galleryLarge"),
-          modal: imageService.processImage(imageData, "heroDesktop"), // Must map to BIG variant!
-        }
-      };
-    }).filter(Boolean)
-  : [];
-
-
-// Split for load more functionality
-const initialGalleryImages = processedGalleryImages.slice(0, 12);
-const remainingGalleryImages = processedGalleryImages.slice(12);
 
 // Generate SEO-optimized URLs for schema
 const heroImageUrl = heroImageData 
   ? imageService.processImage(heroImageData, 'heroDesktop', { quality: 75 })
   : 'https://limban.com/img/room-placeholder.avif';
 
-const schemaImages = [
-  heroImageUrl,
-  ...processedGalleryImages.slice(0, 4).map(img => img.processedUrls.large)
-].filter(Boolean);
+const schemaImages = [heroImageUrl].filter(Boolean);
+
 ---
 
 <link rel="preload" as="image" href={heroImageUrl} fetchpriority="high" />
@@ -257,50 +228,7 @@ const schemaImages = [
             Explore every detail of your luxury safari accommodation through our curated visual experience
           </p>
         </header>
-
-        <!-- Universal Gallery Grid -->
-        {processedGalleryImages.length > 0 ? (
-          <>
-            <GalleryGrid
-              images={initialGalleryImages}
-              galleryType="rooms"
-              gridId="room-gallery-grid"
-              layout="grid"
-              columns={{
-                mobile: 2,
-                tablet: 4,
-                desktop: 6,
-                xl: 6
-              }}
-              aspectRatio="square"
-              showOverlay={true}
-              loadingStrategy="intersection"
-            />
-
-            {remainingGalleryImages.length > 0 && (
-              <LoadMoreGallery
-                buttonId="load-more-room-gallery"
-                remainingImages={remainingGalleryImages}
-                galleryType="rooms"
-                galleryGridId="room-gallery-grid"
-                initialCount={initialGalleryImages.length}
-                batchSize={12}
-                customLabels={{ rooms: "Room Views" }}
-                showProgress={true}
-              />
-            )}
-
-            <div class="text-center mt-8">
-              <p class="text-gray-400 font-light italic">
-                Click any image to explore {room.roomName} in stunning detail
-              </p>
-            </div>
-          </>
-        ) : (
-          <div class="text-center py-16">
-            <p class="text-gray-400 text-lg">Gallery images coming soon...</p>
-          </div>
-        )}
+        <UniversalGallery rawImages={room.gallery} galleryType="rooms" />
       </div>
     </section>
 

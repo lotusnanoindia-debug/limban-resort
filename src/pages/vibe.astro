@@ -1,8 +1,7 @@
 ---
 import Layout from "../layouts/Layout.astro";
 import { AstroSEO } from "astro-seo-plugin";
-import GalleryGrid from "../components/GalleryGrid.astro";
-import LoadMoreGallery from "../components/LoadMoreGallery.astro";
+import UniversalGallery from "../components/UniversalGallery.astro";
 import GalleryModal from "../components/GalleryModal.astro";
 import imageService from "../utils/ImageService.js";
 import { fetchVibePage } from "../api.js";
@@ -31,7 +30,7 @@ const processedVibeImages = vibeData?.vibeImages && vibeData.vibeImages.length >
         height: imageData.height,
         processedUrls: {
           thumbnail: imageService.processImage(imageData, 'galleryThumbnail'),
-          gallery: imageService.processImage(imageData, 'galleryLarge'),
+          gallery: imageService.processImage(imageData, 'gallery'),
           large: imageService.processImage(imageData, 'galleryModal'), 
           modal: imageService.processImage(imageData, 'heroDesktop')
         }
@@ -50,7 +49,7 @@ const processedWildlifeImages = vibeData?.wildlifeImages && vibeData.wildlifeIma
         height: imageData.height,
         processedUrls: {
           thumbnail: imageService.processImage(imageData, 'galleryThumbnail'),
-          gallery: imageService.processImage(imageData, 'galleryLarge'),
+          gallery: imageService.processImage(imageData, 'gallery'),
           large: imageService.processImage(imageData, 'galleryModal'),
           modal: imageService.processImage(imageData, 'heroDesktop')
         }
@@ -218,8 +217,6 @@ const schemaImages = [
 
       <!-- Layered Gradients for Perfect Text Readability -->
       <div class="absolute inset-0 bg-gradient-to-br from-black/80 via-black/50 to-black/70"></div>
-      <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-black/40"></div>
-      <div class="absolute inset-0 bg-gradient-to-r from-transparent via-amber-400/5 to-transparent animate-pulse"></div>
       
       <!-- Hero content -->
       <div class="relative z-10 max-w-7xl mx-auto px-6 text-center">
@@ -253,7 +250,7 @@ const schemaImages = [
             </svg>
           </li>
           <li>
-            <span class="text-amber-400 font-medium">The Vibe</span>
+            <span class="text-amber-400 font-medium">The Limban Vibe</span>
           </li>
         </ol>
       </div>
@@ -277,34 +274,13 @@ const schemaImages = [
 
         {processedVibeImages.length > 0 ? (
           <>
-            <GalleryGrid
-              images={initialVibeImages}
+            <!-- NEW - One component does everything -->
+            <UniversalGallery 
+              rawImages={vibeData.vibeImages}
               galleryType="vibe"
-              gridId="vibe-gallery-grid"
-              layout="grid"
-              columns={{
-                mobile: 2,
-                tablet: 4,
-                desktop: 6,
-                xl: 6
-              }}
+              initialCount={12}
               aspectRatio="square"
-              showOverlay={true}
-              loadingStrategy="intersection"
             />
-
-            {remainingVibeImages.length > 0 && (
-              <LoadMoreGallery
-                buttonId="load-more-vibe-gallery"
-                remainingImages={remainingVibeImages}
-                galleryType="vibe"
-                galleryGridId="vibe-gallery-grid"
-                initialCount={initialVibeImages.length}
-                batchSize={12}
-                customLabels={{ vibe: "Vibe Images" }}
-              />
-            )}
-
             <div class="text-center mt-8">
               <p class="text-gray-400 font-light italic">
                 Click any image to explore the Limban experience in detail
@@ -351,33 +327,12 @@ const schemaImages = [
 
         {processedWildlifeImages.length > 0 ? (
           <>
-            <GalleryGrid
-              images={initialWildlifeImages}
+            <UniversalGallery 
+              rawImages={vibeData.wildlifeImages}
               galleryType="wildlife"
-              gridId="wildlife-gallery-grid"
-              layout="grid"
-              columns={{
-                mobile: 2,
-                tablet: 4,
-                desktop: 6,
-                xl: 6
-              }}
+              initialCount={12}
               aspectRatio="square"
-              showOverlay={true}
-              loadingStrategy="intersection"
             />
-
-            {remainingWildlifeImages.length > 0 && (
-              <LoadMoreGallery
-                buttonId="load-more-wildlife-gallery"
-                remainingImages={remainingWildlifeImages}
-                galleryType="wildlife"
-                galleryGridId="wildlife-gallery-grid"
-                initialCount={initialWildlifeImages.length}
-                batchSize={12}
-                customLabels={{ wildlife: "Wildlife Images" }}
-              />
-            )}
 
             <div class="text-center mt-8">
               <p class="text-gray-400 font-light italic">

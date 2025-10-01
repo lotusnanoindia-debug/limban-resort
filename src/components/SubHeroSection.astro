@@ -43,16 +43,9 @@ const imageAlt = subHero?.subHeroImage?.altText ||
           >
             {subHero.title}
           </h2>
-          
-          {subHero.bodyText?.html && (
-            <div
-              class="max-w-none mb-8 [&>p]:text-gray-300 [&>p]:leading-relaxed [&>p]:mb-4 [&>p:last-child]:mb-0 [&>strong]:text-white [&>em]:text-amber-400"
-              set:html={subHero.bodyText.html}
-            />
-          )}
-          
+
           {subHero.stats && subHero.stats.length > 0 && (
-            <div class="grid grid-cols-3 gap-6 mt-12" role="list" aria-label="Resort statistics">
+            <div class="grid grid-cols-3 gap-6 my-12" role="list" aria-label="Resort statistics">
               {subHero.stats.map((stat, index) => (
                 <div
                   key={index}
@@ -73,6 +66,16 @@ const imageAlt = subHero?.subHeroImage?.altText ||
               ))}
             </div>
           )}
+
+          {subHero.bodyText?.html && (
+            <div
+              class="max-w-none mb-8 [&>p]:text-gray-300 [&>p]:leading-relaxed [&>p]:mb-4 [&>p:last-child]:mb-0 [&>strong]:text-white [&>em]:text-amber-400"
+              set:html={subHero.bodyText.html}
+            />
+          )}
+          <a href="/vibe" class="home-cta">Feel The Limban Vibe
+            <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path> </svg>
+          </a>
         </div>
         
         <div class="order-1 lg:order-2 hidden sm:block">

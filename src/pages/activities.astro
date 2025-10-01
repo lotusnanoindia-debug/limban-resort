@@ -3,18 +3,60 @@ import Layout from "../layouts/Layout.astro";
 import { AstroSEO } from "astro-seo-plugin";
 import { Icon } from "astro-icon/components";
 import ContactSection from "../components/ContactSection.astro";
-import { fetchActivities } from "../api.js";
+import { fetchActivities, fetchActivityImages } from "../api.js";
+import imageService from "../utils/ImageService.js";
 
 // Hero image - your clean pattern
 const heroImage = "https://res.cloudinary.com/dfa5hhzej/image/fetch/w_1200,f_avif,q_50/https://ap-south-1.graphassets.com/cmek3o6f00dcb07o59sno2s0e/cmetqft4x1pw807oa6lb58dzm";
 
-// Fetch activities data
+// Server-side data fetching with error handling
 let activitiesData = [];
+let activityImagesData = [];
 try {
-  activitiesData = await fetchActivities();
+  [activitiesData, activityImagesData] = await Promise.all([
+    fetchActivities(),
+    fetchActivityImages()
+  ]);
 } catch (error) {
   console.error("Activities fetch error:", error);
+  activitiesData = [];
+  activityImagesData = [];
 }
+
+// Process category images using your ImageService pattern
+// Process category images using your ImageService pattern  
+const processedCategoryImages = 
+  activityImagesData && activityImagesData.length > 0
+    ? activityImagesData.map((item, index) => {
+        const imageData = item.image;
+        
+        if (!imageData?.url) {
+          console.warn(`No image URL for category: ${item.category}`);
+          return null;
+        }
+        
+        return {
+          category: item.category,
+          id: imageData.id,
+          width: imageData.width,
+          height: imageData.height,
+          processedUrls: {
+            activity: imageService.processImage({url: imageData.url}, "activity"),
+          },
+        };
+      }).filter(Boolean)
+    : [];
+
+
+// Create image lookup map using processed images
+const imageMap = processedCategoryImages.reduce((acc, item) => {
+  if (item.processedUrls.activity) {
+    acc[item.category] = {
+      url: item.processedUrls.activity
+    };
+  }
+  return acc;
+}, {});
 
 // Group by category
 const grouped = activitiesData.reduce((acc, item) => {
@@ -33,9 +75,8 @@ const categoryConfig = {
     bgGradient: "from-emerald-400/10 via-teal-500/10 to-emerald-400/10",
     gradientText: "from-emerald-300 via-teal-400 to-cyan-400",
     iconColor: "text-emerald-400",
-    image: "https://res.cloudinary.com/dfa5hhzej/image/upload/w_600,h_800,c_fill,g_center,f_avif,q_80/v1759238992/relaxing-yoga_ezwr0t.jpg",
+    image: imageMap.unwind?.url || null,
     imageAlt: "Peaceful wellness and yoga experiences in natural settings - Limban Resort"
-
   },
   getActive: {
     name: "Get Active",
@@ -46,7 +87,7 @@ const categoryConfig = {
     bgGradient: "from-amber-400/10 via-orange-500/10 to-amber-400/10",
     gradientText: "from-amber-300 via-orange-400 to-amber-400",
     iconColor: "text-amber-400",
-    image: "https://res.cloudinary.com/dfa5hhzej/image/upload/w_600,h_800,c_fill,g_center,f_avif,q_60/v1759238677/lets-get-active_gwmim7.png",
+    image: imageMap.getActive?.url || null,
     imageAlt: "Active sports and recreational activities for guests - Limban Resort"
   },
   connect: {
@@ -58,7 +99,7 @@ const categoryConfig = {
     bgGradient: "from-emerald-400/10 via-teal-500/10 to-emerald-400/10",
     gradientText: "from-emerald-300 via-teal-400 to-cyan-400",
     iconColor: "text-emerald-400",
-    image: "https://res.cloudinary.com/dfa5hhzej/image/upload/w_600,h_800,c_fill,g_center,f_avif,q_60/v1759237582/our-veggies_ifzs7r.jpg",
+    image: imageMap.connect?.url || null,
     imageAlt: "Farm-to-table organic vegetables and nature connection experiences - Limban Resort"
   },
   create: {
@@ -70,7 +111,7 @@ const categoryConfig = {
     bgGradient: "from-rose-400/10 via-pink-500/10 to-rose-400/10",
     gradientText: "from-rose-300 via-pink-400 to-rose-400",
     iconColor: "text-rose-400",
-    image: "https://res.cloudinary.com/dfa5hhzej/image/upload/w_600,h_800,c_fill,g_center,f_avif,q_60/v1759237651/sketch-in-nature_ft6dvy.jpg",
+    image: imageMap.create?.url || null,
     imageAlt: "Creative workshops and artistic activities in natural surroundings - Limban Resort"
   },
   explore: {
@@ -82,7 +123,7 @@ const categoryConfig = {
     bgGradient: "from-cyan-400/10 via-teal-500/10 to-cyan-400/10",
     gradientText: "from-cyan-300 via-teal-400 to-cyan-400",
     iconColor: "text-cyan-400",
-    image: "https://res.cloudinary.com/dfa5hhzej/image/upload/w_600,h_800,c_fill,g_center,f_avif,q_60/v1759236910/cultural-show_i5pf1g.jpg",
+    image: imageMap.explore?.url || null,
     imageAlt: "Traditional cultural performances and local heritage experiences - Limban Resort"
   },
   kids: {
@@ -94,7 +135,7 @@ const categoryConfig = {
     bgGradient: "from-cyan-400/10 via-teal-500/10 to-cyan-400/10",
     gradientText: "from-cyan-300 via-teal-400 to-cyan-400",
     iconColor: "text-cyan-400",
-    image: "https://res.cloudinary.com/dfa5hhzej/image/upload/w_600,h_800,c_fill,g_center,f_avif,q_60/v1759236713/boy-cooking-class_oqlbrz.png",
+    image: imageMap.kids?.url || null,
     imageAlt: "Family-friendly cooking classes and kids' activities - Limban Resort"
   }
 };
@@ -140,23 +181,72 @@ const faqs = [
     }}
     jsonLd={{
       "@context": "https://schema.org",
-      "@type": "TouristAttraction", 
-      "name": "Limban Resort Activities & Experiences",
-      "description": "Comprehensive activity offerings at Limban Resort including wildlife experiences, cultural workshops, family activities, and wellness programmes in Tadoba National Park",
-      "url": "https://limban.com/activities",
-      "image": heroImage,
-      "location": {
-        "@type": "Place",
-        "name": "Limban Resort",
-        "address": {
-          "@type": "PostalAddress",
-          "streetAddress": "Survey No. 306, Village Mudholi",
-          "addressLocality": "Chandrapur",
-          "addressRegion": "Maharashtra", 
-          "postalCode": "442906",
-          "addressCountry": "IN"
+      "@graph": [
+        {
+          "@type": "TouristAttraction",
+          "name": "Limban Resort Activities & Experiences",
+          "description": "Comprehensive activity offerings at Limban Resort including wildlife experiences, cultural workshops, family activities, and wellness programmes in Tadoba National Park",
+          "url": "https://limban.com/activities",
+          "image": heroImage,
+          "location": {
+            "@type": "Place",
+            "name": "Limban Resort",
+            "address": {
+              "@type": "PostalAddress",
+              "streetAddress": "Survey No. 306, Village Mudholi",
+              "addressLocality": "Chandrapur",
+              "addressRegion": "Maharashtra",
+              "postalCode": "442906",
+              "addressCountry": "IN"
+            }
+          }
+        },
+        {
+          "@type": "FAQPage",
+          "mainEntity": [
+            {
+              "@type": "Question",
+              "name": "Which activities are included in the room rate?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Most of our activities are complimentary for guests, including swimming, table tennis, carrom, board games, farm visits, and nature walks. Specialised workshops and spa treatments may have additional charges. Our team will provide complete details upon arrival."
+              }
+            },
+            {
+              "@type": "Question", 
+              "name": "Do I need to book activities in advance?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Whilst many activities are available on a walk-in basis, we recommend booking specialised experiences like cooking classes, craft workshops, and guided nature tours in advance to ensure availability. Our concierge team can assist with scheduling during your stay."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "Are activities suitable for children?",
+              "acceptedAnswer": {
+                "@type": "Answer", 
+                "text": "Absolutely! We have dedicated kids' activities and family-friendly options across all categories. Our team ensures age-appropriate modifications for younger guests, and our Kids & Families section offers specially designed experiences for our youngest explorers."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "What happens during monsoon season?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "We maintain a full range of indoor activities during monsoon months, including our games room, craft workshops, cooking classes, and cultural performances. Many of our covered areas and indoor spaces ensure your experience remains exceptional regardless of weather."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "Can activities be customised for special occasions?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Yes! We love creating personalised experiences for birthdays, anniversaries, and special celebrations. Our team can arrange private sessions, group activities, or combine multiple experiences for memorable milestone moments."
+              }
+            }
+          ]
         }
-      }
+      ]
     }}
   />
 
@@ -221,7 +311,7 @@ const faqs = [
         <!-- Section Header -->
         <header class="text-center mb-24">
           <div class="inline-block px-6 py-2 bg-amber-400/10 border border-amber-400/30 rounded-full mb-8">
-            <span class="text-amber-400 text-sm font-medium tracking-widest uppercase">Curated Experiences</span>
+            <span class="text-amber-400 text-sm font-medium tracking-widest uppercase">Limban Experiences</span>
           </div>
           <h2 class="font-serif italic text-5xl md:text-6xl text-white mb-8">
             Your <span class="text-amber-400">Adventure</span> Awaits
@@ -242,23 +332,34 @@ const faqs = [
                 
                 <!-- Category Image - Portrait -->
                 <div class={`relative group ${categoryIndex % 2 === 1 ? 'lg:col-start-2' : ''}`}>
-                <div class="relative aspect-[3/4] overflow-hidden rounded-3xl border border-gray-700/50 group-hover:border-amber-400/40 transition-all duration-700">
-                    <img 
-                    src={config.image} 
-                    alt={config.imageAlt}
-                    class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" 
-                    loading="lazy"
-                    />
-                    <div class="absolute inset-0 bg-gradient-to-t from-gray-950/60 via-transparent to-gray-950/20"></div>
-                </div>
+                  <div class="relative aspect-[3/4] overflow-hidden rounded-3xl border border-gray-700/50 group-hover:border-amber-400/40 transition-all duration-700 bg-gradient-to-br from-gray-800/60 to-gray-900/80">
+                    {config.image ? (
+                      <>
+                        <img 
+                          src={config.image} 
+                          alt={config.imageAlt}
+                          class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" 
+                          loading="lazy"
+                        />
+                        <div class="absolute inset-0 bg-gradient-to-t from-gray-950/60 via-transparent to-gray-950/20"></div>
+                      </>
+                    ) : (
+                      <div class="flex items-center justify-center h-full">
+                        <div class="text-center space-y-4">
+                          <Icon name={activities[0]?.svg || "ph:sparkle"} class={`w-16 h-16 ${config.iconColor}/60 mx-auto`} />
+                          <p class={`${config.textAccent}/60 text-sm uppercase tracking-wider`}>Category Image Coming Soon</p>
+                        </div>
+                      </div>
+                    )}
+                  </div>
                 </div>
 
                 <!-- Category Content -->
                 <div class={`space-y-8 ${categoryIndex % 2 === 1 ? 'lg:col-start-1' : ''}`}>
                   <header class="space-y-6">
                     <div class="flex items-center gap-4">
-                      <div class={`w-16 h-px bg-gradient-to-r ${config.bgGradient.replace('from-', 'from-').replace('to-', 'to-transparent from-')}`}></div>
-                      <span class={`${config.textAccent}/60 text-sm uppercase tracking-[0.3em] font-medium`}>
+                      <div class="w-16 h-px bg-gradient-to-r from-amber-400 to-transparent" />
+                      <span class="text-white/60 text-sm uppercase tracking-[0.3em]">
                         Experience Category {categoryIndex + 1}
                       </span>
                     </div>
@@ -268,7 +369,6 @@ const faqs = [
                     </h3>
                     
                     <p class={`text-2xl text-transparent bg-gradient-to-r ${config.gradientText} bg-clip-text font-medium leading-relaxed`}>
-
                       {config.description}
                     </p>
                   </header>
@@ -276,23 +376,23 @@ const faqs = [
                   <!-- Activities Grid -->
                   <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {activities.map((activity) => (
-                        <div key={activity.id} class={`group relative bg-gray-900/60 rounded-xl p-6 pt-4 ${config.borderColor} border hover:border-opacity-60 hover:-translate-y-1 transition-all duration-300 overflow-hidden`}>
+                      <div key={activity.id} class={`group relative bg-gray-900/60 rounded-xl p-6 pt-4 ${config.borderColor} border hover:border-opacity-60 hover:-translate-y-1 transition-all duration-300 overflow-hidden`}>
                         
                         <div class="absolute top-4 right-2 z-1">
-                            <div class={`w-12 h-12 rounded-lg bg-gradient-to-br ${config.bgGradient} flex items-center justify-center group-hover:opacity-80 transition-all duration-300 shadow-lg`}>
+                          <div class={`w-12 h-12 rounded-lg bg-gradient-to-br ${config.bgGradient} flex items-center justify-center group-hover:opacity-80 transition-all duration-300 shadow-lg`}>
                             <Icon name={activity.svg} class={`w-6 h-6 ${config.iconColor} group-hover:scale-110 transition-transform duration-300`} />
-                            </div>
+                          </div>
                         </div>
 
                         <div class="pr-12">
-                            <h4 class={`font-bold text-lg text-white mb-3 group-hover:${config.textAccent} transition-colours leading-tight`}>
+                          <h4 class={`font-bold text-lg text-white mb-3 group-hover:${config.textAccent} transition-colours leading-tight`}>
                             {activity.title}
-                            </h4>
-                            <p class="text-gray-400 text-sm leading-relaxed whitespace-pre-line group-hover:text-gray-300 transition-colours">
+                          </h4>
+                          <p class="text-gray-400 text-sm leading-relaxed whitespace-pre-line group-hover:text-gray-300 transition-colours">
                             {activity.description}
-                            </p>
+                          </p>
                         </div>
-                        </div>
+                      </div>
                     ))}
                   </div>
                 </div>

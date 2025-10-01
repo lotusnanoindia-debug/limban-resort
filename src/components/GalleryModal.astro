@@ -224,7 +224,7 @@
   <div class="flex-shrink-0 px-4 md:px-6 py-3 text-center">
     <p
       id="image-description"
-      class="text-amber-400/90 text-base font-semibold italic leading-relaxed"
+      class="text-amber-400/90 text-base font-semibold italic leading-relaxed capitalize"
     >
       <!-- Image alt text will be populated here -->
     </p>
@@ -382,21 +382,21 @@
         this.element.addEventListener(
           "touchstart",
           this.handleTouchStart.bind(this),
-          { passive: false }
+          { passive: false },
         );
         this.element.addEventListener(
           "touchmove",
           this.handleTouchMove.bind(this),
-          { passive: false }
+          { passive: false },
         );
         this.element.addEventListener(
           "touchend",
           this.handleTouchEnd.bind(this),
-          { passive: false }
+          { passive: false },
         );
         this.element.addEventListener(
           "touchcancel",
-          this.handleTouchCancel.bind(this)
+          this.handleTouchCancel.bind(this),
         );
       }
 
@@ -511,7 +511,7 @@
       set(key, value) {
         if (this.cache.size >= this.maxSize && !this.cache.has(key)) {
           const oldestKey = [...this.accessTimes.entries()].sort(
-            ([, a], [, b]) => a - b
+            ([, a], [, b]) => a - b,
           )[0][0];
           this.cache.delete(oldestKey);
           this.accessTimes.delete(oldestKey);
@@ -757,7 +757,7 @@
         images,
         index = 0,
         title = "Gallery",
-        galleryType = "general"
+        galleryType = "general",
       ) {
         if (!images || images.length === 0) return;
         this.currentImages = images;
@@ -833,7 +833,7 @@
           };
 
           thumbnailWrapper.addEventListener("click", () =>
-            this.goToImage(index)
+            this.goToImage(index),
           );
 
           thumbnailWrapper.appendChild(shimmer);
@@ -852,12 +852,12 @@
           if (index === this.currentIndex) {
             thumbnail.className = thumbnail.className.replace(
               /border-white\/20 hover:border-amber-400\/60 thumbnail-hover-effects/g,
-              "border-amber-400 scale-110 shadow-lg shadow-amber-400/50"
+              "border-amber-400 scale-110 shadow-lg shadow-amber-400/50",
             );
           } else {
             thumbnail.className = thumbnail.className.replace(
               /border-amber-400 scale-110 shadow-lg shadow-amber-400\/50/g,
-              "border-white/20 hover:border-amber-400/60 thumbnail-hover-effects"
+              "border-white/20 hover:border-amber-400/60 thumbnail-hover-effects",
             );
           }
         });
@@ -1108,7 +1108,7 @@
           () => {
             this.preloadBatch();
           },
-          { timeout: 3000 }
+          { timeout: 3000 },
         );
       }
 
@@ -1118,7 +1118,7 @@
           indices.push((this.currentIndex + i) % this.currentImages.length);
           indices.push(
             (this.currentIndex - i + this.currentImages.length) %
-              this.currentImages.length
+              this.currentImages.length,
           );
         }
 
@@ -1194,14 +1194,14 @@
       images,
       index = 0,
       title = "Gallery",
-      galleryType = "general"
+      galleryType = "general",
     ) {
       if (window.universalGalleryModal) {
         window.universalGalleryModal.openModal(
           images,
           index,
           title,
-          galleryType
+          galleryType,
         );
       }
     };

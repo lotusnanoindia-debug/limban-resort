@@ -5,9 +5,9 @@ const { heroes } = Astro.props;
 
 // Clean, optimized static background
 const heroImageUrl =
-  "https://res.cloudinary.com/dfa5hhzej/image/upload/f_auto,q_auto:best,w_1920,c_scale/cmfxqunpk0u5t08pokz44mq8l_hspm7l";
+  "https://res.cloudinary.com/dfa5hhzej/image/upload/f_auto,q_50,w_1600,c_scale/cmfxqunpk0u5t08pokz44mq8l_hspm7l";
 const heroMobileUrl =
-  "https://res.cloudinary.com/dfa5hhzej/image/upload/f_auto,q_auto:best,w_800,c_scale/cmfxqunpk0u5t08pokz44mq8l_hspm7l";
+  "https://res.cloudinary.com/dfa5hhzej/image/upload/f_auto,q_50,w_600,c_scale/cmfxqunpk0u5t08pokz44mq8l_hspm7l";
 
 // All 8 slides for cycling
 const contentCycle = heroes.map((h, index) => ({
@@ -17,19 +17,22 @@ const contentCycle = heroes.map((h, index) => ({
   link: h.ctaLink || "/rooms",
   index: index,
   heroImage: h.backgroundImage
-    ? imageService.processImage(
-        {
-          ...h.backgroundImage,
-          context: {
-            pageType: "homepage",
-            contentName: h.slideTitle,
-            imageType: "serviceCard",
-            index,
+    ? (() => {
+        const result = imageService.processImage(
+          {
+            ...h.backgroundImage,
+            context: {
+              pageType: "homepage",
+              contentName: h.slideTitle,
+              imageType: "homeRound",
+              index,
+            },
           },
-        },
-        "medium",
-        { quality: 60 },
-      )
+          "homeRound",
+          { quality: 60 },
+        );
+        return result;
+      })()
     : null,
 }));
 ---
