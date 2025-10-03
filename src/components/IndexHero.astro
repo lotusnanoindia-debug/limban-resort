@@ -5,9 +5,9 @@ const { heroes } = Astro.props;
 
 // Clean, optimized static background
 const heroImageUrl =
-  "https://res.cloudinary.com/dfa5hhzej/image/upload/f_auto,q_50,w_1600,c_scale/cmfxqunpk0u5t08pokz44mq8l_hspm7l";
+  "https://res.cloudinary.com/dfa5hhzej/image/upload/f_auto,q_35,w_1600,c_scale/cmfxqunpk0u5t08pokz44mq8l_hspm7l";
 const heroMobileUrl =
-  "https://res.cloudinary.com/dfa5hhzej/image/upload/f_auto,q_50,w_600,c_scale/cmfxqunpk0u5t08pokz44mq8l_hspm7l";
+  "https://res.cloudinary.com/dfa5hhzej/image/upload/f_auto,q_35,w_600,c_scale/cmfxqunpk0u5t08pokz44mq8l_hspm7l";
 
 // All 8 slides for cycling
 const contentCycle = heroes.map((h, index) => ({
@@ -65,7 +65,7 @@ const contentCycle = heroes.map((h, index) => ({
     <div class="max-w-6xl">
       <!-- Cycling image positioned directly above the header - HIDDEN ON SMALL SCREENS -->
       <div class="relative mb-8 justify-center lg:justify-start hidden lg:flex">
-        <div class="relative w-72 h-72">
+        <div class="relative w-96 h-72">
           {
             contentCycle.map((slide, index) => (
               <div
@@ -76,7 +76,7 @@ const contentCycle = heroes.map((h, index) => ({
                   <img
                     src={slide.heroImage}
                     alt={`${slide.impact} experience`}
-                    class="w-full h-full object-cover rounded-full shadow-2xl border border-white/30 shadow-amber-400/50"
+                    class="w-full h-full object-cover rounded-2xl shadow-2xl border border-white/30 shadow-amber-400/50"
                     loading={index === 0 ? "eager" : "lazy"}
                   />
                 )}
@@ -84,10 +84,6 @@ const contentCycle = heroes.map((h, index) => ({
             ))
           }
           <!-- Elegant accent -->
-          <div
-            class="absolute -inset-1 rounded-full bg-gradient-to-br from-amber-400/20 to-transparent pointer-events-none shadow-lg shadow-amber-400/30"
-          >
-          </div>
         </div>
       </div>
 

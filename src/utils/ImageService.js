@@ -17,7 +17,7 @@ export const IMAGE_CONFIG = {
     heroTablet: "w_1024,h_576,c_fill",
     heroMobile: "w_768,h_432,c_fill",
     hero4K: "w_2560,h_1440,c_fill",
-    homeRound: "w_300,h_300,c_fill",
+    homeRound: "w_400,h_300,c_fill",
 
     // Card layouts
     roomCard: "w_590,h_400,c_fill",
