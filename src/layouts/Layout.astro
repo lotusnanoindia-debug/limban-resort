@@ -32,18 +32,5 @@ const { title = "Limban Resort" } = Astro.props;
       <slot />
     </main>
     <Footer />
-
-    <script is:inline>
-      // Essential smooth scrolling only
-      document.addEventListener("click", (e) => {
-        const target = e.target.closest('a[href^="#"]');
-        if (target) {
-          e.preventDefault();
-          document
-            .querySelector(target.getAttribute("href"))
-            ?.scrollIntoView({ behavior: "smooth" });
-        }
-      });
-    </script>
   </body>
 </html>

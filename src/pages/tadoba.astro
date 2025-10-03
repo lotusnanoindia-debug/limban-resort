@@ -2,8 +2,12 @@
 import Layout from "../layouts/Layout.astro";
 import { AstroSEO } from "astro-seo-plugin";
 
-const heroImage =
-  "https://the-knowledge-brokers.sirv.com/limban/morning-in-tadoba-national-park.jpg?q=50&sharpen=1&w=1920";
+// Clean, optimized static background
+const heroImageUrl =
+  "https://res.cloudinary.com/dfa5hhzej/image/upload/f_avif,q_35,w_1400,c_scale/morning-in-tadoba-national-park_ytygcd.jpg";
+
+const heroMobileUrl =
+  "https://res.cloudinary.com/dfa5hhzej/image/upload/f_avif,q_35,w_600,c_scale/morning-in-tadoba-national-park_ytygcd.jpg";
 ---
 
 <Layout>
@@ -16,7 +20,7 @@ const heroImage =
       title: "The Complete Guide to Tadoba National Park | Limban Resort",
       description:
         "Discover the secrets of India's premier tiger sanctuary. Ancient forests, legendary cats, and sacred heritage await.",
-      image: heroImage,
+      image: heroImageUrl,
       type: "article",
       url: "https://limban.com/tadoba-guide",
     }}
@@ -29,7 +33,7 @@ const heroImage =
             "The Complete Guide to Tadoba National Park | Limban Resort",
           description:
             "The definitive insider's guide to Maharashtra's greatest tiger reserve. From ancient Gond legends to modern conservation triumphs, understand what makes Tadoba truly extraordinary.",
-          image: heroImage,
+          image: heroImageUrl,
           author: {
             "@type": "Organization",
             name: "Limban Resort",
@@ -137,15 +141,19 @@ const heroImage =
   <section
     class="relative min-h-screen flex items-center justify-center overflow-hidden"
   >
-    <!-- Animated background -->
+    <!-- background -->
     <div class="absolute inset-0">
-      <img
-        src={heroImage}
-        alt="Majestic nature in Tadoba National Park - experience it at Limban Resort"
-        class="w-full h-full object-cover scale-110 animate-slow-zoom"
-        loading="eager"
-        fetchpriority="high"
-      />
+      <picture>
+        <source media="(max-width: 768px)" srcset={heroMobileUrl} />
+        <img
+          src={heroImageUrl}
+          class="w-full h-full object-cover"
+          alt="Majestic nature in Tadoba National Park - experience it at Limban Resort"
+          loading="eager"
+          fetchpriority="high"
+        />
+      </picture>
+
       <div
         class="absolute inset-0 bg-gradient-to-b from-gray-950/40 via-transparent to-gray-950/80"
       >
@@ -297,11 +305,12 @@ const heroImage =
 
             <figure class="my-8">
               <img
-                src="https://the-knowledge-brokers.sirv.com/limban/traditional-gond-art-deer-trees-against-colorful-background-tadoba.webp?q=50"
+                src="https://res.cloudinary.com/dfa5hhzej/image/upload/f_avif,q_45,w_725,c_scale/traditional-gond-art-deer-trees-against-colorful-background-tadoba_zjstno.webp"
                 alt="Traditional Gond tribal artwork depicting forest spirits and wildlife"
                 class="w-full aspect-video object-cover rounded-xl"
                 loading="lazy"
               />
+
               <!-- Target: 1200px wide, WebP, <120KB -->
               <figcaption class="text-sm text-gray-500 mt-2 text-center">
                 Gond tribal art reflects centuries of forest wisdom
@@ -432,12 +441,11 @@ const heroImage =
 
       <figure class="relative">
         <img
-          src="https://the-knowledge-brokers.sirv.com/limban/bengal-tiger-tadoba.jpg?w=1300&q=50"
+          src="https://res.cloudinary.com/dfa5hhzej/image/upload/f_avif,q_35,w_1000,c_scale/bengal-tiger-tadoba_pqmech.jpg"
           alt="A Bengal tiger prominently posing in Tadoba's core territory"
           class="w-full aspect-[16/9] object-cover rounded-2xl"
           loading="lazy"
         />
-        <!-- Target: 1400px wide, WebP, <140KB -->
         <figcaption class="text-sm text-gray-500 mt-2 text-center">
           Bengal tigers like Maya have made Tadoba famous worldwide
         </figcaption>
@@ -494,11 +502,12 @@ const heroImage =
         <div class="space-y-6">
           <figure>
             <img
-              src="https://the-knowledge-brokers.sirv.com/limban/bamboo-and-teak-tadoba.jpg?cw=600&ch=600&sharpen=1"
+              src="https://res.cloudinary.com/dfa5hhzej/image/upload/f_avif,q_50,w_528,h_528,c_crop/bamboo-and-teak-tadoba_rvckkl.jpg"
               alt="Dense bamboo groves creating cathedral-like spaces in Tadoba forest"
               class="w-full aspect-square object-cover rounded-2xl"
               loading="lazy"
             />
+
             <!-- Target: 1000px wide, WebP, <100KB -->
           </figure>
 
@@ -656,11 +665,12 @@ const heroImage =
 
           <figure class="mb-6">
             <img
-              src="https://the-knowledge-brokers.sirv.com/limban/monkeys-in-tadoba.webp?q=50&canvas.height=200&sharpen=1&w=400"
+              src="https://res.cloudinary.com/dfa5hhzej/image/upload/f_avif,q_35,w_600/monkeys-in-tadoba_iyekoo.webp"
               alt="A monkey enjoying the cool season in Tadoba sitting on a street milestone"
               class="w-full aspect-video object-cover rounded-xl"
               loading="lazy"
             />
+
             <!-- Target: 800px wide, WebP, <80KB -->
           </figure>
 
@@ -697,12 +707,11 @@ const heroImage =
 
           <figure class="mb-6">
             <img
-              src="https://the-knowledge-brokers.sirv.com/limban/puma-tadoba-national-park.jpg?sharpen=1&w=400"
+              src="https://res.cloudinary.com/dfa5hhzej/image/upload/f_avif,q_20,w_600/puma-tadoba-national-park_g9adpq.jpg"
               alt="A leopard looking on in Tadoba's hot summer season in the national park"
               class="w-full aspect-video object-cover rounded-xl"
               loading="lazy"
             />
-            <!-- Target: 800px wide, WebP, <80KB -->
           </figure>
 
           <div class="space-y-4 text-sm text-gray-300">
@@ -738,12 +747,11 @@ const heroImage =
 
           <figure class="mb-6">
             <img
-              src="https://the-knowledge-brokers.sirv.com/limban/tadoba-sloth-bear-during-monsoon.jpeg?w=400"
+              src="https://res.cloudinary.com/dfa5hhzej/image/upload/f_avif,q_20,w_600/tadoba-sloth-bear-during-monsoon_qapjsa.jpg"
               alt="A sloth bear enjoying a walk through the lush green monsoon forest in Tadoba"
               class="w-full aspect-video object-cover rounded-xl"
               loading="lazy"
             />
-            <!-- Target: 800px wide, WebP, <80KB -->
           </figure>
 
           <div class="space-y-4 text-sm text-gray-300">

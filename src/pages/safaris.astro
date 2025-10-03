@@ -9,8 +9,10 @@ import ContactSection from "../components/ContactSection.astro";
 import { fetchSafariOverview, fetchSafariGallery } from "../api.js";
 
 // Hero image
-const heroImage =
-  "https://res.cloudinary.com/dfa5hhzej/image/fetch/w_800,c_limit,f_auto,q_auto/https://ap-south-1.graphassets.com/cmek3o6f00dcb07o59sno2s0e/cmfxqunpk0u5t08pokz44mq8l";
+const heroImageUrl =
+  "https://res.cloudinary.com/dfa5hhzej/image/upload/f_avif,q_55,w_1600/limban-corporate-event-setting_q58lb3.jpg";
+const heroMobileUrl =
+  "https://res.cloudinary.com/dfa5hhzej/image/upload/f_auto,q_65,w_600,c_scale/limban-corporate-event-setting_q58lb3.jpg";
 
 // Fetch data
 let safariOverview = [];
@@ -22,13 +24,6 @@ try {
 } catch (error) {
   console.error("Safari data fetch error:", error);
 }
-
-// Hero image processing
-const heroImageUrl = imageService.processImage(
-  { url: heroImage, alt: "Safari experience in Tadoba" },
-  "heroDesktop",
-  { quality: 70 },
-);
 ---
 
 <link rel="preload" as="image" href={heroImageUrl} fetchpriority="high" />
@@ -138,12 +133,16 @@ const heroImageUrl = imageService.processImage(
           data-astro-cid-kh7btl4r=""
         >
         </div>
-        <img
-          src={heroImageUrl}
-          alt="Safari experience in Tadoba National Park - Limban Resort"
-          class="w-full h-full object-cover scale-105"
-          fetchpriority="high"
-        />
+        <picture>
+          <source media="(max-width: 768px)" srcset={heroMobileUrl} />
+          <img
+            src={heroImageUrl}
+            class="w-full h-full object-cover"
+            alt="Safari experience in Tadoba National Park - Limban Resort"
+            loading="eager"
+            fetchpriority="high"
+          />
+        </picture>
       </div>
 
       <div class="relative z-20 text-center max-w-6xl mx-auto px-6">
@@ -162,7 +161,7 @@ const heroImageUrl = imageService.processImage(
           <h1
             class="font-serif italic text-6xl md:text-8xl lg:text-9xl text-white leading-[0.9] mb-8"
           >
-            <span class="block">Safari</span>
+            <span class="block">Limban Safari</span>
             <span
               class="block text-transparent bg-gradient-to-r from-amber-300 via-amber-400 to-yellow-400 bg-clip-text"
             >
@@ -500,18 +499,7 @@ const heroImageUrl = imageService.processImage(
           rawImages={safariGalleryImages}
           galleryType="safari"
         />
-
-        <div class="text-center mt-8">
-          <p class="text-gray-400 font-light italic">
-            Click any image to immerse yourself in the wild beauty of Tadoba
-          </p>
-        </div>
       </div>
-      ) : (
-      <div class="text-center py-16">
-        <p class="text-gray-400 text-lg">Safari gallery loading...</p>
-      </div>
-      ) }
     </section>
   </div>
 
