@@ -9,7 +9,10 @@ import { Icon } from 'astro-icon/components'
 const pageUrl = Astro.url.href;
 
 // Use your specified hero image URL directly
-const heroImage = "https://res.cloudinary.com/dfa5hhzej/image/fetch/v1758544199/https://ap-south-1.graphassets.com/cmek3o6f00dcb07o59sno2s0e/cmf0pq9joactp07pc27d6thbq";
+const heroImageUrl = 
+  "https://res.cloudinary.com/dfa5hhzej/image/upload/f_avif,q_45,w_1400/limban-corporate-event-setting_q58lb3.jpg";
+const heroMobileUrl =
+  "https://res.cloudinary.com/dfa5hhzej/image/upload/f_auto,q_45,w_600,c_scale/limban-corporate-event-setting_q58lb3.jpg";
 
 // Server-side data fetching - simplified
 let data = { corporateGallery: [] };
@@ -124,7 +127,7 @@ const testimonials = [
 ];
 ---
 
-<link rel="preload" as="image" href={heroImage} fetchpriority="high" />
+<link rel="preload" as="image" href={heroImageUrl} fetchpriority="high" />
 
 <Layout>
   <AstroSEO
@@ -136,7 +139,7 @@ const testimonials = [
       basic: {
         title: "Corporate Events & Executive Retreats | Limban Resort",
         type: "website",
-        image: heroImage,
+        image: heroImageUrl,
         url: Astro.url.href,
       },
       optional: {
@@ -150,13 +153,16 @@ const testimonials = [
   <div class="bg-gray-950 text-gray-100">
     <!-- Enhanced Hero - Direct image URL -->
     <section class="relative pt-48 pb-32 overflow-hidden bg-gray-950">
-      <img
-        src={heroImage}
-        alt="Corporate retreat overlooking Tadoba wilderness at dawn"
-        class="absolute inset-0 w-full h-full object-cover opacity-65"
-        loading="eager"
-        fetchpriority="high"
-      />
+      <picture>
+        <source media="(max-width: 768px)" srcset={heroMobileUrl} />
+        <img
+          src={heroImageUrl}
+          class="absolute inset-0 w-full h-full object-cover opacity-65"
+          alt="Corporate retreat overlooking Tadoba wilderness at dawn"
+          loading="eager"
+          fetchpriority="high"
+        />
+      </picture>
 
       <div class="absolute inset-0 bg-gradient-to-b from-gray-950/70 via-gray-950/30 to-gray-950/80"></div>
 
