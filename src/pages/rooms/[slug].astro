@@ -54,7 +54,7 @@ const heroImageData = room.heroImage ? {
   context: {
     pageType: 'rooms',
     contentName: room.roomName,
-    imageType: 'hero'
+    imageType: 'heroTablet'
   }
 } : null;
 
@@ -64,7 +64,7 @@ const safePrice = Number(room.basePrice) || 0;
 
 // Generate SEO-optimized URLs for schema
 const heroImageUrl = heroImageData 
-  ? imageService.processImage(heroImageData, 'heroDesktop', { quality: 75 })
+  ? imageService.processImage(heroImageData, 'heroTablet', { quality: 45 })
   : 'https://limban.com/img/room-placeholder.avif';
 
 const schemaImages = [heroImageUrl].filter(Boolean);
@@ -77,7 +77,7 @@ const schemaImages = [heroImageUrl].filter(Boolean);
   <AstroSEO
     slot="head"
     title={`${room.roomName} | Luxury Safari Accommodation - Limban Resort`}
-    description={`Experience luxury in our ${room.roomName} at Limban Resort. ${room.shortDescription} Book your exclusive safari accommodation in Tadoba National Park, Maharashtra.`}
+    description={`Experience luxury and comfort in our ${room.roomName} at Limban Resort. ${room.shortDescription} Reserve your exclusive safari accommodation in Tadoba National Park, Maharashtra.`}
     canonical={`https://limban.com/rooms/${room.url}`}
     openGraph={{
       title: `${room.roomName} - Luxury Safari Accommodation at Limban Resort`,

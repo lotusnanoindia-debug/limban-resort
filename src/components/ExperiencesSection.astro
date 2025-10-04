@@ -9,13 +9,13 @@ export interface Props {
     experience?: Array<{
       title: string;
       description: string;
-      serviceImage?: {
+      image?: { // Expect the raw 'image' object from the API
         id: string;
         fileName?: string;
         alt?: string;
         url?: string;
       };
-      imageAltText?: string;
+      imageAltText?: string; // This is a fallback from the CMS
       feature?: Array<{ text: string }>;
       link?: string;
       buttonText?: string;
@@ -28,21 +28,21 @@ const { experiences, gridClass = "grid-cols-1 md:grid-cols-3" } = Astro.props;
 
 // Process experience images through ImageService
 const processedExperiences = experiences?.experience?.map((experience, index) => {
-  const imageUrl = experience.serviceImage?.url ? 
+  const imageUrl = experience.image?.url ? 
     imageService.processImage({
-      ...experience.serviceImage,
+      ...experience.image,
       context: {
         pageType: 'homepage',
         contentName: experience.title,
         imageType: 'service',
         index
       }
-    }, 'serviceCard', { quality: 70 }) : '';
+    }, 'serviceCard', { quality: 70 }) : '/img/placeholder.webp'; // Fallback placeholder
 
   return {
     ...experience,
     imageUrl,
-    alt: experience.serviceImage?.alt || experience.imageAltText || `${experience.title} - Limban Resort experience`,
+    alt: experience.image?.alt || experience.imageAltText || `${experience.title} - Limban Resort experience`,
     priority: index < 2 // First 2 experiences get priority loading
   };
 }) || [];
@@ -71,7 +71,6 @@ const processedExperiences = experiences?.experience?.map((experience, index) =>
       <div class={`grid ${gridClass} gap-8`}>
         {processedExperiences.map((experience, index) => (
           <article 
-            key={index}
             class="group bg-gray-800/50 border border-gray-700 rounded-2xl overflow-hidden transition-all duration-500 hover:border-gray-600 hover:-translate-y-1 hover:shadow-xl"
           >
             

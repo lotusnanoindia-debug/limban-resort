@@ -94,7 +94,7 @@ function extractAltText(item, galleryType, index) {
     wildlife: "Limban Wildlife",
     dining: "Limban Dining Experience",
     corporate: "Limban Corporate Events",
-    safari: "Limban Safari Experience",
+    safari: "Limban Guest Images capturing Safari Experiences",
   };
 
   return `${typeMap[galleryType] || "Image"} ${index + 1}`;
