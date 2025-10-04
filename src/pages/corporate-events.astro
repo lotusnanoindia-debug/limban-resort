@@ -96,7 +96,7 @@ const eventCategories = [
 const testimonials = [
   {
     name: "Rajesh Sharma", 
-    company: "A Tech Innovation Co.",
+    company: "Tech Innovation Co.",
     role: "CEO",
     image: "/rajeshs.jpg",
     takeaway: "Breakthrough strategic clarity in 48 hours",
@@ -106,7 +106,7 @@ const testimonials = [
   },
   {
     name: "Priya Mehta",
-    company: "A Global Finance Corp", 
+    company: "Global Finance Corp", 
     role: "Chief Strategy Officer",
     image: "/priya.jpg",
     takeaway: "Transformative stakeholder experiences",
@@ -116,13 +116,29 @@ const testimonials = [
   },
   {
     name: "Arjun Patel",
-    company: "A Manufacturing Co.",
+    company: "Manufacturing Co.",
     role: "CHRO",
     image: "/arjun.jpg",
     takeaway: "Authentic team transformation",
     quote: "The team development programme created authentic relationships that transformed our workplace culture. Shared wilderness experiences built trust that traditional corporate activities never achieved.",
     event: "Team Performance Excellence", 
     date: "February 2025"
+  }
+];
+
+// Data for the FAQ schema based on "Professional Service Standards"
+const serviceStandardsFaq = [
+  {
+    question: "What is the response time for an Initial Consultation?",
+    answer: "We guarantee a response to your initial consultation request within 24 hours."
+  },
+  {
+    question: "How quickly will I receive a Detailed Programme Proposal?",
+    answer: "You will receive a detailed, bespoke programme proposal within 48 hours of your consultation."
+  },
+  {
+    question: "What is the Max Group Capacity?",
+    answer: "To ensure an intimate and impactful experience, we accommodate a maximum of 40 executives."
   }
 ];
 ---
@@ -147,6 +163,61 @@ const testimonials = [
         siteName: "Limban Resort Tadoba",
         locale: "en_US",
       }
+    }}
+    jsonLd={{
+      "@context": "https://schema.org",
+      "@type": "Service",
+      "serviceType": "Corporate Event & Executive Retreat Planning",
+      "name": "Corporate Events & Executive Retreats at Limban Resort",
+      "description": "Bespoke corporate events, strategic retreats, innovation labs, and stakeholder experiences hosted at Limban Resort, located in the pristine wilderness of Tadoba Tiger Reserve.",
+      "provider": {
+        "@type": "Resort",
+        "name": "Limban Resort Tadoba",
+        "image": heroImageUrl,
+        "url": "https://limban.com",
+        "telephone": "+919881191092",
+        "address": {
+          "@type": "PostalAddress",
+          "streetAddress": "Limban Resort, Bhamdeli",
+          "addressLocality": "Tadoba Andhari Tiger Reserve",
+          "addressRegion": "Maharashtra",
+          "postalCode": "442401",
+          "addressCountry": "IN"
+        }
+      },
+      "areaServed": {
+        "@type": "Country",
+        "name": "India"
+      },
+      "hasOfferCatalog": {
+        "@type": "OfferCatalog",
+        "name": "Corporate Event Categories",
+        "itemListElement": eventCategories.map(event => ({ 
+          "@type": "Offer", 
+          "itemOffered": { "@type": "Service", "name": event.title, "description": event.description } 
+        }))
+      },
+      "review": testimonials.map(testimonial => ({
+        "@type": "Review",
+        "reviewBody": testimonial.quote,
+        "author": {
+          "@type": "Person",
+          "name": testimonial.name,
+          "jobTitle": testimonial.role,
+          "worksFor": {
+            "@type": "Organization",
+            "name": testimonial.company
+          }
+        },
+        "itemReviewed": {
+          "@type": "Service",
+          "name": testimonial.event
+        },
+        "reviewRating": {
+          "@type": "Rating",
+          "ratingValue": "5"
+        }
+      }))
     }}
   />
 
@@ -462,7 +533,7 @@ const testimonials = [
               </div>
               <div class="flex-1">
                 <h4 class="text-xl font-semibold text-white mb-2">Events Director</h4>
-                <a href="tel:+919022680451" title="Call Limban Resort at +91 90226 80451" class="text-2xl font-bold text-transparent bg-gradient-to-r from-amber-400 to-orange-500 bg-clip-text hover:from-amber-300 hover:to-orange-400 transition-all duration-300 block mb-3">
+                <a href="tel:+919881191092" title="Call Limban Resort at +91 98811 91092" class="text-2xl font-bold text-transparent bg-gradient-to-r from-amber-400 to-orange-500 bg-clip-text hover:from-amber-300 hover:to-orange-400 transition-all duration-300 block mb-3">
                   +91 98811 91092
                 </a>
                 <p class="text-gray-400 leading-relaxed mb-4">
@@ -487,7 +558,7 @@ const testimonials = [
               <div class="flex items-center justify-between py-3 border-b border-gray-700/50">
                 <div class="flex items-center gap-3">
                   <div class="w-2 h-2 bg-amber-400 rounded-full"></div>
-                  <span class="text-gray-300">Initial consultation response</span>
+                  <span class="text-gray-300">Initial Consultation:</span>
                 </div>
                 <span class="text-amber-400 font-semibold">24 hours</span>
               </div>
@@ -495,7 +566,7 @@ const testimonials = [
               <div class="flex items-center justify-between py-3 border-b border-gray-700/50">
                 <div class="flex items-center gap-3">
                   <div class="w-2 h-2 bg-amber-400 rounded-full"></div>
-                  <span class="text-gray-300">Detailed programme proposal</span>
+                  <span class="text-gray-300">Bespoke Event Proposal:</span>
                 </div>
                 <span class="text-amber-400 font-semibold">48 hours</span>
               </div>
@@ -503,15 +574,15 @@ const testimonials = [
               <div class="flex items-center justify-between py-3 border-b border-gray-700/50">
                 <div class="flex items-center gap-3">
                   <div class="w-2 h-2 bg-amber-400 rounded-full"></div>
-                  <span class="text-gray-300">Optimal booking window</span>
+                  <span class="text-gray-300">Optimal booking window:</span>
                 </div>
-                <span class="text-amber-400 font-semibold">60 days advance</span>
+                <span class="text-amber-400 font-semibold">30 to 60 days</span>
               </div>
               
               <div class="flex items-center justify-between py-3">
                 <div class="flex items-center gap-3">
                   <div class="w-2 h-2 bg-amber-400 rounded-full"></div>
-                  <span class="text-gray-300">Maximum group capacity</span>
+                  <span class="text-gray-300">Max Group Capacity:</span>
                 </div>
                 <span class="text-amber-400 font-semibold">40 executives</span>
               </div>
@@ -538,6 +609,19 @@ const testimonials = [
         
       </div>
     </section>
+
+    <script type="application/ld+json" set:html={JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": serviceStandardsFaq.map(faq => ({
+        "@type": "Question",
+        "name": faq.question,
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": faq.answer
+        }
+      }))
+    })} />
 
 
     <!-- Sophisticated enquiry Form -->
