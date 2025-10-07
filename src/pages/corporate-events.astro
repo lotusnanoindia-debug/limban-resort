@@ -170,12 +170,15 @@ const serviceStandardsFaq = [
       "serviceType": "Corporate Event & Executive Retreat Planning",
       "name": "Corporate Events & Executive Retreats at Limban Resort",
       "description": "Bespoke corporate events, strategic retreats, innovation labs, and stakeholder experiences hosted at Limban Resort, located in the pristine wilderness of Tadoba Tiger Reserve.",
+      "url": "https://limban.com/corporate-events",
+      "image": heroImageUrl,
       "provider": {
         "@type": "Resort",
         "name": "Limban Resort Tadoba",
         "image": heroImageUrl,
         "url": "https://limban.com",
         "telephone": "+919881191092",
+        "email": "info@limban.com",
         "address": {
           "@type": "PostalAddress",
           "streetAddress": "Limban Resort, Bhamdeli",
@@ -194,30 +197,13 @@ const serviceStandardsFaq = [
         "name": "Corporate Event Categories",
         "itemListElement": eventCategories.map(event => ({ 
           "@type": "Offer", 
-          "itemOffered": { "@type": "Service", "name": event.title, "description": event.description } 
+          "itemOffered": { 
+            "@type": "Service", 
+            "name": event.title, 
+            "description": event.description 
+          } 
         }))
-      },
-      "review": testimonials.map(testimonial => ({
-        "@type": "Review",
-        "reviewBody": testimonial.quote,
-        "author": {
-          "@type": "Person",
-          "name": testimonial.name,
-          "jobTitle": testimonial.role,
-          "worksFor": {
-            "@type": "Organization",
-            "name": testimonial.company
-          }
-        },
-        "itemReviewed": {
-          "@type": "Service",
-          "name": testimonial.event
-        },
-        "reviewRating": {
-          "@type": "Rating",
-          "ratingValue": "5"
-        }
-      }))
+      }
     }}
   />
 
