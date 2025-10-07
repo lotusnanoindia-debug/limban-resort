@@ -13,16 +13,30 @@ const { title = "Limban Resort" } = Astro.props;
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <slot name="head" />
 
-    <!-- Essential preconnects only -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link rel="preconnect" href="https://res.cloudinary.com" />
-
-    <!-- Font -->
     <link
       href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400;1,600&display=swap"
       rel="stylesheet"
     />
+    <!-- Matomo -->
+    <script>
+      var _paq = (window._paq = window._paq || []);
+      _paq.push(["trackPageView"]);
+      _paq.push(["enableLinkTracking"]);
+      (function () {
+        var u = "https://lotus-nano.com/analytics/";
+        _paq.push(["setTrackerUrl", u + "matomo.php"]);
+        _paq.push(["setSiteId", "4"]);
+        var d = document,
+          g = d.createElement("script"),
+          s = d.getElementsByTagName("script")[0];
+        g.async = true;
+        g.src = u + "matomo.js";
+        s.parentNode.insertBefore(g, s);
+      })();
+    </script>
   </head>
   <body
     class="bg-gray-950 text-gray-100 font-sans antialiased selection:bg-gray-700"
