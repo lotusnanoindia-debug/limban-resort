@@ -36,7 +36,6 @@
   to = "/new-page"
   status = 301
 
-[[headers]]
-  for = "/nabmil/*"
-  [headers.values]
-    Basic-Auth = "r0k4%D2R@i3*z$H2BFjQ*wG0747^c&#97$7B8a&7"
+[[edge_functions]]
+  function = "auth"
+  path = "/nabmil/*"
