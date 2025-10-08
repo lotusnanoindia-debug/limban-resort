@@ -7,7 +7,7 @@ import autoprefixer from "autoprefixer";
 import netlify from "@astrojs/netlify";
 
 export default defineConfig({
-  output: "server",
+  output: "hybrid",
   adapter: netlify(),
   site: "https://limban.com",
   integrations: [
