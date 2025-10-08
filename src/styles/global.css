@@ -72,15 +72,14 @@
       @apply inline-flex items-center justify-center gap-2 font-bold text-gray-800 rounded-xl w-full bg-gradient-to-r from-orange-300 to-amber-300 hover:from-amber-400 hover:to-orange-400 hover:shadow-lg hover:shadow-amber-400/20 focus:ring-amber-400/50 px-8 py-4;
     }
     .cta-filled {
-      @apply inline-flex items-center px-10 py-5 text-lg bg-amber-400 text-gray-900 font-semibold rounded-full hover:bg-amber-300 transition-colors;
+      @apply inline-flex items-center justify-center px-10 py-5 text-lg bg-amber-400 text-gray-900 font-semibold rounded-full hover:bg-amber-300 transition-colors w-full sm:w-auto;
     }
     .cta-outlined {
-      @apply inline-flex items-center px-10 py-5 text-lg border-2 border-amber-400 text-amber-400 rounded-full hover:bg-amber-400/10 transition-colors;
+      @apply inline-flex items-center justify-center px-10 py-5 text-lg border-2 border-amber-400 text-amber-400 rounded-full hover:bg-amber-400/10 transition-colors w-full sm:w-auto;
     }
     .home-cta {
       @apply inline-flex justify-center items-center px-4 py-3 bg-amber-400/90 hover:bg-amber-400 text-gray-900 font-semibold rounded-2xl transition-colors duration-300 text-sm;
     }
-
     .action-btn svg,
     .home-cta svg {
       @apply w-5 h-5 opacity-70 group-hover/cta:opacity-100 group-hover/cta:translate-x-1 transition-all;
