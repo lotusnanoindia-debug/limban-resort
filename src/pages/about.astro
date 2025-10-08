@@ -1,292 +1,689 @@
 ---
-// src/pages/404.astro
 import Layout from "../layouts/Layout.astro";
 import { Icon } from "astro-icon/components";
 import { AstroSEO } from "astro-seo-plugin";
+import UniversalGallery from "../components/UniversalGallery.astro";
+import GalleryModal from "../components/GalleryModal.astro";
+import TestimonialsSection from "../components/TestimonialsSection.astro";
+import AwardsSection from "../components/AwardsSection.astro";
+import imageService from "../utils/ImageService.js";
+import { fetchAboutPage } from "../api.js";
 
-const requestedPath = Astro.url.pathname;
+// Server-side data fetching with error handling
+let aboutData = null;
+try {
+  aboutData = await fetchAboutPage();
+} catch (err) {
+  console.error("Failed to load about data:", err);
+  aboutData = {
+    aboutPage: {},
+    vibeGallery: { images: [] },
+    guestGallery: { images: [] },
+  };
+}
+
+const aboutPage = aboutData?.aboutPage || {};
+const vibeGallery = aboutData?.vibeGallery || { images: [] };
+const guestGallery = aboutData?.guestGallery || { images: [] };
+
+const heroImageData = aboutPage?.heroImage || null;
+const philosophyImageData = aboutPage?.philosophyImage || null;
+const foundersImageData = aboutPage?.foundersImage || null;
+
+// FIXED: Simple image processing without complex context objects
+const heroImageUrl = aboutPage?.heroImage
+  ? imageService.processImage(aboutPage.heroImage, "heroDesktop", {
+      quality: 80,
+    })
+  : "https://limban.com/img/about-hero.avif";
+
+const philosophyImageUrl = aboutPage?.philosophyImage
+  ? imageService.processImage(aboutPage.philosophyImage, "heroMobile", {
+      quality: 80,
+    })
+  : "";
+
+const foundersImageUrl = aboutPage?.foundersImage
+  ? imageService.processImage(aboutPage.foundersImage, "subhero", {
+      quality: 85,
+    })
+  : "";
+
+const schemaImages = [
+  heroImageUrl,
+  philosophyImageUrl,
+  foundersImageUrl,
+].filter(Boolean);
 ---
 
-<Layout class="bg-gray-950">
+<link rel="preload" as="image" href={heroImageUrl} fetchpriority="high" />
+
+<Layout>
   <AstroSEO
     slot="head"
-    title="Page Not Found | Limban Resort Tadoba"
-    description="The path you're seeking has vanished into the wilderness. Return to Limban Resort to discover luxury safari experiences at Tadoba Tiger Reserve."
-    robots={{
-      noindex: true,
-      nofollow: true,
+    title="About Limban Resort | Where the Wild Meets the Soul - Tadoba Safari Lodge"
+    description="Discover the philosophy behind Limban Resort - a luxury safari sanctuary crafted by visionary architects in the heart of Tadoba National Park. Experience where wilderness meets luxury."
+    canonical="https://limban.com/about"
+    openGraph={{
+      title: "About Limban Resort - Where the Wild Meets the Soul",
+      description:
+        "A luxury safari sanctuary where architecture, wilderness, and soul converge in Tadoba National Park.",
+      image: heroImageUrl,
+      type: "website",
+      url: "https://limban.com/about",
+    }}
+    jsonLd={{
+      "@context": "https://schema.org",
+      "@type": "AboutPage",
+      name: "About Limban Resort - Where the Wild Meets the Soul",
+      description:
+        "Discover the philosophy behind Limban Resort - a luxury safari sanctuary crafted by visionary architects in the heart of Tadoba National Park.",
+      url: "https://limban.com/about",
+      image: schemaImages,
+      mainEntity: {
+        "@type": "LodgingBusiness",
+        "@id": "https://limban.com/#organization",
+        name: "Limban Resort",
+        alternateName: "Limban Safari Lodge",
+        description:
+          "A luxury safari sanctuary where architecture, wilderness, and soul converge. Crafted for those who seek meaning in nature, connection in simplicity, and magic in the moment.",
+        url: "https://limban.com",
+        logo: "https://limban.com/limban-resort-tadoba-logo.png",
+        slogan: "Where the Wild Meets the Soul",
+        foundingDate: "2020",
+        address: {
+          "@type": "PostalAddress",
+          streetAddress: "Survey No. 306, Village Mudholi, Taluka Bhadravati",
+          addressLocality: "Chandrapur",
+          addressRegion: "Maharashtra",
+          postalCode: "442906",
+          addressCountry: "IN",
+        },
+        geo: {
+          "@type": "GeoCoordinates",
+          latitude: 20.25602486093492,
+          longitude: 79.2847888101826,
+        },
+        founder: [
+          {
+            "@type": "Person",
+            name: "Amala Sheth",
+            jobTitle: "Founder & Principal Architect",
+            description:
+              "Visionary architect whose revolutionary approach to sustainable luxury earned international recognition and redefined safari lodge design.",
+            worksFor: {
+              "@type": "Organization",
+              name: "Metaphors Design",
+              url: "http://www.metaphors-design.com/",
+            },
+            knowsAbout: [
+              "Sustainable Architecture",
+              "Luxury Resort Design",
+              "Eco-Tourism",
+            ],
+            award: "International recognition for sustainable luxury design",
+          },
+          {
+            "@type": "Person",
+            name: "Anand Bhagat",
+            jobTitle: "Founder & Principal Architect",
+            description:
+              "Architectural visionary dedicated to creating spaces that connect people with nature and conserve the wild.",
+            worksFor: {
+              "@type": "Organization",
+              name: "Metaphors Design",
+              url: "http://www.metaphors-design.com/",
+            },
+            knowsAbout: [
+              "Sustainable Architecture",
+              "Wildlife Conservation",
+              "Eco-Tourism Design",
+            ],
+          },
+        ],
+      },
     }}
   />
 
-  <div
-    class="bg-gray-950 text-gray-100 min-h-screen flex items-center justify-center selection:bg-gray-700"
-  >
-    <div class="max-w-5xl mx-auto px-6 py-32 text-center">
-      <!-- Subtle decorative element -->
-      <div class="mb-16 flex justify-center opacity-5">
-        <Icon name="ph:paw-print" class="w-32 h-32 text-amber-400" />
+  <div class="bg-gray-950 text-gray-100 selection:bg-gray-700">
+    <!-- Hero Section -->
+    <section
+      class="relative min-h-screen flex items-center justify-center overflow-hidden"
+    >
+      <div class="absolute inset-0">
+        <div class="absolute inset-0 bg-black/60 z-10"></div>
+        {
+          heroImageData && (
+            <img
+              src={heroImageUrl}
+              alt="Limban Resort - Where wilderness meets luxury in Tadoba National Park"
+              class="w-full h-full object-cover scale-105"
+              fetchpriority="high"
+            />
+          )
+        }
       </div>
 
-      <!-- Error Message -->
-      <div class="space-y-8 mb-20">
+      <div class="relative z-20 text-center max-w-5xl mx-auto px-6">
+        <div class="space-y-8">
+          <div
+            class="inline-block px-6 py-2 bg-amber-400/10 border border-amber-400/30 rounded-full mb-8"
+          >
+            <span
+              class="text-amber-400 text-sm font-medium tracking-widest uppercase"
+              >Since 2017</span
+            >
+          </div>
+          <h1
+            class="font-serif text-5xl md:text-7xl lg:text-8xl text-white mb-6 leading-none italic"
+          >
+            Where the Wild<br />
+            <span class="text-amber-400">Meets the Soul</span>
+          </h1>
+          <p
+            class="text-xl md:text-2xl text-gray-200 font-light leading-relaxed max-w-3xl mx-auto"
+          >
+            More than a destination - an awakening. A carefully crafted
+            sanctuary where luxury, wilderness, and heritage converge in perfect
+            harmony.
+          </p>
+          <div class="pt-8">
+            <p class="text-2xl font-serif italic text-amber-400">
+              Wildly Yours.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Breadcrumb Navigation -->
+    <nav
+      class="py-6 bg-gray-900/50 border-b border-gray-800"
+      aria-label="Breadcrumb"
+    >
+      <div class="max-w-7xl mx-auto px-6">
+        <ol class="flex items-center justify-center space-x-2 text-sm">
+          <li>
+            <a
+              href="/"
+              title="Return to Limban Resort homepage"
+              class="text-gray-400 hover:text-amber-400 transition-colors duration-300 flex items-center"
+            >
+              <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                <path
+                  d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"
+                ></path>
+              </svg>
+              Home
+            </a>
+          </li>
+          <li>
+            <svg
+              class="w-4 h-4 text-gray-600"
+              fill="currentColor"
+              viewBox="0 0 20 20"
+            >
+              <path
+                fill-rule="evenodd"
+                d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
+                clip-rule="evenodd"></path>
+            </svg>
+          </li>
+          <li>
+            <span class="text-amber-400 font-medium">About</span>
+          </li>
+        </ol>
+      </div>
+    </nav>
+
+    <!-- Philosophy Section -->
+    <section class="py-32 bg-gray-900">
+      <div class="max-w-6xl mx-auto px-6">
+        <div class="text-center mb-20">
+          <div
+            class="inline-block px-6 py-2 bg-amber-400/10 border border-amber-400/30 rounded-full mb-8"
+          >
+            <span
+              class="text-amber-400 text-sm font-medium tracking-widest uppercase"
+              >Our Philosophy</span
+            >
+          </div>
+          <h2 class="font-serif italic text-4xl md:text-6xl text-white mb-8">
+            A Sanctuary for the Soul
+          </h2>
+          <p
+            class="text-xl text-gray-300 font-light leading-relaxed max-w-4xl mx-auto"
+          >
+            Tucked within the lush, untamed landscapes of Tadoba, Limban is more
+            than a destination—it's an experience, a retreat, and a deep exhale.
+            Crafted for those who seek meaning in nature, connection in
+            simplicity, and magic in the moment.
+          </p>
+        </div>
+
+        {
+          philosophyImageUrl && (
+            <div class="mb-20">
+              <div class="relative aspect-[21/9] bg-gray-800 rounded-2xl overflow-hidden">
+                <img
+                  src={philosophyImageUrl}
+                  alt="Limban Resort philosophy - sustainable luxury safari lodge architecture"
+                  class="w-full h-full object-cover hover:scale-105 transition-transform duration-700"
+                  loading="lazy"
+                />
+              </div>
+            </div>
+          )
+        }
+
+        <div class="text-center">
+          <p
+            class="text-2xl md:text-xl text-white font-light leading-relaxed max-w-5xl mx-auto"
+          >
+            From ethical safaris that trace the paths of tigers to intimate
+            celebrations beneath ancient trees, Limban is a call back to what's
+            real. We celebrate life's raw beauty, honour the wild with grace,
+            and open our arms to those who want to experience something deeper,
+            something unforgettable.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Visionaries Section -->
+    <section class="py-32 bg-gray-950">
+      <div class="max-w-7xl mx-auto px-6">
+        <div class="text-center mb-20">
+          <div
+            class="inline-block px-6 py-2 bg-amber-400/10 border border-amber-400/30 rounded-full mb-8"
+          >
+            <span
+              class="text-amber-400 text-sm font-medium tracking-widest uppercase"
+              >The Visionaries</span
+            >
+          </div>
+          <h2 class="font-serif italic text-4xl md:text-6xl text-white mb-8">
+            Architects of Dreams
+          </h2>
+          <p class="text-xl text-gray-300 font-light max-w-3xl mx-auto">
+            Meet Amala Sheth and Anand Bhagat - the architectural duo whose
+            revolutionary approach to sustainable luxury earned international
+            recognition and redefined safari lodge design.
+          </p>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+          <div class="space-y-12">
+            <!-- Amala Sheth -->
+            <div class="group">
+              <div
+                class="bg-gradient-to-br from-gray-800/50 to-gray-900/50 backdrop-blur-xl border border-gray-700 rounded-3xl p-8 hover:border-amber-400/30 transition-all duration-500"
+              >
+                <blockquote class="space-y-6">
+                  <p
+                    class="text-lg md:text-xl text-gray-200 font-light leading-relaxed italic"
+                  >
+                    "In life's myriad journey, the fulfilment of all the senses
+                    is the true culmination of one's ultimate experience. And
+                    this knowledge is the seed that grows... bearing so many
+                    questions about our mindlessness & ignorance, as we defy
+                    every Law of Nature and every Truth of Existence."
+                  </p>
+                  <footer class="flex items-center space-x-4">
+                    <div
+                      class="w-12 h-12 bg-amber-400/20 rounded-full flex items-center justify-center"
+                    >
+                      <span class="text-amber-400 font-serif text-xl">A</span>
+                    </div>
+                    <div>
+                      <cite
+                        class="text-amber-400 font-medium text-lg not-italic"
+                        >Amala Sheth</cite
+                      >
+                      <p class="text-gray-400 text-sm">
+                        Founder & Principal Architect<br />Partner, <a
+                          href="http://www.metaphors-design.com/"
+                          title="Visit Metaphors Design website"
+                          target="_blank"
+                          class="text-blue-400 hover:text-blue-300 transition-colors duration-300"
+                          >Metaphors Design</a
+                        >, Pune
+                      </p>
+                    </div>
+                  </footer>
+                </blockquote>
+              </div>
+            </div>
+
+            <!-- Anand Bhagat -->
+            <div class="group">
+              <div
+                class="bg-gradient-to-br from-gray-800/50 to-gray-900/50 backdrop-blur-xl border border-gray-700 rounded-3xl p-8 hover:border-amber-400/30 transition-all duration-500"
+              >
+                <blockquote class="space-y-6">
+                  <p
+                    class="text-lg md:text-xl text-gray-200 font-light leading-relaxed italic"
+                  >
+                    "There are but a few who are blessed with this realisation.
+                    And it is this realisation which gives birth to a new
+                    passion... to look, explore, connect and conserve."
+                  </p>
+                  <footer class="flex items-center space-x-4">
+                    <div
+                      class="w-12 h-12 bg-amber-400/20 rounded-full flex items-center justify-center"
+                    >
+                      <span class="text-amber-400 font-serif text-xl">A</span>
+                    </div>
+                    <div>
+                      <cite
+                        class="text-amber-400 font-medium text-lg not-italic"
+                        >Anand Bhagat</cite
+                      >
+                      <p class="text-gray-400 text-sm">
+                        Founder & Principal Architect<br />Partner, <a
+                          href="http://www.metaphors-design.com/"
+                          title="Visit Metaphors Design website"
+                          class="text-blue-400 hover:text-blue-300 transition-colors duration-300"
+                          target="_blank">Metaphors Design</a
+                        >, Pune
+                      </p>
+                    </div>
+                  </footer>
+                </blockquote>
+              </div>
+            </div>
+          </div>
+
+          {
+            foundersImageUrl && (
+              <div class="relative">
+                <div class="aspect-[4/5] bg-gray-800 rounded-3xl overflow-hidden">
+                  <img
+                    src={foundersImageUrl}
+                    alt="Amala Sheth and Anand Bhagat - Visionary architects founders of Limban Resort"
+                    class="w-full h-full object-cover hover:scale-105 transition-transform duration-700"
+                    loading="lazy"
+                  />
+                </div>
+              </div>
+            )
+          }
+        </div>
+      </div>
+    </section>
+
+    <!-- Our Ethos -->
+    <section class="py-32 bg-gradient-to-b from-gray-900 to-green-950/30">
+      <div class="max-w-4xl mx-auto px-6 text-center">
         <div
           class="inline-block px-6 py-2 bg-amber-400/10 border border-amber-400/30 rounded-full mb-8"
         >
           <span
             class="text-amber-400 text-sm font-medium tracking-widest uppercase"
-            >Error 404</span
+            >Our Promise</span
           >
         </div>
-
-        <h1
-          class="font-serif italic text-6xl md:text-8xl text-white mb-6 leading-none"
-        >
-          Lost in the Wild
-        </h1>
-
-        <p
-          class="text-xl md:text-2xl text-gray-300 font-light leading-relaxed max-w-2xl mx-auto"
-        >
-          The trail you're following has vanished into the forest. Sometimes the
-          best paths lead us somewhere unexpected.
+        <h2 class="font-serif italic text-4xl md:text-5xl text-white mb-8">
+          People. Planet. Purpose.
+        </h2>
+        <p class="text-xl text-gray-300 font-light leading-relaxed mb-8">
+          Every choice at Limban serves a deeper purpose. We've created a
+          sanctuary where luxury means leaving the wild untouched, where comfort
+          comes from connection, not consumption. Our commitment flows naturally
+          - to the forest that shelters us, the community that sustains us, and
+          the guests who trust us with their most meaningful journeys.
         </p>
-
-        {
-          requestedPath && requestedPath !== "/" && (
-            <p class="text-sm text-gray-500 font-mono pt-4">{requestedPath}</p>
-          )
-        }
       </div>
+    </section>
 
-      <!-- Primary Actions -->
-      <div class="flex flex-col sm:flex-row gap-6 justify-center mb-32">
-        <a
-          href="/"
-          title="Return to Limban Resort homepage"
-          class="inline-flex items-center justify-center gap-3 px-10 py-5 bg-gradient-to-r from-gray-700 to-gray-800 hover:from-gray-600 hover:to-gray-700 text-white transition-all duration-300 rounded-lg text-base font-semibold tracking-wide hover:shadow-2xl hover:-translate-y-1 group"
-        >
-          <Icon
-            name="ph:house"
-            class="w-5 h-5 transition-transform group-hover:scale-110"
-          />
-          Return Home
-        </a>
-        <a
-          href="/rooms"
-          title="View and book luxury safari accommodations"
-          class="inline-flex items-center justify-center gap-3 px-10 py-5 border-2 border-gray-700 text-gray-300 hover:text-white hover:border-amber-400/50 hover:bg-gray-800/30 transition-all duration-300 rounded-lg text-base font-semibold tracking-wide group"
-        >
-          <Icon
-            name="ph:bed"
-            class="w-5 h-5 transition-transform group-hover:scale-110"
-          />
-          Reserve Your Stay
-        </a>
-      </div>
-
-      <!-- Navigation Grid -->
-      <div class="border-t border-gray-800 pt-20">
-        <div
-          class="inline-block px-6 py-2 bg-amber-400/10 border border-amber-400/30 rounded-full mb-12"
-        >
-          <span
-            class="text-amber-400 text-sm font-medium tracking-widest uppercase"
-            >Find Your Way</span
+    <!-- Feel the Vibe Gallery -->
+    <section class="py-32 bg-gray-800">
+      <div class="max-w-7xl mx-auto px-6">
+        <header class="text-center mb-16">
+          <div
+            class="inline-block px-6 py-2 bg-amber-400/10 border border-amber-400/30 rounded-full mb-8"
           >
+            <span
+              class="text-amber-400 text-sm font-medium tracking-widest uppercase"
+              >Visual Journey</span
+            >
+          </div>
+          <h2 class="font-serif italic text-4xl md:text-6xl text-white mb-6">
+            Feel the Vibe of the Wild
+          </h2>
+          <p class="text-xl text-gray-300 max-w-2xl mx-auto">
+            From dawn to dusk, each corner of Limban offers its own unique
+            chapter in your safari story
+          </p>
+        </header>
+
+        <UniversalGallery rawImages={vibeGallery.images} galleryType="vibe" />
+      </div>
+    </section>
+
+    <!-- Guest Gallery -->
+    <section class="py-32 bg-gray-900">
+      <div class="max-w-7xl mx-auto px-6">
+        <header class="text-center mb-16">
+          <div
+            class="inline-block px-6 py-2 bg-amber-400/10 border border-amber-400/30 rounded-full mb-8"
+          >
+            <span
+              class="text-amber-400 text-sm font-medium tracking-widest uppercase"
+              >Visual Journey</span
+            >
+          </div>
+          <h2 class="font-serif italic text-4xl md:text-6xl text-white mb-6">
+            Moments Made at Limban
+          </h2>
+          <p class="text-xl text-gray-300 max-w-2xl mx-auto">
+            Every smile tells a story, every moment captures the magic of
+            connecting with the wild
+          </p>
+        </header>
+
+        <UniversalGallery rawImages={guestGallery.images} galleryType="guest" />
+      </div>
+    </section>
+
+    <!-- Team Gallery -->
+    <section class="py-32 bg-gray-950">
+      <div class="max-w-7xl mx-auto px-6">
+        <header class="text-center mb-16">
+          <div
+            class="inline-block px-6 py-2 bg-amber-400/10 border border-amber-400/30 rounded-full mb-8"
+          >
+            <span
+              class="text-amber-400 text-sm font-medium tracking-widest uppercase"
+            >
+              Visual Journey
+            </span>
+          </div>
+          <h2 class="font-serif italic text-4xl md:text-6xl text-white mb-6">
+            The Heart of Limban
+          </h2>
+          <p class="text-xl text-gray-300 max-w-2xl mx-auto">
+            Meet our passionate team which brings Limban to life, each dedicated
+            to creating unforgettable experiences
+          </p>
+        </header>
+
+        <UniversalGallery rawImages={aboutPage.teamImages} galleryType="team" />
+      </div>
+    </section>
+
+    <!-- Location Section -->
+    <section class="py-32 bg-gray-900">
+      <div class="max-w-7xl mx-auto px-6">
+        <div class="text-center mb-20">
+          <div
+            class="inline-block px-6 py-2 bg-amber-400/10 border border-amber-400/30 rounded-full mb-8"
+          >
+            <span
+              class="text-amber-400 text-sm font-medium tracking-widest uppercase"
+              >Find Your Way</span
+            >
+          </div>
+          <h2 class="font-serif italic text-4xl md:text-6xl text-white mb-8">
+            Journey to the Wild
+          </h2>
+          <p class="text-xl text-gray-300 font-light max-w-3xl mx-auto">
+            Nestled in the heart of Tadoba National Park, your journey to Limban
+            is part of the experience itself.
+          </p>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
-          <!-- The Resort -->
-          <div class="group">
+        <!-- Travel Options -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
+          <div class="group text-center">
             <div
-              class="bg-gradient-to-br from-gray-800/30 to-gray-900/50 backdrop-blur-xl border border-gray-700 rounded-3xl p-8 hover:border-amber-400/30 hover:-translate-y-2 transition-all duration-500 h-full"
+              class="bg-gradient-to-br from-gray-800/30 to-gray-900/50 backdrop-blur-xl border border-gray-700 rounded-3xl p-8 flex flex-col items-center hover:border-amber-400/30 hover:-translate-y-2 transition-all duration-500"
             >
-              <h2
-                class="text-amber-400 font-medium mb-6 text-sm uppercase tracking-widest"
-              >
-                The Resort
-              </h2>
-              <nav class="space-y-4">
-                <a
-                  href="/vibe"
-                  title="Discover the unique atmosphere at Limban Resort"
-                  class="block text-gray-300 hover:text-white transition-colors duration-300 text-left group/link"
-                >
-                  <span class="inline-flex items-center gap-2">
-                    <Icon
-                      name="ph:sparkle"
-                      class="w-4 h-4 opacity-50 group-hover/link:opacity-100 transition-opacity"
-                    />
-                    The Limban Vibe
-                  </span>
-                </a>
-                <a
-                  href="/guest-gallery"
-                  title="See photos submitted by guests from over 20 countries"
-                  class="block text-gray-300 hover:text-white transition-colors duration-300 text-left group/link"
-                >
-                  <span class="inline-flex items-center gap-2">
-                    <Icon
-                      name="ph:images"
-                      class="w-4 h-4 opacity-50 group-hover/link:opacity-100 transition-opacity"
-                    />
-                    Guest Gallery
-                  </span>
-                </a>
-                <a
-                  href="/tadoba"
-                  title="Learn about Tadoba National Park and conservation"
-                  class="block text-gray-300 hover:text-white transition-colors duration-300 text-left group/link"
-                >
-                  <span class="inline-flex items-center gap-2">
-                    <Icon
-                      name="ph:tree-evergreen"
-                      class="w-4 h-4 opacity-50 group-hover/link:opacity-100 transition-opacity"
-                    />
-                    Tadoba National Park
-                  </span>
-                </a>
-              </nav>
+              <Icon
+                name="ion:airplane-outline"
+                class="w-12 h-12 text-white mb-4"
+              />
+              <h3 class="text-xl font-semibold text-white mb-4">By Air</h3>
+              <p class="text-gray-300 leading-relaxed">
+                Dr. Babasaheb Ambedkar International Airport, Nagpur (125 km).
+                Well-connected with direct flights from Mumbai, Delhi,
+                Bengaluru, and Hyderabad.
+              </p>
             </div>
           </div>
 
-          <!-- The Experiences -->
-          <div class="group">
+          <div class="group text-center">
             <div
-              class="bg-gradient-to-br from-gray-800/30 to-gray-900/50 backdrop-blur-xl border border-gray-700 rounded-3xl p-8 hover:border-amber-400/30 hover:-translate-y-2 transition-all duration-500 h-full"
+              class="bg-gradient-to-br from-gray-800/30 to-gray-900/50 backdrop-blur-xl border border-gray-700 rounded-3xl p-8 flex flex-col items-center hover:border-amber-400/30 hover:-translate-y-2 transition-all duration-500"
             >
-              <h2
-                class="text-amber-400 font-medium mb-6 text-sm uppercase tracking-widest"
-              >
-                The Experiences
-              </h2>
-              <nav class="space-y-4">
-                <a
-                  href="/rooms"
-                  title="View luxury safari accommodations"
-                  class="block text-gray-300 hover:text-white transition-colors duration-300 text-left group/link"
-                >
-                  <span class="inline-flex items-center gap-2">
-                    <Icon
-                      name="ph:bed"
-                      class="w-4 h-4 opacity-50 group-hover/link:opacity-100 transition-opacity"
-                    />
-                    Rooms & Suites
-                  </span>
-                </a>
-                <a
-                  href="/dining"
-                  title="Explore dining experiences"
-                  class="block text-gray-300 hover:text-white transition-colors duration-300 text-left group/link"
-                >
-                  <span class="inline-flex items-center gap-2">
-                    <Icon
-                      name="ph:fork-knife"
-                      class="w-4 h-4 opacity-50 group-hover/link:opacity-100 transition-opacity"
-                    />
-                    Dining Experiences
-                  </span>
-                </a>
-                <a
-                  href="/safaris"
-                  title="Explore safari adventures"
-                  class="block text-gray-300 hover:text-white transition-colors duration-300 text-left group/link"
-                >
-                  <span class="inline-flex items-center gap-2">
-                    <Icon
-                      name="ph:binoculars"
-                      class="w-4 h-4 opacity-50 group-hover/link:opacity-100 transition-opacity"
-                    />
-                    Safari Adventures
-                  </span>
-                </a>
-                <a
-                  href="/wellness"
-                  title="Discover wellness experiences"
-                  class="block text-gray-300 hover:text-white transition-colors duration-300 text-left group/link"
-                >
-                  <span class="inline-flex items-center gap-2">
-                    <Icon
-                      name="ph:leaf"
-                      class="w-4 h-4 opacity-50 group-hover/link:opacity-100 transition-opacity"
-                    />
-                    Wellness
-                  </span>
-                </a>
-                <a
-                  href="/activities"
-                  title="Explore resort activities"
-                  class="block text-gray-300 hover:text-white transition-colors duration-300 text-left group/link"
-                >
-                  <span class="inline-flex items-center gap-2">
-                    <Icon
-                      name="ph:compass"
-                      class="w-4 h-4 opacity-50 group-hover/link:opacity-100 transition-opacity"
-                    />
-                    Activities
-                  </span>
-                </a>
-                <a
-                  href="/corporate-events"
-                  title="View corporate event options"
-                  class="block text-gray-300 hover:text-white transition-colors duration-300 text-left group/link"
-                >
-                  <span class="inline-flex items-center gap-2">
-                    <Icon
-                      name="ph:users-three"
-                      class="w-4 h-4 opacity-50 group-hover/link:opacity-100 transition-opacity"
-                    />
-                    Corporate Events
-                  </span>
-                </a>
-              </nav>
+              <Icon
+                name="bi:car-front-fill"
+                class="w-12 h-12 text-white mb-4"
+              />
+              <h3 class="text-xl font-semibold text-white mb-4">By Road</h3>
+              <p class="text-gray-300 leading-relaxed">
+                A delightful drive through picturesque landscapes and rural
+                Maharashtra, making the journey as memorable as the destination
+                itself.
+              </p>
             </div>
           </div>
 
-          <!-- Connect -->
-          <div class="group">
+          <div class="group text-center">
             <div
-              class="bg-gradient-to-br from-gray-800/30 to-gray-900/50 backdrop-blur-xl border border-gray-700 rounded-3xl p-8 hover:border-amber-400/30 hover:-translate-y-2 transition-all duration-500 h-full"
+              class="bg-gradient-to-br from-gray-800/30 to-gray-900/50 backdrop-blur-xl border border-gray-700 rounded-3xl p-8 flex flex-col items-center hover:border-amber-400/30 hover:-translate-y-2 transition-all duration-500"
             >
-              <h2
-                class="text-amber-400 font-medium mb-6 text-sm uppercase tracking-widest"
-              >
-                Connect
-              </h2>
-              <nav class="space-y-4">
-                <a
-                  href="/about"
-                  title="Learn about Limban Resort's story and vision"
-                  class="block text-gray-300 hover:text-white transition-colors duration-300 text-left group/link"
-                >
-                  <span class="inline-flex items-center gap-2">
-                    <Icon
-                      name="ph:heart"
-                      class="w-4 h-4 opacity-50 group-hover/link:opacity-100 transition-opacity"
-                    />
-                    About Us
-                  </span>
-                </a>
-                <a
-                  href="/contact"
-                  title="Contact Limban Resort for inquiries and bookings"
-                  class="block text-gray-300 hover:text-white transition-colors duration-300 text-left group/link"
-                >
-                  <span class="inline-flex items-center gap-2">
-                    <Icon
-                      name="ph:envelope-simple"
-                      class="w-4 h-4 opacity-50 group-hover/link:opacity-100 transition-opacity"
-                    />
-                    Contact Us
-                  </span>
-                </a>
-              </nav>
+              <Icon
+                name="material-symbols-light:train-outline"
+                class="w-12 h-12 text-white mb-4"
+              />
+              <h3 class="text-xl font-semibold text-white mb-4">By Train</h3>
+              <p class="text-gray-300 leading-relaxed">
+                Chandrapur Railway Station (41 km) with connections to major
+                cities. Comfortable transfers arranged by our team for seamless
+                arrival.
+              </p>
             </div>
+          </div>
+        </div>
+        <!-- Address & Map -->
+        <div
+          class="bg-gradient-to-br from-gray-800/30 to-gray-900/50 backdrop-blur-xl border border-gray-700 rounded-3xl overflow-hidden"
+        >
+          <div class="p-8 text-center">
+            <h3 class="font-serif italic text-4xl text-white mb-4">
+              Our Address
+            </h3>
+            <div class="space-y-2 text-gray-300">
+              <p class="text-lg">
+                Survey No. 306, Village Mudholi, Taluka Bhadravati
+              </p>
+              <p>Chandrapur, Maharashtra 442906</p>
+              <p class="text-amber-400 font-mono text-sm">
+                20.25602486093492, 79.2847888101826
+              </p>
+            </div>
+          </div>
+
+          <div class="relative h-96 bg-gray-800">
+            <iframe
+              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3065.6143576966315!2d79.28224607418248!3d20.255878913877122!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3bd331638d23f16f%3A0xd1c44c43e72c13f7!2sLimban%20Resort!5e1!3m2!1sen!2sin!4v1746016058517!5m2!1sen!2sin"
+              width="100%"
+              height="100%"
+              style="border:0; filter: grayscale(20%) sepia(10%) hue-rotate(200deg) saturate(0.8);"
+              allowfullscreen=""
+              loading="lazy"
+              referrerpolicy="no-referrer-when-downgrade"
+              class="w-full h-full"></iframe>
           </div>
         </div>
       </div>
-    </div>
+    </section>
+
+    <!-- Guest Testimonials -->
+    <TestimonialsSection />
+
+    <!-- Awards & Recognition -->
+    <AwardsSection />
+
+    <!-- Call to Action -->
+    <section class="py-32 bg-gray-950">
+      <div class="max-w-4xl mx-auto px-6 text-center">
+        <h2 class="font-serif italic text-4xl md:text-6xl text-white mb-8">
+          Ready for Your Wild Awakening?
+        </h2>
+        <p
+          class="text-xl text-gray-300 font-light leading-relaxed mb-12 max-w-3xl mx-auto"
+        >
+          Your journey into the heart of Tadoba awaits. Experience luxury that
+          respects the wild, hospitality that touches the soul, and moments that
+          become memories forever.
+        </p>
+        <div class="flex flex-col sm:flex-row gap-6 justify-center">
+          <a
+            href="/rooms"
+            title="Explore luxury safari accommodations at Limban Resort"
+            class="cta-filled"
+          >
+            Explore Our Rooms
+            <svg
+              class="w-5 h-5 ml-2"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M17 8l4 4m0 0l-4 4m4-4H3"></path>
+            </svg>
+          </a>
+          <a
+            href="/vibe"
+            title="Discover the unique atmosphere and experiences at Limban Resort"
+            class="cta-outlined"
+          >
+            The Limban Vibe
+            <svg
+              class="w-5 h-5 ml-2"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M17 8l4 4m0 0l-4 4m4-4H3"></path>
+            </svg>
+          </a>
+        </div>
+      </div>
+    </section>
   </div>
+
+  <GalleryModal />
 
   <style>
     /* Performance optimizations */
@@ -294,8 +691,7 @@ const requestedPath = Astro.url.pathname;
       will-change: transform;
     }
 
-    .transition-transform,
-    .transition-all {
+    .transition-transform {
       will-change: transform;
     }
 
@@ -304,9 +700,9 @@ const requestedPath = Astro.url.pathname;
       .transition-all,
       .transition-transform,
       .transition-colors,
+      .hover\:scale-105,
       .hover\:scale-110,
-      .hover\:-translate-y-1,
-      .hover\:-translate-y-2 {
+      .animate-pulse {
         transition: none !important;
         transform: none !important;
         animation: none !important;
