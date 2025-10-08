@@ -1,0 +1,1053 @@
+---
+import { createClient } from "@supabase/supabase-js";
+import Layout from "../../layouts/Layout.astro";
+import { Icon } from "astro-icon/components";
+
+const supabaseUrl = import.meta.env.PUBLIC_SUPABASE_URL;
+const supabaseKey = import.meta.env.PUBLIC_SUPABASE_ANON_KEY;
+const supabase = createClient(supabaseUrl, supabaseKey);
+
+// Fetch last 50 from each table
+const { data: roomReservations } = await supabase
+  .from("contact_submissions")
+  .select(
+    "id, created_at, firstName, lastName, email, phone, roomName, checkin, checkout, adults, children, basePrice, nightsReserved, wantSafaris, transfer, message",
+  )
+  .order("created_at", { ascending: false })
+  .limit(50);
+
+const { data: diningReservations } = await supabase
+  .from("dining_submissions")
+  .select(
+    "id, created_at, first_name, last_name, email, phone, outletname, dining_date, dining_time, adults, children, message, status",
+  )
+  .order("created_at", { ascending: false })
+  .limit(50);
+
+const { data: generalEnquiries } = await supabase
+  .from("general_enquiries")
+  .select(
+    "id, created_at, first_name, last_name, email, phone, enquiry_type, message, status, assigned_to, internal_notes",
+  )
+  .order("created_at", { ascending: false })
+  .limit(50);
+
+const { data: corporateEnquiries } = await supabase
+  .from("corporate_enquiries")
+  .select(
+    "id, submitted_at, contact_name, company_name, email, phone, event_type, attendee_count, preferred_date, duration, message",
+  )
+  .order("submitted_at", { ascending: false })
+  .limit(50);
+
+// Format date helper
+function formatDate(dateString: string) {
+  return new Date(dateString).toLocaleDateString("en-IN", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+    timeZone: "Asia/Kolkata",
+  });
+}
+
+// Format date only
+function formatDateOnly(dateString: string) {
+  return new Date(dateString).toLocaleDateString("en-IN", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  });
+}
+
+// Proper case helper
+function properCase(str: string) {
+  if (!str) return "";
+  return str.toLowerCase().replace(/\b\w/g, (char) => char.toUpperCase());
+}
+---
+
+<Layout title="Admin Dashboard - Limban Resort">
+  <div class="bg-gray-950 text-gray-100 min-h-screen">
+    <!-- Header -->
+    <header class="max-w-7xl mx-auto px-6 pt-44 pb-8">
+      <div class="text-center">
+        <div
+          class="inline-block px-6 py-2 bg-amber-400/10 border border-amber-400/30 rounded-full mb-8"
+        >
+          <span
+            class="text-amber-400 text-sm font-medium tracking-widest uppercase"
+            >Admin Dashboard</span
+          >
+        </div>
+        <h1 class="font-serif italic text-5xl md:text-7xl text-white mb-4">
+          Limban Enquiries
+        </h1>
+        <p class="text-xl text-gray-300">
+          Real-time guest communications • Last 50 per category
+        </p>
+      </div>
+    </header>
+
+    <!-- Search Bar -->
+    <div class="max-w-7xl mx-auto px-6 mb-16">
+      <div class="bg-gray-900/80 border border-gray-800 rounded-3xl p-8">
+        <div class="flex items-center gap-3 mb-6">
+          <span class="text-2xl">🔍</span>
+          <h2 class="font-serif italic text-2xl text-white">
+            Search All Enquiries
+          </h2>
+        </div>
+
+        <div class="relative">
+          <input
+            type="text"
+            id="searchQuery"
+            placeholder="Type to search name, email, phone, room..."
+            class="w-full px-4 py-4 pr-12 bg-gray-800 border border-gray-700 focus:border-amber-400 rounded-2xl text-gray-200 placeholder-gray-500 transition-colors outline-none text-lg"
+          />
+          <button
+            id="clearSearchIcon"
+            class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 hover:text-amber-400 transition-colors hidden"
+            aria-label="Clear search"
+          >
+            <svg
+              class="w-6 h-6"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M6 18L18 6M6 6l12 12"></path>
+            </svg>
+          </button>
+        </div>
+
+        <div id="searchStatus" class="mt-4 text-sm text-gray-400 hidden"></div>
+      </div>
+    </div>
+
+    <!-- ROOM RESERVATIONS -->
+    <section id="rooms" class="max-w-7xl mx-auto px-6 mb-32">
+      <div class="flex items-center gap-4 mb-8">
+        <span class="text-3xl">🛏️</span>
+        <h2 class="font-serif italic text-4xl text-white">Room Reservations</h2>
+        <span
+          class="px-4 py-2 bg-amber-400/20 border border-amber-400/30 rounded-full text-amber-400 text-sm font-bold"
+        >
+          <span class="count-badge">{roomReservations?.length || 0}</span>
+        </span>
+      </div>
+
+      {
+        roomReservations && roomReservations.length > 0 ? (
+          <>
+            <div class="enquiry-grid grid grid-cols-1 lg:grid-cols-2 gap-8">
+              {roomReservations.map((booking) => (
+                <article
+                  class="enquiry-card group bg-gradient-to-br from-gray-900 to-gray-900/80 border border-gray-800 rounded-3xl p-8 hover:border-amber-400/50 transition-all duration-500 hover:shadow-2xl hover:shadow-amber-400/10"
+                  data-id={booking.id}
+                >
+                  <div class="flex justify-between items-start mb-6 pb-6 border-b border-gray-800/50">
+                    <div class="flex-1">
+                      <h3 class="font-serif italic text-2xl text-white mb-2">
+                        {properCase(booking.firstName)}{" "}
+                        {properCase(booking.lastName)}
+                      </h3>
+                      <div class="flex items-center gap-3 text-xs text-gray-500 uppercase tracking-wider">
+                        <span>{formatDate(booking.created_at)}</span>
+                        <span class="w-1 h-1 bg-gray-700 rounded-full" />
+                        <span>ID: {booking.id}</span>
+                      </div>
+                    </div>
+                    <div class="px-4 py-2 bg-gray-800/50 rounded-2xl">
+                      <span class="text-2xl">🛏️</span>
+                    </div>
+                  </div>
+
+                  <div class="grid grid-cols-2 gap-6 mb-6">
+                    <div class="col-span-2">
+                      <p class="text-xs text-amber-400/70 uppercase tracking-wider mb-2 font-medium">
+                        Room
+                      </p>
+                      <p class="text-white text-lg font-semibold">
+                        {booking.roomName}
+                      </p>
+                    </div>
+                    <div>
+                      <p class="text-xs text-amber-400/70 uppercase tracking-wider mb-2 font-medium">
+                        Check In
+                      </p>
+                      <p class="text-gray-200 font-medium">
+                        {formatDateOnly(booking.checkin)}
+                      </p>
+                    </div>
+                    <div>
+                      <p class="text-xs text-amber-400/70 uppercase tracking-wider mb-2 font-medium">
+                        Check Out
+                      </p>
+                      <p class="text-gray-200 font-medium">
+                        {formatDateOnly(booking.checkout)}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div class="grid grid-cols-3 gap-4 mb-6 p-4 bg-gray-800/30 rounded-2xl">
+                    <div class="text-center">
+                      <p class="text-xs text-gray-500 uppercase tracking-wider mb-1">
+                        Nights
+                      </p>
+                      <p class="text-white text-xl font-bold">
+                        {booking.nightsReserved || "-"}
+                      </p>
+                    </div>
+                    <div class="text-center border-l border-r border-gray-700/50">
+                      <p class="text-xs text-gray-500 uppercase tracking-wider mb-1">
+                        Adults
+                      </p>
+                      <p class="text-white text-xl font-bold">
+                        {booking.adults}
+                      </p>
+                    </div>
+                    <div class="text-center">
+                      <p class="text-xs text-gray-500 uppercase tracking-wider mb-1">
+                        Children
+                      </p>
+                      <p class="text-white text-xl font-bold">
+                        {booking.children || 0}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div class="space-y-3 mb-6">
+                    {booking.basePrice && (
+                      <div class="flex items-center justify-between p-3 bg-amber-400/5 border border-amber-400/20 rounded-xl">
+                        <span class="text-xs text-amber-400/70 uppercase tracking-wider font-medium">
+                          Base Price
+                        </span>
+                        <span class="text-amber-400 font-bold">
+                          ₹{booking.basePrice}
+                        </span>
+                      </div>
+                    )}
+                    {booking.wantSafaris && (
+                      <div class="flex items-center gap-2 p-3 bg-gray-800/30 rounded-xl">
+                        <span class="text-lg">🐅</span>
+                        <span class="text-gray-300 text-sm">
+                          Safari requested
+                        </span>
+                      </div>
+                    )}
+                    {booking.transfer && (
+                      <div class="flex items-center gap-2 p-3 bg-gray-800/30 rounded-xl">
+                        <span class="text-lg">🚗</span>
+                        <span class="text-gray-300 text-sm">
+                          Transfer: {booking.transfer}
+                        </span>
+                      </div>
+                    )}
+                    {booking.message && (
+                      <div class="p-4 bg-gray-800/30 rounded-xl">
+                        <p class="text-xs text-gray-500 uppercase tracking-wider mb-2">
+                          Message
+                        </p>
+                        <p class="text-gray-300 text-sm italic leading-relaxed">
+                          "{booking.message}"
+                        </p>
+                      </div>
+                    )}
+                  </div>
+
+                  <div class="grid grid-cols-3 gap-3 pt-6 border-t border-gray-800/50">
+                    <a
+                      href={`tel:${booking.phone}`}
+                      class="flex flex-col items-center justify-center gap-2 px-4 py-4 bg-gray-800/50 hover:bg-amber-400 border border-gray-700/50 hover:border-amber-400 text-gray-300 hover:text-gray-900 rounded-2xl transition-all duration-300"
+                    >
+                      <Icon
+                        name="material-symbols-light:call"
+                        class="w-6 h-6"
+                      />
+                      <span class="text-xs font-bold uppercase tracking-wider">
+                        Call
+                      </span>
+                    </a>
+                    <a
+                      href={`mailto:${booking.email}`}
+                      class="flex flex-col items-center justify-center gap-2 px-4 py-4 bg-gray-800/50 hover:bg-amber-400 border border-gray-700/50 hover:border-amber-400 text-gray-300 hover:text-gray-900 rounded-2xl transition-all duration-300"
+                    >
+                      <Icon
+                        name="material-symbols-light:mail"
+                        class="w-6 h-6"
+                      />
+                      <span class="text-xs font-bold uppercase tracking-wider">
+                        Email
+                      </span>
+                    </a>
+                    <a
+                      href={`https://wa.me/${booking.phone.replace(/[^0-9]/g, "")}?text=Hello%20${booking.firstName}%2C%20thank%20you%20for%20your%20booking%20at%20Limban%20Resort`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      class="flex flex-col items-center justify-center gap-2 px-4 py-4 bg-gray-800/50 hover:bg-green-500 border border-gray-700/50 hover:border-green-500 text-gray-300 hover:text-white rounded-2xl transition-all duration-300"
+                    >
+                      <Icon name="mdi:whatsapp" class="w-6 h-6" />
+                      <span class="text-xs font-bold uppercase tracking-wider">
+                        WhatsApp
+                      </span>
+                    </a>
+                  </div>
+                </article>
+              ))}
+            </div>
+
+            {roomReservations.length > 6 && (
+              <div class="text-center mt-12">
+                <button class="load-more-btn px-8 py-4 bg-gray-800 hover:bg-amber-400 border border-gray-700 hover:border-amber-400 text-gray-300 hover:text-gray-900 rounded-2xl transition-all duration-300 font-medium text-sm uppercase tracking-wider">
+                  Load 6 More
+                </button>
+              </div>
+            )}
+          </>
+        ) : (
+          <div class="empty-state text-center py-24 bg-gray-900/50 rounded-3xl border border-gray-800">
+            <span class="text-6xl mb-6 block">🛏️</span>
+            <p class="text-gray-500 italic text-lg">No room reservations yet</p>
+          </div>
+        )
+      }
+    </section>
+
+    <!-- DINING RESERVATIONS -->
+    <section id="dining" class="max-w-7xl mx-auto px-6 mb-32">
+      <div class="flex items-center gap-4 mb-8">
+        <span class="text-3xl">🍽️</span>
+        <h2 class="font-serif italic text-4xl text-white">
+          Dining Reservations
+        </h2>
+        <span
+          class="px-4 py-2 bg-amber-400/20 border border-amber-400/30 rounded-full text-amber-400 text-sm font-bold"
+        >
+          <span class="count-badge">{diningReservations?.length || 0}</span>
+        </span>
+      </div>
+
+      {
+        diningReservations && diningReservations.length > 0 ? (
+          <>
+            <div class="enquiry-grid grid grid-cols-1 lg:grid-cols-2 gap-8">
+              {diningReservations.map((booking) => (
+                <article
+                  class="enquiry-card group bg-gradient-to-br from-gray-900 to-gray-900/80 border border-gray-800 rounded-3xl p-8 hover:border-amber-400/50 transition-all duration-500 hover:shadow-2xl hover:shadow-amber-400/10"
+                  data-id={booking.id}
+                >
+                  <div class="flex justify-between items-start mb-6 pb-6 border-b border-gray-800/50">
+                    <div class="flex-1">
+                      <h3 class="font-serif italic text-2xl text-white mb-2">
+                        {properCase(booking.first_name)}{" "}
+                        {properCase(booking.last_name)}
+                      </h3>
+                      <div class="flex items-center gap-3 text-xs text-gray-500 uppercase tracking-wider">
+                        <span>{formatDate(booking.created_at)}</span>
+                        <span class="w-1 h-1 bg-gray-700 rounded-full" />
+                        <span>ID: {booking.id}</span>
+                      </div>
+                    </div>
+                    <div class="px-4 py-2 bg-gray-800/50 rounded-2xl">
+                      <span class="text-2xl">🍽️</span>
+                    </div>
+                  </div>
+
+                  <div class="space-y-4 mb-6">
+                    <div>
+                      <p class="text-xs text-amber-400/70 uppercase tracking-wider mb-2 font-medium">
+                        Restaurant
+                      </p>
+                      <p class="text-white text-lg font-semibold">
+                        {booking.outletname}
+                      </p>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                      <div>
+                        <p class="text-xs text-amber-400/70 uppercase tracking-wider mb-2 font-medium">
+                          Date
+                        </p>
+                        <p class="text-gray-200 font-medium">
+                          {formatDateOnly(booking.dining_date)}
+                        </p>
+                      </div>
+                      <div>
+                        <p class="text-xs text-amber-400/70 uppercase tracking-wider mb-2 font-medium">
+                          Time
+                        </p>
+                        <p class="text-gray-200 font-medium">
+                          {booking.dining_time}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="grid grid-cols-2 gap-4 mb-6 p-4 bg-gray-800/30 rounded-2xl">
+                    <div class="text-center">
+                      <p class="text-xs text-gray-500 uppercase tracking-wider mb-1">
+                        Adults
+                      </p>
+                      <p class="text-white text-xl font-bold">
+                        {booking.adults}
+                      </p>
+                    </div>
+                    <div class="text-center border-l border-gray-700/50">
+                      <p class="text-xs text-gray-500 uppercase tracking-wider mb-1">
+                        Children
+                      </p>
+                      <p class="text-white text-xl font-bold">
+                        {booking.children || 0}
+                      </p>
+                    </div>
+                  </div>
+
+                  {booking.message && (
+                    <div class="p-4 bg-gray-800/30 rounded-xl mb-6">
+                      <p class="text-xs text-gray-500 uppercase tracking-wider mb-2">
+                        Message
+                      </p>
+                      <p class="text-gray-300 text-sm italic leading-relaxed">
+                        "{booking.message}"
+                      </p>
+                    </div>
+                  )}
+
+                  {booking.status && (
+                    <div class="mb-6">
+                      <span
+                        class={`inline-block px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider ${
+                          booking.status === "confirmed"
+                            ? "bg-green-500/20 text-green-400 border border-green-500/30"
+                            : booking.status === "pending"
+                              ? "bg-amber-400/20 text-amber-400 border border-amber-400/30"
+                              : "bg-gray-700/50 text-gray-400 border border-gray-700"
+                        }`}
+                      >
+                        {booking.status}
+                      </span>
+                    </div>
+                  )}
+
+                  <div class="grid grid-cols-3 gap-3 pt-6 border-t border-gray-800/50">
+                    <a
+                      href={`tel:${booking.phone}`}
+                      class="flex flex-col items-center justify-center gap-2 px-4 py-4 bg-gray-800/50 hover:bg-amber-400 border border-gray-700/50 hover:border-amber-400 text-gray-300 hover:text-gray-900 rounded-2xl transition-all duration-300"
+                    >
+                      <Icon
+                        name="material-symbols-light:call"
+                        class="w-6 h-6"
+                      />
+                      <span class="text-xs font-bold uppercase tracking-wider">
+                        Call
+                      </span>
+                    </a>
+                    <a
+                      href={`mailto:${booking.email}`}
+                      class="flex flex-col items-center justify-center gap-2 px-4 py-4 bg-gray-800/50 hover:bg-amber-400 border border-gray-700/50 hover:border-amber-400 text-gray-300 hover:text-gray-900 rounded-2xl transition-all duration-300"
+                    >
+                      <Icon
+                        name="material-symbols-light:mail"
+                        class="w-6 h-6"
+                      />
+                      <span class="text-xs font-bold uppercase tracking-wider">
+                        Email
+                      </span>
+                    </a>
+                    <a
+                      href={`https://wa.me/${booking.phone.replace(/[^0-9]/g, "")}?text=Hello%20${booking.first_name}%2C%20thank%20you%20for%20your%20dining%20reservation`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      class="flex flex-col items-center justify-center gap-2 px-4 py-4 bg-gray-800/50 hover:bg-green-500 border border-gray-700/50 hover:border-green-500 text-gray-300 hover:text-white rounded-2xl transition-all duration-300"
+                    >
+                      <Icon name="mdi:whatsapp" class="w-6 h-6" />
+                      <span class="text-xs font-bold uppercase tracking-wider">
+                        WhatsApp
+                      </span>
+                    </a>
+                  </div>
+                </article>
+              ))}
+            </div>
+
+            {diningReservations.length > 6 && (
+              <div class="text-center mt-12">
+                <button class="load-more-btn px-8 py-4 bg-gray-800 hover:bg-amber-400 border border-gray-700 hover:border-amber-400 text-gray-300 hover:text-gray-900 rounded-2xl transition-all duration-300 font-medium text-sm uppercase tracking-wider">
+                  Load 6 More
+                </button>
+              </div>
+            )}
+          </>
+        ) : (
+          <div class="empty-state text-center py-24 bg-gray-900/50 rounded-3xl border border-gray-800">
+            <span class="text-6xl mb-6 block">🍽️</span>
+            <p class="text-gray-500 italic text-lg">
+              No dining reservations yet
+            </p>
+          </div>
+        )
+      }
+    </section>
+
+    <!-- GENERAL ENQUIRIES -->
+    <section id="general" class="max-w-7xl mx-auto px-6 mb-32">
+      <div class="flex items-center gap-4 mb-8">
+        <span class="text-3xl">💬</span>
+        <h2 class="font-serif italic text-4xl text-white">General Enquiries</h2>
+        <span
+          class="px-4 py-2 bg-amber-400/20 border border-amber-400/30 rounded-full text-amber-400 text-sm font-bold"
+        >
+          <span class="count-badge">{generalEnquiries?.length || 0}</span>
+        </span>
+      </div>
+
+      {
+        generalEnquiries && generalEnquiries.length > 0 ? (
+          <>
+            <div class="enquiry-grid grid grid-cols-1 lg:grid-cols-2 gap-8">
+              {generalEnquiries.map((enquiry) => (
+                <article
+                  class="enquiry-card group bg-gradient-to-br from-gray-900 to-gray-900/80 border border-gray-800 rounded-3xl p-8 hover:border-amber-400/50 transition-all duration-500 hover:shadow-2xl hover:shadow-amber-400/10"
+                  data-id={enquiry.id}
+                >
+                  <div class="flex justify-between items-start mb-6 pb-6 border-b border-gray-800/50">
+                    <div class="flex-1">
+                      <h3 class="font-serif italic text-2xl text-white mb-2">
+                        {properCase(enquiry.first_name)}{" "}
+                        {properCase(enquiry.last_name)}
+                      </h3>
+                      <div class="flex items-center gap-3 text-xs text-gray-500 uppercase tracking-wider">
+                        <span>{formatDate(enquiry.created_at)}</span>
+                        <span class="w-1 h-1 bg-gray-700 rounded-full" />
+                        <span>ID: {enquiry.id}</span>
+                      </div>
+                    </div>
+                    <div class="px-4 py-2 bg-gray-800/50 rounded-2xl">
+                      <span class="text-2xl">💬</span>
+                    </div>
+                  </div>
+
+                  <div class="space-y-4 mb-6">
+                    <div>
+                      <p class="text-xs text-amber-400/70 uppercase tracking-wider mb-2 font-medium">
+                        Enquiry Type
+                      </p>
+                      <p class="text-white text-lg font-semibold">
+                        {enquiry.enquiry_type}
+                      </p>
+                    </div>
+                    {enquiry.message && (
+                      <div class="p-4 bg-gray-800/30 rounded-xl">
+                        <p class="text-xs text-gray-500 uppercase tracking-wider mb-2">
+                          Message
+                        </p>
+                        <p class="text-gray-300 text-sm italic leading-relaxed">
+                          "{enquiry.message}"
+                        </p>
+                      </div>
+                    )}
+                    {enquiry.internal_notes && (
+                      <div class="p-4 bg-amber-400/5 border border-amber-400/20 rounded-xl">
+                        <p class="text-xs text-amber-400/70 uppercase tracking-wider mb-2">
+                          Internal Notes
+                        </p>
+                        <p class="text-amber-200/80 text-sm leading-relaxed">
+                          {enquiry.internal_notes}
+                        </p>
+                      </div>
+                    )}
+                  </div>
+
+                  <div class="flex items-center gap-3 mb-6">
+                    {enquiry.status && (
+                      <span
+                        class={`inline-block px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider ${
+                          enquiry.status === "resolved"
+                            ? "bg-green-500/20 text-green-400 border border-green-500/30"
+                            : enquiry.status === "pending"
+                              ? "bg-amber-400/20 text-amber-400 border border-amber-400/30"
+                              : "bg-gray-700/50 text-gray-400 border border-gray-700"
+                        }`}
+                      >
+                        {enquiry.status}
+                      </span>
+                    )}
+                    {enquiry.assigned_to && (
+                      <span class="inline-block px-3 py-1 rounded-full text-xs font-medium bg-gray-800/50 text-gray-400 border border-gray-700">
+                        Assigned: {enquiry.assigned_to}
+                      </span>
+                    )}
+                  </div>
+
+                  <div class="grid grid-cols-3 gap-3 pt-6 border-t border-gray-800/50">
+                    <a
+                      href={`tel:${enquiry.phone}`}
+                      class="flex flex-col items-center justify-center gap-2 px-4 py-4 bg-gray-800/50 hover:bg-amber-400 border border-gray-700/50 hover:border-amber-400 text-gray-300 hover:text-gray-900 rounded-2xl transition-all duration-300"
+                    >
+                      <Icon
+                        name="material-symbols-light:call"
+                        class="w-6 h-6"
+                      />
+                      <span class="text-xs font-bold uppercase tracking-wider">
+                        Call
+                      </span>
+                    </a>
+                    <a
+                      href={`mailto:${enquiry.email}`}
+                      class="flex flex-col items-center justify-center gap-2 px-4 py-4 bg-gray-800/50 hover:bg-amber-400 border border-gray-700/50 hover:border-amber-400 text-gray-300 hover:text-gray-900 rounded-2xl transition-all duration-300"
+                    >
+                      <Icon
+                        name="material-symbols-light:mail"
+                        class="w-6 h-6"
+                      />
+                      <span class="text-xs font-bold uppercase tracking-wider">
+                        Email
+                      </span>
+                    </a>
+                    <a
+                      href={`https://wa.me/${enquiry.phone.replace(/[^0-9]/g, "")}?text=Hello%20${enquiry.first_name}%2C%20thank%20you%20for%20contacting%20Limban%20Resort`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      class="flex flex-col items-center justify-center gap-2 px-4 py-4 bg-gray-800/50 hover:bg-green-500 border border-gray-700/50 hover:border-green-500 text-gray-300 hover:text-white rounded-2xl transition-all duration-300"
+                    >
+                      <Icon name="mdi:whatsapp" class="w-6 h-6" />
+                      <span class="text-xs font-bold uppercase tracking-wider">
+                        WhatsApp
+                      </span>
+                    </a>
+                  </div>
+                </article>
+              ))}
+            </div>
+
+            {generalEnquiries.length > 6 && (
+              <div class="text-center mt-12">
+                <button class="load-more-btn px-8 py-4 bg-gray-800 hover:bg-amber-400 border border-gray-700 hover:border-amber-400 text-gray-300 hover:text-gray-900 rounded-2xl transition-all duration-300 font-medium text-sm uppercase tracking-wider">
+                  Load 6 More
+                </button>
+              </div>
+            )}
+          </>
+        ) : (
+          <div class="empty-state text-center py-24 bg-gray-900/50 rounded-3xl border border-gray-800">
+            <span class="text-6xl mb-6 block">💬</span>
+            <p class="text-gray-500 italic text-lg">
+              No general enquiries found
+            </p>
+          </div>
+        )
+      }
+    </section>
+
+    <!-- CORPORATE ENQUIRIES -->
+    <section id="corporate" class="max-w-7xl mx-auto px-6 pb-32">
+      <div class="flex items-center gap-4 mb-8">
+        <span class="text-3xl">💼</span>
+        <h2 class="font-serif italic text-4xl text-white">Corporate Events</h2>
+        <span
+          class="px-4 py-2 bg-amber-400/20 border border-amber-400/30 rounded-full text-amber-400 text-sm font-bold"
+        >
+          <span class="count-badge">{corporateEnquiries?.length || 0}</span>
+        </span>
+      </div>
+
+      {
+        corporateEnquiries && corporateEnquiries.length > 0 ? (
+          <>
+            <div class="enquiry-grid grid grid-cols-1 lg:grid-cols-2 gap-8">
+              {corporateEnquiries.map((enquiry) => (
+                <article
+                  class="enquiry-card group bg-gradient-to-br from-gray-900 to-gray-900/80 border border-gray-800 rounded-3xl p-8 hover:border-amber-400/50 transition-all duration-500 hover:shadow-2xl hover:shadow-amber-400/10"
+                  data-id={enquiry.id}
+                >
+                  <div class="flex justify-between items-start mb-6 pb-6 border-b border-gray-800/50">
+                    <div class="flex-1">
+                      <h3 class="font-serif italic text-2xl text-white mb-2">
+                        {properCase(enquiry.contact_name)}
+                      </h3>
+                      <div class="flex items-center gap-3 text-xs text-gray-500 uppercase tracking-wider">
+                        <span>{formatDate(enquiry.submitted_at)}</span>
+                        <span class="w-1 h-1 bg-gray-700 rounded-full" />
+                        <span>ID: {enquiry.id}</span>
+                      </div>
+                    </div>
+                    <div class="px-4 py-2 bg-gray-800/50 rounded-2xl">
+                      <span class="text-2xl">💼</span>
+                    </div>
+                  </div>
+
+                  <div class="space-y-4 mb-6">
+                    <div>
+                      <p class="text-xs text-amber-400/70 uppercase tracking-wider mb-2 font-medium">
+                        Company
+                      </p>
+                      <p class="text-white text-lg font-semibold">
+                        {enquiry.company_name}
+                      </p>
+                    </div>
+                    <div>
+                      <p class="text-xs text-amber-400/70 uppercase tracking-wider mb-2 font-medium">
+                        Event Type
+                      </p>
+                      <p class="text-gray-200 font-medium">
+                        {enquiry.event_type}
+                      </p>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                      <div>
+                        <p class="text-xs text-amber-400/70 uppercase tracking-wider mb-2 font-medium">
+                          Attendees
+                        </p>
+                        <p class="text-white text-xl font-bold">
+                          {enquiry.attendee_count}
+                        </p>
+                      </div>
+                      {enquiry.preferred_date && (
+                        <div>
+                          <p class="text-xs text-amber-400/70 uppercase tracking-wider mb-2 font-medium">
+                            Preferred Date
+                          </p>
+                          <p class="text-gray-200 font-medium">
+                            {formatDateOnly(enquiry.preferred_date)}
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                    {enquiry.duration && (
+                      <div>
+                        <p class="text-xs text-amber-400/70 uppercase tracking-wider mb-2 font-medium">
+                          Duration
+                        </p>
+                        <p class="text-gray-200 font-medium">
+                          {enquiry.duration}
+                        </p>
+                      </div>
+                    )}
+                  </div>
+
+                  {enquiry.message && (
+                    <div class="p-4 bg-gray-800/30 rounded-xl mb-6">
+                      <p class="text-xs text-gray-500 uppercase tracking-wider mb-2">
+                        Message
+                      </p>
+                      <p class="text-gray-300 text-sm italic leading-relaxed">
+                        "{enquiry.message}"
+                      </p>
+                    </div>
+                  )}
+
+                  <div class="grid grid-cols-3 gap-3 pt-6 border-t border-gray-800/50">
+                    <a
+                      href={`tel:${enquiry.phone}`}
+                      class="flex flex-col items-center justify-center gap-2 px-4 py-4 bg-gray-800/50 hover:bg-amber-400 border border-gray-700/50 hover:border-amber-400 text-gray-300 hover:text-gray-900 rounded-2xl transition-all duration-300"
+                    >
+                      <Icon
+                        name="material-symbols-light:call"
+                        class="w-6 h-6"
+                      />
+                      <span class="text-xs font-bold uppercase tracking-wider">
+                        Call
+                      </span>
+                    </a>
+                    <a
+                      href={`mailto:${enquiry.email}`}
+                      class="flex flex-col items-center justify-center gap-2 px-4 py-4 bg-gray-800/50 hover:bg-amber-400 border border-gray-700/50 hover:border-amber-400 text-gray-300 hover:text-gray-900 rounded-2xl transition-all duration-300"
+                    >
+                      <Icon
+                        name="material-symbols-light:mail"
+                        class="w-6 h-6"
+                      />
+                      <span class="text-xs font-bold uppercase tracking-wider">
+                        Email
+                      </span>
+                    </a>
+                    <a
+                      href={`https://wa.me/${enquiry.phone.replace(/[^0-9]/g, "")}?text=Hello%20${enquiry.contact_name}%2C%20thank%20you%20for%20your%20corporate%20event%20enquiry`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      class="flex flex-col items-center justify-center gap-2 px-4 py-4 bg-gray-800/50 hover:bg-green-500 border border-gray-700/50 hover:border-green-500 text-gray-300 hover:text-white rounded-2xl transition-all duration-300"
+                    >
+                      <Icon name="mdi:whatsapp" class="w-6 h-6" />
+                      <span class="text-xs font-bold uppercase tracking-wider">
+                        WhatsApp
+                      </span>
+                    </a>
+                  </div>
+                </article>
+              ))}
+            </div>
+
+            {corporateEnquiries.length > 6 && (
+              <div class="text-center mt-12">
+                <button class="load-more-btn px-8 py-4 bg-gray-800 hover:bg-amber-400 border border-gray-700 hover:border-amber-400 text-gray-300 hover:text-gray-900 rounded-2xl transition-all duration-300 font-medium text-sm uppercase tracking-wider">
+                  Load 6 More
+                </button>
+              </div>
+            )}
+          </>
+        ) : (
+          <div class="empty-state text-center py-24 bg-gray-900/50 rounded-3xl border border-gray-800">
+            <span class="text-6xl mb-6 block">💼</span>
+            <p class="text-gray-500 italic text-lg">
+              No corporate enquiries yet
+            </p>
+          </div>
+        )
+      }
+    </section>
+  </div>
+</Layout>
+
+<script>
+  // Search functionality with debounce
+  const searchQuery = document.getElementById(
+    "searchQuery",
+  ) as HTMLInputElement;
+  const clearSearchIcon = document.getElementById("clearSearchIcon");
+  const searchStatus = document.getElementById("searchStatus");
+
+  let searchTimeout: number;
+  let isSearchActive = false;
+
+  // Debounced search on type
+  searchQuery?.addEventListener("input", () => {
+    const query = searchQuery.value.trim();
+
+    // Show/hide clear icon
+    if (query) {
+      clearSearchIcon?.classList.remove("hidden");
+    } else {
+      clearSearchIcon?.classList.add("hidden");
+      clearSearch();
+      return;
+    }
+
+    // Clear previous timeout
+    clearTimeout(searchTimeout);
+
+    // Show searching status
+    searchStatus?.classList.remove("hidden");
+    searchStatus!.textContent = "Searching...";
+
+    // Debounce - wait 500ms after user stops typing
+    searchTimeout = window.setTimeout(() => {
+      performSearch(query);
+    }, 500);
+  });
+
+  // Clear search
+  clearSearchIcon?.addEventListener("click", () => {
+    searchQuery.value = "";
+    clearSearchIcon.classList.add("hidden");
+    clearSearch();
+  });
+
+  async function performSearch(query: string) {
+    try {
+      const params = new URLSearchParams();
+      params.set("query", query);
+
+      const response = await fetch(`/api/search?${params.toString()}`);
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const results = await response.json();
+
+      // Update each section with results
+      updateSection("rooms", results.rooms);
+      updateSection("dining", results.dining);
+      updateSection("general", results.general);
+      updateSection("corporate", results.corporate);
+
+      const totalResults =
+        (results.rooms?.length || 0) +
+        (results.dining?.length || 0) +
+        (results.general?.length || 0) +
+        (results.corporate?.length || 0);
+
+      searchStatus!.textContent = `Found ${totalResults} result${totalResults !== 1 ? "s" : ""}`;
+      isSearchActive = true;
+    } catch (error) {
+      searchStatus!.textContent = "Search failed. Please try again.";
+      console.error("Search error:", error);
+    }
+  }
+
+  function clearSearch() {
+    searchStatus?.classList.add("hidden");
+    searchStatus!.textContent = "";
+
+    if (!isSearchActive) return;
+
+    // Reset all sections
+    ["rooms", "dining", "general", "corporate"].forEach((sectionId) => {
+      const section = document.getElementById(sectionId);
+      const grid = section?.querySelector(".enquiry-grid");
+      const cards = grid?.querySelectorAll(".enquiry-card");
+      const emptyState = section?.querySelector(".empty-state");
+      const loadMoreBtn = section?.querySelector(".load-more-btn");
+      const countBadge = section?.querySelector(".count-badge");
+
+      // Show all cards
+      cards?.forEach((card, index) => {
+        if (index < 6) {
+          (card as HTMLElement).style.display = "block";
+          card.classList.remove("hidden");
+        } else {
+          (card as HTMLElement).style.display = "none";
+          card.classList.add("hidden");
+        }
+      });
+
+      // Show/hide load more button
+      if (cards && cards.length > 6) {
+        loadMoreBtn?.classList.remove("hidden");
+      }
+
+      // Update count badge to original count
+      if (countBadge) {
+        countBadge.textContent = cards?.length.toString() || "0";
+      }
+
+      // Hide empty state if there are cards
+      if (cards && cards.length > 0) {
+        emptyState?.classList.add("hidden");
+      }
+    });
+
+    isSearchActive = false;
+  }
+
+  function updateSection(sectionId: string, results: any[]) {
+    const section = document.getElementById(sectionId);
+    const grid = section?.querySelector(".enquiry-grid");
+    const emptyState = section?.querySelector(".empty-state");
+    const loadMoreBtn = section?.querySelector(".load-more-btn");
+    const countBadge = section?.querySelector(".count-badge");
+
+    if (!grid) return;
+
+    // Hide all cards
+    grid.querySelectorAll(".enquiry-card").forEach((card) => {
+      (card as HTMLElement).style.display = "none";
+    });
+
+    // Hide load more button during search
+    loadMoreBtn?.classList.add("hidden");
+
+    // Section name mapping
+    const sectionNames: { [key: string]: string } = {
+      rooms: "Room Reservations",
+      dining: "Dining Reservations",
+      general: "General Enquiries",
+      corporate: "Corporate Events",
+    };
+
+    const emojis: { [key: string]: string } = {
+      rooms: "🛏️",
+      dining: "🍽️",
+      general: "💬",
+      corporate: "💼",
+    };
+
+    if (results && results.length > 0) {
+      emptyState?.classList.add("hidden");
+
+      // Show matching cards by ID
+      const resultIds = new Set(results.map((r: any) => r.id));
+      grid.querySelectorAll(".enquiry-card").forEach((card) => {
+        const cardId = parseInt((card as HTMLElement).dataset.id || "0");
+        if (resultIds.has(cardId)) {
+          (card as HTMLElement).style.display = "block";
+        }
+      });
+
+      // Update count badge
+      if (countBadge) {
+        countBadge.textContent = results.length.toString();
+      }
+    } else {
+      // Show or create empty state
+      if (emptyState) {
+        emptyState.classList.remove("hidden");
+        const emptyText = emptyState.querySelector("p");
+        const sectionName = sectionNames[sectionId] || "results";
+        if (emptyText) {
+          emptyText.textContent = `No ${sectionName} found`;
+        }
+      } else {
+        // Create empty state if it doesn't exist
+        const emptyStateDiv = document.createElement("div");
+        emptyStateDiv.className =
+          "empty-state text-center py-24 bg-gray-900/50 rounded-3xl border border-gray-800";
+        emptyStateDiv.innerHTML = `
+        <span class="text-6xl mb-6 block">${emojis[sectionId]}</span>
+        <p class="text-gray-500 italic text-lg">No ${sectionNames[sectionId]} found</p>
+      `;
+        grid.parentElement?.appendChild(emptyStateDiv);
+      }
+
+      // Update count badge
+      if (countBadge) {
+        countBadge.textContent = "0";
+      }
+    }
+  }
+
+  // Load More functionality
+  document.addEventListener("DOMContentLoaded", () => {
+    const sections = document.querySelectorAll("section[id]");
+
+    sections.forEach((section) => {
+      const grid = section.querySelector(".enquiry-grid");
+      const cards = grid?.querySelectorAll(".enquiry-card");
+      const loadMoreBtn = section.querySelector(".load-more-btn");
+
+      if (!cards || cards.length <= 6) {
+        return;
+      }
+
+      // Hide cards after 6
+      cards.forEach((card, index) => {
+        if (index >= 6) card.classList.add("hidden");
+      });
+
+      let currentlyShowing = 6;
+
+      loadMoreBtn?.addEventListener("click", () => {
+        const cardsArray = Array.from(cards);
+        const nextBatch = cardsArray.slice(
+          currentlyShowing,
+          currentlyShowing + 6,
+        );
+
+        nextBatch.forEach((card) => card.classList.remove("hidden"));
+        currentlyShowing += 6;
+
+        if (currentlyShowing >= cards.length) {
+          loadMoreBtn.classList.add("hidden");
+        }
+      });
+    });
+  });
+</script>
+
+<style>
+  html {
+    scroll-behavior: smooth;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+  }
+</style>

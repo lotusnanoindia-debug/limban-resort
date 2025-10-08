@@ -4,8 +4,11 @@ import react from "@astrojs/react";
 import icon from "astro-icon";
 import tailwindcss from "tailwindcss";
 import autoprefixer from "autoprefixer";
+import netlify from "@astrojs/netlify";
 
 export default defineConfig({
+  output: "server",
+  adapter: netlify(),
   site: "https://limban.com",
   integrations: [
     sitemap({
@@ -70,12 +73,20 @@ export default defineConfig({
   ],
 
   image: {
+    service: {
+      entrypoint: "astro/assets/services/sharp",
+    },
+    domains: ["res.cloudinary.com"],
     format: "avif",
     quality: 80,
     remotePatterns: [
       {
         protocol: "https",
         hostname: "**.graphassets.com",
+      },
+      {
+        protocol: "https", // ← ADD THIS WHOLE BLOCK
+        hostname: "res.cloudinary.com",
       },
     ],
   },
