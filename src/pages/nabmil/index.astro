@@ -1,5 +1,4 @@
 ---
-export const prerender = false; // Force server-side rendering for this page
 import { createClient } from "@supabase/supabase-js";
 import Layout from "../../layouts/Layout.astro";
 import { Icon } from "astro-icon/components";
@@ -854,7 +853,9 @@ function properCase(str: string) {
       const params = new URLSearchParams();
       params.set("query", query);
 
-      const response = await fetch(`/api/search?${params.toString()}`);
+      const response = await fetch(
+        `/.netlify/functions/search?query=${encodeURIComponent(query)}`,
+      );
 
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
