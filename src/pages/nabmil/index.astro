@@ -509,7 +509,7 @@ import Layout from "../../layouts/Layout.astro";
               <span>${highlightText(item.email || "No email")}</span>
               <iconify-icon 
                 icon="ph:clipboard" 
-                class="clipboard-icon text-gray-500"
+                class="clipboard-icon text-gray-500 cursor-pointer "
                 onclick="copyToClipboard('${escapeHtml(item.email || "")}', this)"
               ></iconify-icon>
             </div>
@@ -518,7 +518,7 @@ import Layout from "../../layouts/Layout.astro";
               <span>${highlightText(item.phone || "No phone")}</span>
               <iconify-icon 
                 icon="ph:clipboard" 
-                class="clipboard-icon text-gray-500"
+                class="clipboard-icon text-gray-500 cursor-pointer "
                 onclick="copyToClipboard('${escapeHtml(item.phone || "")}', this)"
               ></iconify-icon>
             </div>
@@ -606,7 +606,7 @@ import Layout from "../../layouts/Layout.astro";
           <div class="flex items-start justify-between mb-6">
             <div>
               <h3 class="font-serif italic text-2xl text-white mb-1">
-                ${isNew ? '<span class="new-badge">New</span>' : ""}${highlightText(fullName)}
+                ${highlightText(fullName)} ${isNew ? '<span class="p-2 bottom-1 rounded-xl text-sm font-sans bg-blue-700 text-white ml-4">Latest</span>' : ""}
               </h3>
               <p class="text-amber-400 text-sm">${highlightText(item.outletname || "Outlet not specified")}</p>
             </div>
@@ -622,7 +622,7 @@ import Layout from "../../layouts/Layout.astro";
               <span>${highlightText(item.email || "No email")}</span>
               <iconify-icon 
                 icon="ph:clipboard" 
-                class="clipboard-icon text-gray-500"
+                class="clipboard-icon text-gray-500 cursor-pointer "
                 onclick="copyToClipboard('${escapeHtml(item.email || "")}', this)"
               ></iconify-icon>
             </div>
@@ -631,7 +631,7 @@ import Layout from "../../layouts/Layout.astro";
               <span>${highlightText(item.phone || "No phone")}</span>
               <iconify-icon 
                 icon="ph:clipboard" 
-                class="clipboard-icon text-gray-500"
+                class="clipboard-icon text-gray-500 cursor-pointer "
                 onclick="copyToClipboard('${escapeHtml(item.phone || "")}', this)"
               ></iconify-icon>
             </div>
@@ -698,7 +698,7 @@ import Layout from "../../layouts/Layout.astro";
           <div class="flex items-start justify-between mb-6">
             <div>
               <h3 class="font-serif italic text-2xl text-white mb-1">
-                ${isNew ? '<span class="new-badge">New Today</span>' : ""}${highlightText(fullName)}
+                ${highlightText(fullName)} ${isNew ? '<span class="p-2 bottom-1 rounded-xl text-sm font-sans bg-blue-700 text-white ml-4">Latest</span>' : ""}
               </h3>
               <p class="text-amber-400 text-sm">${highlightText(properCase(item.enquiry_type || "General Enquiry"))}</p>
             </div>
@@ -714,7 +714,7 @@ import Layout from "../../layouts/Layout.astro";
               <span>${highlightText(item.email || "No email")}</span>
               <iconify-icon 
                 icon="ph:clipboard" 
-                class="clipboard-icon text-gray-500"
+                class="clipboard-icon text-gray-500 cursor-pointer "
                 onclick="copyToClipboard('${escapeHtml(item.email || "")}', this)"
               ></iconify-icon>
             </div>
@@ -723,7 +723,7 @@ import Layout from "../../layouts/Layout.astro";
               <span>${highlightText(item.phone || "No phone")}</span>
               <iconify-icon 
                 icon="ph:clipboard" 
-                class="clipboard-icon text-gray-500"
+                class="clipboard-icon text-gray-500 cursor-pointer "
                 onclick="copyToClipboard('${escapeHtml(item.phone || "")}', this)"
               ></iconify-icon>
             </div>
@@ -773,7 +773,7 @@ import Layout from "../../layouts/Layout.astro";
           <div class="flex items-start justify-between mb-6">
             <div>
               <h3 class="font-serif italic text-2xl text-white mb-1">
-                ${isNew ? '<span class="new-badge">New Today</span>' : ""}${highlightText(properCase(item.contact_name || ""))}
+                ${highlightText(properCase(item.contact_name || ""))} ${isNew ? '<span class="p-2 bottom-1 rounded-xl text-sm font-sans bg-blue-700 text-white ml-4">Latest</span>' : ""}
               </h3>
               <p class="text-amber-400 text-sm">${highlightText(item.company_name || "Company not specified")}</p>
             </div>
@@ -789,7 +789,7 @@ import Layout from "../../layouts/Layout.astro";
               <span>${highlightText(item.email || "No email")}</span>
               <iconify-icon 
                 icon="ph:clipboard" 
-                class="clipboard-icon text-gray-500"
+                class="clipboard-icon text-gray-500 cursor-pointer "
                 onclick="copyToClipboard('${escapeHtml(item.email || "")}', this)"
               ></iconify-icon>
             </div>
@@ -798,7 +798,7 @@ import Layout from "../../layouts/Layout.astro";
               <span>${highlightText(item.phone || "No phone")}</span>
               <iconify-icon 
                 icon="ph:clipboard" 
-                class="clipboard-icon text-gray-500"
+                class="clipboard-icon text-gray-500 cursor-pointer "
                 onclick="copyToClipboard('${escapeHtml(item.phone || "")}', this)"
               ></iconify-icon>
             </div>
