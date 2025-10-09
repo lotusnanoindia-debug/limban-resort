@@ -1,76 +1,43 @@
 ---
-import { createClient } from "@supabase/supabase-js";
 import Layout from "../../layouts/Layout.astro";
-import { Icon } from "astro-icon/components";
-
-const supabaseUrl = import.meta.env.PUBLIC_SUPABASE_URL;
-const supabaseKey = import.meta.env.PUBLIC_SUPABASE_ANON_KEY;
-const supabase = createClient(supabaseUrl, supabaseKey);
-
-// Fetch last 50 from each table
-const { data: roomReservations } = await supabase
-  .from("contact_submissions")
-  .select(
-    "id, created_at, firstName, lastName, email, phone, roomName, checkin, checkout, adults, children, basePrice, nightsReserved, wantSafaris, transfer, message",
-  )
-  .order("created_at", { ascending: false })
-  .limit(50);
-
-const { data: diningReservations } = await supabase
-  .from("dining_submissions")
-  .select(
-    "id, created_at, first_name, last_name, email, phone, outletname, dining_date, dining_time, adults, children, message, status",
-  )
-  .order("created_at", { ascending: false })
-  .limit(50);
-
-const { data: generalEnquiries } = await supabase
-  .from("general_enquiries")
-  .select(
-    "id, created_at, first_name, last_name, email, phone, enquiry_type, message, status, assigned_to, internal_notes",
-  )
-  .order("created_at", { ascending: false })
-  .limit(50);
-
-const { data: corporateEnquiries } = await supabase
-  .from("corporate_enquiries")
-  .select(
-    "id, submitted_at, contact_name, company_name, email, phone, event_type, attendee_count, preferred_date, duration, message",
-  )
-  .order("submitted_at", { ascending: false })
-  .limit(50);
-
-// Format date helper
-function formatDate(dateString: string) {
-  return new Date(dateString).toLocaleDateString("en-IN", {
-    day: "numeric",
-    month: "short",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-    timeZone: "Asia/Kolkata",
-  });
-}
-
-// Format date only
-function formatDateOnly(dateString: string) {
-  return new Date(dateString).toLocaleDateString("en-IN", {
-    day: "numeric",
-    month: "short",
-    year: "numeric",
-  });
-}
-
-// Proper case helper
-function properCase(str: string) {
-  if (!str) return "";
-  return str.toLowerCase().replace(/\b\w/g, (char) => char.toUpperCase());
-}
 ---
 
 <Layout title="Admin Dashboard - Limban Resort">
+  <script
+    src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"
+  ></script>
+
+  <style>
+    .search-highlight {
+      background: linear-gradient(
+        120deg,
+        rgba(251, 191, 36, 0.3) 0%,
+        rgba(251, 191, 36, 0.15) 100%
+      );
+      color: rgb(251, 191, 36);
+      padding: 0.125rem 0.25rem;
+      border-radius: 0.25rem;
+      font-weight: 600;
+    }
+
+    .clipboard-icon {
+      cursor: pointer;
+      transition: all 0.2s ease;
+      opacity: 0.5;
+    }
+
+    .clipboard-icon:hover {
+      opacity: 1;
+      color: rgb(251, 191, 36);
+    }
+
+    .clipboard-icon.copied {
+      color: rgb(34, 197, 94);
+      opacity: 1;
+    }
+  </style>
+
   <div class="bg-gray-950 text-gray-100 min-h-screen">
-    <!-- Header -->
     <header class="max-w-7xl mx-auto px-6 pt-44 pb-8">
       <div class="text-center">
         <div
@@ -84,17 +51,26 @@ function properCase(str: string) {
         <h1 class="font-serif italic text-5xl md:text-7xl text-white mb-4">
           Limban Enquiries
         </h1>
-        <p class="text-xl text-gray-300">
-          Real-time guest communications • Last 50 per category
-        </p>
+        <p class="text-xl text-gray-300">Guest communications dashboard</p>
+
+        <div
+          id="realtimeStatus"
+          class="mt-6 flex items-center justify-center gap-2"
+        >
+          <div id="statusDot" class="w-2 h-2 bg-gray-500 rounded-full"></div>
+          <span id="statusText" class="text-sm text-gray-500"
+            >Initialising...</span
+          >
+        </div>
       </div>
     </header>
 
-    <!-- Search Bar -->
     <div class="max-w-7xl mx-auto px-6 mb-16">
       <div class="bg-gray-900/80 border border-gray-800 rounded-3xl p-8">
         <div class="flex items-center gap-3 mb-6">
-          <span class="text-2xl">🔍</span>
+          <iconify-icon
+            icon="ph:magnifying-glass-bold"
+            class="text-2xl text-amber-400"></iconify-icon>
           <h2 class="font-serif italic text-2xl text-white">
             Search All Enquiries
           </h2>
@@ -105,6 +81,7 @@ function properCase(str: string) {
             type="text"
             id="searchQuery"
             placeholder="Type to search name, email, phone, room..."
+            title="Press / to focus search, Esc to clear"
             class="w-full px-4 py-4 pr-12 bg-gray-800 border border-gray-700 focus:border-amber-400 rounded-2xl text-gray-200 placeholder-gray-500 transition-colors outline-none text-lg"
           />
           <button
@@ -112,18 +89,7 @@ function properCase(str: string) {
             class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 hover:text-amber-400 transition-colors hidden"
             aria-label="Clear search"
           >
-            <svg
-              class="w-6 h-6"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M6 18L18 6M6 6l12 12"></path>
-            </svg>
+            <iconify-icon icon="ph:x-bold" class="text-xl"></iconify-icon>
           </button>
         </div>
 
@@ -131,925 +97,1241 @@ function properCase(str: string) {
       </div>
     </div>
 
-    <!-- ROOM RESERVATIONS -->
-    <section id="rooms" class="max-w-7xl mx-auto px-6 mb-32">
-      <div class="flex items-center gap-4 mb-8">
-        <span class="text-3xl">🛏️</span>
-        <h2 class="font-serif italic text-4xl text-white">Room Reservations</h2>
-        <span
-          class="px-4 py-2 bg-amber-400/20 border border-amber-400/30 rounded-full text-amber-400 text-sm font-bold"
-        >
-          <span class="count-badge">{roomReservations?.length || 0}</span>
-        </span>
+    <div id="loadingState" class="max-w-7xl mx-auto px-6 text-center py-24">
+      <div
+        class="inline-block animate-spin rounded-full h-16 w-16 border-4 border-gray-800 border-t-amber-400"
+      >
       </div>
+      <p class="text-gray-500 mt-6 text-lg">Loading enquiries...</p>
+    </div>
 
-      {
-        roomReservations && roomReservations.length > 0 ? (
-          <>
-            <div class="enquiry-grid grid grid-cols-1 lg:grid-cols-2 gap-8">
-              {roomReservations.map((booking) => (
-                <article
-                  class="enquiry-card group bg-gradient-to-br from-gray-900 to-gray-900/80 border border-gray-800 rounded-3xl p-8 hover:border-amber-400/50 transition-all duration-500 hover:shadow-2xl hover:shadow-amber-400/10"
-                  data-id={booking.id}
-                >
-                  <div class="flex justify-between items-start mb-6 pb-6 border-b border-gray-800/50">
-                    <div class="flex-1">
-                      <h3 class="font-serif italic text-2xl text-white mb-2">
-                        {properCase(booking.firstName)}{" "}
-                        {properCase(booking.lastName)}
-                      </h3>
-                      <div class="flex items-center gap-3 text-xs text-gray-500 uppercase tracking-wider">
-                        <span>{formatDate(booking.created_at)}</span>
-                        <span class="w-1 h-1 bg-gray-700 rounded-full" />
-                        <span>ID: {booking.id}</span>
-                      </div>
-                    </div>
-                    <div class="px-4 py-2 bg-gray-800/50 rounded-2xl">
-                      <span class="text-2xl">🛏️</span>
-                    </div>
-                  </div>
+    <div id="mainContent" class="hidden">
+      <section id="roomsSection" class="max-w-7xl mx-auto px-6 mb-32">
+        <div class="flex items-center gap-4 mb-8">
+          <iconify-icon icon="ph:bed-bold" class="text-3xl text-amber-400"
+          ></iconify-icon>
+          <h2 class="font-serif italic text-4xl text-white">
+            Room Reservations
+          </h2>
+          <span
+            class="px-4 py-2 bg-amber-400/20 border border-amber-400/30 rounded-full text-amber-400 text-sm font-bold"
+          >
+            <span id="roomsCount">0</span>
+          </span>
+        </div>
 
-                  <div class="grid grid-cols-2 gap-6 mb-6">
-                    <div class="col-span-2">
-                      <p class="text-xs text-amber-400/70 uppercase tracking-wider mb-2 font-medium">
-                        Room
-                      </p>
-                      <p class="text-white text-lg font-semibold">
-                        {booking.roomName}
-                      </p>
-                    </div>
-                    <div>
-                      <p class="text-xs text-amber-400/70 uppercase tracking-wider mb-2 font-medium">
-                        Check In
-                      </p>
-                      <p class="text-gray-200 font-medium">
-                        {formatDateOnly(booking.checkin)}
-                      </p>
-                    </div>
-                    <div>
-                      <p class="text-xs text-amber-400/70 uppercase tracking-wider mb-2 font-medium">
-                        Check Out
-                      </p>
-                      <p class="text-gray-200 font-medium">
-                        {formatDateOnly(booking.checkout)}
-                      </p>
-                    </div>
-                  </div>
+        <div id="roomsGrid" class="grid grid-cols-1 lg:grid-cols-2 gap-8"></div>
 
-                  <div class="grid grid-cols-3 gap-4 mb-6 p-4 bg-gray-800/30 rounded-2xl">
-                    <div class="text-center">
-                      <p class="text-xs text-gray-500 uppercase tracking-wider mb-1">
-                        Nights
-                      </p>
-                      <p class="text-white text-xl font-bold">
-                        {booking.nightsReserved || "-"}
-                      </p>
-                    </div>
-                    <div class="text-center border-l border-r border-gray-700/50">
-                      <p class="text-xs text-gray-500 uppercase tracking-wider mb-1">
-                        Adults
-                      </p>
-                      <p class="text-white text-xl font-bold">
-                        {booking.adults}
-                      </p>
-                    </div>
-                    <div class="text-center">
-                      <p class="text-xs text-gray-500 uppercase tracking-wider mb-1">
-                        Children
-                      </p>
-                      <p class="text-white text-xl font-bold">
-                        {booking.children || 0}
-                      </p>
-                    </div>
-                  </div>
-
-                  <div class="space-y-3 mb-6">
-                    {booking.basePrice && (
-                      <div class="flex items-center justify-between p-3 bg-amber-400/5 border border-amber-400/20 rounded-xl">
-                        <span class="text-xs text-amber-400/70 uppercase tracking-wider font-medium">
-                          Base Price
-                        </span>
-                        <span class="text-amber-400 font-bold">
-                          ₹{booking.basePrice}
-                        </span>
-                      </div>
-                    )}
-                    {booking.wantSafaris && (
-                      <div class="flex items-center gap-2 p-3 bg-gray-800/30 rounded-xl">
-                        <span class="text-lg">🐅</span>
-                        <span class="text-gray-300 text-sm">
-                          Safari requested
-                        </span>
-                      </div>
-                    )}
-                    {booking.transfer && (
-                      <div class="flex items-center gap-2 p-3 bg-gray-800/30 rounded-xl">
-                        <span class="text-lg">🚗</span>
-                        <span class="text-gray-300 text-sm">
-                          Transfer: {booking.transfer}
-                        </span>
-                      </div>
-                    )}
-                    {booking.message && (
-                      <div class="p-4 bg-gray-800/30 rounded-xl">
-                        <p class="text-xs text-gray-500 uppercase tracking-wider mb-2">
-                          Message
-                        </p>
-                        <p class="text-gray-300 text-sm italic leading-relaxed">
-                          "{booking.message}"
-                        </p>
-                      </div>
-                    )}
-                  </div>
-
-                  <div class="grid grid-cols-3 gap-3 pt-6 border-t border-gray-800/50">
-                    <a
-                      href={`tel:${booking.phone}`}
-                      class="flex flex-col items-center justify-center gap-2 px-4 py-4 bg-gray-800/50 hover:bg-amber-400 border border-gray-700/50 hover:border-amber-400 text-gray-300 hover:text-gray-900 rounded-2xl transition-all duration-300"
-                    >
-                      <Icon
-                        name="material-symbols-light:call"
-                        class="w-6 h-6"
-                      />
-                      <span class="text-xs font-bold uppercase tracking-wider">
-                        Call
-                      </span>
-                    </a>
-                    <a
-                      href={`mailto:${booking.email}`}
-                      class="flex flex-col items-center justify-center gap-2 px-4 py-4 bg-gray-800/50 hover:bg-amber-400 border border-gray-700/50 hover:border-amber-400 text-gray-300 hover:text-gray-900 rounded-2xl transition-all duration-300"
-                    >
-                      <Icon
-                        name="material-symbols-light:mail"
-                        class="w-6 h-6"
-                      />
-                      <span class="text-xs font-bold uppercase tracking-wider">
-                        Email
-                      </span>
-                    </a>
-                    <a
-                      href={`https://wa.me/${booking.phone.replace(/[^0-9]/g, "")}?text=Hello%20${booking.firstName}%2C%20thank%20you%20for%20your%20booking%20at%20Limban%20Resort`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      class="flex flex-col items-center justify-center gap-2 px-4 py-4 bg-gray-800/50 hover:bg-green-500 border border-gray-700/50 hover:border-green-500 text-gray-300 hover:text-white rounded-2xl transition-all duration-300"
-                    >
-                      <Icon name="mdi:whatsapp" class="w-6 h-6" />
-                      <span class="text-xs font-bold uppercase tracking-wider">
-                        WhatsApp
-                      </span>
-                    </a>
-                  </div>
-                </article>
-              ))}
-            </div>
-
-            {roomReservations.length > 6 && (
-              <div class="text-center mt-12">
-                <button class="load-more-btn px-8 py-4 bg-gray-800 hover:bg-amber-400 border border-gray-700 hover:border-amber-400 text-gray-300 hover:text-gray-900 rounded-2xl transition-all duration-300 font-medium text-sm uppercase tracking-wider">
-                  Load 6 More
-                </button>
-              </div>
-            )}
-          </>
-        ) : (
-          <div class="empty-state text-center py-24 bg-gray-900/50 rounded-3xl border border-gray-800">
-            <span class="text-6xl mb-6 block">🛏️</span>
-            <p class="text-gray-500 italic text-lg">No room reservations yet</p>
-          </div>
-        )
-      }
-    </section>
-
-    <!-- DINING RESERVATIONS -->
-    <section id="dining" class="max-w-7xl mx-auto px-6 mb-32">
-      <div class="flex items-center gap-4 mb-8">
-        <span class="text-3xl">🍽️</span>
-        <h2 class="font-serif italic text-4xl text-white">
-          Dining Reservations
-        </h2>
-        <span
-          class="px-4 py-2 bg-amber-400/20 border border-amber-400/30 rounded-full text-amber-400 text-sm font-bold"
+        <div
+          id="roomsEmpty"
+          class="text-center py-24 bg-gray-900/50 rounded-3xl border border-gray-800 hidden"
         >
-          <span class="count-badge">{diningReservations?.length || 0}</span>
-        </span>
-      </div>
+          <iconify-icon icon="ph:bed-bold" class="text-6xl text-gray-700 mb-6"
+          ></iconify-icon>
+          <p class="text-gray-500 italic text-lg">No room reservations yet</p>
+        </div>
 
-      {
-        diningReservations && diningReservations.length > 0 ? (
-          <>
-            <div class="enquiry-grid grid grid-cols-1 lg:grid-cols-2 gap-8">
-              {diningReservations.map((booking) => (
-                <article
-                  class="enquiry-card group bg-gradient-to-br from-gray-900 to-gray-900/80 border border-gray-800 rounded-3xl p-8 hover:border-amber-400/50 transition-all duration-500 hover:shadow-2xl hover:shadow-amber-400/10"
-                  data-id={booking.id}
-                >
-                  <div class="flex justify-between items-start mb-6 pb-6 border-b border-gray-800/50">
-                    <div class="flex-1">
-                      <h3 class="font-serif italic text-2xl text-white mb-2">
-                        {properCase(booking.first_name)}{" "}
-                        {properCase(booking.last_name)}
-                      </h3>
-                      <div class="flex items-center gap-3 text-xs text-gray-500 uppercase tracking-wider">
-                        <span>{formatDate(booking.created_at)}</span>
-                        <span class="w-1 h-1 bg-gray-700 rounded-full" />
-                        <span>ID: {booking.id}</span>
-                      </div>
-                    </div>
-                    <div class="px-4 py-2 bg-gray-800/50 rounded-2xl">
-                      <span class="text-2xl">🍽️</span>
-                    </div>
-                  </div>
+        <div id="roomsLoadMoreContainer" class="text-center mt-12 hidden">
+          <button
+            id="roomsLoadMore"
+            class="px-8 py-4 bg-gray-800 hover:bg-amber-400 border border-gray-700 hover:border-amber-400 rounded-2xl text-gray-300 hover:text-gray-950 font-medium transition-all duration-300"
+          >
+            Load 6 More Room Reservations
+          </button>
+        </div>
 
-                  <div class="space-y-4 mb-6">
-                    <div>
-                      <p class="text-xs text-amber-400/70 uppercase tracking-wider mb-2 font-medium">
-                        Restaurant
-                      </p>
-                      <p class="text-white text-lg font-semibold">
-                        {booking.outletname}
-                      </p>
-                    </div>
-                    <div class="grid grid-cols-2 gap-4">
-                      <div>
-                        <p class="text-xs text-amber-400/70 uppercase tracking-wider mb-2 font-medium">
-                          Date
-                        </p>
-                        <p class="text-gray-200 font-medium">
-                          {formatDateOnly(booking.dining_date)}
-                        </p>
-                      </div>
-                      <div>
-                        <p class="text-xs text-amber-400/70 uppercase tracking-wider mb-2 font-medium">
-                          Time
-                        </p>
-                        <p class="text-gray-200 font-medium">
-                          {booking.dining_time}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
+        <div id="roomsMaxReached" class="text-center mt-12 hidden">
+          <p class="text-gray-500 text-sm italic">
+            Showing first 100 records. Use search to find older enquiries.
+          </p>
+        </div>
+      </section>
 
-                  <div class="grid grid-cols-2 gap-4 mb-6 p-4 bg-gray-800/30 rounded-2xl">
-                    <div class="text-center">
-                      <p class="text-xs text-gray-500 uppercase tracking-wider mb-1">
-                        Adults
-                      </p>
-                      <p class="text-white text-xl font-bold">
-                        {booking.adults}
-                      </p>
-                    </div>
-                    <div class="text-center border-l border-gray-700/50">
-                      <p class="text-xs text-gray-500 uppercase tracking-wider mb-1">
-                        Children
-                      </p>
-                      <p class="text-white text-xl font-bold">
-                        {booking.children || 0}
-                      </p>
-                    </div>
-                  </div>
+      <section id="diningSection" class="max-w-7xl mx-auto px-6 mb-32">
+        <div class="flex items-center gap-4 mb-8">
+          <iconify-icon
+            icon="ph:fork-knife-bold"
+            class="text-3xl text-amber-400"></iconify-icon>
+          <h2 class="font-serif italic text-4xl text-white">
+            Dining Reservations
+          </h2>
+          <span
+            class="px-4 py-2 bg-amber-400/20 border border-amber-400/30 rounded-full text-amber-400 text-sm font-bold"
+          >
+            <span id="diningCount">0</span>
+          </span>
+        </div>
 
-                  {booking.message && (
-                    <div class="p-4 bg-gray-800/30 rounded-xl mb-6">
-                      <p class="text-xs text-gray-500 uppercase tracking-wider mb-2">
-                        Message
-                      </p>
-                      <p class="text-gray-300 text-sm italic leading-relaxed">
-                        "{booking.message}"
-                      </p>
-                    </div>
-                  )}
+        <div id="diningGrid" class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        </div>
 
-                  {booking.status && (
-                    <div class="mb-6">
-                      <span
-                        class={`inline-block px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider ${
-                          booking.status === "confirmed"
-                            ? "bg-green-500/20 text-green-400 border border-green-500/30"
-                            : booking.status === "pending"
-                              ? "bg-amber-400/20 text-amber-400 border border-amber-400/30"
-                              : "bg-gray-700/50 text-gray-400 border border-gray-700"
-                        }`}
-                      >
-                        {booking.status}
-                      </span>
-                    </div>
-                  )}
-
-                  <div class="grid grid-cols-3 gap-3 pt-6 border-t border-gray-800/50">
-                    <a
-                      href={`tel:${booking.phone}`}
-                      class="flex flex-col items-center justify-center gap-2 px-4 py-4 bg-gray-800/50 hover:bg-amber-400 border border-gray-700/50 hover:border-amber-400 text-gray-300 hover:text-gray-900 rounded-2xl transition-all duration-300"
-                    >
-                      <Icon
-                        name="material-symbols-light:call"
-                        class="w-6 h-6"
-                      />
-                      <span class="text-xs font-bold uppercase tracking-wider">
-                        Call
-                      </span>
-                    </a>
-                    <a
-                      href={`mailto:${booking.email}`}
-                      class="flex flex-col items-center justify-center gap-2 px-4 py-4 bg-gray-800/50 hover:bg-amber-400 border border-gray-700/50 hover:border-amber-400 text-gray-300 hover:text-gray-900 rounded-2xl transition-all duration-300"
-                    >
-                      <Icon
-                        name="material-symbols-light:mail"
-                        class="w-6 h-6"
-                      />
-                      <span class="text-xs font-bold uppercase tracking-wider">
-                        Email
-                      </span>
-                    </a>
-                    <a
-                      href={`https://wa.me/${booking.phone.replace(/[^0-9]/g, "")}?text=Hello%20${booking.first_name}%2C%20thank%20you%20for%20your%20dining%20reservation`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      class="flex flex-col items-center justify-center gap-2 px-4 py-4 bg-gray-800/50 hover:bg-green-500 border border-gray-700/50 hover:border-green-500 text-gray-300 hover:text-white rounded-2xl transition-all duration-300"
-                    >
-                      <Icon name="mdi:whatsapp" class="w-6 h-6" />
-                      <span class="text-xs font-bold uppercase tracking-wider">
-                        WhatsApp
-                      </span>
-                    </a>
-                  </div>
-                </article>
-              ))}
-            </div>
-
-            {diningReservations.length > 6 && (
-              <div class="text-center mt-12">
-                <button class="load-more-btn px-8 py-4 bg-gray-800 hover:bg-amber-400 border border-gray-700 hover:border-amber-400 text-gray-300 hover:text-gray-900 rounded-2xl transition-all duration-300 font-medium text-sm uppercase tracking-wider">
-                  Load 6 More
-                </button>
-              </div>
-            )}
-          </>
-        ) : (
-          <div class="empty-state text-center py-24 bg-gray-900/50 rounded-3xl border border-gray-800">
-            <span class="text-6xl mb-6 block">🍽️</span>
-            <p class="text-gray-500 italic text-lg">
-              No dining reservations yet
-            </p>
-          </div>
-        )
-      }
-    </section>
-
-    <!-- GENERAL ENQUIRIES -->
-    <section id="general" class="max-w-7xl mx-auto px-6 mb-32">
-      <div class="flex items-center gap-4 mb-8">
-        <span class="text-3xl">💬</span>
-        <h2 class="font-serif italic text-4xl text-white">General Enquiries</h2>
-        <span
-          class="px-4 py-2 bg-amber-400/20 border border-amber-400/30 rounded-full text-amber-400 text-sm font-bold"
+        <div
+          id="diningEmpty"
+          class="text-center py-24 bg-gray-900/50 rounded-3xl border border-gray-800 hidden"
         >
-          <span class="count-badge">{generalEnquiries?.length || 0}</span>
-        </span>
-      </div>
+          <iconify-icon
+            icon="ph:fork-knife-bold"
+            class="text-6xl text-gray-700 mb-6"></iconify-icon>
+          <p class="text-gray-500 italic text-lg">No dining reservations yet</p>
+        </div>
 
-      {
-        generalEnquiries && generalEnquiries.length > 0 ? (
-          <>
-            <div class="enquiry-grid grid grid-cols-1 lg:grid-cols-2 gap-8">
-              {generalEnquiries.map((enquiry) => (
-                <article
-                  class="enquiry-card group bg-gradient-to-br from-gray-900 to-gray-900/80 border border-gray-800 rounded-3xl p-8 hover:border-amber-400/50 transition-all duration-500 hover:shadow-2xl hover:shadow-amber-400/10"
-                  data-id={enquiry.id}
-                >
-                  <div class="flex justify-between items-start mb-6 pb-6 border-b border-gray-800/50">
-                    <div class="flex-1">
-                      <h3 class="font-serif italic text-2xl text-white mb-2">
-                        {properCase(enquiry.first_name)}{" "}
-                        {properCase(enquiry.last_name)}
-                      </h3>
-                      <div class="flex items-center gap-3 text-xs text-gray-500 uppercase tracking-wider">
-                        <span>{formatDate(enquiry.created_at)}</span>
-                        <span class="w-1 h-1 bg-gray-700 rounded-full" />
-                        <span>ID: {enquiry.id}</span>
-                      </div>
-                    </div>
-                    <div class="px-4 py-2 bg-gray-800/50 rounded-2xl">
-                      <span class="text-2xl">💬</span>
-                    </div>
-                  </div>
+        <div id="diningLoadMoreContainer" class="text-center mt-12 hidden">
+          <button
+            id="diningLoadMore"
+            class="px-8 py-4 bg-gray-800 hover:bg-amber-400 border border-gray-700 hover:border-amber-400 rounded-2xl text-gray-300 hover:text-gray-950 font-medium transition-all duration-300"
+          >
+            Load 6 More Dining Reservations
+          </button>
+        </div>
 
-                  <div class="space-y-4 mb-6">
-                    <div>
-                      <p class="text-xs text-amber-400/70 uppercase tracking-wider mb-2 font-medium">
-                        Enquiry Type
-                      </p>
-                      <p class="text-white text-lg font-semibold">
-                        {enquiry.enquiry_type}
-                      </p>
-                    </div>
-                    {enquiry.message && (
-                      <div class="p-4 bg-gray-800/30 rounded-xl">
-                        <p class="text-xs text-gray-500 uppercase tracking-wider mb-2">
-                          Message
-                        </p>
-                        <p class="text-gray-300 text-sm italic leading-relaxed">
-                          "{enquiry.message}"
-                        </p>
-                      </div>
-                    )}
-                    {enquiry.internal_notes && (
-                      <div class="p-4 bg-amber-400/5 border border-amber-400/20 rounded-xl">
-                        <p class="text-xs text-amber-400/70 uppercase tracking-wider mb-2">
-                          Internal Notes
-                        </p>
-                        <p class="text-amber-200/80 text-sm leading-relaxed">
-                          {enquiry.internal_notes}
-                        </p>
-                      </div>
-                    )}
-                  </div>
+        <div id="diningMaxReached" class="text-center mt-12 hidden">
+          <p class="text-gray-500 text-sm italic">
+            Showing first 100 records. Use search to find older enquiries.
+          </p>
+        </div>
+      </section>
 
-                  <div class="flex items-center gap-3 mb-6">
-                    {enquiry.status && (
-                      <span
-                        class={`inline-block px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider ${
-                          enquiry.status === "resolved"
-                            ? "bg-green-500/20 text-green-400 border border-green-500/30"
-                            : enquiry.status === "pending"
-                              ? "bg-amber-400/20 text-amber-400 border border-amber-400/30"
-                              : "bg-gray-700/50 text-gray-400 border border-gray-700"
-                        }`}
-                      >
-                        {enquiry.status}
-                      </span>
-                    )}
-                    {enquiry.assigned_to && (
-                      <span class="inline-block px-3 py-1 rounded-full text-xs font-medium bg-gray-800/50 text-gray-400 border border-gray-700">
-                        Assigned: {enquiry.assigned_to}
-                      </span>
-                    )}
-                  </div>
+      <section id="generalSection" class="max-w-7xl mx-auto px-6 mb-32">
+        <div class="flex items-center gap-4 mb-8">
+          <iconify-icon
+            icon="ph:chat-circle-dots-bold"
+            class="text-3xl text-amber-400"></iconify-icon>
+          <h2 class="font-serif italic text-4xl text-white">
+            General Enquiries
+          </h2>
+          <span
+            class="px-4 py-2 bg-amber-400/20 border border-amber-400/30 rounded-full text-amber-400 text-sm font-bold"
+          >
+            <span id="generalCount">0</span>
+          </span>
+        </div>
 
-                  <div class="grid grid-cols-3 gap-3 pt-6 border-t border-gray-800/50">
-                    <a
-                      href={`tel:${enquiry.phone}`}
-                      class="flex flex-col items-center justify-center gap-2 px-4 py-4 bg-gray-800/50 hover:bg-amber-400 border border-gray-700/50 hover:border-amber-400 text-gray-300 hover:text-gray-900 rounded-2xl transition-all duration-300"
-                    >
-                      <Icon
-                        name="material-symbols-light:call"
-                        class="w-6 h-6"
-                      />
-                      <span class="text-xs font-bold uppercase tracking-wider">
-                        Call
-                      </span>
-                    </a>
-                    <a
-                      href={`mailto:${enquiry.email}`}
-                      class="flex flex-col items-center justify-center gap-2 px-4 py-4 bg-gray-800/50 hover:bg-amber-400 border border-gray-700/50 hover:border-amber-400 text-gray-300 hover:text-gray-900 rounded-2xl transition-all duration-300"
-                    >
-                      <Icon
-                        name="material-symbols-light:mail"
-                        class="w-6 h-6"
-                      />
-                      <span class="text-xs font-bold uppercase tracking-wider">
-                        Email
-                      </span>
-                    </a>
-                    <a
-                      href={`https://wa.me/${enquiry.phone.replace(/[^0-9]/g, "")}?text=Hello%20${enquiry.first_name}%2C%20thank%20you%20for%20contacting%20Limban%20Resort`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      class="flex flex-col items-center justify-center gap-2 px-4 py-4 bg-gray-800/50 hover:bg-green-500 border border-gray-700/50 hover:border-green-500 text-gray-300 hover:text-white rounded-2xl transition-all duration-300"
-                    >
-                      <Icon name="mdi:whatsapp" class="w-6 h-6" />
-                      <span class="text-xs font-bold uppercase tracking-wider">
-                        WhatsApp
-                      </span>
-                    </a>
-                  </div>
-                </article>
-              ))}
-            </div>
+        <div id="generalGrid" class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        </div>
 
-            {generalEnquiries.length > 6 && (
-              <div class="text-center mt-12">
-                <button class="load-more-btn px-8 py-4 bg-gray-800 hover:bg-amber-400 border border-gray-700 hover:border-amber-400 text-gray-300 hover:text-gray-900 rounded-2xl transition-all duration-300 font-medium text-sm uppercase tracking-wider">
-                  Load 6 More
-                </button>
-              </div>
-            )}
-          </>
-        ) : (
-          <div class="empty-state text-center py-24 bg-gray-900/50 rounded-3xl border border-gray-800">
-            <span class="text-6xl mb-6 block">💬</span>
-            <p class="text-gray-500 italic text-lg">
-              No general enquiries found
-            </p>
-          </div>
-        )
-      }
-    </section>
-
-    <!-- CORPORATE ENQUIRIES -->
-    <section id="corporate" class="max-w-7xl mx-auto px-6 pb-32">
-      <div class="flex items-center gap-4 mb-8">
-        <span class="text-3xl">💼</span>
-        <h2 class="font-serif italic text-4xl text-white">Corporate Events</h2>
-        <span
-          class="px-4 py-2 bg-amber-400/20 border border-amber-400/30 rounded-full text-amber-400 text-sm font-bold"
+        <div
+          id="generalEmpty"
+          class="text-center py-24 bg-gray-900/50 rounded-3xl border border-gray-800 hidden"
         >
-          <span class="count-badge">{corporateEnquiries?.length || 0}</span>
-        </span>
+          <iconify-icon
+            icon="ph:chat-circle-dots-bold"
+            class="text-6xl text-gray-700 mb-6"></iconify-icon>
+          <p class="text-gray-500 italic text-lg">No general enquiries yet</p>
+        </div>
+
+        <div id="generalLoadMoreContainer" class="text-center mt-12 hidden">
+          <button
+            id="generalLoadMore"
+            class="px-8 py-4 bg-gray-800 hover:bg-amber-400 border border-gray-700 hover:border-amber-400 rounded-2xl text-gray-300 hover:text-gray-950 font-medium transition-all duration-300"
+          >
+            Load 6 More General Enquiries
+          </button>
+        </div>
+
+        <div id="generalMaxReached" class="text-center mt-12 hidden">
+          <p class="text-gray-500 text-sm italic">
+            Showing first 100 records. Use search to find older enquiries.
+          </p>
+        </div>
+      </section>
+
+      <section id="corporateSection" class="max-w-7xl mx-auto px-6 mb-32">
+        <div class="flex items-center gap-4 mb-8">
+          <iconify-icon icon="ph:buildings-bold" class="text-3xl text-amber-400"
+          ></iconify-icon>
+          <h2 class="font-serif italic text-4xl text-white">
+            Corporate Enquiries
+          </h2>
+          <span
+            class="px-4 py-2 bg-amber-400/20 border border-amber-400/30 rounded-full text-amber-400 text-sm font-bold"
+          >
+            <span id="corporateCount">0</span>
+          </span>
+        </div>
+
+        <div id="corporateGrid" class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        </div>
+
+        <div
+          id="corporateEmpty"
+          class="text-center py-24 bg-gray-900/50 rounded-3xl border border-gray-800 hidden"
+        >
+          <iconify-icon
+            icon="ph:buildings-bold"
+            class="text-6xl text-gray-700 mb-6"></iconify-icon>
+          <p class="text-gray-500 italic text-lg">No corporate enquiries yet</p>
+        </div>
+
+        <div id="corporateLoadMoreContainer" class="text-center mt-12 hidden">
+          <button
+            id="corporateLoadMore"
+            class="px-8 py-4 bg-gray-800 hover:bg-amber-400 border border-gray-700 hover:border-amber-400 rounded-2xl text-gray-300 hover:text-gray-950 font-medium transition-all duration-300"
+          >
+            Load 6 More Corporate Enquiries
+          </button>
+        </div>
+
+        <div id="corporateMaxReached" class="text-center mt-12 hidden">
+          <p class="text-gray-500 text-sm italic">
+            Showing first 100 records. Use search to find older enquiries.
+          </p>
+        </div>
+      </section>
+    </div>
+
+    <div
+      id="toast"
+      class="fixed bottom-6 right-6 bg-gradient-to-r from-amber-500 to-amber-600 text-white px-6 py-4 rounded-2xl shadow-2xl border border-amber-400/50 transform translate-y-32 transition-transform duration-300 flex items-center gap-3 z-50"
+    >
+      <iconify-icon icon="ph:bell-bold" class="text-2xl"></iconify-icon>
+      <div>
+        <p class="font-semibold">New Enquiry Received</p>
+        <p id="toastMessage" class="text-sm text-amber-50"></p>
       </div>
-
-      {
-        corporateEnquiries && corporateEnquiries.length > 0 ? (
-          <>
-            <div class="enquiry-grid grid grid-cols-1 lg:grid-cols-2 gap-8">
-              {corporateEnquiries.map((enquiry) => (
-                <article
-                  class="enquiry-card group bg-gradient-to-br from-gray-900 to-gray-900/80 border border-gray-800 rounded-3xl p-8 hover:border-amber-400/50 transition-all duration-500 hover:shadow-2xl hover:shadow-amber-400/10"
-                  data-id={enquiry.id}
-                >
-                  <div class="flex justify-between items-start mb-6 pb-6 border-b border-gray-800/50">
-                    <div class="flex-1">
-                      <h3 class="font-serif italic text-2xl text-white mb-2">
-                        {properCase(enquiry.contact_name)}
-                      </h3>
-                      <div class="flex items-center gap-3 text-xs text-gray-500 uppercase tracking-wider">
-                        <span>{formatDate(enquiry.submitted_at)}</span>
-                        <span class="w-1 h-1 bg-gray-700 rounded-full" />
-                        <span>ID: {enquiry.id}</span>
-                      </div>
-                    </div>
-                    <div class="px-4 py-2 bg-gray-800/50 rounded-2xl">
-                      <span class="text-2xl">💼</span>
-                    </div>
-                  </div>
-
-                  <div class="space-y-4 mb-6">
-                    <div>
-                      <p class="text-xs text-amber-400/70 uppercase tracking-wider mb-2 font-medium">
-                        Company
-                      </p>
-                      <p class="text-white text-lg font-semibold">
-                        {enquiry.company_name}
-                      </p>
-                    </div>
-                    <div>
-                      <p class="text-xs text-amber-400/70 uppercase tracking-wider mb-2 font-medium">
-                        Event Type
-                      </p>
-                      <p class="text-gray-200 font-medium">
-                        {enquiry.event_type}
-                      </p>
-                    </div>
-                    <div class="grid grid-cols-2 gap-4">
-                      <div>
-                        <p class="text-xs text-amber-400/70 uppercase tracking-wider mb-2 font-medium">
-                          Attendees
-                        </p>
-                        <p class="text-white text-xl font-bold">
-                          {enquiry.attendee_count}
-                        </p>
-                      </div>
-                      {enquiry.preferred_date && (
-                        <div>
-                          <p class="text-xs text-amber-400/70 uppercase tracking-wider mb-2 font-medium">
-                            Preferred Date
-                          </p>
-                          <p class="text-gray-200 font-medium">
-                            {formatDateOnly(enquiry.preferred_date)}
-                          </p>
-                        </div>
-                      )}
-                    </div>
-                    {enquiry.duration && (
-                      <div>
-                        <p class="text-xs text-amber-400/70 uppercase tracking-wider mb-2 font-medium">
-                          Duration
-                        </p>
-                        <p class="text-gray-200 font-medium">
-                          {enquiry.duration}
-                        </p>
-                      </div>
-                    )}
-                  </div>
-
-                  {enquiry.message && (
-                    <div class="p-4 bg-gray-800/30 rounded-xl mb-6">
-                      <p class="text-xs text-gray-500 uppercase tracking-wider mb-2">
-                        Message
-                      </p>
-                      <p class="text-gray-300 text-sm italic leading-relaxed">
-                        "{enquiry.message}"
-                      </p>
-                    </div>
-                  )}
-
-                  <div class="grid grid-cols-3 gap-3 pt-6 border-t border-gray-800/50">
-                    <a
-                      href={`tel:${enquiry.phone}`}
-                      class="flex flex-col items-center justify-center gap-2 px-4 py-4 bg-gray-800/50 hover:bg-amber-400 border border-gray-700/50 hover:border-amber-400 text-gray-300 hover:text-gray-900 rounded-2xl transition-all duration-300"
-                    >
-                      <Icon
-                        name="material-symbols-light:call"
-                        class="w-6 h-6"
-                      />
-                      <span class="text-xs font-bold uppercase tracking-wider">
-                        Call
-                      </span>
-                    </a>
-                    <a
-                      href={`mailto:${enquiry.email}`}
-                      class="flex flex-col items-center justify-center gap-2 px-4 py-4 bg-gray-800/50 hover:bg-amber-400 border border-gray-700/50 hover:border-amber-400 text-gray-300 hover:text-gray-900 rounded-2xl transition-all duration-300"
-                    >
-                      <Icon
-                        name="material-symbols-light:mail"
-                        class="w-6 h-6"
-                      />
-                      <span class="text-xs font-bold uppercase tracking-wider">
-                        Email
-                      </span>
-                    </a>
-                    <a
-                      href={`https://wa.me/${enquiry.phone.replace(/[^0-9]/g, "")}?text=Hello%20${enquiry.contact_name}%2C%20thank%20you%20for%20your%20corporate%20event%20enquiry`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      class="flex flex-col items-center justify-center gap-2 px-4 py-4 bg-gray-800/50 hover:bg-green-500 border border-gray-700/50 hover:border-green-500 text-gray-300 hover:text-white rounded-2xl transition-all duration-300"
-                    >
-                      <Icon name="mdi:whatsapp" class="w-6 h-6" />
-                      <span class="text-xs font-bold uppercase tracking-wider">
-                        WhatsApp
-                      </span>
-                    </a>
-                  </div>
-                </article>
-              ))}
-            </div>
-
-            {corporateEnquiries.length > 6 && (
-              <div class="text-center mt-12">
-                <button class="load-more-btn px-8 py-4 bg-gray-800 hover:bg-amber-400 border border-gray-700 hover:border-amber-400 text-gray-300 hover:text-gray-900 rounded-2xl transition-all duration-300 font-medium text-sm uppercase tracking-wider">
-                  Load 6 More
-                </button>
-              </div>
-            )}
-          </>
-        ) : (
-          <div class="empty-state text-center py-24 bg-gray-900/50 rounded-3xl border border-gray-800">
-            <span class="text-6xl mb-6 block">💼</span>
-            <p class="text-gray-500 italic text-lg">
-              No corporate enquiries yet
-            </p>
-          </div>
-        )
-      }
-    </section>
+    </div>
   </div>
-</Layout>
 
-<script>
-  // Search functionality with debounce
-  const searchQuery = document.getElementById(
-    "searchQuery",
-  ) as HTMLInputElement;
-  const clearSearchIcon = document.getElementById("clearSearchIcon");
-  const searchStatus = document.getElementById("searchStatus");
+  <script>
+    import { createClient } from "@supabase/supabase-js";
 
-  let searchTimeout: number;
-  let isSearchActive = false;
+    const supabase = createClient(
+      import.meta.env.PUBLIC_SUPABASE_URL,
+      import.meta.env.PUBLIC_SUPABASE_ANON_KEY,
+    );
 
-  // Debounced search on type
-  searchQuery?.addEventListener("input", () => {
-    const query = searchQuery.value.trim();
+    let roomsData = [];
+    let diningData = [];
+    let generalData = [];
+    let corporateData = [];
 
-    // Show/hide clear icon
-    if (query) {
-      clearSearchIcon?.classList.remove("hidden");
-    } else {
-      clearSearchIcon?.classList.add("hidden");
-      clearSearch();
-      return;
-    }
+    let roomsOffset = 0;
+    let diningOffset = 0;
+    let generalOffset = 0;
+    let corporateOffset = 0;
 
-    // Clear previous timeout
-    clearTimeout(searchTimeout);
+    const FETCH_SIZE = 50;
+    const MAX_RECORDS = 100;
 
-    // Show searching status
-    searchStatus?.classList.remove("hidden");
-    searchStatus!.textContent = "Searching...";
-
-    // Debounce - wait 500ms after user stops typing
-    searchTimeout = window.setTimeout(() => {
-      performSearch(query);
-    }, 500);
-  });
-
-  // Clear search
-  clearSearchIcon?.addEventListener("click", () => {
-    searchQuery.value = "";
-    clearSearchIcon.classList.add("hidden");
-    clearSearch();
-  });
-
-  async function performSearch(query: string) {
-    try {
-      const params = new URLSearchParams();
-      params.set("query", query);
-
-      const response = await fetch(
-        `/.netlify/functions/search?query=${encodeURIComponent(query)}`,
-      );
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const results = await response.json();
-
-      // Update each section with results
-      updateSection("rooms", results.rooms);
-      updateSection("dining", results.dining);
-      updateSection("general", results.general);
-      updateSection("corporate", results.corporate);
-
-      const totalResults =
-        (results.rooms?.length || 0) +
-        (results.dining?.length || 0) +
-        (results.general?.length || 0) +
-        (results.corporate?.length || 0);
-
-      searchStatus!.textContent = `Found ${totalResults} result${totalResults !== 1 ? "s" : ""}`;
-      isSearchActive = true;
-    } catch (error) {
-      searchStatus!.textContent = "Search failed. Please try again.";
-      console.error("Search error:", error);
-    }
-  }
-
-  function clearSearch() {
-    searchStatus?.classList.add("hidden");
-    searchStatus!.textContent = "";
-
-    if (!isSearchActive) return;
-
-    // Reset all sections
-    ["rooms", "dining", "general", "corporate"].forEach((sectionId) => {
-      const section = document.getElementById(sectionId);
-      const grid = section?.querySelector(".enquiry-grid");
-      const cards = grid?.querySelectorAll(".enquiry-card");
-      const emptyState = section?.querySelector(".empty-state");
-      const loadMoreBtn = section?.querySelector(".load-more-btn");
-      const countBadge = section?.querySelector(".count-badge");
-
-      // Show all cards
-      cards?.forEach((card, index) => {
-        if (index < 6) {
-          (card as HTMLElement).style.display = "block";
-          card.classList.remove("hidden");
-        } else {
-          (card as HTMLElement).style.display = "none";
-          card.classList.add("hidden");
-        }
-      });
-
-      // Show/hide load more button
-      if (cards && cards.length > 6) {
-        loadMoreBtn?.classList.remove("hidden");
-      }
-
-      // Update count badge to original count
-      if (countBadge) {
-        countBadge.textContent = cards?.length.toString() || "0";
-      }
-
-      // Hide empty state if there are cards
-      if (cards && cards.length > 0) {
-        emptyState?.classList.add("hidden");
-      }
-    });
-
-    isSearchActive = false;
-  }
-
-  function updateSection(sectionId: string, results: any[]) {
-    const section = document.getElementById(sectionId);
-    const grid = section?.querySelector(".enquiry-grid");
-    const emptyState = section?.querySelector(".empty-state");
-    const loadMoreBtn = section?.querySelector(".load-more-btn");
-    const countBadge = section?.querySelector(".count-badge");
-
-    if (!grid) return;
-
-    // Hide all cards
-    grid.querySelectorAll(".enquiry-card").forEach((card) => {
-      (card as HTMLElement).style.display = "none";
-    });
-
-    // Hide load more button during search
-    loadMoreBtn?.classList.add("hidden");
-
-    // Section name mapping
-    const sectionNames: { [key: string]: string } = {
-      rooms: "Room Reservations",
-      dining: "Dining Reservations",
-      general: "General Enquiries",
-      corporate: "Corporate Events",
+    let visibleCounts = {
+      rooms: 6,
+      dining: 6,
+      general: 6,
+      corporate: 6,
     };
 
-    const emojis: { [key: string]: string } = {
-      rooms: "🛏️",
-      dining: "🍽️",
-      general: "💬",
-      corporate: "💼",
-    };
+    let isSearchActive = false;
+    let currentSearchQuery = "";
 
-    if (results && results.length > 0) {
-      emptyState?.classList.add("hidden");
+    function formatDate(dateString) {
+      if (!dateString) return "N/A";
+      const date = new Date(dateString);
+      return new Intl.DateTimeFormat("en-IN", {
+        day: "numeric",
+        month: "short",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+        timeZone: "Asia/Kolkata",
+      }).format(date);
+    }
 
-      // Show matching cards by ID
-      const resultIds = new Set(results.map((r: any) => r.id));
-      grid.querySelectorAll(".enquiry-card").forEach((card) => {
-        const cardId = parseInt((card as HTMLElement).dataset.id || "0");
-        if (resultIds.has(cardId)) {
-          (card as HTMLElement).style.display = "block";
-        }
+    function formatDateOnly(dateString) {
+      if (!dateString) return "N/A";
+      const date = new Date(dateString);
+      return new Intl.DateTimeFormat("en-IN", {
+        day: "numeric",
+        month: "short",
+        year: "numeric",
+        timeZone: "Asia/Kolkata",
+      }).format(date);
+    }
+
+    function properCase(str) {
+      if (!str) return "";
+      return str
+        .toLowerCase()
+        .split(" ")
+        .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+        .join(" ");
+    }
+
+    function getSafariPill(value) {
+      if (!value) return "bg-gray-700/50 text-gray-400";
+      const v = value.toLowerCase();
+      if (v === "yes")
+        return "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30";
+      if (v === "no")
+        return "bg-red-500/20 text-red-400 border border-red-500/30";
+      return "bg-amber-500/20 text-amber-400 border border-amber-500/30";
+    }
+
+    function getTransferPill(value) {
+      if (!value) return "bg-gray-700/50 text-gray-400";
+      const v = value.toLowerCase();
+      if (v === "yes")
+        return "bg-blue-500/20 text-blue-400 border border-blue-500/30";
+      if (v === "no")
+        return "bg-gray-600/20 text-gray-400 border border-gray-600/30";
+      return "bg-amber-500/20 text-amber-400 border border-amber-500/30";
+    }
+
+    function escapeHtml(text) {
+      if (!text) return "";
+      const div = document.createElement("div");
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    function highlightText(text) {
+      if (!text) return "";
+
+      if (!currentSearchQuery || currentSearchQuery.trim().length === 0) {
+        return escapeHtml(text);
+      }
+
+      const escaped = escapeHtml(text);
+      const searchTerms = currentSearchQuery
+        .trim()
+        .split(/\s+/)
+        .filter((term) => term.length > 0);
+
+      let highlighted = escaped;
+      searchTerms.forEach((term) => {
+        const regex = new RegExp(
+          `(${term.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")})`,
+          "gi",
+        );
+        highlighted = highlighted.replace(
+          regex,
+          '<mark class="search-highlight">$1</mark>',
+        );
       });
 
-      // Update count badge
-      if (countBadge) {
-        countBadge.textContent = results.length.toString();
-      }
-    } else {
-      // Show or create empty state
-      if (emptyState) {
-        emptyState.classList.remove("hidden");
-        const emptyText = emptyState.querySelector("p");
-        const sectionName = sectionNames[sectionId] || "results";
-        if (emptyText) {
-          emptyText.textContent = `No ${sectionName} found`;
-        }
+      return highlighted;
+    }
+
+    function isNewToday(dateString) {
+      if (!dateString) return false;
+      const itemDate = new Date(dateString);
+      const now = new Date();
+      const diff = now - itemDate;
+      const hours = diff / (1000 * 60 * 60);
+      return hours < 24;
+    }
+
+    function copyToClipboard(text, iconElement) {
+      navigator.clipboard
+        .writeText(text)
+        .then(() => {
+          iconElement.setAttribute("icon", "ph:check-bold");
+          iconElement.classList.add("copied");
+
+          setTimeout(() => {
+            iconElement.setAttribute("icon", "ph:clipboard");
+            iconElement.classList.remove("copied");
+          }, 2000);
+        })
+        .catch((err) => {
+          console.error("Failed to copy:", err);
+        });
+    }
+
+    function updateCount(section, count) {
+      const badge = document.getElementById(`${section}Count`);
+      if (badge) badge.textContent = count;
+    }
+
+    function updateRealtimeStatus(status) {
+      const dot = document.getElementById("statusDot");
+      const text = document.getElementById("statusText");
+
+      if (status === "connected") {
+        dot.className = "w-2 h-2 bg-emerald-400 rounded-full";
+        text.textContent = "Live • Connected";
+        text.className = "text-sm text-emerald-400";
+      } else if (status === "error") {
+        dot.className = "w-2 h-2 bg-red-400 rounded-full";
+        text.textContent = "Connection error";
+        text.className = "text-sm text-red-400";
       } else {
-        // Create empty state if it doesn't exist
-        const emptyStateDiv = document.createElement("div");
-        emptyStateDiv.className =
-          "empty-state text-center py-24 bg-gray-900/50 rounded-3xl border border-gray-800";
-        emptyStateDiv.innerHTML = `
-        <span class="text-6xl mb-6 block">${emojis[sectionId]}</span>
-        <p class="text-gray-500 italic text-lg">No ${sectionNames[sectionId]} found</p>
-      `;
-        grid.parentElement?.appendChild(emptyStateDiv);
-      }
-
-      // Update count badge
-      if (countBadge) {
-        countBadge.textContent = "0";
+        dot.className = "w-2 h-2 bg-amber-400 rounded-full animate-pulse";
+        text.textContent = "Connecting...";
+        text.className = "text-sm text-amber-400";
       }
     }
-  }
 
-  // Load More functionality
-  document.addEventListener("DOMContentLoaded", () => {
-    const sections = document.querySelectorAll("section[id]");
+    function showToast(message, type = "room") {
+      const toast = document.getElementById("toast");
+      const toastMessage = document.getElementById("toastMessage");
 
-    sections.forEach((section) => {
-      const grid = section.querySelector(".enquiry-grid");
-      const cards = grid?.querySelectorAll(".enquiry-card");
-      const loadMoreBtn = section.querySelector(".load-more-btn");
+      const typeLabels = {
+        room: "Room Reservation",
+        dining: "Dining Reservation",
+        general: "General Enquiry",
+        corporate: "Corporate Enquiry",
+      };
 
-      if (!cards || cards.length <= 6) {
+      toastMessage.textContent = typeLabels[type] || "New enquiry";
+      toast.style.transform = "translateY(0)";
+
+      setTimeout(() => {
+        toast.style.transform = "translateY(8rem)";
+      }, 4000);
+    }
+
+    function renderRoomCard(item) {
+      const fullName = properCase(
+        `${item.firstName || ""} ${item.lastName || ""}`.trim(),
+      );
+      const safariPill = getSafariPill(item.wantSafaris);
+      const transferPill = getTransferPill(item.transfer);
+      const isNew = isNewToday(item.created_at);
+
+      return `
+        <div class="bg-gradient-to-br from-gray-900 to-gray-900/80 border border-gray-800 hover:border-amber-400/50 rounded-3xl p-8 transition-all duration-300">
+          
+          <div class="flex items-start justify-between mb-6">
+            <div>
+              <h3 class="font-serif italic text-2xl text-white mb-1">
+                ${highlightText(fullName)} ${isNew ? '<span class="p-2 bottom-1 rounded-xl text-sm font-sans bg-blue-700 text-white ml-4">Latest</span>' : ""}
+              </h3>
+              <p class="text-amber-400 text-sm">${highlightText(item.roomName || "Room not specified")}</p>
+            </div>
+            <div class="text-right">
+              <p class="text-gray-500 text-xs">Submitted</p>
+              <p class="text-gray-400 text-sm">${formatDate(item.created_at)}</p>
+            </div>
+          </div>
+
+          <div class="flex items-center justify-between gap-4 mb-6 pb-6 border-b border-gray-800">
+            <div class="flex items-center gap-2 text-gray-300 text-sm">
+              <iconify-icon icon="ph:envelope-simple-bold" class="text-amber-400"></iconify-icon>
+              <span>${highlightText(item.email || "No email")}</span>
+              <iconify-icon 
+                icon="ph:clipboard" 
+                class="clipboard-icon text-gray-500"
+                onclick="copyToClipboard('${escapeHtml(item.email || "")}', this)"
+              ></iconify-icon>
+            </div>
+            <div class="flex items-center gap-2 text-gray-300 text-sm">
+              <iconify-icon icon="ph:phone-bold" class="text-amber-400"></iconify-icon>
+              <span>${highlightText(item.phone || "No phone")}</span>
+              <iconify-icon 
+                icon="ph:clipboard" 
+                class="clipboard-icon text-gray-500"
+                onclick="copyToClipboard('${escapeHtml(item.phone || "")}', this)"
+              ></iconify-icon>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 gap-4 mb-6 pb-6 border-b border-gray-800">
+            <div>
+              <p class="text-gray-500 text-xs mb-1">Check-in</p>
+              <p class="text-white font-medium text-2xl">${formatDateOnly(item.checkin)}</p>
+            </div>
+            <div>
+              <p class="text-gray-500 text-xs mb-1">Check-out</p>
+              <p class="text-white font-medium text-2xl">${formatDateOnly(item.checkout)}</p>
+            </div>
+            <div>
+              <p class="text-gray-500 text-xs mb-1">Guests</p>
+              <p class="text-white font-medium capitalize">${item.adults || 0} ${item.adults === 1 ? "adult" : "adults"}, ${item.children || 0} ${item.children === 1 ? "child" : "children"}</p>
+            </div>
+            <div>
+              <p class="text-gray-500 text-xs mb-1">Nights</p>
+              <p class="text-white font-medium">${escapeHtml(item.nightsReserved || "N/A")}</p>
+            </div>
+          </div>
+
+          <div class="flex items-center justify-between mb-6 pb-6 border-b border-gray-800">
+            <div>
+              <p class="text-gray-500 text-xs mb-1">Per Night</p>
+              <p class="text-amber-400 text-xl font-semibold">₹${item.basePrice ? parseInt(item.basePrice).toLocaleString("en-IN") : "0"}</p>
+            </div>
+            <div class="flex gap-3">
+              <div>
+                <p class="text-gray-500 text-xs mb-2">Safaris</p>
+                <span class="inline-block px-3 py-1 rounded-full text-xs font-medium ${safariPill}">
+                  ${escapeHtml(item.wantSafaris || "N/A")}
+                </span>
+              </div>
+              <div>
+                <p class="text-gray-500 text-xs mb-2">Transfer</p>
+                <span class="inline-block px-3 py-1 rounded-full text-xs font-medium ${transferPill}">
+                  ${escapeHtml(item.transfer || "N/A")}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          ${
+            item.message
+              ? `
+            <div class="mb-6">
+              <p class="text-gray-500 text-xs mb-2">Guest Message</p>
+              <p class="text-gray-300 text-sm italic">"${highlightText(item.message)}"</p>
+            </div>
+          `
+              : ""
+          }
+
+          <div class="grid grid-cols-3 gap-3">
+            <a href="tel:${escapeHtml(item.phone || "")}" class="flex items-center justify-center gap-2 px-4 py-3 bg-gray-800 hover:bg-amber-400 border border-gray-700 hover:border-amber-400 rounded-xl text-gray-300 hover:text-gray-950 transition-all duration-300 text-sm font-medium">
+              <iconify-icon icon="ph:phone-bold"></iconify-icon>
+              Call
+            </a>
+            <a href="mailto:${escapeHtml(item.email || "")}" class="flex items-center justify-center gap-2 px-4 py-3 bg-gray-800 hover:bg-amber-400 border border-gray-700 hover:border-amber-400 rounded-xl text-gray-300 hover:text-gray-950 transition-all duration-300 text-sm font-medium">
+              <iconify-icon icon="ph:envelope-simple-bold"></iconify-icon>
+              Email
+            </a>
+            <a href="https://wa.me/${escapeHtml((item.phone || "").replace(/\D/g, ""))}" target="_blank" rel="noopener noreferrer" class="flex items-center justify-center gap-2 px-4 py-3 bg-gray-800 hover:bg-amber-400 border border-gray-700 hover:border-amber-400 rounded-xl text-gray-300 hover:text-gray-950 transition-all duration-300 text-sm font-medium">
+              <iconify-icon icon="ph:whatsapp-logo-bold"></iconify-icon>
+              WhatsApp
+            </a>
+          </div>
+
+        </div>
+      `;
+    }
+
+    function renderDiningCard(item) {
+      const fullName = properCase(
+        `${item.first_name || ""} ${item.last_name || ""}`.trim(),
+      );
+      const isNew = isNewToday(item.created_at);
+
+      return `
+        <div class="bg-gradient-to-br from-gray-900 to-gray-900/80 border border-gray-800 hover:border-amber-400/50 rounded-3xl p-8 transition-all duration-300">
+          
+          <div class="flex items-start justify-between mb-6">
+            <div>
+              <h3 class="font-serif italic text-2xl text-white mb-1">
+                ${isNew ? '<span class="new-badge">New</span>' : ""}${highlightText(fullName)}
+              </h3>
+              <p class="text-amber-400 text-sm">${highlightText(item.outletname || "Outlet not specified")}</p>
+            </div>
+            <div class="text-right">
+              <p class="text-gray-500 text-xs">Submitted</p>
+              <p class="text-gray-400 text-sm">${formatDate(item.created_at)}</p>
+            </div>
+          </div>
+
+          <div class="flex items-center justify-between gap-4 mb-6 pb-6 border-b border-gray-800">
+            <div class="flex items-center gap-2 text-gray-300 text-sm">
+              <iconify-icon icon="ph:envelope-simple-bold" class="text-amber-400"></iconify-icon>
+              <span>${highlightText(item.email || "No email")}</span>
+              <iconify-icon 
+                icon="ph:clipboard" 
+                class="clipboard-icon text-gray-500"
+                onclick="copyToClipboard('${escapeHtml(item.email || "")}', this)"
+              ></iconify-icon>
+            </div>
+            <div class="flex items-center gap-2 text-gray-300 text-sm">
+              <iconify-icon icon="ph:phone-bold" class="text-amber-400"></iconify-icon>
+              <span>${highlightText(item.phone || "No phone")}</span>
+              <iconify-icon 
+                icon="ph:clipboard" 
+                class="clipboard-icon text-gray-500"
+                onclick="copyToClipboard('${escapeHtml(item.phone || "")}', this)"
+              ></iconify-icon>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 gap-4 mb-6 pb-6 border-b border-gray-800">
+            <div>
+              <p class="text-gray-500 text-xs mb-1">Dining Date</p>
+              <p class="text-white font-medium">${formatDateOnly(item.dining_date)}</p>
+            </div>
+            <div>
+              <p class="text-gray-500 text-xs mb-1">Time</p>
+              <p class="text-white font-medium">${escapeHtml(item.dining_time || "N/A")}</p>
+            </div>
+            <div>
+              <p class="text-gray-500 text-xs mb-1">Guests</p>
+              <p class="text-white font-medium">${item.adults || 0} adults, ${item.children || 0} children</p>
+            </div>
+            <div>
+              <p class="text-gray-500 text-xs mb-1">Status</p>
+              <p class="text-amber-400 font-medium">${escapeHtml(properCase(item.status || "Pending"))}</p>
+            </div>
+          </div>
+
+          ${
+            item.message
+              ? `
+            <div class="mb-6">
+              <p class="text-gray-500 text-xs mb-2">Guest Message</p>
+              <p class="text-gray-300 text-sm italic">"${highlightText(item.message)}"</p>
+            </div>
+          `
+              : ""
+          }
+
+          <div class="grid grid-cols-3 gap-3">
+            <a href="tel:${escapeHtml(item.phone || "")}" class="flex items-center justify-center gap-2 px-4 py-3 bg-gray-800 hover:bg-amber-400 border border-gray-700 hover:border-amber-400 rounded-xl text-gray-300 hover:text-gray-950 transition-all duration-300 text-sm font-medium">
+              <iconify-icon icon="ph:phone-bold"></iconify-icon>
+              Call
+            </a>
+            <a href="mailto:${escapeHtml(item.email || "")}" class="flex items-center justify-center gap-2 px-4 py-3 bg-gray-800 hover:bg-amber-400 border border-gray-700 hover:border-amber-400 rounded-xl text-gray-300 hover:text-gray-950 transition-all duration-300 text-sm font-medium">
+              <iconify-icon icon="ph:envelope-simple-bold"></iconify-icon>
+              Email
+            </a>
+            <a href="https://wa.me/${escapeHtml((item.phone || "").replace(/\D/g, ""))}" target="_blank" rel="noopener noreferrer" class="flex items-center justify-center gap-2 px-4 py-3 bg-gray-800 hover:bg-amber-400 border border-gray-700 hover:border-amber-400 rounded-xl text-gray-300 hover:text-gray-950 transition-all duration-300 text-sm font-medium">
+              <iconify-icon icon="ph:whatsapp-logo-bold"></iconify-icon>
+              WhatsApp
+            </a>
+          </div>
+
+        </div>
+      `;
+    }
+
+    function renderGeneralCard(item) {
+      const fullName = properCase(
+        `${item.first_name || ""} ${item.last_name || ""}`.trim(),
+      );
+      const isNew = isNewToday(item.created_at);
+
+      return `
+        <div class="bg-gradient-to-br from-gray-900 to-gray-900/80 border border-gray-800 hover:border-amber-400/50 rounded-3xl p-8 transition-all duration-300">
+          
+          <div class="flex items-start justify-between mb-6">
+            <div>
+              <h3 class="font-serif italic text-2xl text-white mb-1">
+                ${isNew ? '<span class="new-badge">New Today</span>' : ""}${highlightText(fullName)}
+              </h3>
+              <p class="text-amber-400 text-sm">${highlightText(properCase(item.enquiry_type || "General Enquiry"))}</p>
+            </div>
+            <div class="text-right">
+              <p class="text-gray-500 text-xs">Submitted</p>
+              <p class="text-gray-400 text-sm">${formatDate(item.created_at)}</p>
+            </div>
+          </div>
+
+          <div class="flex items-center justify-between gap-4 mb-6 pb-6 border-b border-gray-800">
+            <div class="flex items-center gap-2 text-gray-300 text-sm">
+              <iconify-icon icon="ph:envelope-simple-bold" class="text-amber-400"></iconify-icon>
+              <span>${highlightText(item.email || "No email")}</span>
+              <iconify-icon 
+                icon="ph:clipboard" 
+                class="clipboard-icon text-gray-500"
+                onclick="copyToClipboard('${escapeHtml(item.email || "")}', this)"
+              ></iconify-icon>
+            </div>
+            <div class="flex items-center gap-2 text-gray-300 text-sm">
+              <iconify-icon icon="ph:phone-bold" class="text-amber-400"></iconify-icon>
+              <span>${highlightText(item.phone || "No phone")}</span>
+              <iconify-icon 
+                icon="ph:clipboard" 
+                class="clipboard-icon text-gray-500"
+                onclick="copyToClipboard('${escapeHtml(item.phone || "")}', this)"
+              ></iconify-icon>
+            </div>
+          </div>
+
+          <div class="mb-6">
+            <p class="text-gray-500 text-xs mb-2">Message</p>
+            <p class="text-gray-300 text-sm">${highlightText(item.message || "No message provided")}</p>
+          </div>
+
+          ${
+            item.internal_notes
+              ? `
+            <div class="mb-6 p-4 bg-gray-800/50 rounded-xl border border-gray-700">
+              <p class="text-gray-500 text-xs mb-2">Internal Notes</p>
+              <p class="text-gray-400 text-sm italic">${escapeHtml(item.internal_notes)}</p>
+            </div>
+          `
+              : ""
+          }
+
+          <div class="grid grid-cols-3 gap-3">
+            <a href="tel:${escapeHtml(item.phone || "")}" class="flex items-center justify-center gap-2 px-4 py-3 bg-gray-800 hover:bg-amber-400 border border-gray-700 hover:border-amber-400 rounded-xl text-gray-300 hover:text-gray-950 transition-all duration-300 text-sm font-medium">
+              <iconify-icon icon="ph:phone-bold"></iconify-icon>
+              Call
+            </a>
+            <a href="mailto:${escapeHtml(item.email || "")}" class="flex items-center justify-center gap-2 px-4 py-3 bg-gray-800 hover:bg-amber-400 border border-gray-700 hover:border-amber-400 rounded-xl text-gray-300 hover:text-gray-950 transition-all duration-300 text-sm font-medium">
+              <iconify-icon icon="ph:envelope-simple-bold"></iconify-icon>
+              Email
+            </a>
+            <a href="https://wa.me/${escapeHtml((item.phone || "").replace(/\D/g, ""))}" target="_blank" rel="noopener noreferrer" class="flex items-center justify-center gap-2 px-4 py-3 bg-gray-800 hover:bg-amber-400 border border-gray-700 hover:border-amber-400 rounded-xl text-gray-300 hover:text-gray-950 transition-all duration-300 text-sm font-medium">
+              <iconify-icon icon="ph:whatsapp-logo-bold"></iconify-icon>
+              WhatsApp
+            </a>
+          </div>
+
+        </div>
+      `;
+    }
+
+    function renderCorporateCard(item) {
+      const isNew = isNewToday(item.submitted_at);
+
+      return `
+        <div class="bg-gradient-to-br from-gray-900 to-gray-900/80 border border-gray-800 hover:border-amber-400/50 rounded-3xl p-8 transition-all duration-300">
+          
+          <div class="flex items-start justify-between mb-6">
+            <div>
+              <h3 class="font-serif italic text-2xl text-white mb-1">
+                ${isNew ? '<span class="new-badge">New Today</span>' : ""}${highlightText(properCase(item.contact_name || ""))}
+              </h3>
+              <p class="text-amber-400 text-sm">${highlightText(item.company_name || "Company not specified")}</p>
+            </div>
+            <div class="text-right">
+              <p class="text-gray-500 text-xs">Submitted</p>
+              <p class="text-gray-400 text-sm">${formatDate(item.submitted_at)}</p>
+            </div>
+          </div>
+
+          <div class="flex items-center justify-between gap-4 mb-6 pb-6 border-b border-gray-800">
+            <div class="flex items-center gap-2 text-gray-300 text-sm">
+              <iconify-icon icon="ph:envelope-simple-bold" class="text-amber-400"></iconify-icon>
+              <span>${highlightText(item.email || "No email")}</span>
+              <iconify-icon 
+                icon="ph:clipboard" 
+                class="clipboard-icon text-gray-500"
+                onclick="copyToClipboard('${escapeHtml(item.email || "")}', this)"
+              ></iconify-icon>
+            </div>
+            <div class="flex items-center gap-2 text-gray-300 text-sm">
+              <iconify-icon icon="ph:phone-bold" class="text-amber-400"></iconify-icon>
+              <span>${highlightText(item.phone || "No phone")}</span>
+              <iconify-icon 
+                icon="ph:clipboard" 
+                class="clipboard-icon text-gray-500"
+                onclick="copyToClipboard('${escapeHtml(item.phone || "")}', this)"
+              ></iconify-icon>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 gap-4 mb-6 pb-6 border-b border-gray-800">
+            <div>
+              <p class="text-gray-500 text-xs mb-1">Event Type</p>
+              <p class="text-white font-medium">${highlightText(properCase(item.event_type || "Not specified"))}</p>
+            </div>
+            <div>
+              <p class="text-gray-500 text-xs mb-1">Expected Attendees</p>
+              <p class="text-white font-medium">${escapeHtml(item.attendee_count || "N/A")}</p>
+            </div>
+            ${
+              item.preferred_date
+                ? `
+              <div>
+                <p class="text-gray-500 text-xs mb-1">Preferred Date</p>
+                <p class="text-white font-medium">${formatDateOnly(item.preferred_date)}</p>
+              </div>
+            `
+                : ""
+            }
+            ${
+              item.duration
+                ? `
+              <div>
+                <p class="text-gray-500 text-xs mb-1">Duration</p>
+                <p class="text-white font-medium">${escapeHtml(item.duration)}</p>
+              </div>
+            `
+                : ""
+            }
+          </div>
+
+          ${
+            item.message
+              ? `
+            <div class="mb-6">
+              <p class="text-gray-500 text-xs mb-2">Details</p>
+              <p class="text-gray-300 text-sm">${highlightText(item.message)}</p>
+            </div>
+          `
+              : ""
+          }
+
+          <div class="grid grid-cols-3 gap-3">
+            <a href="tel:${escapeHtml(item.phone || "")}" class="flex items-center justify-center gap-2 px-4 py-3 bg-gray-800 hover:bg-amber-400 border border-gray-700 hover:border-amber-400 rounded-xl text-gray-300 hover:text-gray-950 transition-all duration-300 text-sm font-medium">
+              <iconify-icon icon="ph:phone-bold"></iconify-icon>
+              Call
+            </a>
+            <a href="mailto:${escapeHtml(item.email || "")}" class="flex items-center justify-center gap-2 px-4 py-3 bg-gray-800 hover:bg-amber-400 border border-gray-700 hover:border-amber-400 rounded-xl text-gray-300 hover:text-gray-950 transition-all duration-300 text-sm font-medium">
+              <iconify-icon icon="ph:envelope-simple-bold"></iconify-icon>
+              Email
+            </a>
+            <a href="https://wa.me/${escapeHtml((item.phone || "").replace(/\D/g, ""))}" target="_blank" rel="noopener noreferrer" class="flex items-center justify-center gap-2 px-4 py-3 bg-gray-800 hover:bg-amber-400 border border-gray-700 hover:border-amber-400 rounded-xl text-gray-300 hover:text-gray-950 transition-all duration-300 text-sm font-medium">
+              <iconify-icon icon="ph:whatsapp-logo-bold"></iconify-icon>
+              WhatsApp
+            </a>
+          </div>
+
+        </div>
+      `;
+    }
+
+    function renderSection(section, data, renderFunction) {
+      const grid = document.getElementById(`${section}Grid`);
+      const empty = document.getElementById(`${section}Empty`);
+      const loadMoreContainer = document.getElementById(
+        `${section}LoadMoreContainer`,
+      );
+      const loadMoreBtn = document.getElementById(`${section}LoadMore`);
+      const maxReached = document.getElementById(`${section}MaxReached`);
+
+      if (!grid) return;
+
+      updateCount(section, data.length);
+
+      if (data.length === 0) {
+        grid.innerHTML = "";
+        grid.classList.add("hidden");
+        if (empty) empty.classList.remove("hidden");
+        if (loadMoreContainer) loadMoreContainer.classList.add("hidden");
+        if (maxReached) maxReached.classList.add("hidden");
         return;
       }
 
-      // Hide cards after 6
-      cards.forEach((card, index) => {
-        if (index >= 6) card.classList.add("hidden");
-      });
+      if (empty) empty.classList.add("hidden");
+      grid.classList.remove("hidden");
 
-      let currentlyShowing = 6;
+      const visibleCount = visibleCounts[section];
+      const visibleData = data.slice(0, visibleCount);
+      const hasMore = data.length > visibleCount;
 
-      loadMoreBtn?.addEventListener("click", () => {
-        const cardsArray = Array.from(cards);
-        const nextBatch = cardsArray.slice(
-          currentlyShowing,
-          currentlyShowing + 6,
+      grid.innerHTML = visibleData.map(renderFunction).join("");
+
+      if (data.length >= MAX_RECORDS) {
+        if (loadMoreContainer) loadMoreContainer.classList.add("hidden");
+        if (maxReached) maxReached.classList.remove("hidden");
+      } else if (hasMore) {
+        if (loadMoreContainer) loadMoreContainer.classList.remove("hidden");
+        if (maxReached) maxReached.classList.add("hidden");
+        if (loadMoreBtn) {
+          const remaining = data.length - visibleCount;
+          const toLoad = Math.min(6, remaining);
+          loadMoreBtn.textContent = `Load ${toLoad} More`;
+        }
+      } else {
+        if (loadMoreContainer) loadMoreContainer.classList.add("hidden");
+        if (maxReached) maxReached.classList.add("hidden");
+      }
+    }
+
+    function renderAll() {
+      renderSection("rooms", roomsData, renderRoomCard);
+      renderSection("dining", diningData, renderDiningCard);
+      renderSection("general", generalData, renderGeneralCard);
+      renderSection("corporate", corporateData, renderCorporateCard);
+    }
+
+    async function loadAllData() {
+      try {
+        updateRealtimeStatus("connecting");
+
+        const [roomsResult, diningResult, generalResult, corporateResult] =
+          await Promise.all([
+            supabase
+              .from("contact_submissions")
+              .select(
+                "id, created_at, firstName, lastName, email, phone, roomName, checkin, checkout, adults, children, basePrice, nightsReserved, wantSafaris, transfer, message",
+              )
+              .order("created_at", { ascending: false })
+              .limit(FETCH_SIZE),
+
+            supabase
+              .from("dining_submissions")
+              .select(
+                "id, created_at, first_name, last_name, email, phone, outletname, dining_date, dining_time, adults, children, message, status",
+              )
+              .order("created_at", { ascending: false })
+              .limit(FETCH_SIZE),
+
+            supabase
+              .from("general_enquiries")
+              .select(
+                "id, created_at, first_name, last_name, email, phone, enquiry_type, message, status, assigned_to, internal_notes",
+              )
+              .order("created_at", { ascending: false })
+              .limit(FETCH_SIZE),
+
+            supabase
+              .from("corporate_enquiries")
+              .select(
+                "id, submitted_at, contact_name, company_name, email, phone, event_type, attendee_count, preferred_date, duration, message",
+              )
+              .order("submitted_at", { ascending: false })
+              .limit(FETCH_SIZE),
+          ]);
+
+        roomsData = roomsResult.data || [];
+        diningData = diningResult.data || [];
+        generalData = generalResult.data || [];
+        corporateData = corporateResult.data || [];
+
+        roomsOffset = roomsData.length;
+        diningOffset = diningData.length;
+        generalOffset = generalData.length;
+        corporateOffset = corporateData.length;
+
+        renderAll();
+
+        const loading = document.getElementById("loadingState");
+        const mainContent = document.getElementById("mainContent");
+        if (loading) loading.classList.add("hidden");
+        if (mainContent) mainContent.classList.remove("hidden");
+
+        console.log("✅ Data loaded successfully:", {
+          rooms: roomsData.length,
+          dining: diningData.length,
+          general: generalData.length,
+          corporate: corporateData.length,
+        });
+      } catch (error) {
+        console.error("❌ Error loading data:", error);
+        updateRealtimeStatus("error");
+      }
+    }
+
+    function setupRealtime() {
+      supabase
+        .channel("contact_submissions_realtime")
+        .on(
+          "postgres_changes",
+          {
+            event: "INSERT",
+            schema: "public",
+            table: "contact_submissions",
+          },
+          (payload) => {
+            console.log("🔔 New room reservation received:", payload.new);
+            roomsData.unshift(payload.new);
+            renderSection("rooms", roomsData, renderRoomCard);
+            showToast(
+              `${properCase(payload.new.firstName || "")} ${properCase(payload.new.lastName || "")}`,
+              "room",
+            );
+          },
+        )
+        .subscribe((status) => {
+          console.log("Room reservations subscription status:", status);
+          if (status === "SUBSCRIBED") updateRealtimeStatus("connected");
+        });
+
+      supabase
+        .channel("dining_submissions_realtime")
+        .on(
+          "postgres_changes",
+          {
+            event: "INSERT",
+            schema: "public",
+            table: "dining_submissions",
+          },
+          (payload) => {
+            console.log("🔔 New dining reservation received:", payload.new);
+            diningData.unshift(payload.new);
+            renderSection("dining", diningData, renderDiningCard);
+            showToast(
+              `${properCase(payload.new.first_name || "")} ${properCase(payload.new.last_name || "")}`,
+              "dining",
+            );
+          },
+        )
+        .subscribe((status) => {
+          console.log("Dining reservations subscription status:", status);
+        });
+
+      supabase
+        .channel("general_enquiries_realtime")
+        .on(
+          "postgres_changes",
+          {
+            event: "INSERT",
+            schema: "public",
+            table: "general_enquiries",
+          },
+          (payload) => {
+            console.log("🔔 New general enquiry received:", payload.new);
+            generalData.unshift(payload.new);
+            renderSection("general", generalData, renderGeneralCard);
+            showToast(
+              `${properCase(payload.new.first_name || "")} ${properCase(payload.new.last_name || "")}`,
+              "general",
+            );
+          },
+        )
+        .subscribe((status) => {
+          console.log("General enquiries subscription status:", status);
+        });
+
+      supabase
+        .channel("corporate_enquiries_realtime")
+        .on(
+          "postgres_changes",
+          {
+            event: "INSERT",
+            schema: "public",
+            table: "corporate_enquiries",
+          },
+          (payload) => {
+            console.log("🔔 New corporate enquiry received:", payload.new);
+            corporateData.unshift(payload.new);
+            renderSection("corporate", corporateData, renderCorporateCard);
+            showToast(
+              `${properCase(payload.new.contact_name || "")}`,
+              "corporate",
+            );
+          },
+        )
+        .subscribe((status) => {
+          console.log("Corporate enquiries subscription status:", status);
+        });
+    }
+
+    async function loadMoreRecords(section, tableName, orderByColumn) {
+      let offset, data, setData;
+
+      if (section === "rooms") {
+        offset = roomsOffset;
+        data = roomsData;
+        setData = (newData) => {
+          roomsData = newData;
+          roomsOffset += newData.length;
+        };
+      } else if (section === "dining") {
+        offset = diningOffset;
+        data = diningData;
+        setData = (newData) => {
+          diningData = newData;
+          diningOffset += newData.length;
+        };
+      } else if (section === "general") {
+        offset = generalOffset;
+        data = generalData;
+        setData = (newData) => {
+          generalData = newData;
+          generalOffset += newData.length;
+        };
+      } else {
+        offset = corporateOffset;
+        data = corporateData;
+        setData = (newData) => {
+          corporateData = newData;
+          corporateOffset += newData.length;
+        };
+      }
+
+      if (data.length >= MAX_RECORDS) return;
+
+      const selectColumns = {
+        rooms:
+          "id, created_at, firstName, lastName, email, phone, roomName, checkin, checkout, adults, children, basePrice, nightsReserved, wantSafaris, transfer, message",
+        dining:
+          "id, created_at, first_name, last_name, email, phone, outletname, dining_date, dining_time, adults, children, message, status",
+        general:
+          "id, created_at, first_name, last_name, email, phone, enquiry_type, message, status, assigned_to, internal_notes",
+        corporate:
+          "id, submitted_at, contact_name, company_name, email, phone, event_type, attendee_count, preferred_date, duration, message",
+      };
+
+      const result = await supabase
+        .from(tableName)
+        .select(selectColumns[section])
+        .order(orderByColumn, { ascending: false })
+        .range(offset, offset + FETCH_SIZE - 1);
+
+      if (result.data && result.data.length > 0) {
+        const combinedData = [...data, ...result.data].slice(0, MAX_RECORDS);
+        setData(result.data);
+
+        if (section === "rooms") roomsData = combinedData;
+        else if (section === "dining") diningData = combinedData;
+        else if (section === "general") generalData = combinedData;
+        else corporateData = combinedData;
+      }
+    }
+
+    function setupLoadMore() {
+      document
+        .getElementById("roomsLoadMore")
+        ?.addEventListener("click", async () => {
+          const currentVisible = visibleCounts.rooms;
+          const needsMore =
+            currentVisible + 6 > roomsData.length &&
+            roomsData.length < MAX_RECORDS;
+
+          if (needsMore) {
+            await loadMoreRecords("rooms", "contact_submissions", "created_at");
+          }
+
+          visibleCounts.rooms = Math.min(
+            visibleCounts.rooms + 6,
+            roomsData.length,
+          );
+          renderSection("rooms", roomsData, renderRoomCard);
+        });
+
+      document
+        .getElementById("diningLoadMore")
+        ?.addEventListener("click", async () => {
+          const currentVisible = visibleCounts.dining;
+          const needsMore =
+            currentVisible + 6 > diningData.length &&
+            diningData.length < MAX_RECORDS;
+
+          if (needsMore) {
+            await loadMoreRecords("dining", "dining_submissions", "created_at");
+          }
+
+          visibleCounts.dining = Math.min(
+            visibleCounts.dining + 6,
+            diningData.length,
+          );
+          renderSection("dining", diningData, renderDiningCard);
+        });
+
+      document
+        .getElementById("generalLoadMore")
+        ?.addEventListener("click", async () => {
+          const currentVisible = visibleCounts.general;
+          const needsMore =
+            currentVisible + 6 > generalData.length &&
+            generalData.length < MAX_RECORDS;
+
+          if (needsMore) {
+            await loadMoreRecords("general", "general_enquiries", "created_at");
+          }
+
+          visibleCounts.general = Math.min(
+            visibleCounts.general + 6,
+            generalData.length,
+          );
+          renderSection("general", generalData, renderGeneralCard);
+        });
+
+      document
+        .getElementById("corporateLoadMore")
+        ?.addEventListener("click", async () => {
+          const currentVisible = visibleCounts.corporate;
+          const needsMore =
+            currentVisible + 6 > corporateData.length &&
+            corporateData.length < MAX_RECORDS;
+
+          if (needsMore) {
+            await loadMoreRecords(
+              "corporate",
+              "corporate_enquiries",
+              "submitted_at",
+            );
+          }
+
+          visibleCounts.corporate = Math.min(
+            visibleCounts.corporate + 6,
+            corporateData.length,
+          );
+          renderSection("corporate", corporateData, renderCorporateCard);
+        });
+    }
+
+    async function handleSearch(query) {
+      currentSearchQuery = query || "";
+
+      if (!query || query.trim().length === 0) {
+        isSearchActive = false;
+        currentSearchQuery = "";
+        renderAll();
+        document.getElementById("searchStatus").classList.add("hidden");
+        document.getElementById("clearSearchIcon").classList.add("hidden");
+        return;
+      }
+
+      isSearchActive = true;
+      document.getElementById("clearSearchIcon").classList.remove("hidden");
+
+      try {
+        const searchStatus = document.getElementById("searchStatus");
+        searchStatus.textContent = "Searching...";
+        searchStatus.classList.remove("hidden");
+
+        const response = await fetch(
+          `/.netlify/functions/search?query=${encodeURIComponent(query)}`,
         );
 
-        nextBatch.forEach((card) => card.classList.remove("hidden"));
-        currentlyShowing += 6;
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}`);
+        }
 
-        if (currentlyShowing >= cards.length) {
-          loadMoreBtn.classList.add("hidden");
+        const results = await response.json();
+
+        const roomResults = results.rooms || [];
+        const diningResults = results.dining || [];
+        const generalResults = results.general || [];
+        const corporateResults = results.corporate || [];
+
+        renderSection("rooms", roomResults, renderRoomCard);
+        renderSection("dining", diningResults, renderDiningCard);
+        renderSection("general", generalResults, renderGeneralCard);
+        renderSection("corporate", corporateResults, renderCorporateCard);
+
+        const totalResults =
+          roomResults.length +
+          diningResults.length +
+          generalResults.length +
+          corporateResults.length;
+        searchStatus.textContent = `Found ${totalResults} result${totalResults !== 1 ? "s" : ""} for "${query}"`;
+      } catch (error) {
+        console.error("❌ Search error:", error);
+        document.getElementById("searchStatus").textContent =
+          "Search failed. Please try again.";
+      }
+    }
+
+    function setupSearch() {
+      const searchInput = document.getElementById("searchQuery");
+      const clearBtn = document.getElementById("clearSearchIcon");
+      let searchTimeout;
+
+      searchInput?.addEventListener("input", (e) => {
+        clearTimeout(searchTimeout);
+        searchTimeout = setTimeout(() => {
+          handleSearch(e.target.value);
+        }, 300);
+      });
+
+      clearBtn?.addEventListener("click", () => {
+        searchInput.value = "";
+        handleSearch("");
+      });
+
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "/" && document.activeElement !== searchInput) {
+          e.preventDefault();
+          searchInput?.focus();
+        } else if (
+          e.key === "Escape" &&
+          document.activeElement === searchInput
+        ) {
+          searchInput.value = "";
+          handleSearch("");
+          searchInput.blur();
         }
       });
-    });
-  });
-</script>
-
-<style>
-  html {
-    scroll-behavior: smooth;
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    html {
-      scroll-behavior: auto;
     }
-  }
-</style>
+
+    window.copyToClipboard = copyToClipboard;
+
+    async function init() {
+      console.log("🚀 Initialising nabmil dashboard...");
+
+      await loadAllData();
+      setupRealtime();
+      setupLoadMore();
+      setupSearch();
+
+      console.log(
+        "✅ Dashboard ready - Realtime enabled with search highlighting",
+      );
+    }
+
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", init);
+    } else {
+      init();
+    }
+  </script>
+</Layout>

@@ -30,8 +30,8 @@ export default async (request: Request, context: Context) => {
   const [username, password] = decoded.split(":");
 
   // Change these credentials
-  const VALID_USERNAME = "limban";
-  const VALID_PASSWORD = "tiger2025";
+  const VALID_USERNAME = "tigerresort_limban";
+  const VALID_PASSWORD = "r0k4%D2R@i3*z$H2BFjQ*wG0747^c&#97$7B8a&7";
 
   if (username === VALID_USERNAME && password === VALID_PASSWORD) {
     return; // Allow access
