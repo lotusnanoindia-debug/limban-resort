@@ -158,11 +158,10 @@ export default {
           to: { height: "0" },
         },
       },
-      // Your existing fonts
       fontFamily: {
         sans: ["Arial", "system-ui", "-apple-system", "sans-serif"],
-        serif: ["Playfair Display", "Georgia", "serif"],
-        display: ["Playfair Display", "Georgia", "serif"],
+        serif: ["Bodoni Moda", "Georgia", "serif"],
+        display: ["Bodoni Moda", "Georgia", "serif"],
       },
       dropShadow: {
         "dark-lg": [
