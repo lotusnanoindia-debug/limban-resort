@@ -1,5 +1,5 @@
 ---
-// Footer component - converted from React
+import { Icon } from "astro-icon/components";
 ---
 
 <footer class="bg-gray-950 py-16 border-t border-gray-800">
@@ -16,6 +16,35 @@
           Limban delivers a timeless experience that you can feel, remember, and
           relive forever.
         </p>
+        <div class="flex items-center gap-4 mt-6">
+          <a
+            href="https://www.facebook.com/limbanresortstadoba/"
+            aria-label="Facebook"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="block text-blue-500 hover:opacity-75 transition-opacity duration-200"
+          >
+            <Icon name="mdi:facebook" class="w-5 h-5" />
+          </a>
+          <a
+            href="https://www.instagram.com/limbanresorts/"
+            aria-label="Instagram"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="block text-red-500 hover:opacity-75 transition-opacity duration-200"
+          >
+            <Icon name="mdi:instagram" class="w-5 h-5" />
+          </a>
+          <a
+            href="https://wa.me/919022680451"
+            aria-label="WhatsApp"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="block text-[#25D366] hover:opacity-75 transition-opacity duration-200"
+          >
+            <Icon name="mdi:whatsapp" class="w-5 h-5" />
+          </a>
+        </div>
       </div>
       <div>
         <h4 class="font-semibold text-white mb-4">The Resort</h4>
