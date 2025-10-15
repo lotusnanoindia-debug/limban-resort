@@ -39,3 +39,8 @@
 [[edge_functions]]
   function = "auth"
   path = "/nabmil/*"
+
+[[headers]]
+  for = "/nabmil/*"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
