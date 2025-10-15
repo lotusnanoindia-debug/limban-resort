@@ -6,6 +6,12 @@ import GalleryModal from "../components/GalleryModal.astro";
 import imageService from "../utils/ImageService.js";
 import { fetchVibePage } from "../api.js";
 
+// Helper for Cloudinary JPG (schema)
+const toCloudinaryJpg = (url: string) => {
+  if (!url) return "";
+  return `https://res.cloudinary.com/dfa5hhzej/image/fetch/w_1200,h_675,c_fill,q_85,f_jpg/${url}`;
+};
+
 // Server-side data fetching with error handling
 let vibeData = null;
 try {
@@ -18,7 +24,7 @@ try {
   };
 }
 
-// FIXED: Handle the actual API structure
+// Process vibe images
 const processedVibeImages =
   vibeData?.vibeImages && vibeData.vibeImages.length > 0
     ? vibeData.vibeImages.map((item, index) => {
@@ -39,6 +45,7 @@ const processedVibeImages =
       })
     : [];
 
+// Process wildlife images
 const processedWildlifeImages =
   vibeData?.wildlifeImages && vibeData.wildlifeImages.length > 0
     ? vibeData.wildlifeImages.map((item, index) => {
@@ -63,7 +70,6 @@ const processedWildlifeImages =
 const heroTiles =
   vibeData?.vibeImages && vibeData.vibeImages.length > 0
     ? vibeData.vibeImages.slice(0, 12).map((item, index) => {
-        // Get the raw image data (like rooms does with room.heroImage)
         const imageData = item.image || item;
 
         return {
@@ -80,18 +86,34 @@ const heroTiles =
       })
     : [];
 
-// Generate SEO-optimized URLs for schema
+// Hero image for display (AVIF)
 const heroImageUrl =
   heroTiles[0]?.src ||
   (processedVibeImages[0]
     ? processedVibeImages[0].processedUrls.large
     : "https://limban.com/img/vibe-hero.avif");
 
-const schemaImages = [
-  heroImageUrl,
-  ...processedVibeImages.slice(0, 3).map((img) => img.processedUrls.large),
-  ...processedWildlifeImages.slice(0, 2).map((img) => img.processedUrls.large),
-].filter(Boolean);
+// Schema image (JPG)
+const heroImageSchema = heroTiles[0]?.src
+  ? toCloudinaryJpg(vibeData.vibeImages[0].image.url)
+  : "https://limban.com/img/vibe-hero.jpg";
+
+// Simple schema for image gallery page
+const vibePageSchema = {
+  "@context": "https://schema.org",
+  "@type": "ImageGallery",
+  "@id": "https://limban.com/vibe#gallery",
+  name: "The Limban Vibe - Experience Gallery",
+  description:
+    "Immerse yourself in the Limban experience. Feel the luxury, taste the wild, live the moment. This is what calls you to Tadoba.",
+  url: "https://limban.com/vibe",
+  image: heroImageSchema,
+  about: {
+    "@type": "Hotel",
+    "@id": "https://limban.com/#hotel",
+    name: "Limban Resort",
+  },
+};
 ---
 
 <link rel="preload" as="image" href={heroImageUrl} fetchpriority="high" />
@@ -106,71 +128,11 @@ const schemaImages = [
       title: "The Limban Vibe - Feel What Calls You Wild",
       description:
         "Experience luxury safari living at its finest in Tadoba National Park. Feel the vibe that makes Limban unforgettable.",
-      image: heroImageUrl,
+      image: heroImageSchema,
       type: "website",
       url: "https://limban.com/vibe",
     }}
-    jsonLd={{
-      "@context": "https://schema.org",
-      "@type": "WebPage",
-      name: "The Limban Vibe - Feel What Calls You Wild",
-      description:
-        "Immerse yourself in the Limban experience. Feel the luxury, taste the wild, live the moment. This is what calls you to Tadoba.",
-      url: "https://limban.com/vibe",
-      image: schemaImages,
-      mainEntity: {
-        "@type": "TouristDestination",
-        name: "Limban Resort & Tadoba Experience",
-        description:
-          "Luxury safari resort experience in Tadoba National Park offering premium eco-friendly accommodation and tiger safari experiences in Maharashtra.",
-        image: schemaImages,
-        geo: {
-          "@type": "GeoCoordinates",
-          latitude: "20.1",
-          longitude: "79.3",
-        },
-        address: {
-          "@type": "PostalAddress",
-          addressLocality: "Tadoba",
-          addressRegion: "Maharashtra",
-          addressCountry: "IN",
-        },
-        touristType: [
-          "Luxury Travelers",
-          "Wildlife Enthusiasts",
-          "Nature Lovers",
-        ],
-        availableLanguage: ["English", "Hindi"],
-        includesAttraction: [
-          {
-            "@type": "TouristAttraction",
-            name: "Tadoba National Park",
-            description: "Home to magnificent tigers and diverse wildlife",
-            touristType: "Wildlife Enthusiasts",
-          },
-          {
-            "@type": "TouristAttraction",
-            name: "Tiger Safari Experience",
-            description:
-              "Close encounters with tigers in their natural habitat",
-            touristType: "Adventure Seekers",
-          },
-        ],
-      },
-      provider: {
-        "@type": "LodgingBusiness",
-        name: "Limban Resort",
-        url: "https://limban.com",
-        logo: "https://limban.com/limban-resort-tadoba-logo.png",
-        description: "Luxury safari resort in Tadoba National Park",
-        address: {
-          "@type": "PostalAddress",
-          addressLocality: "Tadoba",
-          addressRegion: "Maharashtra",
-          addressCountry: "IN",
-        },
-      },
-    }}
+    jsonLd={vibePageSchema}
   />
 
   <div class="bg-gray-950 text-gray-100 selection:bg-amber-400/20">
