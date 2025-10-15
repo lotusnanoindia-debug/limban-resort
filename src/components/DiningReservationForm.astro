@@ -16,7 +16,7 @@ const pageUrl = Astro.url.href;
 >
   <h2
     id="dining-reservation-form-heading"
-    class="font-serif italic text-3xl md:text-4xl text-white mb-8"
+    class="font-serif text-3xl md:text-4xl text-white mb-8"
   >
     {itemName} - Reserve Now:
   </h2>
@@ -269,7 +269,7 @@ const pageUrl = Astro.url.href;
           console.error("Submission error:", error);
           showMessage(
             "Sorry, there was an error submitting your table request. Please try again or contact us directly.",
-            "error"
+            "error",
           );
           submitBtn.disabled = false;
           submitBtn.textContent = "Request a Table";
@@ -294,7 +294,7 @@ const pageUrl = Astro.url.href;
         messageDiv.innerHTML = `
           <div class="text-center py-12">
             <div class="text-6xl mb-6">🍽️</div>
-            <h3 class="text-2xl font-serif italic text-white mb-4">Request Received!</h3>
+            <h3 class="text-2xl font-serif text-white mb-4">Request Received!</h3>
             <p class="text-lg text-gray-300 mb-6">Your table request has been submitted successfully.</p>
             <p class="text-gray-400 mb-8">Our team will contact you shortly to confirm your dining experience.</p>
             <button 

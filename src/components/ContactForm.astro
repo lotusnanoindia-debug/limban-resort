@@ -164,12 +164,12 @@ import BaseForm from "./BaseForm.astro";
         const checkOut = new Date(checkOutRef.value);
         if (checkOut <= checkIn) {
           nightsMessage.textContent = "Check-out must be after check-in!";
-          nightsMessage.className = "text-sm italic text-red-400";
+          nightsMessage.className = "text-sm text-red-400";
         } else {
           const diffTime = Math.abs(checkOut - checkIn);
           const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
           nightsMessage.textContent = `You are reserving for ${diffDays} Night${diffDays !== 1 ? "s" : ""}.`;
-          nightsMessage.className = "text-sm italic text-green-400";
+          nightsMessage.className = "text-sm text-green-400";
         }
       } else {
         nightsMessage.textContent = "";

@@ -18,7 +18,7 @@ const pageUrl = Astro.url.href;
 >
   <h2
     id="reservation-heading"
-    class="font-serif italic text-3xl md:text-5xl text-white mb-6"
+    class="font-serif text-3xl md:text-5xl text-white mb-6"
   >
     <span class="text-amber-400">Reserve Now</span>
   </h2>
@@ -276,7 +276,7 @@ const pageUrl = Astro.url.href;
         if (typeof turnstile === "undefined") {
           showMessage(
             "Security validation not loaded. Please refresh the page.",
-            "error"
+            "error",
           );
           return;
         }
@@ -334,7 +334,7 @@ const pageUrl = Astro.url.href;
           console.error("Submission error:", error);
           showMessage(
             "Sorry, there was an error submitting your reservation. Please try again or contact us directly at +91 90226 80451.",
-            "error"
+            "error",
           );
           submitBtn.disabled = false;
           submitBtn.textContent = "Request Reservation";
@@ -362,7 +362,7 @@ const pageUrl = Astro.url.href;
         messageDiv.innerHTML = `
           <div class="text-center py-12">
             <div class="text-6xl mb-6">🏨</div>
-            <h3 class="text-2xl font-serif italic text-white mb-4">Reservation Request Received!</h3>
+            <h3 class="text-2xl font-serif text-white mb-4">Reservation Request Received!</h3>
             <p class="text-lg text-gray-300 mb-6">Your reservation request has been submitted successfully.</p>
             <p class="text-gray-400 mb-8">Our reservations team will contact you shortly to confirm availability and arrange your safari experience.</p>
             <button 

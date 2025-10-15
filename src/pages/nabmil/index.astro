@@ -48,7 +48,7 @@ import Layout from "../../layouts/Layout.astro";
             >Admin Dashboard</span
           >
         </div>
-        <h1 class="font-serif italic text-5xl md:text-7xl text-white mb-4">
+        <h1 class="font-serif text-5xl md:text-7xl text-white mb-4">
           Limban Enquiries
         </h1>
         <p class="text-xl text-gray-300">Guest communications dashboard</p>
@@ -71,9 +71,7 @@ import Layout from "../../layouts/Layout.astro";
           <iconify-icon
             icon="ph:magnifying-glass-bold"
             class="text-2xl text-amber-400"></iconify-icon>
-          <h2 class="font-serif italic text-2xl text-white">
-            Search All Enquiries
-          </h2>
+          <h2 class="font-serif text-2xl text-white">Search All Enquiries</h2>
         </div>
 
         <div class="relative">
@@ -110,9 +108,7 @@ import Layout from "../../layouts/Layout.astro";
         <div class="flex items-center gap-4 mb-8">
           <iconify-icon icon="ph:bed-bold" class="text-3xl text-amber-400"
           ></iconify-icon>
-          <h2 class="font-serif italic text-4xl text-white">
-            Room Reservations
-          </h2>
+          <h2 class="font-serif text-4xl text-white">Room Reservations</h2>
           <span
             class="px-4 py-2 bg-amber-400/20 border border-amber-400/30 rounded-full text-amber-400 text-sm font-bold"
           >
@@ -128,7 +124,7 @@ import Layout from "../../layouts/Layout.astro";
         >
           <iconify-icon icon="ph:bed-bold" class="text-6xl text-gray-700 mb-6"
           ></iconify-icon>
-          <p class="text-gray-500 italic text-lg">No room reservations yet</p>
+          <p class="text-gray-500 text-lg">No room reservations yet</p>
         </div>
 
         <div id="roomsLoadMoreContainer" class="text-center mt-12 hidden">
@@ -152,9 +148,7 @@ import Layout from "../../layouts/Layout.astro";
           <iconify-icon
             icon="ph:fork-knife-bold"
             class="text-3xl text-amber-400"></iconify-icon>
-          <h2 class="font-serif italic text-4xl text-white">
-            Dining Reservations
-          </h2>
+          <h2 class="font-serif text-4xl text-white">Dining Reservations</h2>
           <span
             class="px-4 py-2 bg-amber-400/20 border border-amber-400/30 rounded-full text-amber-400 text-sm font-bold"
           >
@@ -172,7 +166,7 @@ import Layout from "../../layouts/Layout.astro";
           <iconify-icon
             icon="ph:fork-knife-bold"
             class="text-6xl text-gray-700 mb-6"></iconify-icon>
-          <p class="text-gray-500 italic text-lg">No dining reservations yet</p>
+          <p class="text-gray-500 text-lg">No dining reservations yet</p>
         </div>
 
         <div id="diningLoadMoreContainer" class="text-center mt-12 hidden">
@@ -196,9 +190,7 @@ import Layout from "../../layouts/Layout.astro";
           <iconify-icon
             icon="ph:chat-circle-dots-bold"
             class="text-3xl text-amber-400"></iconify-icon>
-          <h2 class="font-serif italic text-4xl text-white">
-            General Enquiries
-          </h2>
+          <h2 class="font-serif text-4xl text-white">General Enquiries</h2>
           <span
             class="px-4 py-2 bg-amber-400/20 border border-amber-400/30 rounded-full text-amber-400 text-sm font-bold"
           >
@@ -216,7 +208,7 @@ import Layout from "../../layouts/Layout.astro";
           <iconify-icon
             icon="ph:chat-circle-dots-bold"
             class="text-6xl text-gray-700 mb-6"></iconify-icon>
-          <p class="text-gray-500 italic text-lg">No general enquiries yet</p>
+          <p class="text-gray-500 text-lg">No general enquiries yet</p>
         </div>
 
         <div id="generalLoadMoreContainer" class="text-center mt-12 hidden">
@@ -239,9 +231,7 @@ import Layout from "../../layouts/Layout.astro";
         <div class="flex items-center gap-4 mb-8">
           <iconify-icon icon="ph:buildings-bold" class="text-3xl text-amber-400"
           ></iconify-icon>
-          <h2 class="font-serif italic text-4xl text-white">
-            Corporate Enquiries
-          </h2>
+          <h2 class="font-serif text-4xl text-white">Corporate Enquiries</h2>
           <span
             class="px-4 py-2 bg-amber-400/20 border border-amber-400/30 rounded-full text-amber-400 text-sm font-bold"
           >
@@ -259,7 +249,7 @@ import Layout from "../../layouts/Layout.astro";
           <iconify-icon
             icon="ph:buildings-bold"
             class="text-6xl text-gray-700 mb-6"></iconify-icon>
-          <p class="text-gray-500 italic text-lg">No corporate enquiries yet</p>
+          <p class="text-gray-500 text-lg">No corporate enquiries yet</p>
         </div>
 
         <div id="corporateLoadMoreContainer" class="text-center mt-12 hidden">
@@ -492,7 +482,7 @@ import Layout from "../../layouts/Layout.astro";
           
           <div class="flex items-start justify-between mb-6">
             <div>
-              <h3 class="font-serif italic text-2xl text-white mb-1">
+              <h3 class="font-serif text-2xl text-white mb-1">
                 ${highlightText(fullName)} ${isNew ? '<span class="p-2 bottom-1 rounded-xl text-sm font-sans bg-blue-700 text-white ml-4">Latest</span>' : ""}
               </h3>
               <p class="text-amber-400 text-sm">${highlightText(item.roomName || "Room not specified")}</p>
@@ -605,7 +595,7 @@ import Layout from "../../layouts/Layout.astro";
           
           <div class="flex items-start justify-between mb-6">
             <div>
-              <h3 class="font-serif italic text-2xl text-white mb-1">
+              <h3 class="font-serif text-2xl text-white mb-1">
                 ${highlightText(fullName)} ${isNew ? '<span class="p-2 bottom-1 rounded-xl text-sm font-sans bg-blue-700 text-white ml-4">Latest</span>' : ""}
               </h3>
               <p class="text-amber-400 text-sm">${highlightText(item.outletname || "Outlet not specified")}</p>
@@ -697,7 +687,7 @@ import Layout from "../../layouts/Layout.astro";
           
           <div class="flex items-start justify-between mb-6">
             <div>
-              <h3 class="font-serif italic text-2xl text-white mb-1">
+              <h3 class="font-serif text-2xl text-white mb-1">
                 ${highlightText(fullName)} ${isNew ? '<span class="p-2 bottom-1 rounded-xl text-sm font-sans bg-blue-700 text-white ml-4">Latest</span>' : ""}
               </h3>
               <p class="text-amber-400 text-sm">${highlightText(properCase(item.enquiry_type || "General Enquiry"))}</p>
@@ -772,7 +762,7 @@ import Layout from "../../layouts/Layout.astro";
           
           <div class="flex items-start justify-between mb-6">
             <div>
-              <h3 class="font-serif italic text-2xl text-white mb-1">
+              <h3 class="font-serif text-2xl text-white mb-1">
                 ${highlightText(properCase(item.contact_name || ""))} ${isNew ? '<span class="p-2 bottom-1 rounded-xl text-sm font-sans bg-blue-700 text-white ml-4">Latest</span>' : ""}
               </h3>
               <p class="text-amber-400 text-sm">${highlightText(item.company_name || "Company not specified")}</p>

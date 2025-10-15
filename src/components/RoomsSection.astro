@@ -58,7 +58,7 @@ const validatedRooms = rooms
       </div>
       <h2
         id="rooms-title"
-        class="font-serif italic text-3xl md:text-5xl lg:text-6xl text-white mb-6"
+        class="font-serif text-3xl md:text-5xl lg:text-6xl text-white mb-6"
       >
         Sixteen Unique Experiences
       </h2>
@@ -73,7 +73,7 @@ const validatedRooms = rooms
     <!-- Special Deal -->
     {
       specialDeal?.html && (
-        <div class="bg-gradient-to-r from-purple-900/40 to-orange-900/40 border border-amber-400/30 rounded-2xl p-6 text-center shadow-2xl backdrop-blur-xl mb-8">
+        <div class="bg-gradient-to-r from-purple-900/40 to-orange-900/40 border border-amber-400/30 rounded-2xl p-6 text-center shadow-2xl backdrop-blur-xl mb-20">
           <div
             class="text-amber-300 font-semibold"
             set:html={specialDeal.html}
@@ -102,7 +102,7 @@ const validatedRooms = rooms
           validatedRooms.map((room, index) => (
             <article
               key={room.id}
-              class="group bg-gray-900/50 border border-gray-700 rounded-2xl overflow-hidden hover:border-gray-600 transition-all duration-500 hover:-translate-y-1 hover:shadow-xl"
+              class="group bg-gray-900/50 border border-gray-700 rounded-2xl overflow-hidden hover:border-gray-600 transition-all duration-500 hover:shadow-xl"
             >
               <div class="relative aspect-[4/3] overflow-hidden bg-gray-800">
                 <img
@@ -115,7 +115,7 @@ const validatedRooms = rooms
               </div>
 
               <div class="p-6">
-                <h3 class="font-serif italic text-2xl text-white mb-3">
+                <h3 class="font-serif text-2xl text-white mb-3">
                   {room.roomName}
                 </h3>
 
