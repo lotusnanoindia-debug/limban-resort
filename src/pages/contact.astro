@@ -4,8 +4,18 @@ import ContactSection from "@/components/ContactSection.astro";
 import { Icon } from "astro-icon/components";
 import { AstroSEO } from "astro-seo-plugin";
 
+// Helper for Cloudinary JPG (schema)
+const toCloudinaryJpg = (url: string) => {
+  if (!url) return "";
+  return `https://res.cloudinary.com/dfa5hhzej/image/fetch/w_1200,h_675,c_fill,q_85,f_jpg/${url}`;
+};
+
+const heroImageRaw =
+  "https://ap-south-1.graphassets.com/cmek3o6f00dcb07o59sno2s0e/cmfxqunnp0u5j08pogn9dd2si";
 const heroImage =
-  "https://res.cloudinary.com/dfa5hhzej/image/fetch/w_800,c_limit,f_auto,q_auto/https://ap-south-1.graphassets.com/cmek3o6f00dcb07o59sno2s0e/cmfxqunnp0u5j08pogn9dd2si";
+  "https://res.cloudinary.com/dfa5hhzej/image/fetch/w_800,c_limit,f_auto,q_auto/" +
+  heroImageRaw;
+const heroImageSchema = toCloudinaryJpg(heroImageRaw);
 
 const faqs = [
   {
@@ -41,7 +51,7 @@ const faqs = [
   {
     question: "What dining experiences are available?",
     answer:
-      "Our culinary team offers Indian and international seasonal cuisine, all made with locally sourced ingredients that reflect the flavors of Maharashtra. We accept special requests on prior reservation. Seasonal offerings: Regional specialties, International cuisine, Vegetarian and vegan options, Fresh local produce. Special accommodations: Dietary restrictions, Allergen-free options, Celebration menus, Local wine selection.",
+      "Our culinary team offers Indian and international seasonal cuisine, all made with locally sourced ingredients that reflect the flavours of Maharashtra. We accept special requests on prior reservation. Seasonal offerings: Regional specialities, International cuisine, Vegetarian and vegan options, Fresh local produce. Special accommodations: Dietary restrictions, Allergen-free options, Celebration menus, Local wine selection.",
   },
   {
     question: "Is the resort accessible for guests with mobility challenges?",
@@ -54,159 +64,63 @@ const faqs = [
       "Our wellness center offers a range of treatments combining traditional Ayurvedic practices with modern techniques, all set in the peaceful environment of the resort. Body treatments: Traditional Ayurvedic massages, Hot stone therapy, Herbal body wraps, Detoxifying scrubs. Facial services: Organic plant-based facials, Anti-aging treatments, Hydration therapies, Relaxation packages. Additional wellness: Yoga and meditation sessions, outdoor therapy, nutrition consultations, and nature-based healing activities are available upon request.",
   },
 ];
+
+// Contact page schema
+const contactPageSchema = {
+  "@context": "https://schema.org",
+  "@type": "ContactPage",
+  "@id": "https://limban.com/contact#page",
+  name: "Contact Limban Resort",
+  description:
+    "Get in touch with Limban Resort in Tadoba National Park for luxury stays, safari experiences, accommodations, dining, and events.",
+  url: "https://limban.com/contact",
+  mainEntity: {
+    "@type": "Hotel",
+    "@id": "https://limban.com/#hotel",
+    name: "Limban Resort",
+  },
+};
+
+// FAQ schema (separate)
+const faqSchema = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "@id": "https://limban.com/contact#faq",
+  name: "Contact Limban Resort - Frequently Asked Questions",
+  description:
+    "Everything you need to know about connecting with our team and planning your stay at Limban Resort in Tadoba National Park",
+  url: "https://limban.com/contact",
+  mainEntity: faqs.map((faq) => ({
+    "@type": "Question",
+    name: faq.question,
+    acceptedAnswer: {
+      "@type": "Answer",
+      text: faq.answer,
+    },
+  })),
+};
+
+// Combine schemas
+const combinedJsonLd = [contactPageSchema, faqSchema];
 ---
 
 <Layout>
   <AstroSEO
     slot="head"
-    title="Contact Limban Resort | Tadoba National Park Luxury Accommodation"
+    title="Contact Limban Resort | Tadoba National Park with Luxury"
     description="Get in touch with Limban Resort in Tadoba National Park for luxury safari experiences, accommodations, dining, and events. Reach us by phone, email, or through our contact form."
     canonical="https://limban.com/contact"
-    jsonLd={{
-      "@context": "https://schema.org",
-      "@type": "FAQPage",
-      name: "Contact Limban Resort - Frequently Asked Questions",
+    openGraph={{
+      title: "Contact Limban Resort | Tadoba National Park",
       description:
-        "Everything you need to know about connecting with our team and planning your stay at Limban Resort in Tadoba National Park",
+        "Get in touch for luxury safari experiences, accommodations, dining, and events at Limban Resort.",
+      image: heroImageSchema,
+      type: "website",
       url: "https://limban.com/contact",
-      mainEntity: faqs.map((faq) => ({
-        "@type": "Question",
-        name: faq.question,
-        acceptedAnswer: {
-          "@type": "Answer",
-          text: faq.answer,
-        },
-      })),
-      hasPart: {
-        "@type": "Organization",
-        "@id": "https://limban.com/#organization",
-        name: "Limban Resort",
-        alternateName: "Limban Safari Lodge",
-        description:
-          "Award-winning eco-luxury safari resort in Tadoba National Park offering sustainable tiger safaris, wellness programs, and conservation-focused hospitality in Maharashtra, India",
-        url: "https://limban.com",
-        logo: "https://limban.com/limban-resort-tadoba-logo.png",
-        slogan: "Where the Wild Meets the Soul",
-        foundingDate: "2020",
-        telephone: ["+91-90226-80451", "+91 90226 80451", "+91 92262 54475"],
-        email: "info@limban.com",
-        priceRange: "₹15,000-₹45,000",
-        currenciesAccepted: ["INR"],
-        paymentAccepted: ["Cash", "Credit Card", "UPI", "Bank Transfer"],
-        checkinTime: "13:00",
-        checkoutTime: "11:00",
-        numberOfRooms: 6,
-        petsAllowed: true,
-        smokingAllowed: false,
-        aggregateRating: {
-          "@type": "AggregateRating",
-          ratingValue: 4.8,
-          reviewCount: 127,
-          bestRating: 5,
-          worstRating: 1,
-        },
-        address: {
-          "@type": "PostalAddress",
-          streetAddress: "Survey No. 306, Village Mudholi, Taluka Bhadravati",
-          addressLocality: "Chandrapur",
-          addressRegion: "Maharashtra",
-          postalCode: "442906",
-          addressCountry: "IN",
-        },
-        geo: {
-          "@type": "GeoCoordinates",
-          latitude: 20.25602486093492,
-          longitude: 79.2847888101826,
-        },
-        sameAs: [
-          "https://www.tripadvisor.in/Hotel_Review-g10594630-d12902646-Reviews-Limban_Resort-Chandrapur_District_Maharashtra.html",
-          "https://www.instagram.com/limbanresorts/",
-          "https://www.facebook.com/limbanresortstadoba/",
-        ],
-        hasMap:
-          "https://www.google.com/maps/place/20.25602486093492,79.2847888101826",
-        amenityFeature: [
-          {
-            "@type": "LocationFeatureSpecification",
-            name: "Tiger Safari Tours",
-            value: true,
-          },
-          {
-            "@type": "LocationFeatureSpecification",
-            name: "Eco-Luxury Accommodations",
-            value: true,
-          },
-          {
-            "@type": "LocationFeatureSpecification",
-            name: "Wildlife Conservation Programs",
-            value: true,
-          },
-          {
-            "@type": "LocationFeatureSpecification",
-            name: "Spa & Wellness Center",
-            value: true,
-          },
-          {
-            "@type": "LocationFeatureSpecification",
-            name: "Restaurant & Bar",
-            value: true,
-          },
-          {
-            "@type": "LocationFeatureSpecification",
-            name: "Airport Transfer",
-            value: true,
-          },
-          {
-            "@type": "LocationFeatureSpecification",
-            name: "Free WiFi",
-            value: true,
-          },
-        ],
-        award: [
-          "TripAdvisor Travelers' Choice 2023",
-          "Condé Nast Traveller Featured Property",
-          "Outlook Traveller Hidden Gem 2022",
-        ],
-        founder: [
-          {
-            "@type": "Person",
-            name: "Amala Sheth",
-            jobTitle: "Founder & Principal Architect",
-            description:
-              "Visionary architect whose revolutionary approach to sustainable luxury earned international recognition and redefined safari lodge design.",
-            worksFor: {
-              "@type": "Organization",
-              name: "Metaphors Design",
-              url: "http://www.metaphors-design.com/",
-            },
-            knowsAbout: [
-              "Sustainable Architecture",
-              "Luxury Resort Design",
-              "Eco-Tourism",
-            ],
-            award: "International recognition for sustainable luxury design",
-          },
-          {
-            "@type": "Person",
-            name: "Anand Bhagat",
-            jobTitle: "Founder & Principal Architect",
-            description:
-              "Architectural visionary dedicated to creating spaces that connect people with nature and conserve the wild.",
-            worksFor: {
-              "@type": "Organization",
-              name: "Metaphors Design",
-              url: "http://www.metaphors-design.com/",
-            },
-            knowsAbout: [
-              "Sustainable Architecture",
-              "Wildlife Conservation",
-              "Eco-Tourism Design",
-            ],
-          },
-        ],
-      },
     }}
+    jsonLd={combinedJsonLd}
   />
+
   <main>
     <!-- Hero Section with Background Image and Overlay Text -->
     <section

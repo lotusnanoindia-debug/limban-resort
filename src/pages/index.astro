@@ -41,53 +41,54 @@ const rooms =
 // Safe hero image for SEO
 const heroImage =
   heroes[0]?.heroImage?.url ||
-  "https://limban.com/img/limban-hero-fallback.avif";
+  "https://ap-south-1.graphassets.com/cmek3o6f00dcb07o59sno2s0e/cmeo6x0vx3nwg07oahjln7gyv";
 
-// Data for amenities to keep the JSON-LD clean
+// Helper for Cloudinary JPG conversion
+const toCloudinaryJpg = (url: string) =>
+  `https://res.cloudinary.com/dfa5hhzej/image/fetch/w_1200,h_675,c_fill,q_85,f_jpg/${url}`;
+
+// Amenities for schema
 const amenities = [
-  "Tiger Safari Tours",
-  "Eco-Luxury Accommodations",
-  "Wildlife Conservation Programs",
-  "Spa & Wellness Center",
-  "Restaurant & Bar",
-  "Swimming Pool",
   "Free WiFi",
-  "Airport Transfer",
+  "Swimming Pool",
+  "Restaurant",
+  "Bar",
+  "Spa & Wellness Center",
+  "Free Parking",
+  "Air Conditioning",
+  "Laundry Service",
 ];
 
-// JSON-LD schema (keep exactly the same)
-const enhancedJsonLd = {
+const hotelSchema = {
   "@context": "https://schema.org",
-  "@type": "Resort",
-  "@id": "https://limban.com",
+  "@type": "Hotel",
+  "@id": "https://limban.com/#hotel",
   name: "Limban Resort",
+  alternateName: "Limban Eco Luxury Safari Resort",
   description:
-    "Award-winning eco-luxury safari resort in Tadoba National Park offering sustainable tiger safaris, wellness programs, and conservation-focused hospitality in Maharashtra, India",
+    "Award-winning eco-luxury resort 15 minutes from Tadoba Tiger Reserve. 16 exclusive rooms, swimming pool, spa, restaurant, and curated safari experiences in Maharashtra, India.",
   url: "https://limban.com",
+  image: [
+    toCloudinaryJpg(
+      "https://ap-south-1.graphassets.com/cmek3o6f00dcb07o59sno2s0e/cmeo6x0vx3nwg07oahjln7gyv",
+    ),
+    toCloudinaryJpg(
+      "https://ap-south-1.graphassets.com/cmek3o6f00dcb07o59sno2s0e/cmeo4x0jx3mka07oawsqerdmj",
+    ),
+    toCloudinaryJpg(
+      "https://ap-south-1.graphassets.com/cmek3o6f00dcb07o59sno2s0e/cmeo5ppe83nd907plm6svhisc",
+    ),
+  ],
   logo: {
     "@type": "ImageObject",
-    url: "https://limban.com/img/limban-resort-tadoba-logo.png",
+    url: "https://limban.com/limban-resort-tadoba-logo.png",
     width: 300,
     height: 100,
   },
-  image: [
-    heroImage,
-    ...rooms
-      .slice(0, 3)
-      .map((room) => room.heroImage?.url)
-      .filter(Boolean),
-    // Note: Experience images are now handled within the component
-    // and can be added back here if needed for top-level SEO.
-  ].filter(Boolean),
-  sameAs: [
-    "https://www.tripadvisor.in/Hotel_Review-g10594630-d12902646-Reviews-Limban_Resort-Chandrapur_District_Maharashtra.html",
-    "https://www.instagram.com/limbanresorts/",
-    "https://www.facebook.com/limbanresortstadoba/",
-  ],
   address: {
     "@type": "PostalAddress",
     streetAddress: "Survey No. 306, Village Mudholi, Taluka Bhadravati",
-    addressLocality: "Chandrapur",
+    addressLocality: "Tadoba",
     addressRegion: "Maharashtra",
     postalCode: "442906",
     addressCountry: "IN",
@@ -97,10 +98,10 @@ const enhancedJsonLd = {
     latitude: 20.25602486093492,
     longitude: 79.2847888101826,
   },
-  telephone: ["+91-90226-80451"],
+  telephone: "+91-90226-80451",
   email: "info@limban.com",
-  priceRange: "₹15,000-₹45,000",
-  currenciesAccepted: ["INR"],
+  priceRange: "₹₹₹₹",
+  currenciesAccepted: "INR",
   paymentAccepted: ["Cash", "Credit Card", "UPI", "Bank Transfer"],
   checkinTime: "13:00",
   checkoutTime: "11:00",
@@ -109,34 +110,39 @@ const enhancedJsonLd = {
   smokingAllowed: false,
   starRating: {
     "@type": "Rating",
-    ratingValue: 5,
+    ratingValue: "5",
   },
   aggregateRating: {
     "@type": "AggregateRating",
-    ratingValue: 4.8,
+    ratingValue: "4.8",
     reviewCount: 327,
-    bestRating: 5,
-    worstRating: 4,
+    bestRating: "5",
+    worstRating: "1",
   },
   amenityFeature: amenities.map((name) => ({
     "@type": "LocationFeatureSpecification",
     name: name,
     value: true,
   })),
-  makesOffer: [
-    {
-      "@type": "Offer",
-      name: "Safari Package",
-      description: "Tiger safari experience with luxury accommodations",
-    },
-  ],
+  openingHoursSpecification: {
+    "@type": "OpeningHoursSpecification",
+    dayOfWeek: [
+      "Monday",
+      "Tuesday",
+      "Wednesday",
+      "Thursday",
+      "Friday",
+      "Saturday",
+      "Sunday",
+    ],
+    opens: "00:00",
+    closes: "23:59",
+  },
   hasMap:
     "https://www.google.com/maps/place/20.25602486093492,79.2847888101826",
-  award: [
-    "TripAdvisor Travelers' Choice 2023",
-    "Condé Nast Traveller Featured Property",
-    "Outlook Traveller Hidden Gem 2022",
-  ],
+  isAccessibleForFree: false,
+  publicAccess: true,
+  tourBookingPage: "https://limban.com/contact",
   knowsAbout: [
     "Tiger Conservation",
     "Sustainable Tourism",
@@ -144,26 +150,68 @@ const enhancedJsonLd = {
     "Eco-Luxury Hospitality",
     "Tadoba Ecosystem",
   ],
+  award: [
+    "TripAdvisor Travelers' Choice 2023",
+    "Condé Nast Traveller Featured Property",
+    "Outlook Traveller Hidden Gem 2022",
+  ],
+  sameAs: [
+    "https://www.tripadvisor.in/Hotel_Review-g10594630-d12902646-Reviews-Limban_Resort-Chandrapur_District_Maharashtra.html",
+    "https://www.instagram.com/limbanresorts/",
+    "https://www.facebook.com/limbanresortstadoba/",
+  ],
 };
+
+const organizationSchema = {
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "@id": "https://limban.com/#organization",
+  name: "Limban Resort",
+  url: "https://limban.com",
+  logo: "https://limban.com/limban-resort-tadoba-logo.png",
+  foundingDate: "2010",
+  description: "Award-winning eco-luxury safari resort in Tadoba National Park",
+  address: {
+    "@type": "PostalAddress",
+    streetAddress: "Survey No. 306, Village Mudholi, Taluka Bhadravati",
+    addressLocality: "Tadoba",
+    addressRegion: "Maharashtra",
+    postalCode: "442906",
+    addressCountry: "IN",
+  },
+  contactPoint: {
+    "@type": "ContactPoint",
+    telephone: "+91-90226-80451",
+    contactType: "reservations",
+    email: "info@limban.com",
+    availableLanguage: ["English", "Hindi", "Marathi"],
+  },
+  sameAs: [
+    "https://www.instagram.com/limbanresorts/",
+    "https://www.facebook.com/limbanresortstadoba/",
+  ],
+};
+
+// Combine schemas for AstroSEO
+const combinedJsonLd = [hotelSchema, organizationSchema];
 ---
 
 <Layout>
   <AstroSEO
     slot="head"
-    title="Limban Resort | Award-Winning Eco-Luxury Tiger Safari Lodge in Tadoba National Park"
-    description="Experience sustainable luxury at Limban Resort, Tadoba's premier eco-friendly safari lodge. Award-winning tiger safaris, conservation programmes, and luxury accommodations in Maharashtra, India."
+    title="Limban Resort Tadoba | Eco-Luxury Safari Resort Near Tiger Reserve"
+    description="Award-winning boutique resort 15 minutes from Tadoba Tiger Reserve. 16 exclusive rooms, pool, spa, restaurant. Sustainable luxury, conservation-focused. Reservation only."
     canonical="https://limban.com"
     openGraph={{
-      title:
-        "Limban Resort - Award-Winning Eco-Luxury Safari Lodge | Tadoba National Park",
+      title: "Limban Resort | Exclusive Safari Resort Tadoba National Park",
       description:
-        "Discover India's premier eco-luxury safari experience at Limban Resort. Sustainable tiger safaris, conservation programmes, and award-winning hospitality in Tadoba National Park, Maharashtra.",
-      image: heroImage,
+        "Boutique eco-luxury resort near Tadoba Tiger Reserve. Swimming pool, spa, restaurant. Reservation-only property focused on sustainable tourism and authentic wildlife experiences.",
+      image: toCloudinaryJpg(heroImage),
       type: "website",
       url: "https://limban.com",
       site_name: "Limban Resort",
     }}
-    jsonLd={enhancedJsonLd}
+    jsonLd={combinedJsonLd}
   />
 
   <HeroSection heroes={heroes} />

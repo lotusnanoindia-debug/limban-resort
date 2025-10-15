@@ -12,6 +12,12 @@ import {
   fetchDining,
 } from "../../api.js";
 
+// Helper for Cloudinary JPG (schema only)
+const toCloudinaryJpg = (url: string) => {
+  if (!url) return '';
+  return `https://res.cloudinary.com/dfa5hhzej/image/fetch/w_1200,h_675,c_fill,q_85,f_jpg/${url}`;
+};
+
 // Server-side data fetching with error handling
 let data = { experiences: [] };
 let error = null;
@@ -44,7 +50,7 @@ if (!experience) {
   return Astro.redirect("/dining");
 }
 
-// Process hero image through ImageService (same pattern as rooms)
+// Process hero image through ImageService (for display - AVIF)
 const heroImageData = experience.images?.[0] ? {
   ...experience.images[0],
   context: {
@@ -54,14 +60,52 @@ const heroImageData = experience.images?.[0] ? {
   }
 } : null;
 
-
-// Generate SEO-optimized URLs for schema (same pattern as rooms)
+// Generate display URL (AVIF for users)
 const heroImageUrl = heroImageData 
   ? imageService.processImage(heroImageData, 'heroDesktop', { quality: 75 })
   : 'https://limban.com/img/dining-placeholder.avif';
 
-const schemaImages = [heroImageUrl].filter(Boolean);
+// Generate schema URL (JPG for Google)
+const schemaHeroImage = experience.images?.[0]?.url 
+  ? toCloudinaryJpg(experience.images[0].url)
+  : '';
 
+// Build schema images array
+const schemaImages = [schemaHeroImage].filter(Boolean);
+
+// Restaurant schema
+const restaurantSchema = {
+  "@context": "https://schema.org",
+  "@type": "Restaurant",
+  "@id": `https://limban.com/dining/${experience.url}#restaurant`,
+  "name": experience.restaurantName,
+  "description": `${experience.shortIntro} Located in the heart of Tadoba National Park, offering an intimate dining experience that celebrates local flavours and sustainable cuisine.`,
+  "url": `https://limban.com/dining/${experience.url}`,
+  "image": schemaImages,
+  "address": {
+    "@type": "PostalAddress",
+    "streetAddress": "Survey No. 306, Village Mudholi, Taluka Bhadravati",
+    "addressLocality": "Tadoba",
+    "addressRegion": "Maharashtra",
+    "postalCode": "442906",
+    "addressCountry": "IN"
+  },
+  "geo": {
+    "@type": "GeoCoordinates",
+    "latitude": 20.25602486093492,
+    "longitude": 79.2847888101826
+  },
+  "servesCuisine": ["Indian Cuisine", "Farm-to-Table", "International Cuisine"],
+  "priceRange": "₹₹₹",
+  "telephone": "+91-90226-80451",
+  "openingHours": "Mo-Su 07:00-22:00",
+  "acceptsReservations": true,
+  "partOf": {
+    "@type": "Hotel",
+    "@id": "https://limban.com/#hotel",
+    "name": "Limban Resort"
+  }
+};
 ---
 
 <link rel="preload" as="image" href={heroImageUrl} fetchpriority="high" />
@@ -70,32 +114,16 @@ const schemaImages = [heroImageUrl].filter(Boolean);
   <AstroSEO
     slot="head"
     title={`${experience.restaurantName} | Dining Experience - Limban Resort`}
-    description={`Experience authentic dining at ${experience.restaurantName} - ${experience.shortIntro} Discover flavors that connect you to the heart of Tadoba National Park.`}
+    description={`Experience authentic dining at ${experience.restaurantName} - ${experience.shortIntro} Discover flavours that connect you to the heart of Tadoba National Park.`}
     canonical={`https://limban.com/dining/${experience.url}`}
     openGraph={{
       title: `${experience.restaurantName} - Dining Experience at Limban Resort`,
-      description: `${experience.shortIntro} Experience authentic flavors and intimate dining in the wilderness of Tadoba National Park.`,
-      image: heroImageUrl,
-      type: "article",
+      description: `${experience.shortIntro} Experience authentic flavours and intimate dining in the wilderness of Tadoba National Park.`,
+      image: schemaHeroImage,
+      type: "website",
       url: `https://limban.com/dining/${experience.url}`,
     }}
-    jsonLd={{
-      "@context": "https://schema.org",
-      "@type": "Restaurant",
-      "@id": `https://limban.com/dining/${experience.url}#restaurant`,
-      name: experience.restaurantName,
-      description: `${experience.shortIntro} - Located in the heart of Tadoba National Park, offering an intimate dining experience that celebrates local flavors and sustainable cuisine.`,
-      url: `https://limban.com/dining/${experience.url}`,
-      image: schemaImages,
-      address: {
-        "@type": "PostalAddress",
-        streetAddress: "Survey No. 306, Village Mudholi, Taluka Bhadravati",
-        addressLocality: "Chandrapur",
-        addressRegion: "Maharashtra",
-        postalCode: "442906",
-        addressCountry: "IN",
-      },
-    }}
+    jsonLd={restaurantSchema}
   />
 
   <a href="#main-content" title="Skip to main content" class="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 bg-amber-400 text-gray-900 px-4 py-2 rounded z-50">

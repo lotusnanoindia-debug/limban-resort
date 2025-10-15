@@ -9,6 +9,12 @@ import AwardsSection from "../components/AwardsSection.astro";
 import imageService from "../utils/ImageService.js";
 import { fetchAboutPage } from "../api.js";
 
+// Helper for Cloudinary JPG (schema)
+const toCloudinaryJpg = (url: string) => {
+  if (!url) return "";
+  return `https://res.cloudinary.com/dfa5hhzej/image/fetch/w_1200,h_675,c_fill,q_85,f_jpg/${url}`;
+};
+
 // Server-side data fetching with error handling
 let aboutData = null;
 try {
@@ -27,10 +33,8 @@ const vibeGallery = aboutData?.vibeGallery || { images: [] };
 const guestGallery = aboutData?.guestGallery || { images: [] };
 
 const heroImageData = aboutPage?.heroImage || null;
-const philosophyImageData = aboutPage?.philosophyImage || null;
-const foundersImageData = aboutPage?.foundersImage || null;
 
-// FIXED: Simple image processing without complex context objects
+// Display images (AVIF for users)
 const heroImageUrl = aboutPage?.heroImage
   ? imageService.processImage(aboutPage.heroImage, "heroDesktop", {
       quality: 80,
@@ -49,11 +53,80 @@ const foundersImageUrl = aboutPage?.foundersImage
     })
   : "";
 
+// Schema images (JPG for Google)
 const schemaImages = [
-  heroImageUrl,
-  philosophyImageUrl,
-  foundersImageUrl,
+  aboutPage?.heroImage?.url ? toCloudinaryJpg(aboutPage.heroImage.url) : "",
+  aboutPage?.philosophyImage?.url
+    ? toCloudinaryJpg(aboutPage.philosophyImage.url)
+    : "",
+  aboutPage?.foundersImage?.url
+    ? toCloudinaryJpg(aboutPage.foundersImage.url)
+    : "",
 ].filter(Boolean);
+
+// About page schema
+const aboutPageSchema = {
+  "@context": "https://schema.org",
+  "@type": "AboutPage",
+  "@id": "https://limban.com/about#page",
+  name: "About Limban Resort Tadoba - Where the Wild Meets the Soul",
+  description:
+    "Discover the philosophy behind Limban Resort - a luxury safari sanctuary crafted by visionary architects in the heart of Tadoba National Park.",
+  url: "https://limban.com/about",
+  image: schemaImages,
+  mainEntity: {
+    "@type": "Hotel",
+    "@id": "https://limban.com/#hotel",
+    name: "Limban Resort",
+  },
+  about: {
+    "@type": "Organization",
+    "@id": "https://limban.com/#organization",
+    name: "Limban Resort",
+    alternateName: "Limban Safari Lodge",
+    description:
+      "A luxury safari sanctuary where architecture, wilderness, and soul converge. Crafted for those who seek meaning in nature, connection in simplicity, and magic in the moment.",
+    slogan: "Where the Wild Meets the Soul",
+    foundingDate: "2010",
+    founder: [
+      {
+        "@type": "Person",
+        name: "Amala Sheth",
+        jobTitle: "Founder & Principal Architect",
+        description:
+          "Visionary architect whose revolutionary approach to sustainable luxury earned international recognition and redefined safari lodge design.",
+        worksFor: {
+          "@type": "Organization",
+          name: "Metaphors Design",
+          url: "http://www.metaphors-design.com/",
+        },
+        knowsAbout: [
+          "Sustainable Architecture",
+          "Luxury Resort Design",
+          "Eco-Tourism",
+        ],
+        award: "International recognition for sustainable luxury design",
+      },
+      {
+        "@type": "Person",
+        name: "Anand Bhagat",
+        jobTitle: "Founder & Principal Architect",
+        description:
+          "Architectural visionary dedicated to creating spaces that connect people with nature and conserve the wild.",
+        worksFor: {
+          "@type": "Organization",
+          name: "Metaphors Design",
+          url: "http://www.metaphors-design.com/",
+        },
+        knowsAbout: [
+          "Sustainable Architecture",
+          "Wildlife Conservation",
+          "Eco-Tourism Design",
+        ],
+      },
+    ],
+  },
+};
 ---
 
 <link rel="preload" as="image" href={heroImageUrl} fetchpriority="high" />
@@ -61,88 +134,18 @@ const schemaImages = [
 <Layout>
   <AstroSEO
     slot="head"
-    title="About Limban Resort | Where the Wild Meets the Soul - Tadoba Safari Lodge"
+    title="About Limban Resort | Where the Wild Meets the Soul - Tadoba Safari Resort"
     description="Discover the philosophy behind Limban Resort - a luxury safari sanctuary crafted by visionary architects in the heart of Tadoba National Park. Experience where wilderness meets luxury."
     canonical="https://limban.com/about"
     openGraph={{
-      title: "About Limban Resort - Where the Wild Meets the Soul",
+      title: "About Limban Resort Tadoba - Where the Wild Meets the Soul",
       description:
         "A luxury safari sanctuary where architecture, wilderness, and soul converge in Tadoba National Park.",
-      image: heroImageUrl,
+      image: schemaImages[0] || heroImageUrl,
       type: "website",
       url: "https://limban.com/about",
     }}
-    jsonLd={{
-      "@context": "https://schema.org",
-      "@type": "AboutPage",
-      name: "About Limban Resort - Where the Wild Meets the Soul",
-      description:
-        "Discover the philosophy behind Limban Resort - a luxury safari sanctuary crafted by visionary architects in the heart of Tadoba National Park.",
-      url: "https://limban.com/about",
-      image: schemaImages,
-      mainEntity: {
-        "@type": "LodgingBusiness",
-        "@id": "https://limban.com/#organization",
-        name: "Limban Resort",
-        alternateName: "Limban Safari Lodge",
-        description:
-          "A luxury safari sanctuary where architecture, wilderness, and soul converge. Crafted for those who seek meaning in nature, connection in simplicity, and magic in the moment.",
-        url: "https://limban.com",
-        logo: "https://limban.com/limban-resort-tadoba-logo.png",
-        slogan: "Where the Wild Meets the Soul",
-        foundingDate: "2020",
-        address: {
-          "@type": "PostalAddress",
-          streetAddress: "Survey No. 306, Village Mudholi, Taluka Bhadravati",
-          addressLocality: "Chandrapur",
-          addressRegion: "Maharashtra",
-          postalCode: "442906",
-          addressCountry: "IN",
-        },
-        geo: {
-          "@type": "GeoCoordinates",
-          latitude: 20.25602486093492,
-          longitude: 79.2847888101826,
-        },
-        founder: [
-          {
-            "@type": "Person",
-            name: "Amala Sheth",
-            jobTitle: "Founder & Principal Architect",
-            description:
-              "Visionary architect whose revolutionary approach to sustainable luxury earned international recognition and redefined safari lodge design.",
-            worksFor: {
-              "@type": "Organization",
-              name: "Metaphors Design",
-              url: "http://www.metaphors-design.com/",
-            },
-            knowsAbout: [
-              "Sustainable Architecture",
-              "Luxury Resort Design",
-              "Eco-Tourism",
-            ],
-            award: "International recognition for sustainable luxury design",
-          },
-          {
-            "@type": "Person",
-            name: "Anand Bhagat",
-            jobTitle: "Founder & Principal Architect",
-            description:
-              "Architectural visionary dedicated to creating spaces that connect people with nature and conserve the wild.",
-            worksFor: {
-              "@type": "Organization",
-              name: "Metaphors Design",
-              url: "http://www.metaphors-design.com/",
-            },
-            knowsAbout: [
-              "Sustainable Architecture",
-              "Wildlife Conservation",
-              "Eco-Tourism Design",
-            ],
-          },
-        ],
-      },
-    }}
+    jsonLd={aboutPageSchema}
   />
 
   <div class="bg-gray-950 text-gray-100 selection:bg-gray-700">

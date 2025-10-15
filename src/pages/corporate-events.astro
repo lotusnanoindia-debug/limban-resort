@@ -6,13 +6,18 @@ import { CorporateDatePicker } from "@/components/CorporateDatePicker";
 import SmartReserveButton from "../components/SmartReserveButton.astro";
 import { Icon } from 'astro-icon/components'
 
+// Helper for Cloudinary JPG (schema)
+const toCloudinaryJpg = (url: string) => {
+  if (!url) return '';
+  return `https://res.cloudinary.com/dfa5hhzej/image/fetch/w_1200,h_675,c_fill,q_85,f_jpg/${url}`;
+};
+
 const pageUrl = Astro.url.href;
 
-// Use your specified hero image URL directly
-const heroImageUrl = 
-  "https://res.cloudinary.com/dfa5hhzej/image/upload/f_avif,q_45,w_1400/limban-corporate-event-setting_q58lb3.jpg";
-const heroMobileUrl =
-  "https://res.cloudinary.com/dfa5hhzej/image/upload/f_auto,q_45,w_600,c_scale/limban-corporate-event-setting_q58lb3.jpg";
+// Hero images
+const heroImageUrl = "https://res.cloudinary.com/dfa5hhzej/image/upload/f_avif,q_45,w_1400/limban-corporate-event-setting_q58lb3.jpg";
+const heroMobileUrl = "https://res.cloudinary.com/dfa5hhzej/image/upload/f_auto,q_45,w_600,c_scale/limban-corporate-event-setting_q58lb3.jpg";
+const heroImageSchema = "https://res.cloudinary.com/dfa5hhzej/image/upload/w_1200,h_675,c_fill,q_85,f_jpg/limban-corporate-event-setting_q58lb3.jpg";
 
 // Server-side data fetching - simplified
 let data = { corporateGallery: [] };
@@ -129,18 +134,138 @@ const testimonials = [
 // Data for the FAQ schema based on "Professional Service Standards"
 const serviceStandardsFaq = [
   {
-    question: "What is the response time for an Initial Consultation?",
+    question: "What is the response time for an initial consultation?",
     answer: "We guarantee a response to your initial consultation request within 24 hours."
   },
   {
-    question: "How quickly will I receive a Detailed Programme Proposal?",
+    question: "How quickly will I receive a detailed programme proposal?",
     answer: "You will receive a detailed, bespoke programme proposal within 48 hours of your consultation."
   },
   {
-    question: "What is the Max Group Capacity?",
+    question: "What is the maximum group capacity?",
     answer: "To ensure an intimate and impactful experience, we accommodate a maximum of 40 executives."
+  },
+  {
+    question: "What corporate event types do you specialise in?",
+    answer: "We specialise in strategic leadership retreats, innovation labs, stakeholder engagement experiences, team performance development, achievement celebrations, and executive learning intensives."
+  },
+  {
+    question: "Can you integrate safari experiences into corporate events?",
+    answer: "Yes! We seamlessly integrate wildlife safari experiences with strategic sessions, offering unique team-building opportunities and inspiration from nature's leadership lessons."
   }
 ];
+
+// Corporate events service schema
+const corporateEventsSchema = {
+  "@context": "https://schema.org",
+  "@type": "EventVenue",
+  "@id": "https://limban.com/corporate-events#venue",
+  "name": "Limban Resort Corporate Events & Executive Retreats",
+  "description": "Bespoke corporate events, strategic retreats, innovation labs, and stakeholder experiences hosted at Limban Resort, located in the pristine wilderness of Tadoba Tiger Reserve.",
+  "url": "https://limban.com/corporate-events",
+  "image": [heroImageSchema],
+  "address": {
+    "@type": "PostalAddress",
+    "streetAddress": "Survey No. 306, Village Mudholi, Taluka Bhadravati",
+    "addressLocality": "Tadoba",
+    "addressRegion": "Maharashtra",
+    "postalCode": "442906",
+    "addressCountry": "IN"
+  },
+  "geo": {
+    "@type": "GeoCoordinates",
+    "latitude": 20.25602486093492,
+    "longitude": 79.2847888101826
+  },
+  "telephone": "+91-90226-80451",
+  "email": "info@limban.com",
+  "maximumAttendeeCapacity": 40,
+  "amenityFeature": [
+    {
+      "@type": "LocationFeatureSpecification",
+      "name": "Conference Facilities",
+      "value": true
+    },
+    {
+      "@type": "LocationFeatureSpecification",
+      "name": "Audio-Visual Equipment",
+      "value": true
+    },
+    {
+      "@type": "LocationFeatureSpecification",
+      "name": "Outdoor Meeting Spaces",
+      "value": true
+    },
+    {
+      "@type": "LocationFeatureSpecification",
+      "name": "Accommodation for Attendees",
+      "value": true
+    },
+    {
+      "@type": "LocationFeatureSpecification",
+      "name": "Catering Services",
+      "value": true
+    },
+    {
+      "@type": "LocationFeatureSpecification",
+      "name": "Safari Integration",
+      "value": true
+    }
+  ],
+  "partOf": {
+    "@type": "Hotel",
+    "@id": "https://limban.com/#hotel",
+    "name": "Limban Resort"
+  }
+};
+
+// Service offerings schema
+const serviceSchema = {
+  "@context": "https://schema.org",
+  "@type": "Service",
+  "@id": "https://limban.com/corporate-events#service",
+  "serviceType": "Corporate Event Planning",
+  "name": "Corporate Events & Executive Retreat Planning",
+  "description": "Professional corporate event planning and execution services specialising in strategic retreats, innovation labs, stakeholder experiences, and team development programmes.",
+  "provider": {
+    "@type": "Hotel",
+    "@id": "https://limban.com/#hotel",
+    "name": "Limban Resort"
+  },
+  "areaServed": {
+    "@type": "Country",
+    "name": "India"
+  },
+  "hasOfferCatalog": {
+    "@type": "OfferCatalog",
+    "name": "Corporate Event Categories",
+    "itemListElement": eventCategories.map((event, index) => ({
+      "@type": "Offer",
+      "itemOffered": {
+        "@type": "Service",
+        "name": event.title,
+        "description": event.description
+      }
+    }))
+  }
+};
+
+// FAQ schema
+const faqSchema = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": serviceStandardsFaq.map(faq => ({
+    "@type": "Question",
+    "name": faq.question,
+    "acceptedAnswer": {
+      "@type": "Answer",
+      "text": faq.answer
+    }
+  }))
+};
+
+// Combine schemas
+const combinedJsonLd = [corporateEventsSchema, serviceSchema, faqSchema];
 ---
 
 <link rel="preload" as="image" href={heroImageUrl} fetchpriority="high" />
@@ -152,60 +277,17 @@ const serviceStandardsFaq = [
     description="Corporate events that transform. Strategic retreats, innovation labs, stakeholder experiences at India's premier tiger reserve. Professional event management with safari integration."
     canonical="https://limban.com/corporate-events"
     openGraph={{
-      basic: {
-        title: "Corporate Events & Executive Retreats | Limban Resort",
-        type: "website",
-        image: heroImageUrl,
-        url: Astro.url.href,
-      },
-      optional: {
-        description: "Corporate events that transform. Strategic retreats, innovation labs, stakeholder experiences at India's premier tiger reserve.",
-        siteName: "Limban Resort Tadoba",
-        locale: "en_US",
-      }
+      title: "Corporate Events & Executive Retreats | Limban Resort",
+      description: "Corporate events that transform. Strategic retreats, innovation labs, stakeholder experiences at India's premier tiger reserve.",
+      image: heroImageSchema,
+      type: "website",
+      url: "https://limban.com/corporate-events",
+      site_name: "Limban Resort Tadoba"
     }}
-    jsonLd={{
-      "@context": "https://schema.org",
-      "@type": "Service",
-      "serviceType": "Corporate Event & Executive Retreat Planning",
-      "name": "Corporate Events & Executive Retreats at Limban Resort",
-      "description": "Bespoke corporate events, strategic retreats, innovation labs, and stakeholder experiences hosted at Limban Resort, located in the pristine wilderness of Tadoba Tiger Reserve.",
-      "url": "https://limban.com/corporate-events",
-      "image": heroImageUrl,
-      "provider": {
-        "@type": "Resort",
-        "name": "Limban Resort Tadoba",
-        "image": heroImageUrl,
-        "url": "https://limban.com",
-        "telephone": "+919881191092",
-        "email": "info@limban.com",
-        "address": {
-          "@type": "PostalAddress",
-          "streetAddress": "Limban Resort, Bhamdeli",
-          "addressLocality": "Tadoba Andhari Tiger Reserve",
-          "addressRegion": "Maharashtra",
-          "postalCode": "442401",
-          "addressCountry": "IN"
-        }
-      },
-      "areaServed": {
-        "@type": "Country",
-        "name": "India"
-      },
-      "hasOfferCatalog": {
-        "@type": "OfferCatalog",
-        "name": "Corporate Event Categories",
-        "itemListElement": eventCategories.map(event => ({ 
-          "@type": "Offer", 
-          "itemOffered": { 
-            "@type": "Service", 
-            "name": event.title, 
-            "description": event.description 
-          } 
-        }))
-      }
-    }}
+    jsonLd={combinedJsonLd}
   />
+
+
 
   <div class="bg-gray-950 text-gray-100">
     <!-- Enhanced Hero - Direct image URL -->

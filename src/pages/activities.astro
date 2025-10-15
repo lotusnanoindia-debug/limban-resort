@@ -6,8 +6,16 @@ import ContactSection from "../components/ContactSection.astro";
 import { fetchActivities, fetchActivityImages } from "../api.js";
 import imageService from "../utils/ImageService.js";
 
-// Hero image - your clean pattern
-const heroImage = "https://res.cloudinary.com/dfa5hhzej/image/fetch/w_1200,f_avif,q_50/https://ap-south-1.graphassets.com/cmek3o6f00dcb07o59sno2s0e/cmetqft4x1pw807oa6lb58dzm";
+// Helper for Cloudinary JPG (schema)
+const toCloudinaryJpg = (url: string) => {
+  if (!url) return '';
+  return `https://res.cloudinary.com/dfa5hhzej/image/fetch/w_1200,h_675,c_fill,q_85,f_jpg/${url}`;
+};
+
+// Hero image
+const heroImageRaw = "https://ap-south-1.graphassets.com/cmek3o6f00dcb07o59sno2s0e/cmetqft4x1pw807oa6lb58dzm";
+const heroImage = "https://res.cloudinary.com/dfa5hhzej/image/fetch/w_1200,f_avif,q_50/" + heroImageRaw;
+const heroImageSchema = toCloudinaryJpg(heroImageRaw);
 
 // Server-side data fetching with error handling
 let activitiesData = [];
@@ -24,7 +32,6 @@ try {
 }
 
 // Process category images using your ImageService pattern
-// Process category images using your ImageService pattern  
 const processedCategoryImages = 
   activityImagesData && activityImagesData.length > 0
     ? activityImagesData.map((item, index) => {
@@ -46,7 +53,6 @@ const processedCategoryImages =
         };
       }).filter(Boolean)
     : [];
-
 
 // Create image lookup map using processed images
 const imageMap = processedCategoryImages.reduce((acc, item) => {
@@ -140,7 +146,7 @@ const categoryConfig = {
   }
 };
 
-// FAQ data
+// Smarter FAQ - extract from data, don't hardcode
 const faqs = [
   {
     question: "Which activities are included in the room rate?",
@@ -163,6 +169,48 @@ const faqs = [
     answer: "Yes! We love creating personalised experiences for birthdays, anniversaries, and special celebrations. Our team can arrange private sessions, group activities, or combine multiple experiences for memorable milestone moments."
   }
 ];
+
+// Activities schema
+const activitiesSchema = {
+  "@context": "https://schema.org",
+  "@type": "ItemList",
+  "@id": "https://limban.com/activities#activities",
+  "name": "Resort Activities & Experiences",
+  "description": "Comprehensive activity offerings at Limban Resort including wellness, sports, cultural workshops, nature connection, and family experiences",
+  "url": "https://limban.com/activities",
+  "numberOfItems": Object.keys(categoryConfig).length,
+  "itemListElement": Object.entries(categoryConfig).map(([key, config], index) => ({
+    "@type": "ListItem",
+    "position": index + 1,
+    "item": {
+      "@type": "Service",
+      "name": config.name,
+      "description": config.description,
+      "provider": {
+        "@type": "Hotel",
+        "@id": "https://limban.com/#hotel",
+        "name": "Limban Resort"
+      }
+    }
+  }))
+};
+
+// FAQ schema (separate, cleaner)
+const faqSchema = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": faqs.map(faq => ({
+    "@type": "Question",
+    "name": faq.question,
+    "acceptedAnswer": {
+      "@type": "Answer",
+      "text": faq.answer
+    }
+  }))
+};
+
+// Combine schemas
+const combinedJsonLd = [activitiesSchema, faqSchema];
 ---
 
 <link rel="preload" as="image" href={heroImage} fetchpriority="high" />
@@ -175,80 +223,14 @@ const faqs = [
     openGraph={{
       title: "Activities & Experiences at Limban Resort - Tadoba Safari Lodge",
       description: "Discover an abundance of activities at Limban Resort in Tadoba National Park. From wildlife adventures and cultural workshops to family fun and wellness experiences.",
-      image: heroImage,
+      image: heroImageSchema,
       type: "website",
       url: "https://limban.com/activities"
     }}
-    jsonLd={{
-      "@context": "https://schema.org",
-      "@graph": [
-        {
-          "@type": "TouristAttraction",
-          "name": "Limban Resort Activities & Experiences",
-          "description": "Comprehensive activity offerings at Limban Resort including wildlife experiences, cultural workshops, family activities, and wellness programmes in Tadoba National Park",
-          "url": "https://limban.com/activities",
-          "image": heroImage,
-          "location": {
-            "@type": "Place",
-            "name": "Limban Resort",
-            "address": {
-              "@type": "PostalAddress",
-              "streetAddress": "Survey No. 306, Village Mudholi",
-              "addressLocality": "Chandrapur",
-              "addressRegion": "Maharashtra",
-              "postalCode": "442906",
-              "addressCountry": "IN"
-            }
-          }
-        },
-        {
-          "@type": "FAQPage",
-          "mainEntity": [
-            {
-              "@type": "Question",
-              "name": "Which activities are included in the room rate?",
-              "acceptedAnswer": {
-                "@type": "Answer",
-                "text": "Most of our activities are complimentary for guests, including swimming, table tennis, carrom, board games, farm visits, and nature walks. Specialised workshops and spa treatments may have additional charges. Our team will provide complete details upon arrival."
-              }
-            },
-            {
-              "@type": "Question", 
-              "name": "Do I need to book activities in advance?",
-              "acceptedAnswer": {
-                "@type": "Answer",
-                "text": "Whilst many activities are available on a walk-in basis, we recommend booking specialised experiences like cooking classes, craft workshops, and guided nature tours in advance to ensure availability. Our concierge team can assist with scheduling during your stay."
-              }
-            },
-            {
-              "@type": "Question",
-              "name": "Are activities suitable for children?",
-              "acceptedAnswer": {
-                "@type": "Answer", 
-                "text": "Absolutely! We have dedicated kids' activities and family-friendly options across all categories. Our team ensures age-appropriate modifications for younger guests, and our Kids & Families section offers specially designed experiences for our youngest explorers."
-              }
-            },
-            {
-              "@type": "Question",
-              "name": "What happens during monsoon season?",
-              "acceptedAnswer": {
-                "@type": "Answer",
-                "text": "We maintain a full range of indoor activities during monsoon months, including our games room, craft workshops, cooking classes, and cultural performances. Many of our covered areas and indoor spaces ensure your experience remains exceptional regardless of weather."
-              }
-            },
-            {
-              "@type": "Question",
-              "name": "Can activities be customised for special occasions?",
-              "acceptedAnswer": {
-                "@type": "Answer",
-                "text": "Yes! We love creating personalised experiences for birthdays, anniversaries, and special celebrations. Our team can arrange private sessions, group activities, or combine multiple experiences for memorable milestone moments."
-              }
-            }
-          ]
-        }
-      ]
-    }}
+    jsonLd={combinedJsonLd}
   />
+
+
 
   <div class="bg-gray-950 text-gray-100 selection:bg-gray-700">
     

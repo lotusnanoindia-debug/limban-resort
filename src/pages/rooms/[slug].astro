@@ -13,6 +13,12 @@ import {
   fetchSpecialDeal,
 } from "../../api.js";
 
+// Helper for Cloudinary JPG (schema only)
+const toCloudinaryJpg = (url: string) => {
+  if (!url) return '';
+  return `https://res.cloudinary.com/dfa5hhzej/image/fetch/w_1200,h_675,c_fill,q_85,f_jpg/${url}`;
+};
+
 // Server-side data fetching with error handling
 let data = { rooms: [], specialDeal: null };
 let error = null;
@@ -48,7 +54,7 @@ if (!room) {
   return Astro.redirect("/rooms");
 }
 
-// Process hero image through ImageService
+// Process hero image through ImageService (for display)
 const heroImageData = room.heroImage ? {
   ...room.heroImage,
   context: {
@@ -61,14 +67,41 @@ const heroImageData = room.heroImage ? {
 // Safe price processing
 const safePrice = Number(room.basePrice) || 0;
 
-
-// Generate SEO-optimized URLs for schema
+// Generate display URL (AVIF for users)
 const heroImageUrl = heroImageData 
   ? imageService.processImage(heroImageData, 'heroTablet', { quality: 45 })
   : 'https://limban.com/img/room-placeholder.avif';
 
-const schemaImages = [heroImageUrl].filter(Boolean);
+// Generate schema URL (JPG for Google)
+const schemaHeroImage = room.heroImage?.url 
+  ? toCloudinaryJpg(room.heroImage.url)
+  : '';
 
+// Build schema images array - adapt based on your actual room data structure
+const schemaImages = [schemaHeroImage].filter(Boolean);
+
+// Room schema
+const roomSchema = {
+  "@context": "https://schema.org",
+  "@type": "HotelRoom",
+  "@id": `https://limban.com/rooms/${room.url}#room`,
+  "name": room.roomName,
+  "description": room.shortDescription,
+  "url": `https://limban.com/rooms/${room.url}`,
+  "image": schemaImages,
+  "offers": {
+    "@type": "Offer",
+    "price": safePrice.toString(),
+    "priceCurrency": "INR",
+    "availability": "https://schema.org/InStock",
+    "url": `https://limban.com/rooms/${room.url}`
+  },
+  "partOf": {
+    "@type": "Hotel",
+    "@id": "https://limban.com/#hotel",
+    "name": "Limban Resort"
+  }
+};
 ---
 
 <link rel="preload" as="image" href={heroImageUrl} fetchpriority="high" />
@@ -80,34 +113,13 @@ const schemaImages = [heroImageUrl].filter(Boolean);
     description={`Experience luxury and comfort in our ${room.roomName} at Limban Resort. ${room.shortDescription} Reserve your exclusive safari accommodation in Tadoba National Park, Maharashtra.`}
     canonical={`https://limban.com/rooms/${room.url}`}
     openGraph={{
-      title: `${room.roomName} - Luxury Safari Accommodation at Limban Resort`,
+      title: `${room.roomName} - Luxury Safari Accommodation at Limban Resort, Tadoba`,
       description: `${room.shortDescription} Experience unparalleled luxury and eco-friendly comfort at Limban Resort in Tadoba National Park.`,
-      image: heroImageUrl,
-      type: "article",
+      image: schemaHeroImage,
+      type: "website",
       url: `https://limban.com/rooms/${room.url}`,
     }}
-    jsonLd={{
-      "@context": "https://schema.org",
-      "@type": "LodgingBusiness",
-      "@id": `https://limban.com/rooms/${room.url}#resort`,
-      name: "Limban Resort",
-      url: "https://limban.com",
-      image: schemaImages,
-      description: "Luxury safari resort in Tadoba National Park offering premium eco-friendly accommodation and tiger safari experiences in Maharashtra, India.",
-      makesOffer: {
-        "@type": "Offer",
-        itemOffered: {
-          "@type": "Accommodation",
-          name: room.roomName,
-          description: room.shortDescription,
-          image: schemaImages,
-        },
-        price: safePrice,
-        priceCurrency: "INR",
-        availability: "https://schema.org/InStock",
-        url: `https://limban.com/rooms/${room.url}`,
-      },
-    }}
+    jsonLd={roomSchema}
   />
 
   <a

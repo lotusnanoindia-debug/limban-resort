@@ -6,9 +6,16 @@ import imageService from "../utils/ImageService.js";
 import ContactSection from "../components/ContactSection.astro";
 import { fetchWellnessOfferings } from "../api.js";
 
-// Hero image (same as safari)
+// Helper for Cloudinary JPG (schema)
+const toCloudinaryJpg = (url: string) => {
+  if (!url) return "";
+  return `https://res.cloudinary.com/dfa5hhzej/image/fetch/w_1200,h_675,c_fill,q_85,f_jpg/${url}`;
+};
+
+// Hero image
 const heroImage =
-  "https://res.cloudinary.com/dfa5hhzej/image/fetch/w_800,c_limit,f_auto,q_auto/https://ap-south-1.graphassets.com/cmek3o6f00dcb07o59sno2s0e/cmg3bmkvz1dew07pmvga1m878";
+  "https://ap-south-1.graphassets.com/cmek3o6f00dcb07o59sno2s0e/cmg3bmkvz1dew07pmvga1m878";
+const heroImageSchema = toCloudinaryJpg(heroImage);
 
 let wellnessOfferings = [];
 try {
@@ -28,12 +35,93 @@ const combinedPackages = wellnessOfferings.filter(
   (w) => w.category === "combinedPackage",
 );
 
-// Hero image processing (same as safari)
+// Hero image processing
 const heroImageUrl = imageService.processImage(
   { url: heroImage, alt: "Wellness sanctuary at Limban Resort" },
   "heroDesktop",
   { quality: 70 },
 );
+
+// Wellness schema
+const wellnessSchema = {
+  "@context": "https://schema.org",
+  "@type": "HealthAndBeautyBusiness",
+  "@id": "https://limban.com/wellness#spa",
+  name: "Limban Resort Wellness & Spa",
+  description:
+    "Luxury spa treatments, mindful wellness activities, and transformative retreat experiences in Tadoba National Park. Indigenous botanicals, certified therapists, and forest-inspired healing.",
+  url: "https://limban.com/wellness",
+  image: [heroImageSchema],
+  address: {
+    "@type": "PostalAddress",
+    streetAddress: "Survey No. 306, Village Mudholi, Taluka Bhadravati",
+    addressLocality: "Tadoba",
+    addressRegion: "Maharashtra",
+    postalCode: "442906",
+    addressCountry: "IN",
+  },
+  geo: {
+    "@type": "GeoCoordinates",
+    latitude: 20.25602486093492,
+    longitude: 79.2847888101826,
+  },
+  telephone: "+91-90226-80451",
+  priceRange: "₹₹₹",
+  openingHours: "Mo-Su 08:00-20:00",
+  amenityFeature: [
+    {
+      "@type": "LocationFeatureSpecification",
+      name: "Spa Treatments",
+      value: true,
+    },
+    {
+      "@type": "LocationFeatureSpecification",
+      name: "Yoga & Meditation",
+      value: true,
+    },
+    {
+      "@type": "LocationFeatureSpecification",
+      name: "Forest Therapy",
+      value: true,
+    },
+    {
+      "@type": "LocationFeatureSpecification",
+      name: "Wellness Packages",
+      value: true,
+    },
+  ],
+  makesOffer: [
+    ...spaOfferings.slice(0, 3).map((treatment, index) => ({
+      "@type": "Offer",
+      itemOffered: {
+        "@type": "Service",
+        name: treatment.title,
+        description: treatment.shortDescription,
+        provider: {
+          "@type": "HealthAndBeautyBusiness",
+          "@id": "https://limban.com/wellness#spa",
+        },
+      },
+    })),
+    ...wellnessActivities.slice(0, 2).map((activity) => ({
+      "@type": "Offer",
+      itemOffered: {
+        "@type": "Service",
+        name: activity.title,
+        description: activity.shortDescription,
+        provider: {
+          "@type": "HealthAndBeautyBusiness",
+          "@id": "https://limban.com/wellness#spa",
+        },
+      },
+    })),
+  ],
+  partOf: {
+    "@type": "Hotel",
+    "@id": "https://limban.com/#hotel",
+    name: "Limban Resort",
+  },
+};
 ---
 
 <link rel="preload" as="image" href={heroImageUrl} fetchpriority="high" />
@@ -49,10 +137,11 @@ const heroImageUrl = imageService.processImage(
         "Wellness & Spa | Rejuvenation in the Heart of Tadoba - Limban Resort",
       description:
         "Discover profound wellness in nature's embrace. Luxury spa treatments, mindful activities, and transformative retreat experiences designed around Tadoba's healing rhythms.",
-      image: heroImageUrl,
+      image: heroImageSchema,
       type: "website",
       url: "https://limban.com/wellness",
     }}
+    jsonLd={wellnessSchema}
   />
 
   <div class="bg-gray-950 text-gray-100 selection:bg-gray-700">

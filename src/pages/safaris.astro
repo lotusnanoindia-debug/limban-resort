@@ -8,11 +8,20 @@ import imageService from "../utils/ImageService.js";
 import ContactSection from "../components/ContactSection.astro";
 import { fetchSafariOverview, fetchSafariGallery } from "../api.js";
 
-// Hero image
+// Helper for Cloudinary JPG (schema)
+const toCloudinaryJpg = (url: string) => {
+  if (!url) return "";
+  return `https://res.cloudinary.com/dfa5hhzej/image/fetch/w_1200,h_675,c_fill,q_85,f_jpg/${url}`;
+};
+
+// Hero images
 const heroImageUrl =
   "https://res.cloudinary.com/dfa5hhzej/image/fetch/f_avif,q_35,w_1200/https://ap-south-1.graphassets.com/cmek3o6f00dcb07o59sno2s0e/cmfgb57f60hfn07pl702le0mx";
 const heroMobileUrl =
   "https://res.cloudinary.com/dfa5hhzej/image/fetch/f_auto,q_35,w_600,c_scale/https://ap-south-1.graphassets.com/cmek3o6f00dcb07o59sno2s0e/cmfgb57f60hfn07pl702le0mx";
+const heroImageSchema = toCloudinaryJpg(
+  "https://ap-south-1.graphassets.com/cmek3o6f00dcb07o59sno2s0e/cmfgb57f60hfn07pl702le0mx",
+);
 
 // Fetch data
 let safariOverview = [];
@@ -24,6 +33,132 @@ try {
 } catch (error) {
   console.error("Safari data fetch error:", error);
 }
+
+// Safari schema with FAQ
+const safariSchema = {
+  "@context": "https://schema.org",
+  "@type": "TouristAttraction",
+  "@id": "https://limban.com/safaris#attraction",
+  name: "Tadoba Tiger Safari Experiences",
+  description:
+    "Expert-guided safari experiences through Tadoba National Park's ancient forests where Bengal tigers roam free. Witness India's most pristine tiger sanctuary with certified naturalists.",
+  url: "https://limban.com/safaris",
+  image: [heroImageSchema],
+  address: {
+    "@type": "PostalAddress",
+    streetAddress: "Survey No. 306, Village Mudholi, Taluka Bhadravati",
+    addressLocality: "Tadoba",
+    addressRegion: "Maharashtra",
+    postalCode: "442906",
+    addressCountry: "IN",
+  },
+  geo: {
+    "@type": "GeoCoordinates",
+    latitude: 20.25602486093492,
+    longitude: 79.2847888101826,
+  },
+  touristType: [
+    "Wildlife Enthusiasts",
+    "Photographers",
+    "Families",
+    "Nature Lovers",
+  ],
+  availableLanguage: ["English", "Hindi", "Marathi"],
+  isAccessibleForFree: false,
+  tourBookingPage: "https://limban.com/contact",
+  partOf: {
+    "@type": "Hotel",
+    "@id": "https://limban.com/#hotel",
+    name: "Limban Resort",
+  },
+  provider: {
+    "@type": "Organization",
+    "@id": "https://limban.com/#organization",
+    name: "Limban Resort",
+  },
+};
+
+const faqSchema = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  mainEntity: [
+    {
+      "@type": "Question",
+      name: "How do safari bookings work with my stay?",
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: "Safari experiences are curated add-ons to your stay, designed to complement your accommodation with expertly guided wilderness encounters. We handle all the complex coordination—permits, timing, vehicles, and guides—so you enjoy seamless experiences. Our turnkey safari service includes: forest department permit coordination, expert naturalist guides, premium safari vehicles with experienced drivers, strategic timing and route planning, and flexible scheduling around your preferences.",
+      },
+    },
+    {
+      "@type": "Question",
+      name: "Can I have a private safari vehicle just for my group?",
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: "Absolutely! We offer custom private vehicles for guests who prefer an exclusive safari experience. Perfect for families, couples seeking intimacy, or photography enthusiasts requiring flexibility. Private vehicle benefits include: set your own pace and stops, dedicated naturalist guide, photography-focused routes, and flexible timing. For booking, request private vehicles when booking your stay. Subject to availability and may involve additional coordination with park authorities.",
+      },
+    },
+    {
+      "@type": "Question",
+      name: "What are the best times for tiger sightings?",
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: "Early morning and late afternoon safaris offer the highest success rates for tiger sightings, when these magnificent cats are most active hunting and patrolling their territory. Morning safari is at 6:00 AM when tigers are active after cool night. Afternoon safari is at 3:30 PM for evening hunt preparation. The best season is November to March with cooler weather and active wildlife.",
+      },
+    },
+    {
+      "@type": "Question",
+      name: "What should I bring on safari?",
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: "We provide water and basic refreshments, but here are essential items to enhance your safari experience and ensure maximum comfort. Essential items include: wide-brimmed hat, sunglasses, sunscreen (SPF 30+), and light jacket for early mornings. Photography items: camera with telephoto lens, extra batteries, memory cards, and lens cleaning cloth. Comfort items: binoculars (we provide backup), small backpack, personal snacks, and insect repellent.",
+      },
+    },
+    {
+      "@type": "Question",
+      name: "Do I need to worry about permits and bookings?",
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: "Not at all! Safari permits and bookings are entirely handled by our team. While safari availability ultimately depends on forest department authorities, we manage all the complex coordination so you can focus on the experience. Our turnkey service includes: daily permit applications, gate coordination and timing, guide and vehicle assignments, weather contingency planning, alternative route preparation, and all entry fee payments.",
+      },
+    },
+    {
+      "@type": "Question",
+      name: "How safe are the safari experiences?",
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: "Safety is our absolute priority. Our experienced naturalists and drivers follow strict forest department protocols, maintain respectful distances from wildlife, and carry emergency communication equipment. Safety measures include: certified naturalist guides, regular vehicle maintenance, first aid kit on every vehicle, and radio communication with base. Wildlife protocols: maintain safe distances from animals, no sudden movements or loud noises, follow all forest department rules, and emergency evacuation procedures.",
+      },
+    },
+    {
+      "@type": "Question",
+      name: "Will I actually see tigers, or could I go home disappointed?",
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: "Tadoba hosts 97 tigers across its core zones, giving excellent sighting opportunities, though wildlife encounters are never guaranteed—that's what makes them magical. Even without tigers, every safari reveals incredible biodiversity: leopards, wild dogs, sloth bears, deer, and over 200 bird species. What you will see includes: diverse wildlife every safari, ancient forest ecosystems, bird species and butterflies, and traditional tribal landscapes. Tiger sighting factors include: season and weather conditions, time of day and temperature, multiple safari opportunities, and expert guide knowledge.",
+      },
+    },
+    {
+      "@type": "Question",
+      name: "Are safaris suitable for families with children of different ages?",
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: "Safaris are wonderful for families! We welcome children of all ages and elderly family members. Our naturalists are skilled at engaging young minds with age-appropriate wildlife education, while our comfortable vehicles accommodate various mobility needs. For young children: can sit on laps (under 5), shorter safari options, early return if needed, and educational engagement. For older adults: comfortable seating, easy vehicle access, regular rest stops, and flexible pacing. For family groups: private vehicle options, customised timing, photography assistance, and shared learning experience.",
+      },
+    },
+    {
+      "@type": "Question",
+      name: "How do you ensure safe and educational safari experiences?",
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: "All our organised safaris are briefed and attended by trained and experienced staff. Our certified naturalists undergo continuous training, while our drivers have decades of experience navigating Tadoba's terrain and wildlife behaviour patterns. Professional expertise includes: certified naturalist guides, experienced safari drivers, wildlife behaviour specialists, and continuous education programmes. Safety protocols: pre-safari safety briefings, radio communication systems, emergency response procedures, and regular vehicle maintenance. Our naturalists don't just spot animals—they interpret behaviour, ecology, and conservation stories, transforming every sighting into a deeper understanding of Tadoba's ecosystem.",
+      },
+    },
+  ],
+};
+
+// Combine both schemas
+const combinedJsonLd = [safariSchema, faqSchema];
 ---
 
 <link rel="preload" as="image" href={heroImageUrl} fetchpriority="high" />
@@ -38,88 +173,11 @@ try {
       title: "Safari Experiences | Into the Heart of Tadoba - Limban Resort",
       description:
         "Journey into India's most pristine tiger sanctuary. Expert-guided safari experiences through ancient forests where Bengal tigers roam free.",
-      image: heroImageUrl,
+      image: heroImageSchema,
       type: "website",
       url: "https://limban.com/safaris",
     }}
-    jsonLd={{
-      "@context": "https://schema.org",
-      "@type": "FAQPage",
-      mainEntity: [
-        {
-          "@type": "Question",
-          name: "How do safari bookings work with my stay?",
-          acceptedAnswer: {
-            "@type": "Answer",
-            text: "Safari experiences are curated add-ons to your stay, designed to complement your accommodation with expertly guided wilderness encounters. We handle all the complex coordination—permits, timing, vehicles, and guides—so you enjoy seamless experiences. Our turnkey safari service includes: forest department permit coordination, expert naturalist guides, premium safari vehicles with experienced drivers, strategic timing and route planning, and flexible scheduling around your preferences.",
-          },
-        },
-        {
-          "@type": "Question",
-          name: "Can I have a private safari vehicle just for my group?",
-          acceptedAnswer: {
-            "@type": "Answer",
-            text: "Absolutely! We offer custom private vehicles for guests who prefer an exclusive safari experience. Perfect for families, couples seeking intimacy, or photography enthusiasts requiring flexibility. Private vehicle benefits include: set your own pace and stops, dedicated naturalist guide, photography-focused routes, and flexible timing. For booking, request private vehicles when booking your stay. Subject to availability and may involve additional coordination with park authorities.",
-          },
-        },
-        {
-          "@type": "Question",
-          name: "What are the best times for tiger sightings?",
-          acceptedAnswer: {
-            "@type": "Answer",
-            text: "Early morning and late afternoon safaris offer the highest success rates for tiger sightings, when these magnificent cats are most active hunting and patrolling their territory. Morning safari is at 6:00 AM when tigers are active after cool night. Afternoon safari is at 3:30 PM for evening hunt preparation. The best season is November to March with cooler weather and active wildlife.",
-          },
-        },
-        {
-          "@type": "Question",
-          name: "What should I bring on safari?",
-          acceptedAnswer: {
-            "@type": "Answer",
-            text: "We provide water and basic refreshments, but here are essential items to enhance your safari experience and ensure maximum comfort. Essential items include: wide-brimmed hat, sunglasses, sunscreen (SPF 30+), and light jacket for early mornings. Photography items: camera with telephoto lens, extra batteries, memory cards, and lens cleaning cloth. Comfort items: binoculars (we provide backup), small backpack, personal snacks, and insect repellent.",
-          },
-        },
-        {
-          "@type": "Question",
-          name: "Do I need to worry about permits and bookings?",
-          acceptedAnswer: {
-            "@type": "Answer",
-            text: "Not at all! Safari permits and bookings are entirely handled by our team. While safari availability ultimately depends on forest department authorities, we manage all the complex coordination so you can focus on the experience. Our turnkey service includes: daily permit applications, gate coordination and timing, guide and vehicle assignments, weather contingency planning, alternative route preparation, and all entry fee payments.",
-          },
-        },
-        {
-          "@type": "Question",
-          name: "How safe are the safari experiences?",
-          acceptedAnswer: {
-            "@type": "Answer",
-            text: "Safety is our absolute priority. Our experienced naturalists and drivers follow strict forest department protocols, maintain respectful distances from wildlife, and carry emergency communication equipment. Safety measures include: certified naturalist guides, regular vehicle maintenance, first aid kit on every vehicle, and radio communication with base. Wildlife protocols: maintain safe distances from animals, no sudden movements or loud noises, follow all forest department rules, and emergency evacuation procedures.",
-          },
-        },
-        {
-          "@type": "Question",
-          name: "Will I actually see tigers, or could I go home disappointed?",
-          acceptedAnswer: {
-            "@type": "Answer",
-            text: "Tadoba hosts 97 tigers across its core zones, giving excellent sighting opportunities, though wildlife encounters are never guaranteed—that's what makes them magical. Even without tigers, every safari reveals incredible biodiversity: leopards, wild dogs, sloth bears, deer, and over 200 bird species. What you will see includes: diverse wildlife every safari, ancient forest ecosystems, bird species and butterflies, and traditional tribal landscapes. Tiger sighting factors include: season and weather conditions, time of day and temperature, multiple safari opportunities, and expert guide knowledge.",
-          },
-        },
-        {
-          "@type": "Question",
-          name: "Are safaris suitable for families with children of different ages?",
-          acceptedAnswer: {
-            "@type": "Answer",
-            text: "Safaris are wonderful for families! We welcome children of all ages and elderly family members. Our naturalists are skilled at engaging young minds with age-appropriate wildlife education, while our comfortable vehicles accommodate various mobility needs. For young children: can sit on laps (under 5), shorter safari options, early return if needed, and educational engagement. For older adults: comfortable seating, easy vehicle access, regular rest stops, and flexible pacing. For family groups: private vehicle options, customised timing, photography assistance, and shared learning experience.",
-          },
-        },
-        {
-          "@type": "Question",
-          name: "How do you ensure safe and educational safari experiences?",
-          acceptedAnswer: {
-            "@type": "Answer",
-            text: "All our organised safaris are briefed and attended by trained and experienced staff. Our certified naturalists undergo continuous training, while our drivers have decades of experience navigating Tadoba's terrain and wildlife behaviour patterns. Professional expertise includes: certified naturalist guides, experienced safari drivers, wildlife behaviour specialists, and continuous education programmes. Safety protocols: pre-safari safety briefings, radio communication systems, emergency response procedures, and regular vehicle maintenance. Our naturalists don't just spot animals—they interpret behaviour, ecology, and conservation stories, transforming every sighting into a deeper understanding of Tadoba's ecosystem.",
-          },
-        },
-      ],
-    }}
+    jsonLd={combinedJsonLd}
   />
 
   <div class="bg-gray-950 text-gray-100 selection:bg-gray-700">

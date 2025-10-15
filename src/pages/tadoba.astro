@@ -2,12 +2,151 @@
 import Layout from "../layouts/Layout.astro";
 import { AstroSEO } from "astro-seo-plugin";
 
+// Helper for Cloudinary JPG (schema)
+const toCloudinaryJpg = (url: string) => {
+  if (!url) return "";
+  return `https://res.cloudinary.com/dfa5hhzej/image/fetch/w_1200,h_675,c_fill,q_85,f_jpg/${url}`;
+};
+
 // Clean, optimized static background
 const heroImageUrl =
   "https://res.cloudinary.com/dfa5hhzej/image/upload/f_avif,q_35,w_1400,c_scale/morning-in-tadoba-national-park_ytygcd.jpg";
-
 const heroMobileUrl =
   "https://res.cloudinary.com/dfa5hhzej/image/upload/f_avif,q_35,w_600,c_scale/morning-in-tadoba-national-park_ytygcd.jpg";
+const heroImageSchema =
+  "https://res.cloudinary.com/dfa5hhzej/image/upload/w_1200,h_675,c_fill,q_85,f_jpg/morning-in-tadoba-national-park_ytygcd.jpg";
+
+// Article schema
+const articleSchema = {
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "@id": "https://limban.com/tadoba#article",
+  headline: "The Complete Guide to Tadoba National Park",
+  description:
+    "The definitive insider's guide to Maharashtra's greatest tiger reserve. From ancient Gond legends to modern conservation triumphs, understand what makes Tadoba truly extraordinary.",
+  image: heroImageSchema,
+  datePublished: "2024-01-15",
+  dateModified: "2025-10-15",
+  author: {
+    "@type": "Hotel",
+    "@id": "https://limban.com/#hotel",
+    name: "Limban Resort",
+  },
+  publisher: {
+    "@type": "Organization",
+    "@id": "https://limban.com/#organization",
+    name: "Limban Resort",
+    logo: {
+      "@type": "ImageObject",
+      url: "https://limban.com/limban-resort-tadoba-logo.png",
+    },
+  },
+  mainEntityOfPage: {
+    "@type": "WebPage",
+    "@id": "https://limban.com/tadoba",
+  },
+  about: {
+    "@type": "TouristDestination",
+    "@id": "https://limban.com/tadoba#destination",
+    name: "Tadoba Andhari Tiger Reserve",
+    description:
+      "Maharashtra's oldest and largest national park, established in 1955. A premier tiger sanctuary covering 1,727 sq km with dense teak forests, ancient Gond heritage, and successful conservation programs hosting 97+ tigers.",
+    url: "https://www.tadobanationalpark.in",
+    address: {
+      "@type": "PostalAddress",
+      addressLocality: "Chandrapur",
+      addressRegion: "Maharashtra",
+      addressCountry: "IN",
+    },
+    geo: {
+      "@type": "GeoCoordinates",
+      latitude: 20.266667,
+      longitude: 79.4,
+    },
+    touristType: [
+      "Wildlife Enthusiasts",
+      "Nature Photographers",
+      "Conservation Advocates",
+      "Adventure Travelers",
+    ],
+  },
+};
+
+// FAQ schema
+const faqSchema = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "@id": "https://limban.com/tadoba#faq",
+  mainEntity: [
+    {
+      "@type": "Question",
+      name: "How does safari booking work at Limban?",
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: "As a Limban guest, we handle all safari bookings for you through the official Maharashtra portal. We recommend booking your stay first, then we'll secure the best available permits based on your preferences for gates and timing. We know which zones are performing well each season.",
+      },
+    },
+    {
+      "@type": "Question",
+      name: "What are the weekly closure days?",
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: "Core zones are completely closed every Tuesday for wildlife rest. Buffer zones are closed every Wednesday. We build your itinerary around these closures and can suggest alternative activities on closure days.",
+      },
+    },
+    {
+      "@type": "Question",
+      name: "What should I pack for different seasons?",
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: "All seasons: Neutral colours only (khaki, olive, brown), full sleeves, closed shoes, hat, sunglasses. Winter: Layers for cold mornings (5-10°C), light jacket, scarf. Summer: Lightweight cotton, extra sun protection, electrolyte tablets. Monsoon: Light rain jacket, quick-dry fabrics, waterproof day pack.",
+      },
+    },
+    {
+      "@type": "Question",
+      name: "How many safaris should I plan?",
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: "We recommend minimum 4-6 safaris over 3-4 days for a meaningful experience. This allows you to visit different zones, experience both morning and afternoon timing, and increases your chances of diverse wildlife encounters. Each safari reveals different aspects of the ecosystem.",
+      },
+    },
+    {
+      "@type": "Question",
+      name: "Why can't I use my mobile phone on safari?",
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: "Phones are deposited at the gate to prevent location sharing that causes vehicle crowding at sightings. This protects animal welfare and ensures better experiences for everyone. It also eliminates the distraction, letting you be fully present in the forest. Emergency communication happens via guide radios.",
+      },
+    },
+    {
+      "@type": "Question",
+      name: "What if we don't see tigers?",
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: "Every safari offers something remarkable. Beyond tigers, you'll encounter leopards, wild dogs, sloth bears, massive gaur, and over 280 bird species. The forest's soundscape—alarm calls, bird songs, rustling leaves—tells stories as compelling as any sighting. Many guests say their 'no tiger' safaris were their most educational.",
+      },
+    },
+    {
+      "@type": "Question",
+      name: "Can I carry a camera?",
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: "Camera fees apply to lenses above 250mm focal length, typically ₹250-500 per safari depending on lens size. Basic cameras and phones (when allowed in buffer zones) are usually free. We can advise on current fee structures and help with payments at gates.",
+      },
+    },
+    {
+      "@type": "Question",
+      name: "Is it suitable for children and elderly guests?",
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: "Safaris require sitting quietly for 3-4 hours on sometimes rough tracks. Children 8+ typically do well with proper preparation. For younger kids or guests with mobility concerns, we can arrange shorter nature walks, resort-based activities, and visits to the interpretation centre. Our naturalists are skilled at engaging all age groups.",
+      },
+    },
+  ],
+};
+
+// Combine schemas
+const combinedJsonLd = [articleSchema, faqSchema];
 ---
 
 <Layout>
@@ -20,121 +159,11 @@ const heroMobileUrl =
       title: "The Complete Guide to Tadoba National Park | Limban Resort",
       description:
         "Discover the secrets of India's premier tiger sanctuary. Ancient forests, legendary cats, and sacred heritage await.",
-      image: heroImageUrl,
+      image: heroImageSchema,
       type: "article",
-      url: "https://limban.com/tadoba-guide",
+      url: "https://limban.com/tadoba",
     }}
-    jsonLd={{
-      "@context": "https://schema.org",
-      "@graph": [
-        {
-          "@type": "Article",
-          headline:
-            "The Complete Guide to Tadoba National Park | Limban Resort",
-          description:
-            "The definitive insider's guide to Maharashtra's greatest tiger reserve. From ancient Gond legends to modern conservation triumphs, understand what makes Tadoba truly extraordinary.",
-          image: heroImageUrl,
-          author: {
-            "@type": "Organization",
-            name: "Limban Resort",
-            url: "https://limban.com",
-          },
-          publisher: {
-            "@type": "Organization",
-            name: "Limban Resort",
-            logo: {
-              "@type": "ImageObject",
-              url: "https://limban.com/img/limban-resort-tadoba-logo.png",
-            },
-          },
-          mainEntityOfPage: {
-            "@type": "WebPage",
-            "@id": "https://limban.com/tadoba",
-          },
-          about: {
-            "@type": "TouristDestination",
-            name: "Tadoba Andhari Tiger Reserve",
-            description:
-              "Maharashtra's oldest and largest national park, a premier tiger sanctuary known for its dense forests, rich biodiversity, and successful conservation programs.",
-            address: {
-              "@type": "PostalAddress",
-              addressLocality: "Chandrapur",
-              addressRegion: "Maharashtra",
-              addressCountry: "IN",
-            },
-          },
-        },
-        {
-          "@type": "FAQPage",
-          mainEntity: [
-            {
-              "@type": "Question",
-              name: "How does safari booking work at Limban?",
-              acceptedAnswer: {
-                "@type": "Answer",
-                text: "As a Limban guest, we handle all safari bookings for you through the official Maharashtra portal. We recommend booking your stay first, then we'll secure the best available permits based on your preferences for gates and timing. We know which zones are performing well each season.",
-              },
-            },
-            {
-              "@type": "Question",
-              name: "What are the weekly closure days?",
-              acceptedAnswer: {
-                "@type": "Answer",
-                text: "Core zones are completely closed every Tuesday for wildlife rest. Buffer zones are closed every Wednesday. We build your itinerary around these closures and can suggest alternative activities on closure days.",
-              },
-            },
-            {
-              "@type": "Question",
-              name: "What should I pack for different seasons?",
-              acceptedAnswer: {
-                "@type": "Answer",
-                text: "All seasons: Neutral colors only (khaki, olive, brown), full sleeves, closed shoes, hat, sunglasses. Winter: Layers for cold mornings (5-10°C), light jacket, scarf. Summer: Lightweight cotton, extra sun protection, electrolyte tablets. Monsoon: Light rain jacket, quick-dry fabrics, waterproof day pack.",
-              },
-            },
-            {
-              "@type": "Question",
-              name: "How many safaris should I plan?",
-              acceptedAnswer: {
-                "@type": "Answer",
-                text: "We recommend minimum 4-6 safaris over 3-4 days for a meaningful experience. This allows you to visit different zones, experience both morning and afternoon timing, and increases your chances of diverse wildlife encounters. Each safari reveals different aspects of the ecosystem.",
-              },
-            },
-            {
-              "@type": "Question",
-              name: "Why can't I use my mobile phone on safari?",
-              acceptedAnswer: {
-                "@type": "Answer",
-                text: "Phones are deposited at the gate to prevent location sharing that causes vehicle crowding at sightings. This protects animal welfare and ensures better experiences for everyone. It also eliminates the distraction, letting you be fully present in the forest. Emergency communication happens via guide radios.",
-              },
-            },
-            {
-              "@type": "Question",
-              name: "What if we don't see tigers?",
-              acceptedAnswer: {
-                "@type": "Answer",
-                text: "Every safari offers something remarkable. Beyond tigers, you'll encounter leopards, wild dogs, sloth bears, massive gaur, and over 280 bird species. The forest's soundscape—alarm calls, bird songs, rustling leaves—tells stories as compelling as any sighting. Many guests say their \"no tiger\" safaris were their most educational.",
-              },
-            },
-            {
-              "@type": "Question",
-              name: "Can I carry a camera?",
-              acceptedAnswer: {
-                "@type": "Answer",
-                text: "Camera fees apply to lenses above 250mm focal length, typically ₹250-500 per safari depending on lens size. Basic cameras and phones (when allowed in buffer zones) are usually free. We can advise on current fee structures and help with payments at gates.",
-              },
-            },
-            {
-              "@type": "Question",
-              name: "Is it suitable for children and elderly guests?",
-              acceptedAnswer: {
-                "@type": "Answer",
-                text: "Safaris require sitting quietly for 3-4 hours on sometimes rough tracks. Children 8+ typically do well with proper preparation. For younger kids or guests with mobility concerns, we can arrange shorter nature walks, resort-based activities, and visits to the interpretation center. Our naturalists are skilled at engaging all age groups.",
-              },
-            },
-          ],
-        },
-      ],
-    }}
+    jsonLd={combinedJsonLd}
   />
 
   <!-- Hero Section - Cinematic Introduction -->

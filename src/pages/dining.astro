@@ -6,6 +6,12 @@ import imageService from '../utils/ImageService.js';
 import ContactSection from '../components/ContactSection.astro';
 import { fetchDining, fetchSpecialDeal } from "../api.js";
 
+// Helper for Cloudinary JPG (schema only)
+const toCloudinaryJpg = (url: string) => {
+  if (!url) return '';
+  return `https://res.cloudinary.com/dfa5hhzej/image/fetch/w_1200,h_675,c_fill,q_85,f_jpg/${url}`;
+};
+
 // Server-side data fetching with clean API
 let data = { experiences: [], specialDeal: null };
 let error = null;
@@ -49,6 +55,8 @@ const experiences = data.experiences.map((experience, index) => {
     logoUrl: logoImageData ? imageService.processImage(logoImageData, 'logo', { quality: 80 }) : "",
     imageUrl: heroImageData ? imageService.processImage(heroImageData, 'serviceCard', { quality: 75 }) : "",
     mosaicUrl: heroImageData ? imageService.processImage(heroImageData, 'grid', { quality: 60 }) : "",
+    // Add schema-specific JPG URL
+    schemaImageUrl: experience.images?.[0]?.url ? toCloudinaryJpg(experience.images[0].url) : "",
     slug: experience.url || `experience-${index + 1}`,
     alt: `${experience.restaurantName} dining experience at Limban Resort`,
     priority: index < 3
@@ -78,8 +86,9 @@ if (experiences.length > 0) {
   }
 }
 
-// Safe hero image for meta
+// Safe hero images for meta and schema
 const heroImageSrc = experiences[0]?.imageUrl || "/img/dining-hero.avif";
+const heroImageSchema = experiences[0]?.schemaImageUrl || toCloudinaryJpg("/img/dining-hero.jpg");
 ---
 
 <link rel="preload" as="image" href={heroImageSrc} fetchpriority="high" />
@@ -93,38 +102,44 @@ const heroImageSrc = experiences[0]?.imageUrl || "/img/dining-hero.avif";
     openGraph={{
       title: "Dining Experiences at Limban Resort - Tadoba Safari Lodge",
       description: "Authentic Indian cuisine, locally sourced ingredients, and unforgettable dining settings in the wilderness of Tadoba National Park.",
-      image: heroImageSrc,
+      image: heroImageSchema,
       type: "website",
       url: "https://limban.com/dining",
       site_name: "Limban Resort"
     }}
     jsonLd={{
       "@context": "https://schema.org",
-      "@type": ["Restaurant", "TouristDestination"],
+      "@type": "Restaurant",
       "@id": "https://limban.com/dining#restaurant",
-      "name": "Limban Resort Dining Experiences",
-      "description": "Authentic dining experiences in the heart of Tadoba National Park. From dawn coffee with morning chorus to candlelit dinners under ancient trees, discover flavors crafted from the freshest local ingredients.",
+      "name": "Limban Resort Dining",
+      "description": "Authentic dining experiences in the heart of Tadoba National Park. From dawn coffee with morning chorus to candlelit dinners under ancient trees, discover flavours crafted from the freshest local ingredients.",
       "url": "https://limban.com/dining",
-      "image": [heroImageSrc, ...experiences.slice(0, 5).map(exp => exp.imageUrl)].filter(Boolean),
+      "image": [heroImageSchema, ...experiences.slice(0, 5).map(exp => exp.schemaImageUrl).filter(Boolean)],
       "servesCuisine": ["Indian Cuisine", "Local Maharashtrian", "Farm-to-Table", "International Cuisine"],
       "priceRange": "₹₹₹",
       "acceptsReservations": true,
-      "hasOfferCatalog": {
-        "@type": "OfferCatalog",
-        "name": "Dining Experience Collection",
-        "itemListElement": experiences.map((exp, index) => ({
-          "@type": "Offer",
-          "position": index + 1,
-          "itemOffered": {
-            "@type": "FoodEvent",
-            "name": exp.name,
-            "description": exp.intro,
-            "url": `https://limban.com/dining/${exp.slug}`,
-            "image": exp.imageUrl
-          }
-        }))
+      "telephone": "+91-90226-80451",
+      "address": {
+        "@type": "PostalAddress",
+        "streetAddress": "Survey No. 306, Village Mudholi, Taluka Bhadravati",
+        "addressLocality": "Tadoba",
+        "addressRegion": "Maharashtra",
+        "postalCode": "442906",
+        "addressCountry": "IN"
       },
-      // NEW: FAQ Section
+      "geo": {
+        "@type": "GeoCoordinates",
+        "latitude": 20.25602486093492,
+        "longitude": 79.2847888101826
+      },
+      "openingHours": "Mo-Su 07:00-22:00",
+      "paymentAccepted": "Cash, Credit Card, UPI",
+      "currenciesAccepted": "INR",
+      "partOf": {
+        "@type": "Hotel",
+        "@id": "https://limban.com/#hotel",
+        "name": "Limban Resort"
+      },
       "mainEntity": [
         {
           "@type": "Question",
@@ -174,27 +189,10 @@ const heroImageSrc = experiences[0]?.imageUrl || "/img/dining-hero.avif";
             "text": "Absolutely! We're committed to ensuring all guests can enjoy our dining experiences. Our venues include wheelchair accessible seating areas, ground-floor dining spaces, and our team is trained to accommodate various accessibility needs. Please let us know about any specific requirements when booking so we can ensure you have the most comfortable experience possible."
           }
         }
-      ],
-      // Additional restaurant properties
-      "telephone": "+91-98811-91092",
-      "address": {
-        "@type": "PostalAddress",
-        "streetAddress": "Survey No. 306, Village Mudholi, Taluka Bhadravati",
-        "addressLocality": "Chandrapur", 
-        "addressRegion": "Maharashtra",
-        "postalCode": "442906",
-        "addressCountry": "IN"
-      },
-      "geo": {
-        "@type": "GeoCoordinates",
-        "latitude": "20.1497",
-        "longitude": "79.3229"
-      },
-      "openingHours": "Mo-Su 07:00-22:00",
-      "paymentAccepted": "Cash, Credit Card, UPI",
-      "currenciesAccepted": "INR"
+      ]
     }}
   />
+
 
   <div class="bg-gray-950 text-gray-100">
     <!-- Enhanced Hero Section with Direct Image URLs -->
