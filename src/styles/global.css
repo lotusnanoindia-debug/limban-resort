@@ -86,3 +86,10 @@
     }
   }
 }
+.font-serif {
+  font-family: "Playfair", serif;
+  font-optical-sizing: auto;
+  font-weight: 500;
+  font-style: italic;
+  font-variation-settings: "wdth" 87.5;
+}
