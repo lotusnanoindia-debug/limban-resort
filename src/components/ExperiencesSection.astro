@@ -1,5 +1,5 @@
 ---
-import imageService from '../utils/ImageService.js';
+import imageService from "../utils/ImageService.js";
 
 export interface Props {
   experiences?: {
@@ -9,7 +9,8 @@ export interface Props {
     experience?: Array<{
       title: string;
       description: string;
-      image?: { // Expect the raw 'image' object from the API
+      image?: {
+        // Expect the raw 'image' object from the API
         id: string;
         fileName?: string;
         alt?: string;
@@ -27,89 +28,110 @@ export interface Props {
 const { experiences, gridClass = "grid-cols-1 md:grid-cols-3" } = Astro.props;
 
 // Process experience images through ImageService
-const processedExperiences = experiences?.experience?.map((experience, index) => {
-  const imageUrl = experience.image?.url ? 
-    imageService.processImage({
-      ...experience.image,
-      context: {
-        pageType: 'homepage',
-        contentName: experience.title,
-        imageType: 'service',
-        index
-      }
-    }, 'serviceCard', { quality: 70 }) : '/img/placeholder.webp'; // Fallback placeholder
+const processedExperiences =
+  experiences?.experience?.map((experience, index) => {
+    const imageUrl = experience.image?.url
+      ? imageService.processImage(
+          {
+            ...experience.image,
+            context: {
+              pageType: "homepage",
+              contentName: experience.title,
+              imageType: "service",
+              index,
+            },
+          },
+          "serviceCard",
+          { quality: 70 },
+        )
+      : "/img/placeholder.webp"; // Fallback placeholder
 
-  return {
-    ...experience,
-    imageUrl,
-    alt: experience.image?.alt || experience.imageAltText || `${experience.title} - Limban Resort experience`,
-    priority: index < 2 // First 2 experiences get priority loading
-  };
-}) || [];
+    return {
+      ...experience,
+      imageUrl,
+      alt:
+        experience.image?.alt ||
+        experience.imageAltText ||
+        `${experience.title} - Limban Resort experience`,
+      priority: index < 2, // First 2 experiences get priority loading
+    };
+  }) || [];
 ---
 
-{experiences && (
-  <section id="experiences" class="py-24 md:py-32 bg-gray-900" role="region" aria-labelledby="experiences-title">
-    <div class="max-w-7xl mx-auto px-6">
-      
-      <header class="text-center mb-16">
-        <div class="inline-block px-4 py-2 bg-amber-400/10 border border-amber-400/30 rounded-full mb-6">
-          <span class="text-amber-400 text-xs font-medium tracking-widest uppercase">
-            {experiences.aboveHeader}
-          </span>
-        </div>
-        <h2 id="experiences-title" class="font-serif text-3xl md:text-5xl lg:text-6xl text-white mb-6">
-          {experiences.title}
-        </h2>
-        <p class="text-lg md:text-xl text-gray-300 max-w-3xl mx-auto leading-relaxed">
-          {experiences.description}
-        </p>
-      </header>
-      
-      <div class={`grid ${gridClass} gap-8`}>
-        {processedExperiences.map((experience, index) => (
-          <article 
-            class="group bg-gray-800/50 border border-gray-700 rounded-2xl overflow-hidden transition-all duration-500 hover:border-gray-600 hover:-translate-y-1 hover:shadow-xl"
+{
+  experiences && (
+    <section
+      id="experiences"
+      class="py-24 md:py-32 bg-gray-900"
+      role="region"
+      aria-labelledby="experiences-title"
+    >
+      <div class="max-w-7xl mx-auto px-6">
+        <header class="text-center mb-16">
+          <div class="inline-block px-4 py-2 bg-amber-400/10 border border-amber-400/30 rounded-full mb-6">
+            <span class="text-amber-400 text-xs font-medium tracking-widest uppercase">
+              {experiences.aboveHeader}
+            </span>
+          </div>
+          <h2
+            id="experiences-title"
+            class="font-serif text-3xl md:text-5xl lg:text-6xl text-white mb-6"
           >
-            
-            <div class="relative aspect-[2/1] overflow-hidden">
-              {experience.imageUrl && (
-                <img
-                  src={experience.imageUrl}
-                  alt={experience.alt}
-                  loading={experience.priority ? "eager" : "lazy"}
-                  class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                  sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                />
-              )}
-            </div>
-            
-            <!-- Content -->
-            <div class="p-6">
-              <h3 class="font-serif text-xl md:text-3xl text-white mb-4">
-                {experience.title}
-              </h3>
-              
-              <p class="text-gray-300 text-sm leading-relaxed mb-6">
-                {experience.description}
-              </p>
-              
-              {/* CTA Button */}
-              {experience.link && (
-                <a
-                  href={experience.link}
-                  class="home-cta w-full"
-                >
-                  {experience.buttonText || "Learn More"}
-                  <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-                  </svg>
-                </a>
-              )}
-            </div>
-          </article>
-        ))}
+            {experiences.title}
+          </h2>
+          <p class="text-lg md:text-xl text-gray-300 max-w-3xl mx-auto leading-relaxed">
+            {experiences.description}
+          </p>
+        </header>
+
+        <div class={`grid ${gridClass} gap-8`}>
+          {processedExperiences.map((experience, index) => (
+            <article class="group bg-gray-800/50 border border-gray-700 rounded-2xl overflow-hidden transition-all duration-500 hover:border-gray-600 hover:-translate-y-1 hover:shadow-xl">
+              <div class="relative aspect-[2/1] overflow-hidden">
+                {experience.imageUrl && (
+                  <img
+                    src={experience.imageUrl}
+                    alt={experience.alt}
+                    loading={experience.priority ? "eager" : "lazy"}
+                    class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                    sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                  />
+                )}
+              </div>
+
+              <div class="p-6">
+                <h3 class="font-serif text-3xl text-white mb-4">
+                  {experience.title}
+                </h3>
+
+                <p class="text-gray-300 text-sm leading-relaxed mb-6">
+                  {experience.description}
+                </p>
+
+                {/* CTA Button */}
+                {experience.link && (
+                  <a href={experience.link} class="home-cta w-full">
+                    {experience.buttonText || "Learn More"}
+                    <svg
+                      class="w-4 h-4 ml-1"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M9 5l7 7-7 7"
+                      />
+                    </svg>
+                  </a>
+                )}
+              </div>
+            </article>
+          ))}
+        </div>
       </div>
-    </div>
-  </section>
-)}
+    </section>
+  )
+}
