@@ -358,11 +358,10 @@ import Layout from "../../layouts/Layout.astro";
     function getTransferPill(value) {
       if (!value) return "bg-gray-700/50 text-gray-400";
       const v = value.toLowerCase();
-      if (v === "yes")
-        return "bg-blue-500/20 text-blue-400 border border-blue-500/30";
-      if (v === "no")
-        return "bg-gray-600/20 text-gray-400 border border-gray-600/30";
-      return "bg-amber-500/20 text-amber-400 border border-amber-500/30";
+      if (v.includes("no")) {
+        return "bg-amber-500/20 text-amber-400 border border-amber-500/30";
+      }
+      return "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30";
     }
 
     function escapeHtml(text) {
@@ -479,13 +478,13 @@ import Layout from "../../layouts/Layout.astro";
 
       return `
         <div class="bg-gradient-to-br from-gray-900 to-gray-900/80 border border-gray-800 hover:border-amber-400/50 rounded-3xl p-8 transition-all duration-300">
-          
+          ${isNew ? '<div class="p-2 rounded-xl text-sm text-center bg-green-700/50 text-white mb-6 font-semibold">Latest</div>' : ""}
           <div class="flex items-start justify-between mb-6">
             <div>
               <h3 class="font-serif text-2xl text-white mb-1">
-                ${highlightText(fullName)} ${isNew ? '<span class="p-2 bottom-1 rounded-xl text-sm font-sans bg-blue-700 text-white ml-4">Latest</span>' : ""}
+                ${highlightText(fullName)} 
               </h3>
-              <p class="text-amber-400 text-sm">${highlightText(item.roomName || "Room not specified")}</p>
+              <p class="text-amber-400 text-sm font-bold">${highlightText(item.roomName || "Room not specified")}</p>
             </div>
             <div class="text-right">
               <p class="text-gray-500 text-xs">Submitted</p>
@@ -493,7 +492,7 @@ import Layout from "../../layouts/Layout.astro";
             </div>
           </div>
 
-          <div class="flex items-center justify-between gap-4 mb-6 pb-6 border-b border-gray-800">
+          <div class="flex flex-col items-start gap-4 mb-6 pb-6 border-b border-gray-800">
             <div class="flex items-center gap-2 text-gray-300 text-sm">
               <iconify-icon icon="ph:envelope-simple-bold" class="text-amber-400"></iconify-icon>
               <span>${highlightText(item.email || "No email")}</span>
@@ -606,7 +605,7 @@ import Layout from "../../layouts/Layout.astro";
             </div>
           </div>
 
-          <div class="flex items-center justify-between gap-4 mb-6 pb-6 border-b border-gray-800">
+          <div class="flex flex-col items-start gap-4 mb-6 pb-6 border-b border-gray-800">
             <div class="flex items-center gap-2 text-gray-300 text-sm">
               <iconify-icon icon="ph:envelope-simple-bold" class="text-amber-400"></iconify-icon>
               <span>${highlightText(item.email || "No email")}</span>
@@ -698,7 +697,7 @@ import Layout from "../../layouts/Layout.astro";
             </div>
           </div>
 
-          <div class="flex items-center justify-between gap-4 mb-6 pb-6 border-b border-gray-800">
+          <div class="flex flex-col items-start gap-4 mb-6 pb-6 border-b border-gray-800">
             <div class="flex items-center gap-2 text-gray-300 text-sm">
               <iconify-icon icon="ph:envelope-simple-bold" class="text-amber-400"></iconify-icon>
               <span>${highlightText(item.email || "No email")}</span>
@@ -773,7 +772,7 @@ import Layout from "../../layouts/Layout.astro";
             </div>
           </div>
 
-          <div class="flex items-center justify-between gap-4 mb-6 pb-6 border-b border-gray-800">
+          <div class="flex flex-col items-start gap-4 mb-6 pb-6 border-b border-gray-800">
             <div class="flex items-center gap-2 text-gray-300 text-sm">
               <iconify-icon icon="ph:envelope-simple-bold" class="text-amber-400"></iconify-icon>
               <span>${highlightText(item.email || "No email")}</span>
