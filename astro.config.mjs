@@ -9,18 +9,25 @@ import netlify from "@astrojs/netlify";
 export default defineConfig({
   output: "static",
   site: "https://limban.com",
+  trailingSlash: "never",
+  build: {
+    format: "file",
+  },
   integrations: [
     sitemap({
       serialize(item) {
+        // Remove trailing slash from URLs
+        item.url = item.url.replace(/\/$/, "");
+
         // Homepage - highest priority
-        if (item.url === "https://limban.com/") {
+        if (item.url === "https://limban.com") {
           item.priority = 1.0;
           item.changefreq = "weekly";
         }
         // Core pages - high priority
         else if (
           item.url.match(
-            /\/(rooms|safaris|dining|vibe|contact|activities|wellness)\/?$/,
+            /\/(rooms|safaris|dining|vibe|contact|activities|wellness)$/,
           )
         ) {
           item.priority = 0.9;
@@ -37,13 +44,13 @@ export default defineConfig({
           item.changefreq = "weekly";
         }
         // Info pages
-        else if (item.url.match(/\/(about|tadoba|how-things-work)\/?$/)) {
+        else if (item.url.match(/\/(about|tadoba|guest-terms)$/)) {
           item.priority = 0.6;
-          item.changefreq = "yearly";
+          item.changefreq = "monthly";
         }
         // Legal/terms - low priority
-        else if (item.url.match(/\/(privacy-policy|guest-terms)\/?$/)) {
-          item.priority = 0.3;
+        else if (item.url.match(/\/(privacy-policy)$/)) {
+          item.priority = 0.5;
           item.changefreq = "yearly";
         }
         // Default
@@ -84,7 +91,7 @@ export default defineConfig({
         hostname: "**.graphassets.com",
       },
       {
-        protocol: "https", // ← ADD THIS WHOLE BLOCK
+        protocol: "https",
         hostname: "res.cloudinary.com",
       },
     ],
