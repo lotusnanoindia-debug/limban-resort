@@ -14,7 +14,6 @@
     X-Content-Type-Options = "nosniff"
     Referrer-Policy = "strict-origin-when-cross-origin"
     Permissions-Policy = "camera=(), microphone=(), geolocation=()"
-    Content-Security-Policy = "default-src 'self'; img-src 'self' data: https://res.cloudinary.com https://*.graphassets.com https://*.hygraph.com https://*.google.com https://*.gstatic.com; script-src 'self' https://app.rybbit.io https://*.google.com https://*.gstatic.com 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; connect-src 'self' https://*.supabase.co;"
 
 [[headers]]
   for = "/img/*"
