@@ -32,9 +32,47 @@ const pageUrl = Astro.url.href;
               class="w-6 h-6 text-gray-400 mt-1 mr-4"
             />
             <div>
-              <div class="font-medium text-amber-400 mb-1">Reservations</div>
-              <div class="text-gray-300">+91 90226 80451</div>
-              <div class="text-gray-300">+91 92262 54475</div>
+              <div class="font-medium text-amber-400 mb-1">
+                Enquiries / Reservations
+              </div>
+              <div class="flex items-center text-gray-300">
+                <span>+91 90226 80451</span>
+                <a
+                  href="tel:+919022680451"
+                  class="ml-3 text-gray-400 hover:text-amber-400 transition-colors"
+                  title="Call"
+                >
+                  <Icon name="mdi:phone" class="w-4 h-4" />
+                </a>
+                <a
+                  href="https://wa.me/919022680451"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="ml-2 text-gray-400 hover:text-amber-400 transition-colors"
+                  title="WhatsApp"
+                >
+                  <Icon name="mdi:whatsapp" class="w-4 h-4" />
+                </a>
+              </div>
+              <div class="flex items-center text-gray-300 mt-1">
+                <span>+91 92262 54475</span>
+                <a
+                  href="tel:+919226254475"
+                  class="ml-3 text-gray-400 hover:text-amber-400 transition-colors"
+                  title="Call"
+                >
+                  <Icon name="mdi:phone" class="w-4 h-4" />
+                </a>
+                <a
+                  href="https://wa.me/919226254475"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="ml-2 text-gray-400 hover:text-amber-400 transition-colors"
+                  title="WhatsApp"
+                >
+                  <Icon name="mdi:whatsapp" class="w-4 h-4" />
+                </a>
+              </div>
             </div>
           </div>
           <div class="flex items-start">
@@ -44,10 +82,94 @@ const pageUrl = Astro.url.href;
             />
             <div>
               <div class="font-medium text-amber-400 mb-1">Email</div>
-              <div class="text-gray-300">info@limban.com</div>
-              <div class="text-gray-300">reservations@limban.com</div>
+
+              <!-- Info Email -->
+              <div class="flex items-center text-gray-300">
+                <span data-obfuscation="0">info@limban.com</span>
+                <a
+                  href="mailto:info@limban.com?subject=My%20query%20about%20Limban%20Resort"
+                  data-obfuscation="0"
+                  class="ml-3 text-gray-400 hover:text-amber-400 transition-colors group relative"
+                  aria-label="Send Email"
+                >
+                  <Icon name="mdi:email-outline" class="w-4 h-4" />
+                  <span
+                    class="absolute bottom-full left-1/2 -translate-x-1/2 -translate-y-1 bg-black/90 text-white text-xs px-3 py-1.5 rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"
+                  >
+                    Send Email
+                  </span>
+                </a>
+                <button
+                  class="copy-email-btn ml-2 text-gray-400 hover:text-amber-400 transition-colors group relative"
+                  data-user="info"
+                  data-domain="limban.com"
+                  aria-label="Copy Email"
+                >
+                  <Icon name="mdi:clipboard-multiple-outline" class="w-4 h-4" />
+                  <span
+                    class="tooltip-text absolute bottom-full left-1/2 -translate-x-1/2 -translate-y-1 bg-black/90 text-white text-xs px-3 py-1.5 rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"
+                  >
+                    Copy Email
+                  </span>
+                </button>
+              </div>
+
+              <!-- Reservations Email -->
+              <div class="flex items-center text-gray-300 mt-1">
+                <span data-obfuscation="0">reservations@limban.com</span>
+                <a
+                  href="mailto:reservations@limban.com?subject=My%20query%20about%20Limban%20Resort"
+                  data-obfuscation="0"
+                  class="ml-3 text-gray-400 hover:text-amber-400 transition-colors group relative"
+                  aria-label="Send Email"
+                >
+                  <Icon name="mdi:email-outline" class="w-4 h-4" />
+                  <span
+                    class="absolute bottom-full left-1/2 -translate-x-1/2 -translate-y-1 bg-black/90 text-white text-xs px-3 py-1.5 rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"
+                  >
+                    Send Email
+                  </span>
+                </a>
+                <button
+                  class="copy-email-btn ml-2 text-gray-400 hover:text-amber-400 transition-colors group relative"
+                  data-user="reservations"
+                  data-domain="limban.com"
+                  aria-label="Copy Email"
+                >
+                  <Icon name="mdi:clipboard-multiple-outline" class="w-4 h-4" />
+                  <span
+                    class="tooltip-text absolute bottom-full left-1/2 -translate-x-1/2 -translate-y-1 bg-black/90 text-white text-xs px-3 py-1.5 rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"
+                  >
+                    Copy Email
+                  </span>
+                </button>
+              </div>
             </div>
           </div>
+
+          <script>
+            document.querySelectorAll(".copy-email-btn").forEach((btn) => {
+              btn.addEventListener("click", async () => {
+                const user = btn.getAttribute("data-user");
+                const domain = btn.getAttribute("data-domain");
+                const email = `${user}@${domain}`;
+
+                try {
+                  await navigator.clipboard.writeText(email);
+
+                  const tooltipText = btn.querySelector(".tooltip-text");
+                  const originalText = tooltipText.textContent;
+                  tooltipText.textContent = "Copied!";
+
+                  setTimeout(() => {
+                    tooltipText.textContent = originalText;
+                  }, 2000);
+                } catch (err) {
+                  console.error("Failed to copy:", err);
+                }
+              });
+            });
+          </script>
           <div class="flex items-start">
             <Icon
               name="material-symbols-light:location-on-outline"
@@ -275,6 +397,29 @@ const pageUrl = Astro.url.href;
   </div>
 
   <script>
+    // Copy email to clipboard
+    document.querySelectorAll(".copy-email-btn").forEach((button) => {
+      button.addEventListener("click", () => {
+        const email = button.dataset.email;
+        navigator.clipboard.writeText(email).then(
+          () => {
+            const originalIcon = button.innerHTML;
+            // Show checkmark icon on success
+            button.innerHTML =
+              '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" class="text-green-400"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"></path></svg>';
+            // Revert back to copy icon after 2 seconds
+            setTimeout(() => {
+              button.innerHTML = originalIcon;
+            }, 2000);
+          },
+          (err) => {
+            console.error("Failed to copy email: ", err);
+            alert("Failed to copy email address.");
+          },
+        );
+      });
+    });
+
     // Add Supabase form submission with Turnstile validation
     document.addEventListener("DOMContentLoaded", async () => {
       try {

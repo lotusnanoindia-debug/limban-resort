@@ -678,20 +678,6 @@ const combinedJsonLd = [corporateEventsSchema, serviceSchema, faqSchema];
       </div>
     </section>
 
-    <script type="application/ld+json" set:html={JSON.stringify({
-      "@context": "https://schema.org",
-      "@type": "FAQPage",
-      "mainEntity": serviceStandardsFaq.map(faq => ({
-        "@type": "Question",
-        "name": faq.question,
-        "acceptedAnswer": {
-          "@type": "Answer",
-          "text": faq.answer
-        }
-      }))
-    })} />
-
-
     <!-- Sophisticated enquiry Form -->
     <section id="enquiry-form" class="py-32 bg-gradient-to-b from-gray-900 to-gray-950" aria-labelledby="enquiry-heading">
       <div class="max-w-6xl mx-auto">

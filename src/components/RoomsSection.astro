@@ -132,12 +132,13 @@ const validatedRooms = rooms
                       </span>
                     </div>
                     <div class="text-xs text-gray-500">
-                      per night • breakfast included
+                      per night • breakfast incl.
                     </div>
                   </div>
 
-                  <a href={room.safeUrl} class="home-cta">
-                    Learn More
+                  <a href={room.safeUrl} class="home-cta" title={room.roomName}>
+                    <span class="md:hidden lg:inline">Learn&nbsp;</span>
+                    <span>More</span>
                     <svg
                       class="w-4 h-4 ml-1"
                       fill="none"
