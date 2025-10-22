@@ -1,90 +1,89 @@
 ---
-// Awards Section Component
 const awards = [
   {
-    logo: "/tripadvisor.jpg",
-    alt: "TripAdvisor Logo",
-    award: "Travelers' Choice",
-    year: "2023",
-    description:
-      "Recognised among the top 10% of wildlife places to stay in India.",
+    logo: "/tripadvisor.png",
+    alt: "TripAdvisor 4.9/5.0, Travellers' Choice 2023",
+    title: "TripAdvisor",
+    subtitle: "Rated 4.9 / 5.0",
+    detail:
+      "By hundreds of staying guests. Travellers' Choice 2023. Among top 10% of stays in India.",
+  },
+  {
+    logo: "/google-g-logo.svg",
+    alt: "Google Reviews 4.6/5.0",
+    title: "Google Reviews",
+    subtitle: "Rated 4.7 / 5.0",
+    detail: "By hundreds of verified guest ratings from real visitors.",
   },
   {
     logo: "/logo-cnt-india-reverse.svg",
-    alt: "Condé Nast Traveller Logo",
-    award: "As Featured In",
-    year: "India Edition",
-    description:
-      "Highlighting India's most exclusive eco-tourism luxury stays.",
+    alt: "Conde Nast Traveller India Logo",
+    title: "Conde Nast Traveller",
+    subtitle: "Feature Story",
+    detail: "Featured for redefining eco-luxury in Tadoba.",
   },
   {
     logo: "/OLT_New_Logo_13.avif",
     alt: "Outlook Traveller Logo",
-    award: "India's Hidden Gem",
-    year: "2022",
-    description:
-      "Praised for its authentic and immersive safari and hospitality experience.",
-  },
-  {
-    logo: "/fssai.png",
-    alt: "Fully certified by The Food Safety and Standards Authority of India (FSSAI)",
-    award: "Full Certification",
-    year: "Since 2024",
-    description:
-      "We are fully certified by The Food Safety and Standards Authority of India (FSSAI)",
-  },
-  {
-    organization: "★★★★★",
-    award: "Guest Favourite",
-    year: "5/5 Stars",
-    description: "Consistently high ratings across all major online platforms.",
+    title: "Outlook Traveller",
+    subtitle: "India's Hidden Gem 2022",
+    detail: "Praised for authentic safaris and warm hospitality.",
   },
 ];
 ---
 
-<section id="awards" class="py-32 bg-gray-800">
+<section id="awards" class="py-32 bg-gray-950">
   <div class="max-w-7xl mx-auto px-6">
-    <div class="text-center mb-20">
-      <div class="text-sm text-gray-400 tracking-[0.2em] uppercase mb-4">
+    <!-- Heading -->
+    <header class="text-center mb-24">
+      <p class="text-sm uppercase tracking-[0.25em] text-amber-500 mb-3">
         Recognition
-      </div>
-      <h2 class="font-serif text-4xl md:text-6xl text-white mb-8">
-        Awards & Media
-      </h2>
-      <p class="text-xl text-gray-300 max-w-3xl mx-auto leading-relaxed">
-        Our commitment to excellence in conservation luxury has earned
-        recognition from leading travel and sustainability organizations
-        worldwide.
       </p>
-    </div>
-    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-8">
+      <h2 class="font-serif text-4xl md:text-6xl text-white mb-6">
+        Awards & Reviews
+      </h2>
+      <p class="text-lg text-gray-300 max-w-2xl mx-auto leading-relaxed">
+        Independent voices and trusted platforms that recognise Limban's
+        commitment to conservation luxury and thoughtful hospitality.
+      </p>
+    </header>
+
+    <!-- Awards Grid -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-10">
       {
-        awards.map((award, index) => (
+        awards.map((entry, index) => (
           <div
             key={index}
-            class="bg-gray-900/50 backdrop-blur-xl border border-gray-700 p-8 rounded-xl text-center flex flex-col justify-center items-center transition-all duration-300 hover:-translate-y-2 hover:shadow-xl hover:border-gray-600"
+            class="relative flex flex-col justify-between bg-gray-900/70 rounded-2xl border border-gray-800 hover:border-amber-500 hover:bg-gray-900 transition-all duration-300 p-8 text-center group"
           >
-            <div class="h-12 flex items-center justify-center mb-4">
-              {award.logo ? (
-                <img
-                  src={award.logo}
-                  alt={award.alt}
-                  class="max-h-full w-auto"
-                  loading="lazy"
-                  decoding="async"
-                />
-              ) : (
-                <h4 class="text-2xl text-yellow-400 tracking-wider">
-                  {award.organization}
-                </h4>
-              )}
+            <div class="flex flex-col items-center">
+              <img
+                src={entry.logo}
+                alt={entry.alt}
+                class="h-12 w-auto mb-6 opacity-90 group-hover:opacity-100 transition"
+                loading="lazy"
+                decoding="async"
+              />
+              <h3 class="text-xl text-white font-semibold mb-1">
+                {entry.title}
+              </h3>
+              <p class="text-amber-400 text-sm mb-4">{entry.subtitle}</p>
+              <p class="text-sm text-gray-400 leading-relaxed">
+                {entry.detail}
+              </p>
             </div>
-            <div class="text-2xl text-white mb-2">{award.award}</div>
-            <div class="text-sm text-gray-300 mb-2">{award.year}</div>
-            <div class="text-xs text-gray-400">{award.description}</div>
           </div>
         ))
       }
+    </div>
+
+    <!-- Subtext -->
+    <div class="text-center mt-20">
+      <hr class="border-gray-800 mb-8" />
+      <p class="text-xs text-gray-500 max-w-lg mx-auto leading-relaxed">
+        Limban appears only on independent platforms that value genuine guest
+        experiences and verified recognition.
+      </p>
     </div>
   </div>
 </section>
