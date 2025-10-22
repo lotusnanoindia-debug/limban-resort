@@ -4,7 +4,7 @@
   publish = "dist"
 
 [build.environment]
-  NODE_VERSION = "18"
+  NODE_VERSION = "20"
 
 [[headers]]
   for = "/*"
@@ -14,7 +14,7 @@
     X-Content-Type-Options = "nosniff"
     Referrer-Policy = "strict-origin-when-cross-origin"
     Permissions-Policy = "camera=(), microphone=(), geolocation=()"
-    Content-Security-Policy = "default-src 'self'; img-src 'self' data: https://res.cloudinary.com https://*.graphassets.com https://*.hygraph.com https://*.google.com https://*.gstatic.com; script-src 'self' https://app.rybbit.io https://*.google.com https://*.gstatic.com 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com;"
+    Content-Security-Policy = "default-src 'self'; img-src 'self' data: https://res.cloudinary.com https://*.graphassets.com https://*.hygraph.com https://*.google.com https://*.gstatic.com; script-src 'self' https://app.rybbit.io https://*.google.com https://*.gstatic.com 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; connect-src 'self' https://app.rybbit.io;"
 
 [[headers]]
   for = "/img/*"
@@ -40,14 +40,6 @@
   [headers.values]
     X-Robots-Tag = "noindex, nofollow"
 
-
-# Strip common legacy extensions first (.php -> /page)
-[[redirects]]
-  from = "/:path.php"
-  to = "/:path"
-  status = 301
-  force = true
-
 # Canonical cleanup (slashes & trailing dashes)
 [[redirects]]
   from = "/(.*)/$"
@@ -61,10 +53,14 @@
   status = 301
   force = true
 
-
-# Legacy Redirects - Limban Resort
+# Legacy Redirects - Limban Resort (with .php variants)
 [[redirects]]
   from = "/privacy"
+  to = "/privacy-policy"
+  status = 301
+
+[[redirects]]
+  from = "/privacy.php"
   to = "/privacy-policy"
   status = 301
 
@@ -74,7 +70,17 @@
   status = 301
 
 [[redirects]]
+  from = "/adventures.php"
+  to = "/activities"
+  status = 301
+
+[[redirects]]
   from = "/tc"
+  to = "/guest-terms"
+  status = 301
+
+[[redirects]]
+  from = "/tc.php"
   to = "/guest-terms"
   status = 301
 
@@ -84,7 +90,17 @@
   status = 301
 
 [[redirects]]
+  from = "/explore.php"
+  to = "/activities"
+  status = 301
+
+[[redirects]]
   from = "/facilities"
+  to = "/about"
+  status = 301
+
+[[redirects]]
+  from = "/facilities.php"
   to = "/about"
   status = 301
 
@@ -94,7 +110,17 @@
   status = 301
 
 [[redirects]]
+  from = "/am.php"
+  to = "/dining"
+  status = 301
+
+[[redirects]]
   from = "/activities/about"
+  to = "/activities"
+  status = 301
+
+[[redirects]]
+  from = "/activities/about.php"
   to = "/activities"
   status = 301
 
@@ -104,7 +130,17 @@
   status = 301
 
 [[redirects]]
+  from = "/cabin.php"
+  to = "/rooms/cabin"
+  status = 301
+
+[[redirects]]
   from = "/cottage"
+  to = "/rooms/cottage"
+  status = 301
+
+[[redirects]]
+  from = "/cottage.php"
   to = "/rooms/cottage"
   status = 301
 
@@ -114,7 +150,17 @@
   status = 301
 
 [[redirects]]
+  from = "/trip.php"
+  to = "/safaris"
+  status = 301
+
+[[redirects]]
   from = "/dininglemayaabout"
+  to = "/dining/lemaya"
+  status = 301
+
+[[redirects]]
+  from = "/dininglemayaabout.php"
   to = "/dining/lemaya"
   status = 301
 
@@ -124,7 +170,17 @@
   status = 301
 
 [[redirects]]
+  from = "/dining/lemaya/about.php"
+  to = "/dining/lemaya"
+  status = 301
+
+[[redirects]]
   from = "/guest-galleryabout"
+  to = "/guest-gallery"
+  status = 301
+
+[[redirects]]
+  from = "/guest-galleryabout.php"
   to = "/guest-gallery"
   status = 301
 
@@ -134,7 +190,17 @@
   status = 301
 
 [[redirects]]
+  from = "/guest-gallery/about.php"
+  to = "/guest-gallery"
+  status = 301
+
+[[redirects]]
   from = "/tadobaabout"
+  to = "/tadoba"
+  status = 301
+
+[[redirects]]
+  from = "/tadobaabout.php"
   to = "/tadoba"
   status = 301
 
@@ -144,7 +210,17 @@
   status = 301
 
 [[redirects]]
+  from = "/tadoba/about.php"
+  to = "/tadoba"
+  status = 301
+
+[[redirects]]
   from = "/index"
+  to = "/"
+  status = 301
+
+[[redirects]]
+  from = "/index.php"
   to = "/"
   status = 301
 
@@ -154,7 +230,17 @@
   status = 301
 
 [[redirects]]
+  from = "/how-things-work.php"
+  to = "/guest-terms"
+  status = 301
+
+[[redirects]]
   from = "/guest-policies"
+  to = "/guest-terms"
+  status = 301
+
+[[redirects]]
+  from = "/guest-policies.php"
   to = "/guest-terms"
   status = 301
 
@@ -164,7 +250,17 @@
   status = 301
 
 [[redirects]]
+  from = "/enquiry.php"
+  to = "/contact"
+  status = 301
+
+[[redirects]]
   from = "/safari"
+  to = "/safaris"
+  status = 301
+
+[[redirects]]
+  from = "/safari.php"
   to = "/safaris"
   status = 301
 
@@ -174,7 +270,17 @@
   status = 301
 
 [[redirects]]
+  from = "/enquire.php"
+  to = "/contact"
+  status = 301
+
+[[redirects]]
   from = "/experience"
+  to = "/activities"
+  status = 301
+
+[[redirects]]
+  from = "/experience.php"
   to = "/activities"
   status = 301
 
@@ -184,7 +290,17 @@
   status = 301
 
 [[redirects]]
+  from = "/experiences.php"
+  to = "/activities"
+  status = 301
+
+[[redirects]]
   from = "/stay"
+  to = "/rooms"
+  status = 301
+
+[[redirects]]
+  from = "/stay.php"
   to = "/rooms"
   status = 301
 
@@ -194,6 +310,16 @@
   status = 301
 
 [[redirects]]
+  from = "/canvasvip.php"
+  to = "/rooms/canvas"
+  status = 301
+
+[[redirects]]
   from = "/canvas"
+  to = "/rooms/canvas"
+  status = 301
+
+[[redirects]]
+  from = "/canvas.php"
   to = "/rooms/canvas"
   status = 301
