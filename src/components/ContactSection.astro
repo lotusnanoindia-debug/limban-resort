@@ -32,56 +32,77 @@ const pageUrl = Astro.url.href;
               class="w-6 h-6 text-gray-400 mt-1 mr-4"
             />
             <div>
-              <div class="font-medium text-amber-400 mb-1">
+              <div class="font-semibold text-amber-400 mb-1">
                 Enquiries / Reservations
               </div>
               <div class="flex items-center text-gray-300">
                 <span>+91 90226 80451</span>
                 <a
                   href="tel:+919022680451"
-                  class="ml-3 text-gray-400 hover:text-amber-400 transition-colors"
-                  title="Call"
+                  class="ml-3 text-gray-400 hover:text-amber-400 transition-colors group relative"
+                  aria-label="Call"
                 >
                   <Icon name="mdi:phone" class="w-4 h-4" />
+                  <span
+                    class="absolute bottom-full left-1/2 -translate-x-1/2 -translate-y-1 bg-white/90 text-black text-xs px-3 py-1.5 rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"
+                  >
+                    Call Limban
+                  </span>
                 </a>
                 <a
                   href="https://wa.me/919022680451"
                   target="_blank"
                   rel="noopener noreferrer"
-                  class="ml-2 text-gray-400 hover:text-amber-400 transition-colors"
-                  title="WhatsApp"
+                  class="ml-2 text-green-500 hover:text-amber-400 transition-colors group relative"
+                  aria-label="WhatsApp"
                 >
                   <Icon name="mdi:whatsapp" class="w-4 h-4" />
+                  <span
+                    class="absolute bottom-full left-1/2 -translate-x-1/2 -translate-y-1 bg-white/90 text-black text-xs px-3 py-1.5 rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"
+                  >
+                    WhatsApp Limban
+                  </span>
                 </a>
               </div>
               <div class="flex items-center text-gray-300 mt-1">
                 <span>+91 92262 54475</span>
                 <a
                   href="tel:+919226254475"
-                  class="ml-3 text-gray-400 hover:text-amber-400 transition-colors"
-                  title="Call"
+                  class="ml-3 text-gray-400 hover:text-amber-400 transition-colors group relative"
+                  aria-label="Call"
                 >
                   <Icon name="mdi:phone" class="w-4 h-4" />
+                  <span
+                    class="absolute bottom-full left-1/2 -translate-x-1/2 -translate-y-1 bg-white/90 text-black text-xs px-3 py-1.5 rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"
+                  >
+                    Call Limban
+                  </span>
                 </a>
                 <a
                   href="https://wa.me/919226254475"
                   target="_blank"
                   rel="noopener noreferrer"
-                  class="ml-2 text-gray-400 hover:text-amber-400 transition-colors"
-                  title="WhatsApp"
+                  class="ml-2 text-green-500 hover:text-amber-400 transition-colors group relative"
+                  aria-label="WhatsApp"
                 >
                   <Icon name="mdi:whatsapp" class="w-4 h-4" />
+                  <span
+                    class="absolute bottom-full left-1/2 -translate-x-1/2 -translate-y-1 bg-white/90 text-black text-xs px-3 py-1.5 rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"
+                  >
+                    WhatsApp Limban
+                  </span>
                 </a>
               </div>
             </div>
           </div>
+
           <div class="flex items-start">
             <Icon
               name="material-symbols-light:mail-outline"
               class="w-6 h-6 text-gray-400 mt-1 mr-4"
             />
             <div>
-              <div class="font-medium text-amber-400 mb-1">Email</div>
+              <div class="font-semibold text-amber-400 mb-1">Email</div>
 
               <!-- Info Email -->
               <div class="flex items-center text-gray-300">
@@ -94,9 +115,9 @@ const pageUrl = Astro.url.href;
                 >
                   <Icon name="mdi:email-outline" class="w-4 h-4" />
                   <span
-                    class="absolute bottom-full left-1/2 -translate-x-1/2 -translate-y-1 bg-black/90 text-white text-xs px-3 py-1.5 rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"
+                    class="absolute bottom-full left-1/2 -translate-x-1/2 -translate-y-1 bg-white/90 text-black text-xs px-3 py-1.5 rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"
                   >
-                    Send Email
+                    Email Limban
                   </span>
                 </a>
                 <button
@@ -107,9 +128,9 @@ const pageUrl = Astro.url.href;
                 >
                   <Icon name="mdi:clipboard-multiple-outline" class="w-4 h-4" />
                   <span
-                    class="tooltip-text absolute bottom-full left-1/2 -translate-x-1/2 -translate-y-1 bg-black/90 text-white text-xs px-3 py-1.5 rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"
+                    class="tooltip-text absolute bottom-full left-1/2 -translate-x-1/2 -translate-y-1 bg-white/90 text-black text-xs px-3 py-1.5 rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"
                   >
-                    Copy Email
+                    Copy this Email
                   </span>
                 </button>
               </div>
@@ -125,9 +146,9 @@ const pageUrl = Astro.url.href;
                 >
                   <Icon name="mdi:email-outline" class="w-4 h-4" />
                   <span
-                    class="absolute bottom-full left-1/2 -translate-x-1/2 -translate-y-1 bg-black/90 text-white text-xs px-3 py-1.5 rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"
+                    class="absolute bottom-full left-1/2 -translate-x-1/2 -translate-y-1 bg-white/90 text-black text-xs px-3 py-1.5 rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"
                   >
-                    Send Email
+                    Email Limban
                   </span>
                 </a>
                 <button
@@ -138,9 +159,9 @@ const pageUrl = Astro.url.href;
                 >
                   <Icon name="mdi:clipboard-multiple-outline" class="w-4 h-4" />
                   <span
-                    class="tooltip-text absolute bottom-full left-1/2 -translate-x-1/2 -translate-y-1 bg-black/90 text-white text-xs px-3 py-1.5 rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"
+                    class="tooltip-text absolute bottom-full left-1/2 -translate-x-1/2 -translate-y-1 bg-white/90 text-black text-xs px-3 py-1.5 rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"
                   >
-                    Copy Email
+                    Copy this Email
                   </span>
                 </button>
               </div>
@@ -170,13 +191,14 @@ const pageUrl = Astro.url.href;
               });
             });
           </script>
+
           <div class="flex items-start">
             <Icon
               name="material-symbols-light:location-on-outline"
               class="w-6 h-6 text-gray-400 mt-1 mr-4"
             />
             <div>
-              <div class="font-medium text-amber-400 mb-1">Location</div>
+              <div class="font-semibold text-amber-400 mb-1">Location</div>
               <div class="text-gray-300">Near Tadoba-Andhari Tiger Reserve</div>
               <div class="text-gray-300">Chandrapur, Maharashtra, India</div>
             </div>
@@ -265,9 +287,12 @@ const pageUrl = Astro.url.href;
           <div
             class="bg-gray-800/50 backdrop-blur-xl border border-white/20 rounded-2xl p-10 shadow-[0_8px_32px_rgba(0,0,0,0.12)]"
           >
-            <h3 class="text-3xl text-white mb-8 font-serif italic">
+            <h3 class="text-3xl text-white mb-2 font-serif italic">
               How Can We Assist You?
             </h3>
+            <div class="mb-6 text-gray-500 text-sm">
+              We usually respond instantly or within a few hours.
+            </div>
             <!-- Turnstile widget -->
             <div
               class="cf-turnstile"

@@ -34,15 +34,6 @@ import { Icon } from "astro-icon/components";
           >
             <Icon name="mdi:instagram" class="w-5 h-5" />
           </a>
-          <a
-            href="https://wa.me/919022680451"
-            aria-label="WhatsApp"
-            target="_blank"
-            rel="noopener noreferrer"
-            class="block text-[#25D366] hover:opacity-75 transition-opacity duration-200"
-          >
-            <Icon name="mdi:whatsapp" class="w-5 h-5" />
-          </a>
         </div>
       </div>
       <div>
@@ -105,9 +96,65 @@ import { Icon } from "astro-icon/components";
       </div>
       <div>
         <h4 class="font-semibold text-white mb-4">Connect</h4>
-        <ul class="space-y-2 text-gray-400 text-sm">
-          <li>+91 90226 80451</li>
-          <li>info@limban.com</li>
+        <ul class="space-y-3 text-gray-400 text-sm">
+          <li class="flex items-center">
+            <span>+91 90226 80451</span>
+            <a
+              href="tel:+919022680451"
+              class="ml-2 text-gray-400 hover:text-amber-400 transition-colors group relative"
+              aria-label="Call"
+            >
+              <Icon name="mdi:phone" class="w-4 h-4" />
+              <span
+                class="absolute bottom-full left-1/2 -translate-x-1/2 -translate-y-1 bg-white/90 text-black text-xs px-3 py-1.5 rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"
+              >
+                Call Limban
+              </span>
+            </a>
+            <a
+              href="https://wa.me/919022680451"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="ml-2 text-green-500 hover:text-green-400 transition-colors group relative"
+              aria-label="WhatsApp"
+            >
+              <Icon name="mdi:whatsapp" class="w-4 h-4" />
+              <span
+                class="absolute bottom-full left-1/2 -translate-x-1/2 -translate-y-1 bg-white/90 text-black text-xs px-3 py-1.5 rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"
+              >
+                WhatsApp Limban
+              </span>
+            </a>
+          </li>
+          <li class="flex items-center">
+            <span data-obfuscation="0">info@limban.com</span>
+            <a
+              href="mailto:info@limban.com?subject=My%20query%20about%20Limban%20Resort"
+              data-obfuscation="0"
+              class="ml-2 text-gray-400 hover:text-amber-400 transition-colors group relative"
+              aria-label="Send Email"
+            >
+              <Icon name="mdi:email-outline" class="w-4 h-4" />
+              <span
+                class="absolute bottom-full left-1/2 -translate-x-1/2 -translate-y-1 bg-white/90 text-black text-xs px-3 py-1.5 rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"
+              >
+                Email Limban
+              </span>
+            </a>
+            <button
+              class="copy-email-btn ml-2 text-gray-400 hover:text-amber-400 transition-colors group relative"
+              data-user="info"
+              data-domain="limban.com"
+              aria-label="Copy Email"
+            >
+              <Icon name="mdi:clipboard-multiple-outline" class="w-4 h-4" />
+              <span
+                class="tooltip-text absolute bottom-full left-1/2 -translate-x-1/2 -translate-y-1 bg-white/90 text-black text-xs px-3 py-1.5 rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"
+              >
+                Copy this Email
+              </span>
+            </button>
+          </li>
           <li>
             <a href="/guest-terms" class="hover:text-white transition-colors"
               >Guest Terms</a
@@ -133,3 +180,27 @@ import { Icon } from "astro-icon/components";
     </div>
   </div>
 </footer>
+
+<script>
+  document.querySelectorAll(".copy-email-btn").forEach((btn) => {
+    btn.addEventListener("click", async () => {
+      const user = btn.getAttribute("data-user");
+      const domain = btn.getAttribute("data-domain");
+      const email = `${user}@${domain}`;
+
+      try {
+        await navigator.clipboard.writeText(email);
+
+        const tooltipText = btn.querySelector(".tooltip-text");
+        const originalText = tooltipText.textContent;
+        tooltipText.textContent = "Copied!";
+
+        setTimeout(() => {
+          tooltipText.textContent = originalText;
+        }, 2000);
+      } catch (err) {
+        console.error("Failed to copy:", err);
+      }
+    });
+  });
+</script>

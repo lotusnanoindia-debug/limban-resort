@@ -522,7 +522,6 @@ const combinedJsonLd = [corporateEventsSchema, serviceSchema, faqSchema];
           {testimonials.map((testimonial) => (
             <article key={testimonial.name} class="group bg-gradient-to-br from-gray-800/60 to-gray-900/80 backdrop-blur-xl border border-gray-700/50 rounded-3xl overflow-hidden hover:border-amber-400/30 transition-all duration-700 hover:-translate-y-2 hover:shadow-2xl hover:shadow-amber-400/10">
               <div class="p-10">
-                <!-- Guest Image & Takeaway - Local image -->
                 <div class="flex items-center gap-4 mb-8">
                   <div class="w-16 h-16 rounded-full overflow-hidden border-2 border-amber-400/50 flex-shrink-0">
                     <img
@@ -601,11 +600,35 @@ const combinedJsonLd = [corporateEventsSchema, serviceSchema, faqSchema];
               </div>
               <div class="flex-1">
                 <h4 class="text-xl font-semibold text-white mb-2">Events Director</h4>
-                <a href="tel:+919881191092" title="Call Limban Resort at +91 98811 91092" class="text-2xl font-bold text-transparent bg-gradient-to-r from-amber-400 to-orange-500 bg-clip-text hover:from-amber-300 hover:to-orange-400 transition-all duration-300 block mb-3">
-                  +91 98811 91092
-                </a>
+                <div class="flex items-center mb-3">
+                  <span class="text-2xl font-bold text-transparent bg-gradient-to-r from-amber-400 to-orange-500 bg-clip-text">
+                    +91 98811 91092
+                  </span>
+                  <a
+                    href="tel:+919881191092"
+                    class="ml-3 text-gray-400 hover:text-amber-400 transition-colors group relative"
+                    aria-label="Call"
+                  >
+                    <Icon name="mdi:phone" class="w-5 h-5" />
+                    <span class="absolute bottom-full left-1/2 -translate-x-1/2 -translate-y-1 bg-black/90 text-white text-xs px-3 py-1.5 rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+                      Call
+                    </span>
+                  </a>
+                  <a
+                    href="https://wa.me/919881191092"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="ml-2 text-green-500 hover:text-green-400 transition-colors group relative"
+                    aria-label="WhatsApp"
+                  >
+                    <Icon name="mdi:whatsapp" class="w-5 h-5" />
+                    <span class="absolute bottom-full left-1/2 -translate-x-1/2 -translate-y-1 bg-black/90 text-white text-xs px-3 py-1.5 rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+                      WhatsApp
+                    </span>
+                  </a>
+                </div>
                 <p class="text-gray-400 leading-relaxed mb-4">
-                  Direct line for corporate programme consultation, strategic planning discussions, and executive retreat design.
+                  Your direct line for corporate programme consultation, strategic planning discussions, and executive retreat visioning and realisation.
                 </p>
                 <div class="flex items-center gap-2 text-amber-400 text-sm">
                   <Icon name="ph:clock" class="w-4 h-4" />
@@ -692,7 +715,7 @@ const combinedJsonLd = [corporateEventsSchema, serviceSchema, faqSchema];
             >
           </h2>
           <p class="text-gray-300 max-w-3xl mx-auto leading-relaxed">
-            Share your event vision with us. We'll turn it into reality.
+            Share your event vision with us. We'll turn it into reality. We respond within hours.
           </p>
         </header>
 
@@ -901,7 +924,7 @@ const combinedJsonLd = [corporateEventsSchema, serviceSchema, faqSchema];
             <p
               class="text-gray-500 text-sm mt-6 max-w-2xl mx-auto leading-relaxed"
             >
-              Our events director will respond within 24 hours. Enquiries are treated with               confidentiality. Your data is never shared without your explicit consent.
+             All enquiries are treated confidentiality. Your data is never shared without your consent. We never spam.
             </p>
           </div>
         </form>
