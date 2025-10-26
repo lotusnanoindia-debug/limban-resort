@@ -137,7 +137,7 @@ import Layout from "../../layouts/Layout.astro";
         </div>
 
         <div id="roomsMaxReached" class="text-center mt-12 hidden">
-          <p class="text-gray-500 text-sm italic">
+          <p class="text-gray-500 text-sm">
             Showing first 100 records. Use search to find older enquiries.
           </p>
         </div>
@@ -179,7 +179,7 @@ import Layout from "../../layouts/Layout.astro";
         </div>
 
         <div id="diningMaxReached" class="text-center mt-12 hidden">
-          <p class="text-gray-500 text-sm italic">
+          <p class="text-gray-500 text-sm">
             Showing first 100 records. Use search to find older enquiries.
           </p>
         </div>
@@ -221,7 +221,7 @@ import Layout from "../../layouts/Layout.astro";
         </div>
 
         <div id="generalMaxReached" class="text-center mt-12 hidden">
-          <p class="text-gray-500 text-sm italic">
+          <p class="text-gray-500 text-sm">
             Showing first 100 records. Use search to find older enquiries.
           </p>
         </div>
@@ -262,7 +262,7 @@ import Layout from "../../layouts/Layout.astro";
         </div>
 
         <div id="corporateMaxReached" class="text-center mt-12 hidden">
-          <p class="text-gray-500 text-sm italic">
+          <p class="text-gray-500 text-sm">
             Showing first 100 records. Use search to find older enquiries.
           </p>
         </div>
@@ -558,7 +558,7 @@ import Layout from "../../layouts/Layout.astro";
               ? `
             <div class="mb-6">
               <p class="text-gray-500 text-xs mb-2">Guest Message</p>
-              <p class="text-gray-300 text-sm italic">"${highlightText(item.message)}"</p>
+              <p class="text-gray-300 text-sm ">"${highlightText(item.message)}"</p>
             </div>
           `
               : ""
@@ -650,7 +650,7 @@ import Layout from "../../layouts/Layout.astro";
               ? `
             <div class="mb-6">
               <p class="text-gray-500 text-xs mb-2">Guest Message</p>
-              <p class="text-gray-300 text-sm italic">"${highlightText(item.message)}"</p>
+              <p class="text-gray-300 text-sm ">"${highlightText(item.message)}"</p>
             </div>
           `
               : ""
@@ -728,7 +728,7 @@ import Layout from "../../layouts/Layout.astro";
               ? `
             <div class="mb-6 p-4 bg-gray-800/50 rounded-xl border border-gray-700">
               <p class="text-gray-500 text-xs mb-2">Internal Notes</p>
-              <p class="text-gray-400 text-sm italic">${escapeHtml(item.internal_notes)}</p>
+              <p class="text-gray-400 text-sm ">${escapeHtml(item.internal_notes)}</p>
             </div>
           `
               : ""

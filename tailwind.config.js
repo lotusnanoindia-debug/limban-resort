@@ -81,17 +81,19 @@ export default {
       colors: {
         // Your existing custom grays
         gray: {
-          50: "#FAFAFA",
-          100: "#F4F4F5",
-          200: "#E4E4E7",
-          300: "#D4D4D8",
-          400: "#A1A1AA",
-          500: "#71717A",
-          600: "#52525B",
-          700: "#3F3F46",
-          800: "#27272A",
-          900: "#18181B",
-          950: "#09090B",
+          50: "#FAF9F8", // Slight warm cream
+          100: "#F5F3F1", // Warm pearl
+          200: "#E6E3DF", // Warm smoke
+          300: "#D6D2CC", // Warm stone
+          400: "#A49E96", // Warm slate
+          500: "#75706A", // Warm steel
+          600: "#56524C", // Warm graphite
+          700: "#423F3A", // Warm charcoal
+          800: "#2B2926", // Deep warm shadow
+          900: "#1C1A18", // Rich earth black
+          950: "#0D0C0B", // Deepest earth
+          0: "#1f1c19",
+          1: "#1c1917",
         },
         // Shadcn colors
         border: "hsl(var(--border))",
@@ -159,9 +161,9 @@ export default {
         },
       },
       fontFamily: {
-        sans: ["Arial", "system-ui", "-apple-system", "sans-serif"],
-        serif: ["Playfair", "Georgia", "serif"],
-        display: ["Playfair", "Georgia", "serif"],
+        sans: ["Figtree", "Arial", "system-ui", "-apple-system", "sans-serif"],
+        serif: ["Libre Baskerville", "Georgia", "serif"],
+        display: ["Libre Baskerville", "Georgia", "serif"],
       },
       dropShadow: {
         "dark-lg": [
