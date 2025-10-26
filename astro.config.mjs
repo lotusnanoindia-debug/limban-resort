@@ -11,14 +11,11 @@ import mailObfuscation from "astro-mail-obfuscation";
 export default defineConfig({
   output: "static",
   site: "https://limban.com",
-  trailingSlash: "always", // required internally for folder structure
-  build: { format: "directory" },
+  trailingSlash: "never",
+  build: { format: "file" },
   integrations: [
     sitemap({
       serialize(item) {
-        // Remove trailing slash from URLs
-        item.url = item.url.replace(/\/$/, "");
-
         // Homepage - highest priority
         if (item.url === "https://limban.com") {
           item.priority = 1.0;

@@ -24,6 +24,7 @@ const { title = "Limban Resort, Tadoba" } = Astro.props;
       href="https://fonts.googleapis.com/css2?family=Playfair:ital,opsz,wdth,wght@1,5..1200,87.5,500&display=swap"
       rel="stylesheet"
     />
+    <link rel="canonical" href={new URL(Astro.url.pathname, Astro.site).href} />
     <slot name="head" />
 
     <script
