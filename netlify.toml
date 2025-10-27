@@ -39,6 +39,12 @@
   [headers.values]
     X-Robots-Tag = "noindex, nofollow"
 
+[[redirects]]
+  from = "/stats/*"
+  to = "https://cloud.umami.is/:splat"
+  status = 200
+  force = true
+
 # Canonical cleanup (slashes & trailing dashes)
 [[redirects]]
   from = "/(.*)/$"
