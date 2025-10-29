@@ -1,109 +1,198 @@
 ---
-// Enhanced Testimonials Section - Luxury Hospitality Design
-const testimonials = [
-  {
-    name: "Sarah & James Mitchell",
-    location: "London, UK",
-    quote: "Redefined luxury for our family.",
-    review: "Limban Resort redefined luxury for our family. The perfect balance of adventure and comfort, with service that anticipated our every need. Our children still talk about the tiger sightings months later.",
-    guestImage: "sarah.jpg",
-    alt: "Sarah Mitchell - Guest at Limban Resort",
-    stayDate: "March 2025",
-    experience: "7 Days Family Safari Adventure"
-  },
-  {
-    name: "Rajesh Patel", 
-    location: "CEO, Mumbai",
-    quote: "Exceeded every expectations.",
-    review: "As a corporate retreat destination, Limban exceeded all expectations. The Executive Retreat spaces fostered innovation while the natural setting provided the perfect backdrop for team building.",
-    guestImage: "rajesh.jpg",
-    alt: "Rajesh Patel - Guest at Limban Resort",
-    stayDate: "January 2024", 
-    experience: "Corporate Retreat"
-  },
-  {
-    name: "Dr. Maria Santos",
-    location: "Wildlife Photographer, Brazil",
-    quote: "Meaningful beyond the luxury.",
-    review: "The attention to conservation and community impact made our stay meaningful beyond the luxury. Limban represents responsible tourism at its finest. We'll return every year.",
-    guestImage: "maria.jpg",
-    alt: "Dr. Maria Santos - Guest at Limban Resort",
-    stayDate: "November 2023",
-    experience: "Conservation Experience"
-  }
-];
+import { supabase } from '../lib/supabase';
+
+const { data: reviews } = await supabase
+  .from('reviews')
+  .select('*')
+  .eq('rating', 5)
+  .not('review_text', 'is', null)
+  .not('reviewer_photo_url', 'is', null)
+  .order('published_date', { ascending: false })
+  .limit(50);
+
+const shuffledReviews = reviews?.sort(() => 0.5 - Math.random()).slice(0, 12) || [];
 ---
 
-<section id="testimonials" class="py-32 bg-gray-0">
+<section class="py-32 bg-gray-950">
   <div class="max-w-7xl mx-auto px-6">
     
-    <!-- Section Header -->
+    <!-- Header -->
     <div class="text-center mb-20">
       <div class="inline-block px-6 py-2 bg-amber-400/10 border border-amber-400/30 rounded-full mb-8">
-        <span class="text-amber-400 text-sm font-medium tracking-widest uppercase">Guest Stories</span>
+        <span class="text-amber-400 text-sm font-medium tracking-widest uppercase">Verified Reviews</span>
       </div>
       <h2 class="font-serif text-5xl md:text-7xl text-white mb-8 leading-tight">
         Words from the Wild
       </h2>
       <p class="text-xl text-gray-300 font-light leading-relaxed max-w-4xl mx-auto">
-        Hear from our guests who have experienced the transformative power of Limban. 
-        Each story is a testament to moments that become memories, experiences that become part of who you are.
+        Real experiences from real guests. Every review verified by Google and TripAdvisor.
       </p>
     </div>
+    <!-- Swipe Hint -->
+    <div class="flex items-center justify-center gap-2 text-xs text-gray-500 mb-6">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16l-4-4m0 0l4-4m-4 4h18"/>
+      </svg>
+      <span>Swipe</span>
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
+      </svg>
+    </div>
 
-    <!-- Testimonials Grid -->
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-      {testimonials.map((testimonial, index) => (
-        <div
-          key={index}
-          class="group relative bg-gradient-to-br from-gray-900/50 to-gray-800/50 backdrop-blur-xl border border-gray-700 rounded-3xl overflow-hidden transition-all duration-700 hover:border-amber-400/30 hover:-translate-y-2 hover:shadow-2xl hover:shadow-black/20"
-        >
-          <div class="relative p-8">
-            
-            <!-- Guest Image - Direct local file -->
-            <div class="flex justify-center mb-8">
-              <div class="relative">
-                <div class="w-20 h-20 rounded-full overflow-hidden border-2 border-gray-600 group-hover:border-amber-400/50 transition-colors duration-500 shadow-xl">
+    <!-- Carousel -->
+    <div class="relative">
+      <div 
+        id="carousel" 
+        class="overflow-x-auto snap-x snap-mandatory scrollbar-hide scroll-smooth"
+      >
+        <div class="flex gap-6">
+          {shuffledReviews.map((review) => (
+            <article class="snap-center w-80 flex-shrink-0 bg-gradient-to-br from-gray-900/50 to-gray-800/50 backdrop-blur-xl border border-gray-700 hover:border-amber-400/50 rounded-3xl p-8 transition-colors duration-300">
+              
+              <!-- Photo -->
+              <div class="flex justify-center mb-8">
+                <div class="w-20 h-20 rounded-full overflow-hidden border-2 border-gray-600 bg-gray-800 flex items-center justify-center">
                   <img 
-                    src={`/${testimonial.guestImage}`}
-                    alt={testimonial.alt}
-                    class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                    src={review.reviewer_photo_url}
+                    alt={review.reviewer_name || 'Guest'}
+                    class="w-full h-full object-cover"
                     loading="lazy"
+                    onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
                   />
+                  <span class="hidden text-3xl font-semibold text-gray-400 uppercase">
+                    {review.reviewer_name?.charAt(0) || 'G'}
+                  </span>
                 </div>
-                <div class="absolute -inset-1 bg-gradient-to-r from-amber-400/20 to-amber-600/20 rounded-full blur opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
               </div>
-            </div>
 
-            <!-- Main Quote -->
-            <blockquote class="text-center mb-8">
-              <p class="font-serif text-2xl md:text-3xl text-white leading-relaxed mb-6 group-hover:text-gray-100 transition-colors duration-500">
-                "{testimonial.quote}"
+              <!-- Stars -->
+              <div class="flex gap-1 justify-center mb-6">
+                {[...Array(5)].map(() => (
+                  <svg class="w-5 h-5 text-amber-400 fill-current" viewBox="0 0 20 20">
+                    <path d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z"/>
+                  </svg>
+                ))}
+              </div>
+
+              <!-- Title -->
+              {review.review_title && (
+                <h3 class="font-serif text-xl text-amber-400 mb-4 text-center line-clamp-2">
+                  "{review.review_title}"
+                </h3>
+              )}
+
+              <!-- Review Text -->
+              <p class="text-gray-300 text-center leading-relaxed font-light mb-8 h-36">
+                {review.review_text.length > 200 
+                  ? review.review_text.substring(0, 150).trim() + '...' 
+                  : review.review_text}
               </p>
-              <p class="text-gray-300 leading-relaxed font-light group-hover:text-gray-200 transition-colors duration-500">
-                {testimonial.review}
-              </p>
-            </blockquote>
-
-            <!-- Guest Details -->
-            <div class="text-center pt-6 border-t border-gray-700/50 group-hover:border-amber-400/20 transition-colors duration-500">
-              <div class="font-semibold text-lg text-amber-400 mb-1 group-hover:text-amber-300 transition-colors duration-300">
-                {testimonial.name}
+              <!-- Details -->
+              <div class="text-center pt-6 border-t border-gray-700/50">
+                <div class="font-semibold text-lg text-amber-400 mb-1">
+                  {review.reviewer_name || 'Guest'}
+                </div>
+                {review.reviewer_location && (
+                  <div class="text-sm text-gray-400 mb-2">
+                    {review.reviewer_location}
+                  </div>
+                )}
+                <div class="flex items-center justify-center gap-2 text-xs text-gray-500">
+                  <span class="uppercase tracking-wider">
+                    {review.source === 'google' ? 'Google' : 'TripAdvisor'}
+                  </span>
+                  {review.published_date && (
+                    <>
+                      <span>•</span>
+                      <span>{new Date(review.published_date).toLocaleDateString('en-GB', { month: 'short', year: 'numeric' })}</span>
+                    </>
+                  )}
+                </div>
               </div>
-              <div class="text-sm text-gray-400 mb-2 group-hover:text-gray-300 transition-colors duration-300">
-                {testimonial.location}
-              </div>
-              <div class="text-xs text-gray-500 group-hover:text-gray-400 transition-colors duration-300 space-y-1">
-                <div>{testimonial.experience}</div>
-                <div>{testimonial.stayDate}</div>
-              </div>
-            </div>
-
-            <!-- Hover Glow Effect -->
-            <div class="absolute inset-0 rounded-3xl bg-gradient-to-br from-amber-400/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none"></div>
-          </div>
+            </article>
+          ))}
         </div>
-      ))}
+      </div>
+
+      <!-- Dots - Mobile Only -->
+      <div id="dots" class="flex md:hidden justify-center gap-2 mt-8">
+        {shuffledReviews.map((_, i) => (
+          <button 
+            class="dot h-2 w-2 rounded-full bg-gray-700 transition-all duration-300"
+            data-index={i}
+            aria-label={`Go to review ${i + 1}`}
+          />
+        ))}
+      </div>
+    </div>
+
+    <!-- CTA -->
+    <div class="text-center mt-16">
+      <a 
+        href="/reviews" 
+        class="inline-flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-gray-700 to-gray-800 hover:from-gray-600 hover:to-gray-700 text-white font-semibold rounded-lg transition-all duration-300"
+      >
+        <span>Read All Reviews</span>
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
+        </svg>
+      </a>
     </div>
   </div>
 </section>
+
+<style>
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+  .line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .line-clamp-6 {
+    display: -webkit-box;
+    -webkit-line-clamp: 6;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+</style>
+
+<script>
+  const carousel = document.getElementById('carousel');
+  const dots = document.querySelectorAll('.dot');
+
+  if (carousel && dots.length > 0 && window.innerWidth < 768) {
+    const cardWidth = 344; // 320 + 24
+
+    function updateDots() {
+      const scrollLeft = carousel.scrollLeft;
+      const index = Math.round(scrollLeft / cardWidth);
+      
+      dots.forEach((dot, i) => {
+        if (i === index) {
+          dot.classList.add('bg-amber-400', 'w-6');
+          dot.classList.remove('w-2');
+        } else {
+          dot.classList.remove('bg-amber-400', 'w-6');
+          dot.classList.add('w-2');
+        }
+      });
+    }
+
+    carousel.addEventListener('scroll', updateDots, { passive: true });
+
+    dots.forEach((dot, i) => {
+      dot.addEventListener('click', () => {
+        carousel.scrollTo({ left: cardWidth * i, behavior: 'smooth' });
+      });
+    });
+
+    updateDots();
+  }
+</script>

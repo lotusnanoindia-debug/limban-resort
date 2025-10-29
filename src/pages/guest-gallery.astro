@@ -5,6 +5,7 @@ import UniversalGallery from "../components/UniversalGallery.astro";
 import GalleryModal from "../components/GalleryModal.astro";
 import imageService from "../utils/ImageService.js";
 import { fetchAboutPage } from "../api.js";
+import TestimonialsSection from "../components/TestimonialsSection.astro";
 
 // Fetch guest gallery data
 let aboutData = null;
@@ -207,8 +208,10 @@ const schemaImages = guestGallery.images
       </div>
     </section>
 
+    <TestimonialsSection />
+
     <!-- Share Your Photos Section -->
-    <section class="py-24 bg-gray-900">
+    <section class="py-24 bg-gray-0">
       <div class="max-w-3xl mx-auto px-6 text-center">
         <div
           class="inline-block px-6 py-2 bg-amber-400/10 border border-amber-400/30 rounded-full mb-8"
