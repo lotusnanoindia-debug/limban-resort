@@ -11,6 +11,7 @@ const { title = "Limban Resort, Tadoba" } = Astro.props;
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
     <link rel="icon" href="/favicon.ico?v=2" sizes="32x32" />
     <link
       rel="apple-touch-icon"
@@ -18,15 +19,31 @@ const { title = "Limban Resort, Tadoba" } = Astro.props;
       sizes="180x180"
     />
     <link rel="manifest" href="/site.webmanifest?v=2" />
+
+    <!-- Preconnects for faster external resource loading -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="preconnect" href="https://res.cloudinary.com" crossorigin />
+
+    <!-- Preload critical fonts -->
+    <link
+      rel="preload"
+      as="font"
+      type="font/woff2"
+      crossorigin
+      href="https://fonts.gstatic.com/s/librebaskerville/v14/kmKnZrc3Hgbbcjq75U4uslyuy4kn0qNcWxMQ.woff2"
+    />
+
+    <!-- Google Fonts with display=swap -->
     <link
       href="https://fonts.googleapis.com/css2?family=Figtree:wght@300;400;500;600;700&family=Libre+Baskerville:wght@400;700&display=swap"
       rel="stylesheet"
     />
+
     <link rel="canonical" href={new URL(Astro.url.pathname, Astro.site).href} />
     <slot name="head" />
 
+    <!-- Umami Analytics -->
     <script
       defer
       src="/stats/script.js"
