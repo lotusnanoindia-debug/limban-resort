@@ -2,7 +2,6 @@ import type { APIRoute } from "astro";
 import { supabase } from "../../lib/supabase";
 
 export const POST: APIRoute = async ({ request }) => {
-  // Verify Apify API key
   const apiKey = request.headers.get("x-apify-key");
   const expectedKey = import.meta.env.APIFY_WEBHOOK_KEY;
 
@@ -15,25 +14,25 @@ export const POST: APIRoute = async ({ request }) => {
 
   try {
     const payload = await request.json();
-    console.log("Apify webhook received:", payload);
-
-    // Extract reviews from Apify response
     const reviews = payload.data?.reviews || [];
 
     if (!reviews.length) {
       return new Response(
         JSON.stringify({ message: "No reviews to process" }),
-        { status: 200, headers: { "Content-Type": "application/json" } },
+        {
+          status: 200,
+          headers: { "Content-Type": "application/json" },
+        },
       );
     }
 
     let upserted = 0;
     let skipped = 0;
+    let errors = 0;
 
-    // Process each review
     for (const review of reviews) {
       const {
-        source, // 'google' or 'tripadvisor'
+        source,
         reviewId,
         reviewerName,
         reviewerLocation,
@@ -50,7 +49,6 @@ export const POST: APIRoute = async ({ request }) => {
         ownerResponseDate,
       } = review;
 
-      // Check if review exists
       const { data: existing } = await supabase
         .from("reviews")
         .select("id")
@@ -63,11 +61,9 @@ export const POST: APIRoute = async ({ request }) => {
 
       if (existing) {
         skipped++;
-        console.log(`Review already exists: ${source}/${reviewId}`);
         continue;
       }
 
-      // Upsert new review
       const { error } = await supabase.from("reviews").insert({
         source,
         reviewer_name: reviewerName,
@@ -88,20 +84,22 @@ export const POST: APIRoute = async ({ request }) => {
       });
 
       if (error) {
-        console.error(`Failed to insert review ${reviewId}:`, error);
+        errors++;
+        console.error(
+          `Failed to insert ${source}/${reviewerName}:`,
+          error.message,
+        );
       } else {
         upserted++;
-        console.log(`✅ Inserted: ${source}/${reviewerName}`);
       }
     }
 
+    console.log(
+      `Webhook processed: ${upserted} upserted, ${skipped} skipped, ${errors} errors`,
+    );
+
     return new Response(
-      JSON.stringify({
-        success: true,
-        processed: reviews.length,
-        upserted,
-        skipped,
-      }),
+      JSON.stringify({ success: true, upserted, skipped, errors }),
       { status: 200, headers: { "Content-Type": "application/json" } },
     );
   } catch (error) {
@@ -111,4 +109,18 @@ export const POST: APIRoute = async ({ request }) => {
       headers: { "Content-Type": "application/json" },
     });
   }
+};
+
+export const GET: APIRoute = async ({ request }) => {
+  const apiKey = request.headers.get("x-apify-key");
+  if (!apiKey) {
+    return new Response(JSON.stringify({ error: "No API key provided" }), {
+      status: 401,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+  return new Response(JSON.stringify({ status: "Webhook ready" }), {
+    status: 200,
+    headers: { "Content-Type": "application/json" },
+  });
 };
