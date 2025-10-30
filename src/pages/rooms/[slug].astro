@@ -76,9 +76,14 @@ const heroImageUrl = heroImageData
 // Generate schema URL (JPG for Google)
 const schemaHeroImage = room.heroImage?.url 
   ? toCloudinaryJpg(room.heroImage.url)
-  : '';
+  : 'https://res.cloudinary.com/dfa5hhzej/image/fetch/w_1200,h_675,c_fill,q_85,f_jpg/https://limban.com/img/room-placeholder.jpg';
 
-// Build schema images array - adapt based on your actual room data structure
+// Robust fallback OG image
+const ogImage = schemaHeroImage && schemaHeroImage.length > 0
+  ? schemaHeroImage
+  : 'https://res.cloudinary.com/dfa5hhzej/image/fetch/w_1200,h_675,c_fill,q_85,f_jpg/https://limban.com/img/limban-default-og.jpg';
+
+// Build schema images array
 const schemaImages = [schemaHeroImage].filter(Boolean);
 
 // Room schema
@@ -107,21 +112,20 @@ const roomSchema = {
 
 <link rel="preload" as="image" href={heroImageUrl} fetchpriority="high" />
 
-<Layout>
+<Layout
+  title={`${room.roomName} | Luxury Safari Accommodation - Limban Resort`}
+  description={`Experience luxury and comfort in our ${room.roomName} at Limban Resort. ${room.shortDescription} Reserve your exclusive safari accommodation in Tadoba National Park, Maharashtra.`}
+  ogImage={ogImage}
+  ogImageWidth={1200}
+  ogImageHeight={675}
+  ogType="website"
+  ogUrl={`https://limban.com/rooms/${room.url}`}
+>
   <AstroSEO
     slot="head"
-    title={`${room.roomName} | Luxury Safari Accommodation - Limban Resort`}
-    description={`Experience luxury and comfort in our ${room.roomName} at Limban Resort. ${room.shortDescription} Reserve your exclusive safari accommodation in Tadoba National Park, Maharashtra.`}
-    canonical={`https://limban.com/rooms/${room.url}`}
-    openGraph={{
-      title: `${room.roomName} - Luxury Safari Accommodation at Limban Resort, Tadoba`,
-      description: `${room.shortDescription} Experience unparalleled luxury and eco-friendly comfort at Limban Resort in Tadoba National Park.`,
-      image: schemaHeroImage,
-      type: "website",
-      url: `https://limban.com/rooms/${room.url}`,
-    }}
     jsonLd={roomSchema}
   />
+
 
   <a
     href="#main-content"

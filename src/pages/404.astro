@@ -7,11 +7,17 @@ import { AstroSEO } from "astro-seo-plugin";
 const requestedPath = Astro.url.pathname;
 ---
 
-<Layout>
+<Layout
+  title="Page Not Found | Limban Resort Tadoba"
+  description="The path you're seeking has vanished into the wilderness. Return to Limban Resort to discover luxury safari experiences at Tadoba Tiger Reserve."
+  ogImage="https://res.cloudinary.com/dfa5hhzej/image/fetch/w_1200,h_675,c_fill,q_85,f_jpg/https://limban.com/img/limban-default-og.jpg"
+  ogImageWidth={1200}
+  ogImageHeight={675}
+  ogType="website"
+  ogUrl="https://limban.com/404"
+>
   <AstroSEO
     slot="head"
-    title="Page Not Found | Limban Resort Tadoba"
-    description="The path you're seeking has vanished into the wilderness. Return to Limban Resort to discover luxury safari experiences at Tadoba Tiger Reserve."
     robots={{
       noindex: true,
       nofollow: true,

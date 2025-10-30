@@ -147,7 +147,7 @@ const categoryConfig = {
   }
 };
 
-// Smarter FAQ - extract from data, don't hardcode
+// Smarter FAQ
 const faqs = [
   {
     question: "Which activities are included in the room rate?",
@@ -196,7 +196,7 @@ const activitiesSchema = {
   }))
 };
 
-// FAQ schema (separate, cleaner)
+// FAQ schema
 const faqSchema = {
   "@context": "https://schema.org",
   "@type": "FAQPage",
@@ -213,6 +213,21 @@ const faqSchema = {
 // Combine schemas
 const combinedJsonLd = [activitiesSchema, faqSchema];
 ---
+
+<Layout
+  title="Activities & Experiences | Limban Resort - Tadoba"
+  description="Explore wellness, sports, nature connection, cultural workshops, creative classes, and family activities at Limban Resort in Tadoba National Park, Maharashtra."
+  ogImage={heroImageSchema}
+  ogImageWidth={1200}
+  ogImageHeight={675}
+  ogType="website"
+  ogUrl="https://limban.com/activities"
+>
+  <AstroSEO
+    slot="head"
+    jsonLd={combinedJsonLd}
+  />
+
 
 <link rel="preload" as="image" href={heroImage} fetchpriority="high" />
 

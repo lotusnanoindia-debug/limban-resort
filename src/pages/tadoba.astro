@@ -27,7 +27,7 @@ const articleSchema = {
     "The definitive insider's guide to Maharashtra's greatest tiger reserve. From ancient Gond legends to modern conservation triumphs, understand what makes Tadoba truly extraordinary.",
   image: heroImageSchema,
   datePublished: "2024-01-15",
-  dateModified: "2025-10-15",
+  dateModified: new Date().toISOString().split("T")[0],
   author: {
     "@type": "Hotel",
     "@id": "https://limban.com/#hotel",
@@ -150,21 +150,16 @@ const faqSchema = {
 const combinedJsonLd = [articleSchema, faqSchema];
 ---
 
-<Layout>
-  <AstroSEO
-    slot="head"
-    title="The Complete Guide to Tadoba National Park | Limban Resort"
-    description="The definitive insider's guide to Maharashtra's greatest tiger reserve. From ancient Gond legends to modern conservation triumphs, understand what makes Tadoba truly extraordinary."
-    openGraph={{
-      title: "The Complete Guide to Tadoba National Park | Limban Resort",
-      description:
-        "Discover the secrets of India's premier tiger sanctuary. Ancient forests, legendary cats, and sacred heritage await.",
-      image: heroImageSchema,
-      type: "article",
-      url: "https://limban.com/tadoba",
-    }}
-    jsonLd={combinedJsonLd}
-  />
+<Layout
+  title="The Complete Guide to Tadoba National Park | Limban Resort"
+  description="The definitive insider's guide to Maharashtra's greatest tiger reserve. From ancient Gond legends to modern conservation triumphs, understand what makes Tadoba truly extraordinary."
+  ogImage={heroImageSchema}
+  ogImageWidth={1200}
+  ogImageHeight={675}
+  ogType="article"
+  ogUrl="https://limban.com/tadoba"
+>
+  <AstroSEO slot="head" jsonLd={combinedJsonLd} />
 
   <!-- Hero Section - Cinematic Introduction -->
   <section

@@ -8,26 +8,41 @@ const pageDescription =
   "Learn about Limban Resort's commitment to protecting your privacy and personal information during your safari experience in Tadoba National Park, India.";
 const heroImage =
   "https://res.cloudinary.com/dfa5hhzej/image/fetch/w_800,c_limit,f_auto,q_auto/https://ap-south-1.graphassets.com/cmek3o6f00dcb07o59sno2s0e/cmfxqunnp0u5j08pogn9dd2si";
+
+// Helper for Cloudinary JPG
+const toCloudinaryJpg = (url: string) => {
+  if (!url) return "";
+  return `https://res.cloudinary.com/dfa5hhzej/image/fetch/w_1200,h_675,c_fill,q_85,f_jpg/${url}`;
+};
+
+const ogImage = toCloudinaryJpg(heroImage);
 ---
 
-<Layout title="Privacy Policy">
+<Layout
+  title={pageTitle}
+  description={pageDescription}
+  ogImage={ogImage}
+  ogImageWidth={1200}
+  ogImageHeight={675}
+  ogType="website"
+  ogUrl="https://limban.com/privacy-policy"
+>
   <AstroSEO
     slot="head"
-    title={pageTitle}
-    description={pageDescription}
-    openGraph={{
-      title: "Privacy Policy - Limban Resort",
-      description: pageDescription,
-      type: "website",
-      url: "https://limban.com/privacy-policy",
-    }}
     jsonLd={{
       "@context": "https://schema.org",
       "@type": "WebPage",
+      "@id": "https://limban.com/privacy-policy#page",
       name: "Privacy Policy - Limban Resort",
       description: pageDescription,
       url: "https://limban.com/privacy-policy",
       lastReviewed: new Date().toISOString().split("T")[0],
+      isPartOf: {
+        "@type": "Website",
+        "@id": "https://limban.com/#website",
+        name: "Limban Resort",
+        url: "https://limban.com",
+      },
     }}
   />
 

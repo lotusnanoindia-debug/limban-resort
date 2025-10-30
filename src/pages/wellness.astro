@@ -127,22 +127,16 @@ const wellnessSchema = {
 
 <link rel="preload" as="image" href={heroImageUrl} fetchpriority="high" />
 
-<Layout>
-  <AstroSEO
-    slot="head"
-    title="Wellness & Spa | Rejuvenation in the Heart of Tadoba - Limban Resort"
-    description="Discover profound wellness in nature's embrace. Luxury spa treatments, mindful activities, and transformative retreat experiences designed around Tadoba's healing rhythms."
-    openGraph={{
-      title:
-        "Wellness & Spa | Rejuvenation in the Heart of Tadoba - Limban Resort",
-      description:
-        "Discover profound wellness in nature's embrace. Luxury spa treatments, mindful activities, and transformative retreat experiences designed around Tadoba's healing rhythms.",
-      image: heroImageSchema,
-      type: "website",
-      url: "https://limban.com/wellness",
-    }}
-    jsonLd={wellnessSchema}
-  />
+<Layout
+  title="Wellness & Spa | Rejuvenation in the Heart of Tadoba - Limban Resort"
+  description="Discover profound wellness in nature's embrace. Luxury spa treatments, mindful activities, and transformative retreat experiences designed around Tadoba's healing rhythms."
+  ogImage={heroImageSchema}
+  ogImageWidth={1200}
+  ogImageHeight={675}
+  ogType="website"
+  ogUrl="https://limban.com/wellness"
+>
+  <AstroSEO slot="head" jsonLd={wellnessSchema} />
 
   <div class="bg-gray-950 text-gray-100 selection:bg-gray-700">
     <!-- Hero Section -->

@@ -33,8 +33,6 @@ const aboutPage = aboutData?.aboutPage || {};
 const vibeGallery = aboutData?.vibeGallery || { images: [] };
 const guestGallery = aboutData?.guestGallery || { images: [] };
 
-const heroImageData = aboutPage?.heroImage || null;
-
 // Display images (AVIF for users)
 const heroImageUrl = aboutPage?.heroImage
   ? imageService.processImage(aboutPage.heroImage, "heroDesktop", {
@@ -54,7 +52,7 @@ const foundersImageUrl = aboutPage?.foundersImage
     })
   : "";
 
-// Schema images (JPG for Google)
+// Schema images (JPG for Google/OG/Twitter)
 const schemaImages = [
   aboutPage?.heroImage?.url ? toCloudinaryJpg(aboutPage.heroImage.url) : "",
   aboutPage?.philosophyImage?.url
@@ -65,7 +63,12 @@ const schemaImages = [
     : "",
 ].filter(Boolean);
 
-// About page schema
+// Robust OG image with fallback
+const ogImage =
+  schemaImages[0] ||
+  "https://res.cloudinary.com/dfa5hhzej/image/fetch/w_1200,h_675,c_fill,q_85,f_jpg/https://limban.com/img/limban-default-og.jpg";
+
+// About page schema with enhanced image objects
 const aboutPageSchema = {
   "@context": "https://schema.org",
   "@type": "AboutPage",
@@ -74,7 +77,12 @@ const aboutPageSchema = {
   description:
     "Discover the philosophy behind Limban Resort - a luxury safari sanctuary crafted by visionary architects in the heart of Tadoba National Park.",
   url: "https://limban.com/about",
-  image: schemaImages,
+  image: schemaImages.map((img) => ({
+    "@type": "ImageObject",
+    url: img,
+    width: 1200,
+    height: 675,
+  })),
   mainEntity: {
     "@type": "Hotel",
     "@id": "https://limban.com/#hotel",
@@ -132,21 +140,16 @@ const aboutPageSchema = {
 
 <link rel="preload" as="image" href={heroImageUrl} fetchpriority="high" />
 
-<Layout>
-  <AstroSEO
-    slot="head"
-    title="About Limban Resort | Where the Wild Meets the Soul - Tadoba Safari Resort"
-    description="Discover the philosophy behind Limban Resort - a luxury safari sanctuary crafted by visionary architects in the heart of Tadoba National Park. Experience where wilderness meets luxury."
-    openGraph={{
-      title: "About Limban Resort Tadoba - Where the Wild Meets the Soul",
-      description:
-        "A luxury safari sanctuary where architecture, wilderness, and soul converge in Tadoba National Park.",
-      image: schemaImages[0] || heroImageUrl,
-      type: "website",
-      url: "https://limban.com/about",
-    }}
-    jsonLd={aboutPageSchema}
-  />
+<Layout
+  title="About Limban Resort | Where the Wild Meets the Soul - Tadoba Safari Resort"
+  description="Discover the philosophy behind Limban Resort - a luxury safari sanctuary crafted by visionary architects in the heart of Tadoba National Park. Experience where wilderness meets luxury."
+  ogImage={ogImage}
+  ogImageWidth={1200}
+  ogImageHeight={675}
+  ogType="website"
+  ogUrl="https://limban.com/about"
+>
+  <AstroSEO slot="head" jsonLd={aboutPageSchema} />
 
   <div class="bg-gray-950 text-gray-100 selection:bg-gray-700">
     <!-- Hero Section -->
@@ -156,7 +159,7 @@ const aboutPageSchema = {
       <div class="absolute inset-0">
         <div class="absolute inset-0 bg-black/60 z-10"></div>
         {
-          heroImageData && (
+          aboutPage?.heroImage && (
             <img
               src={heroImageUrl}
               alt="Limban Resort - Where wilderness meets luxury in Tadoba National Park"
@@ -337,7 +340,7 @@ const aboutPageSchema = {
                       <span class="text-amber-400 font-serif text-xl">A</span>
                     </div>
                     <div>
-                      <cite class="text-amber-400 font-medium text-lg not-"
+                      <cite class="text-amber-400 font-medium text-lg"
                         >Amala Sheth</cite
                       >
                       <p class="text-gray-400 text-sm">
@@ -375,7 +378,7 @@ const aboutPageSchema = {
                       <span class="text-amber-400 font-serif text-xl">A</span>
                     </div>
                     <div>
-                      <cite class="text-amber-400 font-medium text-lg not-"
+                      <cite class="text-amber-400 font-medium text-lg"
                         >Anand Bhagat</cite
                       >
                       <p class="text-gray-400 text-sm">

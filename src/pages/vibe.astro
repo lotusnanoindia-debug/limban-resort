@@ -94,10 +94,10 @@ const heroImageUrl =
     ? processedVibeImages[0].processedUrls.large
     : "https://limban.com/img/vibe-hero.avif");
 
-// Schema image (JPG)
-const heroImageSchema = heroTiles[0]?.src
+// Schema image (JPG) with fallback
+const heroImageSchema = vibeData?.vibeImages?.[0]?.image?.url
   ? toCloudinaryJpg(vibeData.vibeImages[0].image.url)
-  : "https://limban.com/img/vibe-hero.jpg";
+  : "https://res.cloudinary.com/dfa5hhzej/image/fetch/w_1200,h_675,c_fill,q_85,f_jpg/https://limban.com/img/vibe-hero.jpg";
 
 // Simple schema for image gallery page
 const vibePageSchema = {
@@ -119,21 +119,16 @@ const vibePageSchema = {
 
 <link rel="preload" as="image" href={heroImageUrl} fetchpriority="high" />
 
-<Layout>
-  <AstroSEO
-    slot="head"
-    title="The Limban Vibe | Feel What Calls You Wild - Tadoba Safari Experience"
-    description="Immerse yourself in the Limban experience. Feel the luxury, taste the wild, live the moment. This is what calls you to Tadoba."
-    openGraph={{
-      title: "The Limban Vibe - Feel What Calls You Wild",
-      description:
-        "Experience luxury safari living at its finest in Tadoba National Park. Feel the vibe that makes Limban unforgettable.",
-      image: heroImageSchema,
-      type: "website",
-      url: "https://limban.com/vibe",
-    }}
-    jsonLd={vibePageSchema}
-  />
+<Layout
+  title="The Limban Vibe | Feel What Calls You Wild - Tadoba Safari Experience"
+  description="Immerse yourself in the Limban experience. Feel the luxury, taste the wild, live the moment. This is what calls you to Tadoba."
+  ogImage={heroImageSchema}
+  ogImageWidth={1200}
+  ogImageHeight={675}
+  ogType="website"
+  ogUrl="https://limban.com/vibe"
+>
+  <AstroSEO slot="head" jsonLd={vibePageSchema} />
 
   <div class="bg-gray-950 text-gray-100 selection:bg-amber-400/20">
     <!-- Skip to content for accessibility -->

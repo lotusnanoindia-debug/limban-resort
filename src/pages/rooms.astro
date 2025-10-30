@@ -7,18 +7,16 @@ import ContactSection from '../components/ContactSection.astro';
 import imageService from '../utils/ImageService.js';
 import { fetchRooms, fetchSpecialDeal } from '../api.js';
 
-// Helper for Cloudinary JPG (same as index)
+// Helper for Cloudinary JPG
 const toCloudinaryJpg = (url: string) => {
   if (!url) return '/img/room-placeholder.jpg';
-  // If already a full Cloudinary URL, return as-is with jpg
   if (url.includes('cloudinary.com')) {
     return url.replace(/f_avif|f_webp/, 'f_jpg');
   }
-  // Otherwise process through Cloudinary
   return `https://res.cloudinary.com/dfa5hhzej/image/fetch/w_1200,h_675,c_fill,q_85,f_jpg/${url}`;
 };
 
-// Server-side data fetching with enhanced error handling
+// Server-side data fetching
 let data = { rooms: [], specialDeal: null };
 let error = null;
 
@@ -28,11 +26,9 @@ try {
     fetchSpecialDeal()
   ]);
   
-  // Process rooms with ImageService URLs
   const processedRooms = rooms
     .filter(room => room && room.roomName)
     .map((room, index) => {
-      // Process hero image through ImageService
       const heroImageData = room.heroImage ? {
         ...room.heroImage,
         context: {
@@ -46,7 +42,6 @@ try {
         ...room,
         imageUrl: heroImageData ? imageService.processImage(heroImageData, 'roomCard', { quality: 70 }) : '/img/room-placeholder.avif',
         mosaicUrl: heroImageData ? imageService.processImage(heroImageData, 'headerTile', { quality: 50 }) : '/img/room-placeholder.avif',
-        // Add schema-specific JPG URL
         schemaImageUrl: room.heroImage?.url ? toCloudinaryJpg(room.heroImage.url) : '/img/room-placeholder.jpg',
         safePrice: Number(room.basePrice) || 0,
         priority: index < 4,
@@ -61,11 +56,10 @@ try {
   error = 'Failed to load content from CMS';
 }
 
-// Hero image from processed data
-const roomsHeroImage = data.rooms[0]?.imageUrl || '/img/rooms-hero.avif';
-const roomsHeroImageSchema = data.rooms[0]?.schemaImageUrl || toCloudinaryJpg('/img/rooms-hero.avif');
+// Hero image for OG/Twitter
+const roomsHeroImage = data.rooms[0]?.schemaImageUrl || toCloudinaryJpg('/img/rooms-hero.jpg');
 
-// Create randomized hero mosaic (after data processing)
+// Create randomized hero mosaic
 function shuffleArray(array) {
   const shuffled = [...array];
   for (let i = shuffled.length - 1; i > 0; i--) {
@@ -75,11 +69,9 @@ function shuffleArray(array) {
   return shuffled;
 }
 
-// Create randomized mosaic tiles (24 total)
 const mosaicTiles = [];
 const availableRooms = [...data.rooms];
 
-// Fill 24 slots with random room selections
 for (let i = 0; i < 24; i++) {
   if (availableRooms.length === 0) {
     availableRooms.push(...shuffleArray(data.rooms));
@@ -91,72 +83,67 @@ for (let i = 0; i < 24; i++) {
 const prices = data.rooms.map(r => r.safePrice).filter(p => p > 0);
 const minPrice = prices.length > 0 ? Math.min(...prices) : 15000;
 const maxPrice = prices.length > 0 ? Math.max(...prices) : 45000;
+
+// Schema (for AstroSEO - schema only now)
+const roomsSchema = {
+  "@context": "https://schema.org",
+  "@type": "ItemList",
+  "@id": "https://limban.com/rooms#roomlist",
+  "name": "Limban Resort Accommodations",
+  "description": "Luxury eco-resort rooms and suites at Limban Resort, Tadoba National Park",
+  "url": "https://limban.com/rooms",
+  "numberOfItems": data.rooms?.length || 16,
+  "itemListElement": data.rooms?.map((room, index) => ({
+    "@type": "ListItem",
+    "position": index + 1,
+    "item": {
+      "@type": "HotelRoom",
+      "@id": `https://limban.com${room.safeUrl}#room`,
+      "name": room.roomName,
+      "description": room.shortDescription || `Luxury ${room.roomName} at Limban Resort`,
+      "url": `https://limban.com${room.safeUrl}`,
+      "image": room.schemaImageUrl,
+      "occupancy": {
+        "@type": "QuantitativeValue",
+        "value": 2,
+        "minValue": 1,
+        "maxValue": 4
+      },
+      "offers": {
+        "@type": "Offer",
+        "price": room.safePrice.toString(),
+        "priceCurrency": "INR",
+        "availability": "https://schema.org/InStock"
+      },
+      "partOf": {
+        "@type": "Hotel",
+        "@id": "https://limban.com/#hotel"
+      }
+    }
+  })) || [],
+  "mainEntity": {
+    "@type": "Hotel",
+    "@id": "https://limban.com/#hotel",
+    "name": "Limban Resort",
+    "numberOfRooms": data.rooms?.length || 16,
+    "priceRange": `₹${minPrice.toLocaleString('en-IN')}-₹${maxPrice.toLocaleString('en-IN')}`
+  }
+};
 ---
 
-<Layout>
+<Layout
+  title="Luxury Rooms & Suites | Limban Resort, Tadoba"
+  description="Discover distinctive luxury accommodations at Limban Resort in Tadoba National Park. From deluxe rooms to exclusive villas, each offers eco-friendly comfort with wilderness views and modern amenities."
+  ogImage={roomsHeroImage}
+  ogImageWidth={1200}
+  ogImageHeight={675}
+  ogType="website"
+  ogUrl="https://limban.com/rooms"
+>
   <AstroSEO
     slot="head"
-    title="Luxury Rooms & Suites | Limban Resort, Tadoba"
-    description="Discover distinctive luxury accommodations at Limban Resort in Tadoba National Park. From deluxe rooms to exclusive villas, each offers eco-friendly comfort with wilderness views and modern amenities."
-    
-    openGraph={{
-      title: "Luxury Safari Rooms & Suites - Limban Resort Tadoba",
-      description: "Experience unique luxury accommodations at Limban Resort. Eco-friendly rooms and villas offering premium comfort in the heart of Tadoba National Park, Maharashtra.",
-      image: roomsHeroImageSchema,
-      type: "website",
-      url: "https://limban.com/rooms",
-      site_name: "Limban Resort"
-    }}
-    jsonLd={{
-      "@context": "https://schema.org",
-      "@type": "ItemList",
-      "@id": "https://limban.com/rooms#roomlist",
-      "name": "Limban Resort Accommodations",
-      "description": "Luxury eco-resort rooms and suites at Limban Resort, Tadoba National Park",
-      "url": "https://limban.com/rooms",
-      "numberOfItems": 16,
-      "itemListElement": data.rooms?.map((room, index) => ({
-        "@type": "ListItem",
-        "position": index + 1,
-        "item": {
-          "@type": "HotelRoom",
-          "@id": `https://limban.com${room.safeUrl}#room`,
-          "name": room.roomName,
-          "description": room.shortDescription || `Luxury ${room.roomName} at Limban Resort`,
-          "url": `https://limban.com${room.safeUrl}`,
-          "image": room.schemaImageUrl,
-          "occupancy": {
-            "@type": "QuantitativeValue",
-            "value": 2,
-            "minValue": 1,
-            "maxValue": 4
-          },
-          "offers": {
-            "@type": "Offer",
-            "price": room.safePrice.toString(),
-            "priceCurrency": "INR",
-            "availability": "https://schema.org/InStock"
-          },
-          "partOf": {
-            "@type": "Hotel",
-            "@id": "https://limban.com/#hotel"
-          }
-        }
-      })) || [],
-      "mainEntity": {
-        "@type": "Hotel",
-        "@id": "https://limban.com/#hotel",
-        "name": "Limban Resort",
-        "numberOfRooms": data.rooms?.length || 16,
-        "priceRange": `₹${minPrice.toLocaleString('en-IN')}-₹${maxPrice.toLocaleString('en-IN')}`
-      }
-    }}
+    jsonLd={roomsSchema}
   />
-
-
-
-  
-  {data.rooms[0] && <link rel="preload" as="image" href={data.rooms[0].imageUrl} />}
   
   {error ? (
     <div class="bg-gray-950 text-gray-100 h-screen flex items-center justify-center" role="alert">

@@ -20,7 +20,7 @@ const heroImageUrl = "https://res.cloudinary.com/dfa5hhzej/image/upload/f_avif,q
 const heroMobileUrl = "https://res.cloudinary.com/dfa5hhzej/image/upload/f_auto,q_45,w_600,c_scale/limban-corporate-event-setting_q58lb3.jpg";
 const heroImageSchema = "https://res.cloudinary.com/dfa5hhzej/image/upload/w_1200,h_675,c_fill,q_85,f_jpg/limban-corporate-event-setting_q58lb3.jpg";
 
-// Server-side data fetching - simplified
+// Server-side data fetching
 let data = { corporateGallery: [] };
 let error = null;
 
@@ -34,7 +34,7 @@ try {
   error = "Failed to load content from CMS";
 }
 
-// Enhanced event categories with strategic icons
+// Enhanced event categories
 const eventCategories = [
   {
     icon: "carbon:chart-line-smooth",
@@ -98,7 +98,7 @@ const eventCategories = [
   },
 ];
 
-// Simplified testimonials - local images only
+// Testimonials
 const testimonials = [
   {
     name: "Rajesh Sharma", 
@@ -132,7 +132,7 @@ const testimonials = [
   }
 ];
 
-// Data for the FAQ schema based on "Professional Service Standards"
+// FAQ data
 const serviceStandardsFaq = [
   {
     question: "What is the response time for an initial consultation?",
@@ -220,7 +220,7 @@ const corporateEventsSchema = {
   }
 };
 
-// Service offerings schema
+// Service schema
 const serviceSchema = {
   "@context": "https://schema.org",
   "@type": "Service",
@@ -271,20 +271,17 @@ const combinedJsonLd = [corporateEventsSchema, serviceSchema, faqSchema];
 
 <link rel="preload" as="image" href={heroImageUrl} fetchpriority="high" />
 
-<Layout>
+<Layout
+  title="Corporate Events & Executive Retreats | Limban Resort Tadoba"
+  description="Corporate events that transform. Strategic retreats, innovation labs, stakeholder experiences at India's premier tiger reserve. Professional event management with safari integration."
+  ogImage={heroImageSchema}
+  ogImageWidth={1200}
+  ogImageHeight={675}
+  ogType="website"
+  ogUrl="https://limban.com/corporate-events"
+>
   <AstroSEO
     slot="head"
-    title="Corporate Events & Executive Retreats | Limban Resort Tadoba"
-    description="Corporate events that transform. Strategic retreats, innovation labs, stakeholder experiences at India's premier tiger reserve. Professional event management with safari integration."
-    
-    openGraph={{
-      title: "Corporate Events & Executive Retreats | Limban Resort",
-      description: "Corporate events that transform. Strategic retreats, innovation labs, stakeholder experiences at India's premier tiger reserve.",
-      image: heroImageSchema,
-      type: "website",
-      url: "https://limban.com/corporate-events",
-      site_name: "Limban Resort Tadoba"
-    }}
     jsonLd={combinedJsonLd}
   />
 

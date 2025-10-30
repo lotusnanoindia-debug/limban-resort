@@ -13,7 +13,7 @@ const toCloudinaryJpg = (url: string) => {
   return `https://res.cloudinary.com/dfa5hhzej/image/fetch/w_1200,h_675,c_fill,q_85,f_jpg/${url}`;
 };
 
-// Server-side data fetching with clean API
+// Server-side data fetching
 let data = { experiences: [], specialDeal: null };
 let error = null;
 
@@ -56,7 +56,6 @@ const experiences = data.experiences.map((experience, index) => {
     logoUrl: logoImageData ? imageService.processImage(logoImageData, 'logo', { quality: 80 }) : "",
     imageUrl: heroImageData ? imageService.processImage(heroImageData, 'serviceCard', { quality: 75 }) : "",
     mosaicUrl: heroImageData ? imageService.processImage(heroImageData, 'grid', { quality: 60 }) : "",
-    // Add schema-specific JPG URL
     schemaImageUrl: experience.images?.[0]?.url ? toCloudinaryJpg(experience.images[0].url) : "",
     slug: experience.url || `experience-${index + 1}`,
     alt: `${experience.restaurantName} dining experience at Limban Resort`,
@@ -90,24 +89,49 @@ if (experiences.length > 0) {
 // Safe hero images for meta and schema
 const heroImageSrc = experiences[0]?.imageUrl || "/img/dining-hero.avif";
 const heroImageSchema = experiences[0]?.schemaImageUrl || toCloudinaryJpg("/img/dining-hero.jpg");
+
+// FAQ schema data
+const faqData = [
+  {
+    question: "Can I dine at Limban without staying overnight?",
+    answer: "Absolutely! Our dining experiences are open to day visitors. Whether you're exploring Tadoba National Park or simply seeking an exceptional culinary experience in the wilderness, you're welcome to join us. We require advance booking to ensure our chefs can prepare your meal with the care and attention it deserves."
+  },
+  {
+    question: "Do you welcome families with children?",
+    answer: "Children are absolutely welcome! We believe in creating memorable experiences for the entire family. Our chefs are happy to prepare child-friendly versions of our dishes. We provide high chairs, custom children's portions, and early dinner service for families with young children."
+  },
+  {
+    question: "Can I bring my pet to dine with me?",
+    answer: "Yes, well-behaved pets are welcome! We have beautiful outdoor dining areas where you and your furry companion can enjoy a meal together surrounded by nature. Pets must be leashed and are only allowed in outdoor seating areas. Please mention when booking."
+  },
+  {
+    question: "How far in advance should I make a reservation?",
+    answer: "We highly recommend booking at least 48 hours in advance to ensure availability and allow our culinary team to source the freshest local ingredients. For optimal selection, book 3-7 days ahead. During peak season (November-March), booking 1-2 weeks in advance is essential."
+  },
+  {
+    question: "Do you accommodate dietary restrictions and allergies?",
+    answer: "Absolutely! Our chefs can accommodate most dietary restrictions including vegetarian, vegan, gluten-free, and specific allergies. Please inform us of any dietary requirements when making your reservation so our culinary team can prepare safely and source appropriate ingredients in advance."
+  },
+  {
+    question: "Is your restaurant accessible to guests with disabilities?",
+    answer: "Absolutely! We're committed to ensuring all guests can enjoy our dining experiences. Our venues include wheelchair accessible seating areas, ground-floor dining spaces, and our team is trained to accommodate various accessibility needs. Please let us know about any specific requirements when booking so we can ensure you have the most comfortable experience possible."
+  }
+];
 ---
 
 <link rel="preload" as="image" href={heroImageSrc} fetchpriority="high" />
 
-<Layout>
+<Layout
+  title="Dining Experiences | Limban Resort - Tadoba Safari Lodge"
+  description="Discover authentic dining experiences at Limban Resort - from jungle-fresh ingredients to intimate bush dinners under starlit skies in the heart of Tadoba National Park, Maharashtra."
+  ogImage={heroImageSchema}
+  ogImageWidth={1200}
+  ogImageHeight={675}
+  ogType="website"
+  ogUrl="https://limban.com/dining"
+>
   <AstroSEO
     slot="head"
-    title="Dining Experiences | Limban Resort - Tadoba Safari Lodge"
-    description="Discover authentic dining experiences at Limban Resort - from jungle-fresh ingredients to intimate bush dinners under starlit skies in the heart of Tadoba National Park, Maharashtra."
-    
-    openGraph={{
-      title: "Dining Experiences at Limban Resort - Tadoba Safari Lodge",
-      description: "Authentic Indian cuisine, locally sourced ingredients, and unforgettable dining settings in the wilderness of Tadoba National Park.",
-      image: heroImageSchema,
-      type: "website",
-      url: "https://limban.com/dining",
-      site_name: "Limban Resort"
-    }}
     jsonLd={{
       "@context": "https://schema.org",
       "@type": "Restaurant",
@@ -140,59 +164,26 @@ const heroImageSchema = experiences[0]?.schemaImageUrl || toCloudinaryJpg("/img/
         "@type": "Hotel",
         "@id": "https://limban.com/#hotel",
         "name": "Limban Resort"
-      },
-      "mainEntity": [
-        {
-          "@type": "Question",
-          "name": "Can I dine at Limban without staying overnight?",
-          "acceptedAnswer": {
-            "@type": "Answer",
-            "text": "Absolutely! Our dining experiences are open to day visitors. Whether you're exploring Tadoba National Park or simply seeking an exceptional culinary experience in the wilderness, you're welcome to join us. We require advance booking to ensure our chefs can prepare your meal with the care and attention it deserves."
-          }
-        },
-        {
-          "@type": "Question", 
-          "name": "Do you welcome families with children?",
-          "acceptedAnswer": {
-            "@type": "Answer",
-            "text": "Children are absolutely welcome! We believe in creating memorable experiences for the entire family. Our chefs are happy to prepare child-friendly versions of our dishes. We provide high chairs, custom children's portions, and early dinner service for families with young children."
-          }
-        },
-        {
-          "@type": "Question",
-          "name": "Can I bring my pet to dine with me?",
-          "acceptedAnswer": {
-            "@type": "Answer", 
-            "text": "Yes, well-behaved pets are welcome! We have beautiful outdoor dining areas where you and your furry companion can enjoy a meal together surrounded by nature. Pets must be leashed and are only allowed in outdoor seating areas. Please mention when booking."
-          }
-        },
-        {
-          "@type": "Question",
-          "name": "How far in advance should I make a reservation?",
-          "acceptedAnswer": {
-            "@type": "Answer",
-            "text": "We highly recommend booking at least 48 hours in advance to ensure availability and allow our culinary team to source the freshest local ingredients. For optimal selection, book 3-7 days ahead. During peak season (November-March), booking 1-2 weeks in advance is essential."
-          }
-        },
-        {
-          "@type": "Question",
-          "name": "Do you accommodate dietary restrictions and allergies?",
-          "acceptedAnswer": {
-            "@type": "Answer",
-            "text": "Absolutely! Our chefs can accommodate most dietary restrictions including vegetarian, vegan, gluten-free, and specific allergies. Please inform us of any dietary requirements when making your reservation so our culinary team can prepare safely and source appropriate ingredients in advance."
-          }
-        },
-        {
-          "@type": "Question",
-          "name": "Is your restaurant accessible to guests with disabilities?",
-          "acceptedAnswer": {
-            "@type": "Answer",
-            "text": "Absolutely! We're committed to ensuring all guests can enjoy our dining experiences. Our venues include wheelchair accessible seating areas, ground-floor dining spaces, and our team is trained to accommodate various accessibility needs. Please let us know about any specific requirements when booking so we can ensure you have the most comfortable experience possible."
-          }
-        }
-      ]
+      }
     }}
   />
+
+  <!-- Add FAQ schema separately if needed -->
+  {faqData.length > 0 && (
+    <script type="application/ld+json" slot="head" set:html={JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": faqData.map(faq => ({
+        "@type": "Question",
+        "name": faq.question,
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": faq.answer
+        }
+      }))
+    })}></script>
+  )}
+
 
 
   <div class="bg-gray-950 text-gray-100">

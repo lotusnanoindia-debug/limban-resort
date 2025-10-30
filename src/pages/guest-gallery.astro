@@ -8,6 +8,12 @@ import imageService from "../utils/ImageService.js";
 import { fetchAboutPage } from "../api.js";
 import TestimonialsSection from "../components/TestimonialsSection.astro";
 
+// Helper for Cloudinary JPG (schema)
+const toCloudinaryJpg = (url: string) => {
+  if (!url) return "";
+  return `https://res.cloudinary.com/dfa5hhzej/image/fetch/w_1200,h_675,c_fill,q_85,f_jpg/${url}`;
+};
+
 // Fetch guest gallery data
 let aboutData = null;
 try {
@@ -37,7 +43,7 @@ const heroTiles =
       })
     : [];
 
-// Hero image for SEO
+// Hero image for OG/Twitter (JPG for schema)
 const heroImageUrl =
   heroTiles[0]?.src ||
   (guestGallery.images?.[0]
@@ -46,29 +52,33 @@ const heroImageUrl =
       })
     : "https://limban.com/img/guests-hero.avif");
 
-// Schema images
+// Schema images (JPG)
 const schemaImages = guestGallery.images
   .slice(0, 5)
   .map((item) => {
     const imageData = item.image || item;
-    return imageService.processImage(imageData, "heroDesktop");
+    const url = imageData.url || imageData;
+    return toCloudinaryJpg(url);
   })
   .filter(Boolean);
+
+// Fallback OG image
+const ogImage =
+  schemaImages[0] ||
+  "https://res.cloudinary.com/dfa5hhzej/image/fetch/w_1200,h_675,c_fill,q_85,f_jpg/https://limban.com/img/limban-default-og.jpg";
 ---
 
-<Layout>
+<Layout
+  title="Guest Gallery: Real Moments at Limban Resort"
+  description="Explore photos submitted by our guests from over 20 countries. See the genuine smiles, real connections, and unforgettable safari experiences at Limban Resort, Tadoba."
+  ogImage={ogImage}
+  ogImageWidth={1200}
+  ogImageHeight={675}
+  ogType="website"
+  ogUrl="https://limban.com/guest-gallery"
+>
   <AstroSEO
     slot="head"
-    title="Guest Gallery: Real Moments at Limban Resort"
-    description="Explore photos submitted by our guests from over 20 countries. See the genuine smiles, real connections, and unforgettable safari experiences at Limban Resort, Tadoba."
-    openGraph={{
-      title: "Real Guests, Real Moments - Limban Resort",
-      description:
-        "See the genuine joy and connection our guests experience at Limban Resort. These are the faces of those who found what they were seeking.",
-      image: heroImageUrl,
-      type: "website",
-      url: "https://limban.com/guest-gallery",
-    }}
     jsonLd={{
       "@context": "https://schema.org",
       "@type": "ImageGallery",
@@ -76,7 +86,7 @@ const schemaImages = guestGallery.images
       description:
         "A collection of photos submitted by guests of Limban Resort, capturing their experiences with nature and hospitality in Tadoba.",
       url: "https://limban.com/guest-gallery",
-      image: schemaImages,
+      image: schemaImages.length > 0 ? schemaImages : [ogImage],
     }}
   />
 

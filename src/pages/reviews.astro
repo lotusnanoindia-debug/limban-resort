@@ -23,7 +23,7 @@ const { data: allGoogleReviews } = await supabase
   .select('id, rating')
   .eq('source', 'google')
   .order('published_date', { ascending: true })
-  .limit(190); // Match closer to Google's public count (188)
+  .limit(190);
 
 const { data: allTAReviews } = await supabase
   .from('reviews')
@@ -69,29 +69,28 @@ const reviewsPageSchema = {
   "@context": "https://schema.org",
   "@type": "CollectionPage",
   "@id": "https://limban.com/reviews#page",
-  name: "Guest Reviews - Limban Resort",
-  description: "Read authentic reviews from guests who experienced Limban Resort in Tadoba National Park. Discover what makes our luxury safari resort special.",
-  url: "https://limban.com/reviews",
-  mainEntity: {
+  "name": "Guest Reviews - Limban Resort",
+  "description": "Read authentic reviews from guests who experienced Limban Resort in Tadoba National Park. Discover what makes our luxury safari resort special.",
+  "url": "https://limban.com/reviews",
+  "mainEntity": {
     "@type": "Hotel",
     "@id": "https://limban.com/#hotel",
-    name: "Limban Resort",
+    "name": "Limban Resort",
   },
 };
 ---
 
-<Layout>
+<Layout
+  title="Guest Reviews | Limban Resort Tadoba National Park"
+  description="Read authentic reviews from guests at Limban Resort in Tadoba National Park. Discover why travellers rate our luxury safari resort with 4.9+ stars on Google and TripAdvisor."
+  ogImage={heroImageSchema}
+  ogImageWidth={1200}
+  ogImageHeight={675}
+  ogType="website"
+  ogUrl="https://limban.com/reviews"
+>
   <AstroSEO
     slot="head"
-    title="Guest Reviews | Limban Resort Tadoba National Park"
-    description="Read authentic reviews from guests at Limban Resort in Tadoba National Park. Discover why travellers rate our luxury safari resort with 4.9+ stars on Google and TripAdvisor."
-    openGraph={{
-      title: "Guest Reviews | Limban Resort",
-      description: "Read authentic guest experiences from our luxury safari resort in Tadoba National Park. 4.9+ star ratings on Google and TripAdvisor.",
-      image: heroImageSchema,
-      type: "website",
-      url: "https://limban.com/reviews",
-    }}
     jsonLd={reviewsPageSchema}
   />
 

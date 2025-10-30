@@ -3,7 +3,28 @@ import Header from "../components/Header.astro";
 import Footer from "../components/Footer.astro";
 import "../styles/global.css";
 
-const { title = "Limban Resort, Tadoba" } = Astro.props;
+interface Props {
+  title?: string;
+  description?: string;
+  ogImage?: string;
+  ogImageWidth?: number;
+  ogImageHeight?: number;
+  ogType?: string;
+  ogUrl?: string;
+}
+
+const {
+  title = "Limban Resort, Tadoba",
+  description = "Luxury safari sanctuary in Tadoba National Park",
+  ogImage = "",
+  ogImageWidth = 1200,
+  ogImageHeight = 675,
+  ogType = "website",
+  ogUrl = new URL(Astro.url.pathname, Astro.site).href,
+} = Astro.props;
+
+// Canonical URL
+const canonicalUrl = new URL(Astro.url.pathname, Astro.site).href;
 ---
 
 <!doctype html>
@@ -12,6 +33,7 @@ const { title = "Limban Resort, Tadoba" } = Astro.props;
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
+    <!-- Favicon & Icons -->
     <link rel="icon" href="/favicon.ico?v=2" sizes="32x32" />
     <link
       rel="apple-touch-icon"
@@ -20,18 +42,47 @@ const { title = "Limban Resort, Tadoba" } = Astro.props;
     />
     <link rel="manifest" href="/site.webmanifest?v=2" />
 
-    <!-- Preconnects for faster external resource loading -->
+    <!-- Preconnects -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link rel="preconnect" href="https://res.cloudinary.com" crossorigin />
 
-    <!-- Google Fonts with display=swap -->
+    <!-- Google Fonts -->
     <link
       href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;600;700&family=Playfair+Display:wght@500&display=swap"
       rel="stylesheet"
     />
 
-    <link rel="canonical" href={new URL(Astro.url.pathname, Astro.site).href} />
+    <!-- Canonical URL -->
+    <link rel="canonical" href={canonicalUrl} />
+
+    <!-- SEO Meta Tags (Global) -->
+    <meta name="title" content={title} />
+    <meta name="description" content={description} />
+
+    <!-- Open Graph Tags -->
+    <meta property="og:type" content={ogType} />
+    <meta property="og:url" content={ogUrl} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    {
+      ogImage && (
+        <>
+          <meta property="og:image" content={ogImage} />
+          <meta property="og:image:width" content={ogImageWidth.toString()} />
+          <meta property="og:image:height" content={ogImageHeight.toString()} />
+        </>
+      )
+    }
+
+    <!-- Twitter Card Tags -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:url" content={ogUrl} />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    {ogImage && <meta name="twitter:image" content={ogImage} />}
+
+    <!-- Page-specific head content (AstroSEO, schema, etc.) -->
     <slot name="head" />
 
     <!-- Umami Analytics -->
