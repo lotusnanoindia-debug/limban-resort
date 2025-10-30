@@ -9,7 +9,8 @@ import netlify from "@astrojs/netlify";
 import mailObfuscation from "astro-mail-obfuscation";
 
 export default defineConfig({
-  output: "static",
+  output: "server",
+  adapter: netlify(),
   site: "https://limban.com",
   trailingSlash: "never",
   build: { format: "file" },

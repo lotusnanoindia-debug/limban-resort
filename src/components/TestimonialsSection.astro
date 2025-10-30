@@ -77,7 +77,7 @@ const shuffledReviews = reviews?.sort(() => 0.5 - Math.random()).slice(0, 12) ||
               <!-- Title -->
               {review.review_title && (
                 <h3 class="font-serif text-xl text-amber-400 mb-4 text-center line-clamp-2">
-                  "{review.review_title}"
+                  {review.review_title}
                 </h3>
               )}
 

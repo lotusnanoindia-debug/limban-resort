@@ -1,4 +1,6 @@
 ---
+export const prerender = false;
+
 import Layout from "../layouts/Layout.astro";
 import { supabase } from '../lib/supabase';
 import { AstroSEO } from "astro-seo-plugin";
@@ -270,7 +272,7 @@ const reviewsPageSchema = {
                 <!-- Review Title (TripAdvisor) -->
                 {review.review_title && (
                   <h3 class="font-serif text-xl text-amber-400 mb-3 group-hover:text-amber-300 transition-colors duration-300">
-                    "{review.review_title}"
+                    {review.review_title}
                   </h3>
                 )}
 
@@ -314,6 +316,7 @@ const reviewsPageSchema = {
               id="load-more-btn"
               data-per-load={REVIEWS_PER_LOAD}
               data-total={totalQualityReviews}
+              data-initial-count={REVIEWS_PER_LOAD}
               class="group inline-flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-amber-400 to-amber-600 hover:from-amber-500 hover:to-amber-700 text-gray-900 font-semibold rounded-full transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-amber-400/20"
             >
               <span id="btn-text">Load {REVIEWS_PER_LOAD} More Reviews</span>
@@ -360,45 +363,62 @@ const reviewsPageSchema = {
   const btnText = document.getElementById('btn-text');
   const reviewsContainer = document.getElementById('reviews-container');
   
-  if (loadMoreBtn && reviewsContainer && btnText) {
-    const perLoad = parseInt(loadMoreBtn.dataset.perLoad || '9');
-    const total = parseInt(loadMoreBtn.dataset.total || '0');
-    let offset = perLoad;
+if (loadMoreBtn && reviewsContainer && btnText) {
+  const perLoad = parseInt(loadMoreBtn.dataset.perLoad || '9');
+  const total = parseInt(loadMoreBtn.dataset.total || '0');
+  const initialCount = parseInt(loadMoreBtn.dataset.initialCount || '9');
+  let offset = initialCount;
 
-    loadMoreBtn.addEventListener('click', async () => {
-      btnText.textContent = 'Loading...';
-      loadMoreBtn.disabled = true;
+  console.log('Initial setup:', { perLoad, total, initialCount, offset }); // DEBUG
 
-      try {
-        const response = await fetch(`/api/load-more-reviews?offset=${offset}&limit=${perLoad}`);
-        const data = await response.json();
+  loadMoreBtn.addEventListener('click', async () => {
+    console.log('Before fetch - offset:', offset); // DEBUG
+    
+    btnText.textContent = 'Loading...';
+    loadMoreBtn.disabled = true;
 
-        if (data.reviews && data.reviews.length > 0) {
-          data.reviews.forEach(review => {
-            const reviewCard = createReviewCard(review);
-            reviewsContainer.insertAdjacentHTML('beforeend', reviewCard);
-          });
+    try {
 
-          offset += data.reviews.length;
-          const remaining = total - offset;
+      const response = await fetch('/api/load-more-reviews', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ offset, limit: perLoad }),
+        cache: 'no-store'
+      });
 
-          if (remaining > 0) {
-            const nextLoad = Math.min(remaining, perLoad);
-            btnText.textContent = `Load ${nextLoad} More Reviews`;
-            loadMoreBtn.disabled = false;
-          } else {
-            loadMoreBtn.style.display = 'none';
-          }
+
+      const data = await response.json();
+      
+      console.log('Received reviews:', data.reviews?.length); // DEBUG
+
+      if (data.reviews && data.reviews.length > 0) {
+        data.reviews.forEach(review => {
+          const reviewCard = createReviewCard(review);
+          reviewsContainer.insertAdjacentHTML('beforeend', reviewCard);
+        });
+
+        offset += data.reviews.length;
+        console.log('After increment - offset:', offset); // DEBUG
+        
+        const remaining = total - offset;
+
+        if (remaining > 0) {
+          const nextLoad = Math.min(remaining, perLoad);
+          btnText.textContent = `Load ${nextLoad} More Reviews`;
+          loadMoreBtn.disabled = false;
         } else {
           loadMoreBtn.style.display = 'none';
         }
-      } catch (error) {
-        console.error('Error loading reviews:', error);
-        btnText.textContent = 'Error - Try Again';
-        loadMoreBtn.disabled = false;
+      } else {
+        loadMoreBtn.style.display = 'none';
       }
-    });
-  }
+    } catch (error) {
+      console.error('Error loading reviews:', error);
+      btnText.textContent = 'Error - Try Again';
+      loadMoreBtn.disabled = false;
+    }
+  });
+}
 
   function createReviewCard(review) {
     const stars = Array(5).fill(0).map((_, i) => 
@@ -428,7 +448,7 @@ const reviewsPageSchema = {
             </div>
           </div>
           <div class="flex gap-1 mb-4">${stars}</div>
-          ${review.review_title ? `<h3 class="font-serif text-xl text-amber-400 mb-3 group-hover:text-amber-300 transition-colors duration-300">"${review.review_title}"</h3>` : ''}
+          ${review.review_title ? `<h3 class="font-serif text-xl text-amber-400 mb-3 group-hover:text-amber-300 transition-colors duration-300">${review.review_title}</h3>` : ''}
           <blockquote class="text-gray-300 leading-relaxed mb-6 group-hover:text-gray-200 transition-colors duration-500">
             ${review.review_text?.slice(0, 280)}${review.review_text?.length > 280 ? '...' : ''}
           </blockquote>
