@@ -294,7 +294,7 @@ const aboutPageSchema = {
       </div>
     </section>
 
-    <!-- Visionaries Section -->
+    <!-- The Architects Section -->
     <section class="py-32 bg-gray-1">
       <div class="max-w-7xl mx-auto px-6">
         <div class="text-center mb-20">
@@ -303,138 +303,426 @@ const aboutPageSchema = {
           >
             <span
               class="text-amber-400 text-sm font-medium tracking-widest uppercase"
-              >The Visionaries</span
+              >The Architects</span
             >
           </div>
           <h2 class="font-serif text-4xl md:text-6xl text-white mb-8">
-            Architects of Dreams
+            Amala Sheth and Anand Bhagat
           </h2>
-          <p class="text-xl text-gray-300 font-light max-w-3xl mx-auto">
-            Meet Amala Sheth and Anand Bhagat - the architectural duo whose
-            revolutionary approach to sustainable luxury earned international
-            recognition and redefined safari lodge design.
+          <p class="text-xl text-gray-300 font-light max-w-4xl mx-auto">
+            Founders of Metaphors, one of India's leading architecture
+            practices. Limban is their vision rendered in stone, steel, and
+            living systems. Human hospitality operates within ecological
+            boundaries here.
           </p>
         </div>
 
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
-          <div class="space-y-12">
-            <!-- Amala Sheth -->
-            <div class="group">
-              <div
-                class="bg-gradient-to-br from-gray-800/50 to-gray-900/50 backdrop-blur-xl border border-gray-700 rounded-3xl p-8 hover:border-amber-400/30 transition-all duration-500"
-              >
-                <blockquote class="space-y-6">
-                  <p
-                    class="text-lg md:text-xl text-gray-200 font-light leading-relaxed"
-                  >
-                    "In life's myriad journey, the fulfilment of all the senses
-                    is the true culmination of one's ultimate experience. And
-                    this knowledge is the seed that grows... bearing so many
-                    questions about our mindlessness & ignorance, as we defy
-                    every Law of Nature and every Truth of Existence."
-                  </p>
-                  <footer class="flex items-center space-x-4">
-                    <div
-                      class="w-12 h-12 bg-amber-400/20 rounded-full flex items-center justify-center"
-                    >
-                      <span class="text-amber-400 font-serif text-xl">A</span>
-                    </div>
-                    <div>
-                      <cite class="text-amber-400 font-medium text-lg"
-                        >Amala Sheth</cite
-                      >
-                      <p class="text-gray-400 text-sm">
-                        Founder & Principal Architect<br />Partner, <a
-                          href="http://www.metaphors-design.com/"
-                          title="Visit Metaphors Design website"
-                          target="_blank"
-                          class="text-blue-400 hover:text-blue-300 transition-colors duration-300"
-                          >Metaphors Design</a
-                        >, Pune
-                      </p>
-                    </div>
-                  </footer>
-                </blockquote>
-              </div>
-            </div>
-
-            <!-- Anand Bhagat -->
-            <div class="group">
-              <div
-                class="bg-gradient-to-br from-gray-800/50 to-gray-900/50 backdrop-blur-xl border border-gray-700 rounded-3xl p-8 hover:border-amber-400/30 transition-all duration-500"
-              >
-                <blockquote class="space-y-6">
-                  <p
-                    class="text-lg md:text-xl text-gray-200 font-light leading-relaxed"
-                  >
-                    "There are but a few who are blessed with this realisation.
-                    And it is this realisation which gives birth to a new
-                    passion... to look, explore, connect and conserve."
-                  </p>
-                  <footer class="flex items-center space-x-4">
-                    <div
-                      class="w-12 h-12 bg-amber-400/20 rounded-full flex items-center justify-center"
-                    >
-                      <span class="text-amber-400 font-serif text-xl">A</span>
-                    </div>
-                    <div>
-                      <cite class="text-amber-400 font-medium text-lg"
-                        >Anand Bhagat</cite
-                      >
-                      <p class="text-gray-400 text-sm">
-                        Founder & Principal Architect<br />Partner, <a
-                          href="http://www.metaphors-design.com/"
-                          title="Visit Metaphors Design website"
-                          class="text-blue-400 hover:text-blue-300 transition-colors duration-300"
-                          target="_blank">Metaphors Design</a
-                        >, Pune
-                      </p>
-                    </div>
-                  </footer>
-                </blockquote>
-              </div>
-            </div>
-          </div>
-
-          {
-            foundersImageUrl && (
-              <div class="relative">
-                <div class="aspect-[4/5] bg-gray-800 rounded-3xl overflow-hidden">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
+          <!-- IMAGE -->
+          <div class="lg:col-span-5">
+            {
+              foundersImageUrl && (
+                <div class="relative aspect-[2/3] bg-gray-800 rounded-xl overflow-hidden">
                   <img
                     src={foundersImageUrl}
-                    alt="Amala Sheth and Anand Bhagat - Visionary architects founders of Limban Resort"
-                    class="w-full h-full object-cover hover:scale-105 transition-transform duration-700"
+                    alt="Amala Sheth and Anand Bhagat, founders of Metaphors Design and Limban Resort"
+                    class="w-full h-full object-cover"
                     loading="lazy"
                   />
                 </div>
+              )
+            }
+          </div>
+
+          <!-- TEXT -->
+          <div class="lg:col-span-7 space-y-12">
+            <div class="space-y-6">
+              <div class="flex items-start gap-4">
+                <div class="flex-shrink-0 mt-1">
+                  <Icon
+                    name="mdi:office-building"
+                    class="w-6 h-6 text-amber-400"
+                  />
+                </div>
+                <div>
+                  <p
+                    class="text-amber-400 font-bold text-sm uppercase tracking-wider mb-2"
+                  >
+                    Their Practice
+                  </p>
+                  <p class="text-gray-200 leading-relaxed">
+                    Amala Sheth and Anand Bhagat founded Metaphors in Pune in
+                    1989. Over three decades, they have designed landmark
+                    corporate spaces, institutional campuses, and regenerative
+                    projects across India. Their work centres on one principle:
+                    buildings enhance their environment. <a
+                      href="http://www.metaphors-design.com/"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      class="hover:text-amber-600 text-amber-400"
+                    >
+                      Visit Metaphors Design
+                    </a>.
+                  </p>
+                </div>
               </div>
-            )
-          }
+            </div>
+
+            <div
+              class="space-y-6 bg-amber-400/5 border border-amber-400/20 rounded-xl p-8"
+            >
+              <div class="flex items-start gap-4">
+                <div class="flex-shrink-0 mt-1">
+                  <Icon name="mdi:leaf-circle" class="w-6 h-6 text-amber-400" />
+                </div>
+                <div>
+                  <p
+                    class="text-amber-400 font-bold text-sm uppercase tracking-wider mb-3"
+                  >
+                    Why Limban
+                  </p>
+                  <p class="text-gray-200 leading-relaxed mb-4">
+                    Limban is where their architectural philosophy meets
+                    ecological reality. They designed Limban Resort to operate
+                    within the life cycles of Tadoba's forest. Every system here
+                    — energy, waste, guest movement, staff presence — is
+                    calibrated around what the ecosystem can sustain
+                    comfortably.
+                  </p>
+                  <p class="text-gray-200 leading-relaxed">
+                    The rotations we implement, the materials we use, the way we
+                    structure guest experiences are built on actual ecological
+                    knowledge and site constraints. Luxury, and the instant
+                    feeling of comfort happens because we extended the limits of
+                    what's possible within the limits.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div class="space-y-6">
+              <div class="flex items-start gap-4">
+                <div class="flex-shrink-0 mt-1">
+                  <Icon name="mdi:sprout" class="w-6 h-6 text-amber-400" />
+                </div>
+                <div>
+                  <p
+                    class="text-amber-400 font-bold text-sm uppercase tracking-wider mb-3"
+                  >
+                    Their Commitment
+                  </p>
+                  <p class="text-gray-200 leading-relaxed">
+                    Together, Amala and Anand steward Limban as a working
+                    laboratory for regenerative design. Staff practices,
+                    conservation strategies, material sourcing, and guest
+                    education flow from their conviction that hospitality
+                    deepens ecological understanding. This resort is
+                    architecture in service of the wild.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </section>
 
-    <!-- Our Ethos -->
     <section class="py-32 bg-gray-0">
-      <div class="max-w-4xl mx-auto px-6 text-center">
-        <div
-          class="inline-block px-6 py-2 bg-amber-400/10 border border-amber-400/30 rounded-full mb-8"
-        >
-          <span
-            class="text-amber-400 text-sm font-medium tracking-widest uppercase"
-            >Our Promise</span
+      <div class="max-w-6xl mx-auto px-6">
+        <div class="text-center mb-20">
+          <div
+            class="inline-block px-6 py-2 bg-amber-400/10 border border-amber-400/30 rounded-full mb-8"
           >
+            <span
+              class="text-amber-400 text-sm font-medium tracking-widest uppercase"
+              >How We Live Our Values</span
+            >
+          </div>
+          <h2 class="font-serif text-4xl md:text-6xl text-white mb-8">
+            Beyond Words. Into Action.
+          </h2>
+          <p
+            class="text-xl text-gray-300 font-light leading-relaxed max-w-4xl mx-auto"
+          >
+            We don't believe in slogans. Here's what we actually do.
+          </p>
         </div>
-        <h2 class="font-serif text-4xl md:text-5xl text-white mb-8">
-          People. Planet. Purpose.
-        </h2>
-        <p class="text-xl text-gray-300 font-light leading-relaxed mb-8">
-          Every choice at Limban serves a deeper purpose. We've created a
-          sanctuary where luxury means leaving the wild untouched, where comfort
-          comes from connection, not consumption. Our commitment flows naturally
-          - to the forest that shelters us, the community that sustains us, and
-          the guests who trust us with their most meaningful journeys.
-        </p>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-12">
+          <!-- PEOPLE -->
+          <div class="group">
+            <div
+              class="bg-gradient-to-br from-gray-800/50 to-gray-900/50 backdrop-blur-xl border border-gray-700 rounded-3xl p-8 hover:border-amber-400/30 transition-all duration-500 h-full flex flex-col"
+            >
+              <div class="mb-6">
+                <div class="inline-block p-3 bg-amber-400/10 rounded-xl mb-4">
+                  <Icon
+                    name="ion:people-sharp"
+                    class="w-8 h-8 text-amber-400"
+                  />
+                </div>
+                <h3 class="text-2xl font-serif text-white">Our People</h3>
+              </div>
+              <div class="space-y-4 flex-grow">
+                <p class="text-gray-300 leading-relaxed">
+                  Our team lives in the Tadoba region. We invest in ongoing
+                  training, competitive wages, and genuine career growth — not
+                  seasonal labour.
+                </p>
+                <ul class="space-y-3 text-gray-300 text-sm">
+                  <li class="flex items-start">
+                    <svg
+                      class="w-5 h-5 text-amber-400 mr-3 mt-0.5 flex-shrink-0"
+                      fill="currentColor"
+                      viewBox="0 0 20 20"
+                    >
+                      <path
+                        fill-rule="evenodd"
+                        d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                        clip-rule="evenodd"></path>
+                    </svg>
+                    <span
+                      >Annual skills training for all staff in guiding,
+                      hospitality, and conservation practices</span
+                    >
+                  </li>
+                  <li class="flex items-start">
+                    <svg
+                      class="w-5 h-5 text-amber-400 mr-3 mt-0.5 flex-shrink-0"
+                      fill="currentColor"
+                      viewBox="0 0 20 20"
+                    >
+                      <path
+                        fill-rule="evenodd"
+                        d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                        clip-rule="evenodd"></path>
+                    </svg>
+                    <span
+                      >Fair wages designed to support families and local
+                      economies</span
+                    >
+                  </li>
+                  <li class="flex items-start">
+                    <svg
+                      class="w-5 h-5 text-amber-400 mr-3 mt-0.5 flex-shrink-0"
+                      fill="currentColor"
+                      viewBox="0 0 20 20"
+                    >
+                      <path
+                        fill-rule="evenodd"
+                        d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                        clip-rule="evenodd"></path>
+                    </svg>
+                    <span>Healthcare coverage extended to staff families</span>
+                  </li>
+                  <li class="flex items-start">
+                    <svg
+                      class="w-5 h-5 text-amber-400 mr-3 mt-0.5 flex-shrink-0"
+                      fill="currentColor"
+                      viewBox="0 0 20 20"
+                    >
+                      <path
+                        fill-rule="evenodd"
+                        d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                        clip-rule="evenodd"></path>
+                    </svg>
+                    <span
+                      >Community scholarship program supporting local children's
+                      education</span
+                    >
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <!-- PLANET -->
+          <div class="group">
+            <div
+              class="bg-gradient-to-br from-gray-800/50 to-gray-900/50 backdrop-blur-xl border border-gray-700 rounded-3xl p-8 hover:border-amber-400/30 transition-all duration-500 h-full flex flex-col"
+            >
+              <div class="mb-6">
+                <div class="inline-block p-3 bg-amber-400/10 rounded-xl mb-4">
+                  <Icon name="ion:leaf-sharp" class="w-8 h-8 text-amber-400" />
+                </div>
+                <h3 class="text-2xl font-serif text-white">Our Planet</h3>
+              </div>
+              <div class="space-y-4 flex-grow">
+                <p class="text-gray-300 leading-relaxed">
+                  Conservation isn't marketing - it's infrastructure. We reduce
+                  impact and actively restore the ecosystem we inhabit.
+                </p>
+                <ul class="space-y-3 text-gray-300 text-sm">
+                  <li class="flex items-start">
+                    <svg
+                      class="w-5 h-5 text-amber-400 mr-3 mt-0.5 flex-shrink-0"
+                      fill="currentColor"
+                      viewBox="0 0 20 20"
+                    >
+                      <path
+                        fill-rule="evenodd"
+                        d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                        clip-rule="evenodd"></path>
+                    </svg>
+                    <span
+                      >Renewable energy soon powering the entire resort through
+                      solar and biogas systems</span
+                    >
+                  </li>
+                  <li class="flex items-start">
+                    <svg
+                      class="w-5 h-5 text-amber-400 mr-3 mt-0.5 flex-shrink-0"
+                      fill="currentColor"
+                      viewBox="0 0 20 20"
+                    >
+                      <path
+                        fill-rule="evenodd"
+                        d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                        clip-rule="evenodd"></path>
+                    </svg>
+                    <span
+                      >Zero single-use plastic on property, with composting and
+                      recycling throughout</span
+                    >
+                  </li>
+                  <li class="flex items-start">
+                    <svg
+                      class="w-5 h-5 text-amber-400 mr-3 mt-0.5 flex-shrink-0"
+                      fill="currentColor"
+                      viewBox="0 0 20 20"
+                    >
+                      <path
+                        fill-rule="evenodd"
+                        d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                        clip-rule="evenodd"></path>
+                    </svg>
+                    <span
+                      >Active reforestation in partnership with the local forest
+                      department</span
+                    >
+                  </li>
+                  <li class="flex items-start">
+                    <svg
+                      class="w-5 h-5 text-amber-400 mr-3 mt-0.5 flex-shrink-0"
+                      fill="currentColor"
+                      viewBox="0 0 20 20"
+                    >
+                      <path
+                        fill-rule="evenodd"
+                        d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                        clip-rule="evenodd"></path>
+                    </svg>
+                    <span
+                      >On-site wastewater treatment ensuring no discharge to
+                      local waterways</span
+                    >
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <!-- PURPOSE -->
+          <div class="group">
+            <div
+              class="bg-gradient-to-br from-gray-800/50 to-gray-900/50 backdrop-blur-xl border border-gray-700 rounded-3xl p-8 hover:border-amber-400/30 transition-all duration-500 h-full flex flex-col"
+            >
+              <div class="mb-6">
+                <div class="inline-block p-3 bg-amber-400/10 rounded-xl mb-4">
+                  <Icon
+                    name="ion:compass-sharp"
+                    class="w-8 h-8 text-amber-400"
+                  />
+                </div>
+                <h3 class="text-2xl font-serif text-white">Our Purpose</h3>
+              </div>
+              <div class="space-y-4 flex-grow">
+                <p class="text-gray-300 leading-relaxed">
+                  We exist to prove that luxury and conservation strengthen each
+                  other — not compete. Every guest leaves more committed to the
+                  wild.
+                </p>
+                <ul class="space-y-3 text-gray-300 text-sm">
+                  <li class="flex items-start">
+                    <svg
+                      class="w-5 h-5 text-amber-400 mr-3 mt-0.5 flex-shrink-0"
+                      fill="currentColor"
+                      viewBox="0 0 20 20"
+                    >
+                      <path
+                        fill-rule="evenodd"
+                        d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                        clip-rule="evenodd"></path>
+                    </svg>
+                    <span
+                      >Expert naturalist guides trained in tiger behaviour and
+                      ethical wildlife photography</span
+                    >
+                  </li>
+                  <li class="flex items-start">
+                    <svg
+                      class="w-5 h-5 text-amber-400 mr-3 mt-0.5 flex-shrink-0"
+                      fill="currentColor"
+                      viewBox="0 0 20 20"
+                    >
+                      <path
+                        fill-rule="evenodd"
+                        d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                        clip-rule="evenodd"></path>
+                    </svg>
+                    <span
+                      >Safari rotations designed to reduce habitat stress and
+                      protect tiger territories</span
+                    >
+                  </li>
+                  <li class="flex items-start">
+                    <svg
+                      class="w-5 h-5 text-amber-400 mr-3 mt-0.5 flex-shrink-0"
+                      fill="currentColor"
+                      viewBox="0 0 20 20"
+                    >
+                      <path
+                        fill-rule="evenodd"
+                        d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                        clip-rule="evenodd"></path>
+                    </svg>
+                    <span
+                      >Annual contributions to Tadoba wildlife research and
+                      conservation initiatives</span
+                    >
+                  </li>
+                  <li class="flex items-start">
+                    <svg
+                      class="w-5 h-5 text-amber-400 mr-3 mt-0.5 flex-shrink-0"
+                      fill="currentColor"
+                      viewBox="0 0 20 20"
+                    >
+                      <path
+                        fill-rule="evenodd"
+                        d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                        clip-rule="evenodd"></path>
+                    </svg>
+                    <span
+                      >Every guest interaction educates on tiger conservation
+                      and habitat ecology</span
+                    >
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div
+          class="mt-16 bg-amber-400/5 border border-amber-400/20 rounded-3xl p-12 text-center"
+        >
+          <p class="text-lg text-gray-200 leading-relaxed max-w-4xl mx-auto">
+            This isn't perfection. It's accountability. We measure what matters,
+            improve what doesn't work, and share both wins and challenges
+            actively with our community. That's what responsible hospitality
+            looks like.
+          </p>
+        </div>
       </div>
     </section>
 
