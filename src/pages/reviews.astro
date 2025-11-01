@@ -22,8 +22,9 @@ const { data: allGoogleReviews } = await supabase
   .from('reviews')
   .select('id, rating')
   .eq('source', 'google')
-  .order('published_date', { ascending: true })
-  .limit(190);
+  .gte('rating', 1)
+  .lte('rating', 5)
+  .order('published_date', { ascending: true });
 
 const { data: allTAReviews } = await supabase
   .from('reviews')
@@ -52,7 +53,7 @@ const overallAvg = (allGoogleReviews?.length || 0) + (allTAReviews?.length || 0)
 const { count: totalQualityReviews } = await supabase
   .from('reviews')
   .select('*', { count: 'exact', head: true })
-  .gte('rating', 4)
+  .gte('rating', 3)
   .not('review_text', 'is', null);
 
 if (error) {
