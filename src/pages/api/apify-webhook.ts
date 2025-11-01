@@ -4,7 +4,7 @@ import { createClient } from "@supabase/supabase-js";
 const APIFY_WEBHOOK_KEY = process.env.APIFY_WEBHOOK_KEY;
 const APIFY_API_TOKEN = process.env.APIFY_API_TOKEN;
 const SUPABASE_URL = import.meta.env.PUBLIC_SUPABASE_URL;
-const SUPABASE_SERVICE_KEY = import.meta.env.SUPABASE_SERVICE_ROLE_KEY;
+const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
 export const POST: APIRoute = async ({ request }) => {
   try {
@@ -81,33 +81,63 @@ export const POST: APIRoute = async ({ request }) => {
     let skippedCount = 0;
 
     for (const review of reviews) {
-      // Determine source (Google Maps or TripAdvisor)
+      // Detect source (Google vs TripAdvisor)
       const source = review.reviewId ? "google" : "tripadvisor";
 
-      // Map Apify data to your Supabase schema
-      const reviewData = {
-        source,
-        reviewer_name: review.name || review.username || null,
-        reviewer_location: review.reviewerLocation || null,
-        reviewer_photo_url: review.profilePhotoUrl || review.avatarUrl || null,
-        rating: review.stars || review.rating || null,
-        review_text: review.text || review.reviewText || null,
-        review_title: review.title || null,
-        review_url: review.url || review.reviewUrl || null,
-        published_date: review.publishedAtDate || review.publishedDate || null,
-        owner_response_text:
-          review.responseFromOwnerText || review.ownerResponse?.text || null,
-        owner_response_date:
-          review.responseFromOwnerDate ||
-          review.ownerResponse?.publishedDate ||
-          null,
-        trip_type: review.tripType || null,
-        travel_date: review.travelDate || null,
-        room_tip: review.roomTip || null,
-        google_review_id: source === "google" ? review.reviewId : null,
-        tripadvisor_review_id: source === "tripadvisor" ? review.id : null,
-        updated_at: new Date().toISOString(),
-      };
+      // Map data based on source
+      let reviewData;
+
+      if (source === "google") {
+        // Google Maps structure
+        reviewData = {
+          source,
+          reviewer_name: review.name || review.username || null,
+          reviewer_location: review.reviewerLocation || null,
+          reviewer_photo_url:
+            review.profilePhotoUrl || review.avatarUrl || null,
+          rating: review.stars || review.rating || null,
+          review_text: review.text || review.reviewText || null,
+          review_title: review.title || null,
+          review_url: review.url || review.reviewUrl || null,
+          published_date:
+            review.publishedAtDate || review.publishedDate || null,
+          owner_response_text:
+            review.responseFromOwnerText || review.ownerResponse?.text || null,
+          owner_response_date:
+            review.responseFromOwnerDate ||
+            review.ownerResponse?.publishedDate ||
+            null,
+          trip_type: review.tripType || null,
+          travel_date: review.travelDate || null,
+          room_tip: review.roomTip || null,
+          google_review_id: review.reviewId,
+          tripadvisor_review_id: null,
+          updated_at: new Date().toISOString(),
+        };
+      } else {
+        // TripAdvisor structure
+        reviewData = {
+          source,
+          reviewer_name: review.user?.name || null,
+          reviewer_location: review.user?.userLocation?.name || null,
+          reviewer_photo_url: review.user?.avatar?.image || null,
+          rating: review.rating || null,
+          review_text: review.text || null,
+          review_title: review.title || null,
+          review_url: review.url || null,
+          published_date: review.publishedDate
+            ? review.publishedDate.split("T")[0]
+            : null,
+          owner_response_text: review.ownerResponse?.text || null,
+          owner_response_date: review.ownerResponse?.publishedDate || null,
+          trip_type: review.tripType || null,
+          travel_date: review.travelDate || null,
+          room_tip: review.roomTip || null,
+          google_review_id: null,
+          tripadvisor_review_id: review.id,
+          updated_at: new Date().toISOString(),
+        };
+      }
 
       // Check if review already exists
       const uniqueId = source === "google" ? review.reviewId : review.id;
