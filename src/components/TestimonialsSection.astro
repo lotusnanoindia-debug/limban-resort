@@ -36,8 +36,8 @@ const latestReviews = filteredReviews.slice(0, 10) || [];
       </p>
     </div>
 
-    <!-- Swipe Hint - Mobile Only -->
-    <div class="flex sm:hidden items-center justify-center gap-2 text-xs text-gray-500 mb-6">
+    <!-- Swipe Hint -->
+    <div class="flex items-center justify-center gap-2 text-xs text-gray-500 mb-6">
       <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16l-4-4m0 0l4-4m-4 4h18"/>
       </svg>
@@ -47,8 +47,8 @@ const latestReviews = filteredReviews.slice(0, 10) || [];
       </svg>
     </div>
 
-    <!-- Mobile Swiper -->
-    <div class="sm:hidden">
+    <!-- Carousel (All Screen Sizes) -->
+    <div class="relative">
       <div 
         id="reviews-carousel" 
         class="overflow-x-auto snap-x snap-mandatory scrollbar-hide scroll-smooth"
@@ -121,8 +121,8 @@ const latestReviews = filteredReviews.slice(0, 10) || [];
         </div>
       </div>
 
-      <!-- Dots - Mobile Only -->
-      <div id="reviews-dots" class="flex justify-center gap-2 mt-8">
+      <!-- Dots -->
+      <div id="reviews-dots" class="flex justify-center gap-2 mt-12 lg:mt-16">
         {latestReviews.map((_, i) => (
           <button 
             class="dot h-2 w-2 rounded-full bg-gray-700 transition-all duration-300 cursor-pointer hover:scale-110"
@@ -132,74 +132,6 @@ const latestReviews = filteredReviews.slice(0, 10) || [];
           />
         ))}
       </div>
-    </div>
-
-    <!-- Desktop Grid (optional - shows all reviews in grid on desktop) -->
-    <div class="hidden sm:grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-      {latestReviews.map((review) => (
-        <article class="group bg-gradient-to-br from-gray-900/50 to-gray-800/50 backdrop-blur-xl border border-gray-700 hover:border-amber-400/50 rounded-3xl p-8 transition-all duration-500 hover:shadow-xl">
-          
-          <!-- Photo -->
-          <div class="flex justify-center mb-8">
-            <div class="w-20 h-20 rounded-full overflow-hidden border-2 border-gray-600 bg-gray-800 flex items-center justify-center">
-              <img 
-                src={review.reviewer_photo_url}
-                alt={review.reviewer_name || 'Guest'}
-                class="w-full h-full object-cover"
-                loading="lazy"
-                onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
-              />
-              <span class="hidden text-3xl font-semibold text-gray-400 uppercase">
-                {review.reviewer_name?.charAt(0) || 'G'}
-              </span>
-            </div>
-          </div>
-
-          <!-- Stars -->
-          <div class="flex gap-1 justify-center mb-6">
-            {[...Array(5)].map((_, i) => (
-              <svg key={i} class="w-5 h-5 text-amber-400 fill-current" viewBox="0 0 20 20">
-                <path d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z"/>
-              </svg>
-            ))}
-          </div>
-
-          <!-- Title -->
-          <h3 class="font-serif text-xl text-amber-400 mb-4 text-center line-clamp-2">
-            {review.review_title}
-          </h3>
-
-          <!-- Review Text -->
-          <p class="text-gray-300 text-center leading-relaxed font-light mb-8 line-clamp-3">
-            {review.review_text.length > 200 
-              ? review.review_text.substring(0, 150).trim() + '...' 
-              : review.review_text}
-          </p>
-
-          <!-- Details -->
-          <div class="text-center pt-6 border-t border-gray-700/50">
-            <div class="font-semibold text-lg text-amber-400 mb-1">
-              {review.reviewer_name || 'Guest'}
-            </div>
-            {review.reviewer_location && (
-              <div class="text-sm text-gray-400 mb-2">
-                {review.reviewer_location}
-              </div>
-            )}
-            <div class="flex items-center justify-center gap-2 text-xs text-gray-500">
-              <span class="uppercase tracking-wider">
-                {review.source === 'google' ? 'Google' : 'TripAdvisor'}
-              </span>
-              {review.published_date && (
-                <>
-                  <span>•</span>
-                  <span>{new Date(review.published_date).toLocaleDateString('en-GB', { month: 'short', year: 'numeric' })}</span>
-                </>
-              )}
-            </div>
-          </div>
-        </article>
-      ))}
     </div>
 
     <!-- CTA -->
