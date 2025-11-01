@@ -1,8 +1,8 @@
 import type { APIRoute } from "astro";
 import { createClient } from "@supabase/supabase-js";
 
-const APIFY_WEBHOOK_KEY = import.meta.env.APIFY_WEBHOOK_KEY;
-const APIFY_API_TOKEN = import.meta.env.APIFY_API_TOKEN;
+const APIFY_WEBHOOK_KEY = process.env.APIFY_WEBHOOK_KEY;
+const APIFY_API_TOKEN = process.env.APIFY_API_TOKEN;
 const SUPABASE_URL = import.meta.env.PUBLIC_SUPABASE_URL;
 const SUPABASE_SERVICE_KEY = import.meta.env.SUPABASE_SERVICE_ROLE_KEY;
 
