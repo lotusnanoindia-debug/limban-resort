@@ -1,33 +1,37 @@
 import type { APIRoute } from "astro";
-import { supabase } from "../../lib/supabase";
+import { createClient } from "@supabase/supabase-js";
+
+const APIFY_WEBHOOK_KEY = import.meta.env.APIFY_WEBHOOK_KEY;
+const APIFY_API_TOKEN = import.meta.env.APIFY_API_TOKEN;
+const SUPABASE_URL = import.meta.env.PUBLIC_SUPABASE_URL;
+const SUPABASE_SERVICE_KEY = import.meta.env.SUPABASE_SERVICE_ROLE_KEY;
 
 export const POST: APIRoute = async ({ request }) => {
-  const apiKey = request.headers.get("x-apify-key");
-  const expectedKey = import.meta.env.APIFY_WEBHOOK_KEY;
-
-  if (!apiKey || apiKey !== expectedKey) {
-    return new Response(JSON.stringify({ error: "Unauthorized" }), {
-      status: 401,
-      headers: { "Content-Type": "application/json" },
-    });
-  }
-
   try {
-    const payload = await request.json();
-    console.log("Raw payload:", JSON.stringify(payload).slice(0, 200));
-
-    // Handle both array and nested formats
-    let reviews = Array.isArray(payload.data?.reviews)
-      ? payload.data.reviews
-      : [];
-
-    if (!Array.isArray(reviews) && typeof reviews === "object") {
-      reviews = Object.values(reviews);
+    // Verify webhook authentication
+    const authHeader = request.headers.get("x-apify-key");
+    if (authHeader !== APIFY_WEBHOOK_KEY) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401,
+        headers: { "Content-Type": "application/json" },
+      });
     }
 
-    if (!reviews.length) {
+    // Parse Apify webhook payload
+    const payload = await request.json();
+    console.log("Webhook payload:", JSON.stringify(payload, null, 2));
+
+    // Extract dataset ID from resource object
+    const datasetId = payload.resource?.defaultDatasetId;
+    const actorRunId = payload.resource?.id;
+    const status = payload.resource?.status;
+
+    if (status !== "SUCCEEDED") {
+      console.log(`Run ${actorRunId} did not succeed. Status: ${status}`);
       return new Response(
-        JSON.stringify({ message: "No reviews", received: payload }),
+        JSON.stringify({
+          message: `Run status: ${status}. No action taken.`,
+        }),
         {
           status: 200,
           headers: { "Content-Type": "application/json" },
@@ -35,74 +39,129 @@ export const POST: APIRoute = async ({ request }) => {
       );
     }
 
-    let upserted = 0;
-    let skipped = 0;
-    let errors = 0;
+    if (!datasetId) {
+      console.error("No defaultDatasetId found in webhook payload");
+      return new Response(
+        JSON.stringify({
+          error: "Missing defaultDatasetId",
+        }),
+        {
+          status: 400,
+          headers: { "Content-Type": "application/json" },
+        },
+      );
+    }
+
+    console.log(`Fetching dataset: ${datasetId}`);
+
+    // Fetch dataset items from Apify API
+    const datasetResponse = await fetch(
+      `https://api.apify.com/v2/datasets/${datasetId}/items?format=json`,
+      {
+        headers: {
+          Authorization: `Bearer ${APIFY_API_TOKEN}`,
+        },
+      },
+    );
+
+    if (!datasetResponse.ok) {
+      throw new Error(
+        `Apify API error: ${datasetResponse.status} ${datasetResponse.statusText}`,
+      );
+    }
+
+    const reviews = await datasetResponse.json();
+    console.log(`Fetched ${reviews.length} reviews from Apify`);
+
+    // Initialize Supabase client
+    const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY);
+
+    // Process and upsert reviews
+    let insertedCount = 0;
+    let skippedCount = 0;
 
     for (const review of reviews) {
-      const reviewId = review.id || review.reviewId;
-      const source = "google"; // Google scraper
+      // Determine source (Google Maps or TripAdvisor)
+      const source = review.reviewId ? "google" : "tripadvisor";
+
+      // Map Apify data to your Supabase schema
+      const reviewData = {
+        source,
+        reviewer_name: review.name || review.username || null,
+        reviewer_location: review.reviewerLocation || null,
+        reviewer_photo_url: review.profilePhotoUrl || review.avatarUrl || null,
+        rating: review.stars || review.rating || null,
+        review_text: review.text || review.reviewText || null,
+        review_title: review.title || null,
+        review_url: review.url || review.reviewUrl || null,
+        published_date: review.publishedAtDate || review.publishedDate || null,
+        owner_response_text:
+          review.responseFromOwnerText || review.ownerResponse?.text || null,
+        owner_response_date:
+          review.responseFromOwnerDate ||
+          review.ownerResponse?.publishedDate ||
+          null,
+        trip_type: review.tripType || null,
+        travel_date: review.travelDate || null,
+        room_tip: review.roomTip || null,
+        google_review_id: source === "google" ? review.reviewId : null,
+        tripadvisor_review_id: source === "tripadvisor" ? review.id : null,
+        updated_at: new Date().toISOString(),
+      };
+
+      // Check if review already exists
+      const uniqueId = source === "google" ? review.reviewId : review.id;
+      const uniqueColumn =
+        source === "google" ? "google_review_id" : "tripadvisor_review_id";
 
       const { data: existing } = await supabase
         .from("reviews")
         .select("id")
-        .eq("google_review_id", reviewId)
+        .eq(uniqueColumn, uniqueId)
         .single();
 
       if (existing) {
-        skipped++;
+        skippedCount++;
+        console.log(`Skipped duplicate review: ${uniqueId}`);
         continue;
       }
 
-      const { error } = await supabase.from("reviews").insert({
-        source,
-        reviewer_name: review.name || review.reviewerName,
-        reviewer_photo_url: review.profilePhotoUrl || review.reviewerPhotoUrl,
-        rating: review.rating || 5,
-        review_text: review.text || review.reviewText,
-        review_url: review.url || review.reviewUrl,
-        published_date: review.publishedAtTime || new Date().toISOString(),
-        google_review_id: reviewId,
-      });
+      // Insert new review
+      const { error } = await supabase.from("reviews").insert(reviewData);
 
       if (error) {
-        errors++;
-        console.error(`Failed to insert ${reviewId}:`, error.message);
+        console.error(`Error inserting review ${uniqueId}:`, error);
       } else {
-        upserted++;
+        insertedCount++;
       }
     }
 
     console.log(
-      `Webhook: ${upserted} upserted, ${skipped} skipped, ${errors} errors`,
+      `Sync complete. Inserted: ${insertedCount}, Skipped: ${skippedCount}`,
     );
 
     return new Response(
-      JSON.stringify({ success: true, upserted, skipped, errors }),
-      { status: 200, headers: { "Content-Type": "application/json" } },
+      JSON.stringify({
+        success: true,
+        inserted: insertedCount,
+        skipped: skippedCount,
+        total: reviews.length,
+      }),
+      {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      },
     );
   } catch (error) {
     console.error("Webhook error:", error);
     return new Response(
-      JSON.stringify({ error: "Processing failed", details: String(error) }),
+      JSON.stringify({
+        error: error.message || "Internal server error",
+      }),
       {
         status: 500,
         headers: { "Content-Type": "application/json" },
       },
     );
   }
-};
-
-export const GET: APIRoute = async ({ request }) => {
-  const apiKey = request.headers.get("x-apify-key");
-  if (!apiKey) {
-    return new Response(JSON.stringify({ error: "No API key provided" }), {
-      status: 401,
-      headers: { "Content-Type": "application/json" },
-    });
-  }
-  return new Response(JSON.stringify({ status: "Webhook ready" }), {
-    status: 200,
-    headers: { "Content-Type": "application/json" },
-  });
 };

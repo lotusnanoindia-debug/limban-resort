@@ -1,5 +1,4 @@
 ---
-export const prerender = true;
 import Layout from "@/layouts/Layout.astro";
 import ContactSection from "@/components/ContactSection.astro";
 import { Icon } from "astro-icon/components";
@@ -42,7 +41,7 @@ const faqs = [
   {
     question: "How do I book a room at Limban Resort?",
     answer:
-      "You can make a reservation through our website, by phone, or by email. Our team is available 24/7 to assist you with your reservation. Contact options: Phone & WhatsApp: +91 90226 80451, Phone & WhatsApp: +91 92262 54475, Email: [reservations@limban.com](mailto:reservations@limban.com).",
+      "You can make a reservation through our website, by phone, or by email. Our team is available 24/7 to assist you with your reservation. Contact options: Phone & WhatsApp: +91 90226 80451, Phone & WhatsApp: +91 92262 54475, Email: reservations@limban.com.",
   },
   {
     question: "What is the cancellation policy?",
@@ -105,16 +104,21 @@ const faqSchema = {
 const combinedJsonLd = [contactPageSchema, faqSchema];
 ---
 
-<Layout
-  title="Contact Limban Resort | Tadoba National Park with Luxury"
-  description="Get in touch with Limban Resort in Tadoba National Park for luxury safari experiences, accommodations, dining, and events. Reach us by phone, email, or through our contact form."
-  ogImage={heroImageSchema}
-  ogImageWidth={1200}
-  ogImageHeight={675}
-  ogType="website"
-  ogUrl="https://limban.com/contact"
->
-  <AstroSEO slot="head" jsonLd={combinedJsonLd} />
+<Layout>
+  <AstroSEO
+    slot="head"
+    title="Contact Limban Resort | Tadoba National Park with Luxury"
+    description="Get in touch with Limban Resort in Tadoba National Park for luxury safari experiences, accommodations, dining, and events. Reach us by phone, email, or through our contact form."
+    openGraph={{
+      title: "Contact Limban Resort | Tadoba National Park",
+      description:
+        "Get in touch for luxury safari experiences, accommodations, dining, and events at Limban Resort.",
+      image: heroImageSchema,
+      type: "website",
+      url: "https://limban.com/contact",
+    }}
+    jsonLd={combinedJsonLd}
+  />
 
   <main>
     <!-- Hero Section with Background Image and Overlay Text -->
@@ -691,8 +695,8 @@ const combinedJsonLd = [contactPageSchema, faqSchema];
                   <p class="text-gray-300 leading-relaxed mb-4">
                     <strong class="text-amber-400"
                       >You can make a reservation</strong
-                    > through our website, by phone, or by email. Our team is available
-                    24/7 to assist you with your reservation.
+                    > through our website, by phone, WhatsApp, or by email. Our team
+                    is available 24/7 to assist you with your reservation.
                   </p>
                   <div
                     class="bg-amber-900/20 rounded-xl p-4 border border-amber-400/30"
